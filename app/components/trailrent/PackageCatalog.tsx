@@ -131,14 +131,14 @@ export function PackageCatalogGrid({packages}: {packages: PackageItem[]}) {
       />
       <section className="tr-section-tight bg-mist">
         <div className="tr-page-width">
-          <div className="lg:grid lg:grid-cols-[minmax(220px,260px)_1fr] lg:items-start lg:gap-8 xl:gap-10">
+          <div className="cm-catalog-layout">
             <PackageFiltersPanel
               groups={filterGroups}
               resultCount={filtered.length}
               totalCount={packages.length}
             />
 
-            <div>
+            <div className="cm-catalog-main min-w-0">
               {filtered.length === 0 ? (
                 <div className="cm-empty-state">
                   <IconMountain size={40} className="text-sage/50" />
@@ -150,7 +150,7 @@ export function PackageCatalogGrid({packages}: {packages: PackageItem[]}) {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="cm-catalog-grid">
                   {filtered.map((pkg) => (
                     <PackageCard
                       key={pkg.id}

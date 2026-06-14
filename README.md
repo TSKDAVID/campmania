@@ -15,15 +15,39 @@ Open http://localhost:3000 (or the network URL shown in the terminal if port 300
 
 ## Customer login (Shopify)
 
-Sign in uses **Shopify Customer Account API** (OAuth), not a custom password form.
+Sign in uses **Shopify Customer Account API** (OAuth). The error `redirect_uri mismatch` means your store is missing the callback URL for where you're browsing.
 
-1. Run `npx shopify hydrogen env pull` so `.env` has `PUBLIC_CUSTOMER_ACCOUNT_API_*` vars.
-2. In **Shopify Admin → Settings → Customer accounts**, enable customer accounts and add this callback for local dev:
-   - `http://localhost:3000/account/authorize`
-3. Click **Sign in** in the header → `/account/login` → redirects to Shopify → back to `/account`.
-4. **Loyalty (Trail Tested VIP):** assign customer tag `tier:trail-tested` in **Admin → Customers**; the account dashboard reads tags via the Customer Account API.
+### 1. Enable customer accounts
 
-If localhost fails to load, use `npm run dev -- --host` and open the URL Vite prints (often `http://127.0.0.1:3000`).
+**Shopify Admin → Settings → Customer accounts** — turn on customer accounts (new customer accounts recommended).
+
+### 2. Add callback URLs (required)
+
+**Shopify Admin → Sales channels → Headless** → your Hydrogen storefront → **Customer Account API** → **Application setup** → **Callback URL(s)**.
+
+Add **every** URL you use:
+
+| Environment | Callback URL |
+|-------------|--------------|
+| Local dev | `http://localhost:3000/account/authorize` |
+| Oxygen preview | `https://YOUR-STORE.o2.myshopify.dev/account/authorize` |
+
+Your current Oxygen URL (from the browser address bar when deployed):
+
+`https://campmania-4c29d91072afb5138da1.o2.myshopify.dev/account/authorize`
+
+If you redeploy and the `.o2.myshopify.dev` subdomain changes, add the new URL too.
+
+### 3. Pull env vars
+
+```bash
+npx shopify hydrogen env pull
+npm run dev
+```
+
+### 4. Test
+
+Header **Sign in** → Shopify login → back to `/account`. For **Trail Tested VIP**, add customer tag `tier:trail-tested` in **Admin → Customers**.
 
 ## Connect to Shopify
 

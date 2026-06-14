@@ -83,7 +83,7 @@ export function PackageFiltersPanel({
   const clearAll = () => setParams({}, {preventScrollReset: true});
 
   return (
-    <aside className="cm-filter-panel" aria-label={tr.packages.filters}>
+    <div className="cm-filter-panel" role="region" aria-label={tr.packages.filters}>
       <div className="cm-filter-panel-header">
         <div className="flex items-center gap-2.5">
           <span className="cm-filter-panel-icon" aria-hidden>
@@ -115,7 +115,7 @@ export function PackageFiltersPanel({
           />
         ))}
       </div>
-    </aside>
+    </div>
   );
 }
 

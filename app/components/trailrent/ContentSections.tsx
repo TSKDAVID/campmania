@@ -9,25 +9,19 @@ import {
   IconStar,
   IconTent,
 } from '~/components/trailrent/Icons';
+import {FAQ_ITEMS} from '~/lib/trailrent/faq-content';
 
 const WHY_ITEMS = [
   {Icon: IconInspect, titleKa: 'პროფესიული შემოწმება', titleEn: 'Pro-grade inspection', descKa: 'ყოველი ნივთი იწმინდება და ამოწმება ყოველი გაცემის წინ.', descEn: 'Every item cleaned and inspected before each rental.'},
   {Icon: IconMapPin, titleKa: 'მეტრო hub', titleEn: 'Metro hub pickup', descKa: '6 სადგური თბილისში — აირჩიეთ თქვენთვის მოსახერხებელი.', descEn: '6 Tbilisi stations — pick what works for you.'},
   {Icon: IconShield, titleKa: '0 ₾ დეპოზიტი', titleEn: 'Zero deposit', descKa: 'ID ვერიფიკაცია — ნაღდი არაფერი.', descEn: 'Digital ID check — no cash held.'},
   {Icon: IconStar, titleKa: 'Trusted Tier', titleEn: 'Trusted Tier', descKa: 'სუფთა დაბრუნება = უკეთესი ფასები.', descEn: 'Clean returns = better rates.'},
-];
+] as const;
 
 const REVIEWS = [
   {name: 'Nino K.', textKa: 'ტობავარჩხილის კომპლექტი იდეალური იყო — ყველაფერი მზად იყო.', textEn: 'Tobavarchkhili kit was perfect — everything ready to go.', rating: 5},
   {name: 'David M.', textKa: 'მეტროში მიღება ძალიან მოსახერხებელია. დეპოზიტის გარეშე!', textEn: 'Metro pickup is so convenient. No deposit!', rating: 5},
   {name: 'Ana T.', textKa: 'Trail Tested-მა უფასო განახლება მომცა.', textEn: 'Trail Tested tier got me a free upgrade.', rating: 5},
-];
-
-const FAQ_ITEMS = [
-  {qKa: 'როგორ მუშაობს დეპოზიტის გარეშე ქირა?', qEn: 'How does zero-deposit rental work?', aKa: 'ციფრული ID ვერიფიკაციის შემდეგ დაუყოვნებლივ ჯავშნავთ.', aEn: 'After digital ID verification you book instantly.'},
-  {qKa: 'სად ვიღებ აღჭურვილობას?', qEn: 'Where do I pick up gear?', aKa: 'უახლოეს მეტროს გასასვლელში — აირჩევთ სადგურს დაჯავშნისას.', aEn: 'At your nearest metro exit — choose station when booking.'},
-  {qKa: 'რა არის Trusted Tier?', qEn: 'What is Trusted Tier?', aKa: 'სუფთა დაბრუნებები გაძლ�ევთ Trail Tested სტატუსს.', aEn: 'Clean returns unlock Trail Tested status.'},
-  {qKa: 'როგორ დავაბრუნო?', qEn: 'How do I return?', aKa: 'უფასო დაბრუნება იმავე მეტრო hub-ზე.', aEn: 'Free return at the same metro hub.'},
 ];
 
 export function HowItWorksSection() {
@@ -159,7 +153,7 @@ export function FaqSection() {
       <div className="tr-page-width">
         <SectionHeading eyebrow={tr.faq.eyebrow} title={tr.faq.title} />
         <div className="divide-y divide-stone border-y border-stone">
-          {FAQ_ITEMS.map((item) => (
+          {FAQ_ITEMS.slice(0, 4).map((item) => (
             <details key={item.qEn} className="group py-4">
               <summary className="cursor-pointer list-none font-semibold marker:content-none">
                 {locale === 'ka' ? item.qKa : item.qEn}
@@ -199,7 +193,6 @@ export function CtaSection() {
 export function TrustNoticesInline({
   isTrustedTier = false,
 }: {
-  /** When true, omit the zero-deposit notice (VIP customers). */
   isTrustedTier?: boolean;
 }) {
   const {translations: tr} = useLocale();
