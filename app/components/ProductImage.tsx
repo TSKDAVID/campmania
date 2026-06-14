@@ -13,7 +13,7 @@ export function ProductImage({
 }) {
   if (!image) {
     return (
-      <div className="cm-product-gallery">
+      <div className={`cm-product-gallery cm-product-gallery--${variant}`}>
         <div className="cm-product-gallery-placeholder" aria-hidden>
           <span className="text-sm font-semibold uppercase tracking-widest text-muted">
             No image
@@ -24,17 +24,16 @@ export function ProductImage({
   }
 
   return (
-    <div className="cm-product-gallery">
+    <div className={`cm-product-gallery cm-product-gallery--${variant}`}>
       <div className="cm-product-gallery-frame">
         <Image
           alt={image.altText || title || 'Product Image'}
-          aspectRatio={variant === 'solo' ? '3/4' : '3/4'}
           data={image}
           key={image.id}
           sizes={
             variant === 'solo'
-              ? '(min-width: 1280px) 34vw, (min-width: 1024px) 36vw, 100vw'
-              : '(min-width: 1280px) 32vw, (min-width: 1024px) 38vw, 100vw'
+              ? '(min-width: 1280px) 42vw, (min-width: 1024px) 44vw, 100vw'
+              : '(min-width: 1280px) 44vw, (min-width: 1024px) 46vw, 100vw'
           }
           className="cm-product-gallery-image"
         />
