@@ -1,3 +1,4 @@
+import type {ReactNode} from 'react';
 import {useSearchParams} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
@@ -16,7 +17,7 @@ type FilterOption = {
 
 type FilterGroup = {
   name: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   labelKa: string;
   labelEn: string;
   options: readonly FilterOption[];

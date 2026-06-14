@@ -1,12 +1,20 @@
 import {Link} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {SectionHeading} from '~/components/trailrent/HomeSections';
+import {
+  IconCompass,
+  IconInspect,
+  IconMapPin,
+  IconShield,
+  IconStar,
+  IconTent,
+} from '~/components/trailrent/Icons';
 
 const WHY_ITEMS = [
-  {icon: '🔍', titleKa: 'პროფესიული შემოწმება', titleEn: 'Pro-grade inspection', descKa: 'ყოველი ნივთი იწმინდება და ამოწმება ყოველი გაცემის წინ.', descEn: 'Every item cleaned and inspected before each rental.'},
-  {icon: '📍', titleKa: 'მეტრო hub', titleEn: 'Metro hub pickup', descKa: '6 სადგური თბილისში — აირჩიეთ თქვენთვის მოსახერხებელი.', descEn: '6 Tbilisi stations — pick what works for you.'},
-  {icon: '💳', titleKa: '0 ₾ დეპოზიტი', titleEn: 'Zero deposit', descKa: 'ID ვერიფიკაცია — ნაღდი არაფერი.', descEn: 'Digital ID check — no cash held.'},
-  {icon: '⭐', titleKa: 'Trusted Tier', titleEn: 'Trusted Tier', descKa: 'სუფთა დაბრუნება = უკეთესი ფასები.', descEn: 'Clean returns = better rates.'},
+  {Icon: IconInspect, titleKa: 'პროფესიული შემოწმება', titleEn: 'Pro-grade inspection', descKa: 'ყოველი ნივთი იწმინდება და ამოწმება ყოველი გაცემის წინ.', descEn: 'Every item cleaned and inspected before each rental.'},
+  {Icon: IconMapPin, titleKa: 'მეტრო hub', titleEn: 'Metro hub pickup', descKa: '6 სადგური თბილისში — აირჩიეთ თქვენთვის მოსახერხებელი.', descEn: '6 Tbilisi stations — pick what works for you.'},
+  {Icon: IconShield, titleKa: '0 ₾ დეპოზიტი', titleEn: 'Zero deposit', descKa: 'ID ვერიფიკაცია — ნაღდი არაფერი.', descEn: 'Digital ID check — no cash held.'},
+  {Icon: IconStar, titleKa: 'Trusted Tier', titleEn: 'Trusted Tier', descKa: 'სუფთა დაბრუნება = უკეთესი ფასები.', descEn: 'Clean returns = better rates.'},
 ];
 
 const REVIEWS = [
@@ -52,25 +60,28 @@ export function HowItWorksSection() {
 export function CategoryGridSection() {
   const {locale} = useLocale();
   const cats = [
-    {titleKa: 'ანსამბლები', titleEn: 'Tents', href: '/individual-gear?gear=tent'},
-    {titleKa: 'რუქსაკები', titleEn: 'Backpacks', href: '/individual-gear?gear=backpack'},
-    {titleKa: 'საძილებელი', titleEn: 'Sleeping', href: '/individual-gear?gear=sleeping'},
-    {titleKa: 'სამზარეულო', titleEn: 'Kitchen', href: '/individual-gear?gear=kitchen'},
-    {titleKa: 'ნავიგაცია', titleEn: 'Navigation', href: '/individual-gear?gear=navigation'},
-    {titleKa: 'კომპლექტები', titleEn: 'Full kits', href: '/packages'},
+    {titleKa: 'ანსამბლები', titleEn: 'Tents', href: '/individual-gear?gear=tent', Icon: IconTent},
+    {titleKa: 'რუქსაკები', titleEn: 'Backpacks', href: '/individual-gear?gear=backpack', Icon: IconCompass},
+    {titleKa: 'საძილებელი', titleEn: 'Sleeping', href: '/individual-gear?gear=sleeping', Icon: IconStar},
+    {titleKa: 'სამზარეულო', titleEn: 'Kitchen', href: '/individual-gear?gear=kitchen', Icon: IconShield},
+    {titleKa: 'ნავიგაცია', titleEn: 'Navigation', href: '/individual-gear?gear=navigation', Icon: IconMapPin},
+    {titleKa: 'კომპლექტები', titleEn: 'Full kits', href: '/packages', Icon: IconTent},
   ];
 
   return (
     <section className="tr-section bg-stone/50">
       <div className="tr-page-width">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
           {cats.map((cat) => (
             <Link
               key={cat.href}
               to={cat.href}
-              className="tr-card flex aspect-square flex-col items-center justify-center p-4 text-center hover:border-moss"
+              className="tr-card group flex flex-col items-center justify-center gap-2 p-4 text-center hover:border-moss/50"
             >
-              <span className="font-display text-lg font-semibold">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-mist text-forest transition group-hover:bg-pine group-hover:text-mist">
+                <cat.Icon size={20} />
+              </span>
+              <span className="font-display text-sm font-semibold leading-tight md:text-base">
                 {locale === 'ka' ? cat.titleKa : cat.titleEn}
               </span>
             </Link>
@@ -88,15 +99,17 @@ export function WhyUsSection() {
     <section className="tr-section">
       <div className="tr-page-width">
         <SectionHeading eyebrow={tr.whyUs.eyebrow} title={tr.whyUs.title} />
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2">
           {WHY_ITEMS.map((item) => (
-            <div key={item.titleEn} className="flex gap-4">
-              <span className="text-2xl">{item.icon}</span>
+            <div key={item.titleEn} className="flex gap-4 rounded-xl border border-stone/60 bg-white p-4">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-pine/10 text-forest">
+                <item.Icon size={22} />
+              </span>
               <div>
                 <h3 className="font-display text-lg font-semibold">
                   {locale === 'ka' ? item.titleKa : item.titleEn}
                 </h3>
-                <p className="mt-1 text-muted">
+                <p className="mt-1 text-sm leading-relaxed text-muted">
                   {locale === 'ka' ? item.descKa : item.descEn}
                 </p>
               </div>

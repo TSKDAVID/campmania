@@ -3,6 +3,12 @@ import type {Route} from './+types/_index';
 import {Suspense} from 'react';
 import type {FeaturedProductsQuery} from 'storefrontapi.generated';
 import {useLocale} from '~/providers/LocaleProvider';
+import {
+  IconArrowRight,
+  IconMetro,
+  IconShield,
+  IconStar,
+} from '~/components/trailrent/Icons';
 import {SectionHeading} from '~/components/trailrent/HomeSections';
 import {ProductItem} from '~/components/ProductItem';
 import {
@@ -52,7 +58,7 @@ function HomeHero() {
   const {translations: tr} = useLocale();
 
   return (
-    <section className="relative min-h-[88vh] overflow-hidden bg-pine text-mist">
+    <section className="relative min-h-[72vh] overflow-hidden bg-pine text-mist">
       <img
         src={HERO_IMAGE}
         alt=""
@@ -68,7 +74,7 @@ function HomeHero() {
         aria-hidden
       />
 
-      <div className="tr-page-width relative flex min-h-[88vh] flex-col justify-center py-20 md:py-28">
+      <div className="tr-page-width relative flex min-h-[72vh] flex-col justify-center py-14 md:py-20">
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <p className="tr-eyebrow mb-5 text-amber">{tr.hero.eyebrow}</p>
@@ -138,25 +144,25 @@ function StatRow({
 function TrustStrip() {
   const {translations: tr} = useLocale();
   const items = [
-    {key: 'metro' as const, icon: '🚇'},
-    {key: 'deposit' as const, icon: '🛡️'},
-    {key: 'loyalty' as const, icon: '⭐'},
+    {key: 'metro' as const, Icon: IconMetro},
+    {key: 'deposit' as const, Icon: IconShield},
+    {key: 'loyalty' as const, Icon: IconStar},
   ];
 
   return (
     <section className="border-b border-stone bg-white" aria-label="Trust signals">
-      <div className="tr-page-width py-8 md:py-10">
-        <div className="grid gap-6 md:grid-cols-3 md:gap-8">
-          {items.map(({key, icon}) => (
+      <div className="tr-page-width py-5 md:py-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          {items.map(({key, Icon}) => (
             <div
               key={key}
-              className="flex items-start gap-4 rounded-xl border border-stone/60 bg-mist/40 p-5"
+              className="flex items-start gap-3 rounded-lg border border-stone/50 bg-mist/30 px-4 py-3.5"
             >
               <span
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pine/10 text-xl"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-pine text-mist"
                 aria-hidden
               >
-                {icon}
+                <Icon size={18} />
               </span>
               <div>
                 <h3 className="font-display text-base font-semibold text-pine">
@@ -199,7 +205,7 @@ function IntentRouterSection() {
   ];
 
   return (
-    <section className="tr-section bg-mist">
+    <section className="tr-section-tight bg-mist">
       <div className="tr-page-width">
         <SectionHeading
           eyebrow={tr.brand}
@@ -211,25 +217,25 @@ function IntentRouterSection() {
           }
           center
         />
-        <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-5">
           {cards.map((card) => (
             <Link key={card.to} to={card.to} className="tr-card-elevated group p-0">
               <div
-                className={`h-36 bg-gradient-to-br ${card.accent} md:h-44`}
+                className={`h-28 bg-gradient-to-br ${card.accent} md:h-32`}
                 aria-hidden
               />
-              <div className="relative p-8">
-                <span className="text-5xl font-bold text-stone/70">{card.num}</span>
-                <p className="tr-eyebrow mt-4">{card.eyebrow}</p>
-                <h3 className="mt-2 font-display text-2xl font-semibold text-pine transition group-hover:text-forest">
+              <div className="relative p-5 md:p-6">
+                <span className="text-4xl font-bold text-stone/70">{card.num}</span>
+                <p className="tr-eyebrow mt-3">{card.eyebrow}</p>
+                <h3 className="mt-1.5 font-display text-xl font-semibold text-pine transition group-hover:text-forest md:text-2xl">
                   {card.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-charcoal/70">
+                <p className="mt-2 text-sm leading-relaxed text-charcoal/70">
                   {card.desc}
                 </p>
-                <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-pine/5 px-4 py-2 text-sm font-semibold text-forest transition group-hover:bg-pine group-hover:text-mist">
+                <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-pine/5 px-3.5 py-1.5 text-sm font-semibold text-forest transition group-hover:bg-pine group-hover:text-mist">
                   {card.cta}
-                  <span aria-hidden>→</span>
+                  <IconArrowRight size={14} className="opacity-70" />
                 </span>
               </div>
             </Link>

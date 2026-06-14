@@ -8,6 +8,7 @@ import {
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {LanguageSwitcher} from '~/components/trailrent/HomeSections';
+import {IconBag, IconMenu, IconSearch} from '~/components/trailrent/Icons';
 import {useLocale} from '~/providers/LocaleProvider';
 
 interface HeaderProps {
@@ -187,14 +188,7 @@ function HeaderMenuMobileToggle() {
       onClick={() => open('mobile')}
       aria-label="Open menu"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M4 7h16M4 12h16M4 17h16"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
+      <IconMenu size={18} />
     </button>
   );
 }
@@ -209,10 +203,7 @@ function SearchToggle() {
       onClick={() => open('search')}
       aria-label={tr.nav.search}
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M20 20l-3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
+      <IconSearch size={18} />
     </button>
   );
 }
@@ -238,16 +229,7 @@ function CartBadge({count}: {count: number}) {
         } as CartViewPayload);
       }}
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M6 6h15l-1.5 9h-12L6 6zM6 6L5 3H2"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-        <circle cx="9" cy="20" r="1.5" fill="currentColor" />
-        <circle cx="18" cy="20" r="1.5" fill="currentColor" />
-      </svg>
+      <IconBag size={18} />
       {count > 0 ? (
         <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber px-1 text-[10px] font-bold text-pine">
           {count}

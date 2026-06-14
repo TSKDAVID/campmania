@@ -8,46 +8,107 @@ import {
 } from '~/lib/trailrent/catalog';
 import {PageBanner} from '~/components/trailrent/HomeSections';
 import {useBookingWidget} from '~/components/trailrent/BookingWidget';
+import {
+  buildPackageFilterGroups,
+  PackageFiltersPanel,
+} from '~/components/trailrent/CatalogFilters';
+import {IconArrowRight, IconMountain} from '~/components/trailrent/Icons';
 
-function FilterPills({
-  name,
-  options,
-  locale,
+const DIFFICULTY_STYLES: Record<string, string> = {
+  easy: 'bg-moss/15 text-moss border-moss/25',
+  moderate: 'bg-amber/15 text-forest border-amber/30',
+  hard: 'bg-pine/10 text-pine border-pine/20',
+};
+
+const TREK_GRADIENTS: Record<string, string> = {
+  tobavarchkhili: 'from-forest/80 via-moss/50 to-sage/30',
+  birtvisi: 'from-pine/70 via-forest/50 to-moss/40',
+  kazbegi: 'from-charcoal/60 via-pine/50 to-forest/40',
+};
+
+function PackageCard({
+  pkg,
+  onBook,
+  bookLabel,
+  includedLabel,
 }: {
-  name: string;
-  options: readonly {value: string; labelKa: string; labelEn: string}[];
-  locale: 'ka' | 'en';
+  pkg: PackageItem;
+  onBook: () => void;
+  bookLabel: string;
+  includedLabel: string;
 }) {
-  const [params, setParams] = useSearchParams();
-  const active = params.get(name);
-
-  const toggle = (value: string) => {
-    const next = new URLSearchParams(params);
-    if (active === value) next.delete(name);
-    else next.set(name, value);
-    setParams(next, {preventScrollReset: true});
-  };
+  const gradient = TREK_GRADIENTS[pkg.trek] ?? 'from-forest/60 to-moss/30';
+  const diffStyle = DIFFICULTY_STYLES[pkg.difficulty] ?? 'bg-stone text-muted';
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => toggle(opt.value)}
-          className={`tr-pill ${active === opt.value ? 'tr-pill-active' : ''}`}
+    <article className="cm-kit-card group">
+      <div className={`cm-kit-card-media bg-gradient-to-br ${gradient}`}>
+        <div className="cm-kit-card-pattern" aria-hidden />
+        <IconMountain size={32} className="relative z-[1] text-white/40" />
+        <span
+          className={`absolute right-3 top-3 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${diffStyle}`}
         >
-          {locale === 'ka' ? opt.labelKa : opt.labelEn}
+          {pkg.difficultyLabel}
+        </span>
+      </div>
+
+      <div className="flex flex-1 flex-col p-4 md:p-5">
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
+          <span className="rounded-sm bg-stone/80 px-2 py-0.5 text-charcoal/80">
+            {pkg.trekLabel}
+          </span>
+          <span className="text-stone">·</span>
+          <span>{pkg.durationLabel}</span>
+        </div>
+
+        <h3 className="mt-2 font-display text-xl font-bold leading-snug text-pine group-hover:text-forest">
+          {pkg.title}
+        </h3>
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">
+          {pkg.description}
+        </p>
+
+        <div className="mt-3 flex items-baseline justify-between gap-2 border-t border-stone/70 pt-3">
+          <p className="font-display text-2xl font-bold text-forest">{pkg.priceLabel}</p>
+          <span className="text-xs text-muted">/ day</span>
+        </div>
+
+        <div className="mt-3 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-moss">
+            {includedLabel}
+          </p>
+          <ul className="mt-2 space-y-1">
+            {pkg.items.slice(0, 3).map((item) => (
+              <li key={item} className="flex gap-2 text-sm text-charcoal/75">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-moss" aria-hidden />
+                <span className="line-clamp-1">{item}</span>
+              </li>
+            ))}
+            {pkg.items.length > 3 ? (
+              <li className="text-xs text-muted">+{pkg.items.length - 3} more</li>
+            ) : null}
+          </ul>
+        </div>
+
+        <button type="button" onClick={onBook} className="tr-btn-primary mt-4 w-full gap-2">
+          {bookLabel}
+          <IconArrowRight size={16} className="opacity-80" />
         </button>
-      ))}
-    </div>
+      </div>
+    </article>
   );
 }
 
 export function PackageCatalogGrid({packages}: {packages: PackageItem[]}) {
-  const {locale, translations: tr} = useLocale();
-  const [params, setParams] = useSearchParams();
+  const {translations: tr} = useLocale();
+  const [params] = useSearchParams();
   const {openBooking, drawer} = useBookingWidget();
+
+  const filterGroups = buildPackageFilterGroups(
+    TREK_FILTERS,
+    DURATION_FILTERS,
+    DIFFICULTY_FILTERS,
+  );
 
   const filtered = packages.filter((pkg) => {
     const trek = params.get('trek');
@@ -66,59 +127,37 @@ export function PackageCatalogGrid({packages}: {packages: PackageItem[]}) {
         eyebrow={tr.packages.eyebrow}
         title={tr.packages.title}
         subtitle={tr.packages.subtitle}
+        compact
       />
-      <section className="tr-section bg-mist">
+      <section className="tr-section-tight bg-mist">
         <div className="tr-page-width">
-          <div className="mb-8 space-y-4 rounded-md border border-stone bg-white p-5">
-            <p className="text-sm font-semibold uppercase tracking-wide text-muted">
-              {tr.packages.filters}
-            </p>
-            <FilterPills name="trek" options={TREK_FILTERS} locale={locale} />
-            <FilterPills name="duration" options={DURATION_FILTERS} locale={locale} />
-            <FilterPills name="difficulty" options={DIFFICULTY_FILTERS} locale={locale} />
-            {(params.get('trek') || params.get('duration') || params.get('difficulty')) && (
-              <button
-                type="button"
-                onClick={() => setParams({}, {preventScrollReset: true})}
-                className="cm-link text-sm"
-              >
-                {tr.packages.clearAll}
-              </button>
-            )}
-            <p className="text-sm text-muted">
-              {tr.packages.showing} {filtered.length} / {packages.length}
-            </p>
-          </div>
+          <div className="lg:grid lg:grid-cols-[minmax(220px,260px)_1fr] lg:items-start lg:gap-8 xl:gap-10">
+            <PackageFiltersPanel
+              groups={filterGroups}
+              resultCount={filtered.length}
+              totalCount={packages.length}
+            />
 
-          {filtered.length === 0 ? (
-            <p className="text-center text-muted">{tr.packages.noResults}</p>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((pkg) => (
-                <article key={pkg.id} className="tr-card flex flex-col overflow-hidden">
-                  <div className="aspect-[4/3] bg-gradient-to-br from-forest/20 to-moss/30" />
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="mb-2 flex flex-wrap gap-2 text-xs">
-                      <span className="rounded-sm bg-stone px-2 py-0.5">{pkg.trekLabel}</span>
-                      <span className="rounded-sm bg-stone px-2 py-0.5">{pkg.durationLabel}</span>
-                      <span className="rounded-sm bg-stone px-2 py-0.5">{pkg.difficultyLabel}</span>
-                    </div>
-                    <h3 className="text-xl font-bold">{pkg.title}</h3>
-                    <p className="mt-2 text-sm text-muted">{pkg.description}</p>
-                    <p className="mt-3 font-semibold text-forest">{pkg.priceLabel}</p>
-                    <div className="mt-4 flex-1">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                        {tr.packages.included}
-                      </p>
-                      <ul className="mt-2 space-y-1 text-sm text-muted">
-                        {pkg.items.slice(0, 4).map((item) => (
-                          <li key={item}>• {item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
+            <div>
+              {filtered.length === 0 ? (
+                <div className="cm-empty-state">
+                  <IconMountain size={40} className="text-sage/50" />
+                  <p className="mt-4 font-display text-lg font-semibold text-pine">
+                    {tr.packages.noResults}
+                  </p>
+                  <p className="mt-1 text-sm text-muted">
+                    {tr.packages.subtitle}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  {filtered.map((pkg) => (
+                    <PackageCard
+                      key={pkg.id}
+                      pkg={pkg}
+                      includedLabel={tr.packages.included}
+                      bookLabel={tr.packages.bookKit}
+                      onBook={() =>
                         openBooking({
                           id: pkg.id,
                           title: pkg.title,
@@ -126,15 +165,12 @@ export function PackageCatalogGrid({packages}: {packages: PackageItem[]}) {
                           productHandle: pkg.productHandle,
                         })
                       }
-                      className="tr-btn-primary mt-5 w-full"
-                    >
-                      {tr.packages.bookKit}
-                    </button>
-                  </div>
-                </article>
-              ))}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </section>
     </>

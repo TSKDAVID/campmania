@@ -60,7 +60,7 @@
   }
 
   .tr-btn-primary {
-    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline bg-pine text-mist hover:bg-forest;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline bg-pine text-mist hover:bg-forest;
     font-family: var(--font-label);
   }
 
@@ -91,11 +91,11 @@
   }
 
   .tr-section {
-    @apply py-16 md:py-24;
+    @apply py-12 md:py-16;
   }
 
   .tr-section-tight {
-    @apply py-10 md:py-14;
+    @apply py-8 md:py-10;
   }
 
   .cm-link {
@@ -131,7 +131,84 @@
   }
 
   .cm-icon-btn {
-    @apply flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-sage transition hover:border-white/30 hover:bg-white/10 hover:text-mist no-underline hover:no-underline;
+    @apply flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 text-sage/90 transition hover:border-amber/40 hover:bg-white/10 hover:text-mist no-underline hover:no-underline;
+  }
+
+  /* ── Catalog filters ─────────────────────────────────────────────────── */
+  .cm-filter-panel {
+    @apply overflow-hidden rounded-xl border border-stone/80 bg-white shadow-sm;
+  }
+
+  .cm-filter-panel-inline {
+    @apply lg:sticky lg:top-[calc(var(--header-height)+1rem)];
+  }
+
+  .cm-filter-panel:not(.cm-filter-panel-inline) {
+    @apply mb-6 lg:sticky lg:top-[calc(var(--header-height)+1rem)] lg:mb-0;
+  }
+
+  .cm-filter-panel-header {
+    @apply flex items-start justify-between gap-3 border-b border-stone/70 bg-mist/50 px-4 py-3.5;
+  }
+
+  .cm-filter-panel-icon {
+    @apply flex h-8 w-8 items-center justify-center rounded-lg bg-pine text-mist;
+  }
+
+  .cm-filter-panel-body {
+    @apply space-y-4 p-4;
+  }
+
+  .cm-filter-group {
+    @apply space-y-2.5;
+  }
+
+  .cm-filter-group + .cm-filter-group {
+    @apply border-t border-stone/60 pt-4;
+  }
+
+  .cm-filter-group-label {
+    @apply flex items-center gap-2 text-xs font-bold uppercase tracking-[0.1em] text-muted;
+  }
+
+  .cm-filter-group-icon {
+    @apply flex h-6 w-6 items-center justify-center rounded-md bg-stone/80 text-forest;
+  }
+
+  .cm-filter-pills {
+    @apply flex flex-wrap gap-1.5;
+  }
+
+  .cm-filter-pill {
+    @apply rounded-md border border-stone bg-white px-2.5 py-1.5 text-xs font-semibold text-charcoal transition hover:border-moss/50 hover:text-forest;
+    font-family: var(--font-label);
+  }
+
+  .cm-filter-pill-active {
+    @apply border-forest bg-forest text-mist shadow-sm shadow-forest/20;
+  }
+
+  .cm-filter-clear {
+    @apply inline-flex items-center gap-1 text-xs font-semibold text-moss transition hover:text-forest;
+  }
+
+  /* ── Kit cards ───────────────────────────────────────────────────────── */
+  .cm-kit-card {
+    @apply flex h-full flex-col overflow-hidden rounded-xl border border-stone/70 bg-white shadow-sm transition hover:border-moss/30 hover:shadow-md;
+  }
+
+  .cm-kit-card-media {
+    @apply relative flex aspect-[5/3] items-center justify-center overflow-hidden;
+  }
+
+  .cm-kit-card-pattern {
+    @apply absolute inset-0 opacity-30;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30c10-8 20-8 30 0s20 8 30 0' fill='none' stroke='white' stroke-opacity='0.15' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+  }
+
+  .cm-empty-state {
+    @apply flex flex-col items-center justify-center rounded-xl border border-dashed border-stone bg-white px-6 py-16 text-center;
   }
 
   /* ── Site footer ─────────────────────────────────────────────────────── */

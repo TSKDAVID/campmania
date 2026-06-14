@@ -1,5 +1,10 @@
 import {Link} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
+import {
+  IconMetro,
+  IconShield,
+  IconStar,
+} from '~/components/trailrent/Icons';
 
 export function AnnouncementBar() {
   const {translations} = useLocale();
@@ -38,21 +43,31 @@ export function PageBanner({
   eyebrow,
   title,
   subtitle,
+  compact,
 }: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
+  compact?: boolean;
 }) {
   return (
     <section className="border-b border-white/10 bg-gradient-to-br from-pine via-forest to-pine text-mist">
-      <div className="tr-page-width py-12 md:py-16">
-        {eyebrow ? <p className="tr-eyebrow text-amber">{eyebrow}</p> : null}
-        <h1 className="mt-3 max-w-2xl font-display text-3xl font-bold md:text-4xl">
-          {title}
-        </h1>
-        {subtitle ? (
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-mist/85">{subtitle}</p>
-        ) : null}
+      <div
+        className={`tr-page-width ${compact ? 'py-8 md:py-10' : 'py-10 md:py-14'}`}
+      >
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            {eyebrow ? <p className="tr-eyebrow text-amber">{eyebrow}</p> : null}
+            <h1 className="mt-2 font-display text-3xl font-bold md:text-[2.25rem]">
+              {title}
+            </h1>
+          </div>
+          {subtitle ? (
+            <p className="max-w-md text-base leading-relaxed text-mist/80 md:text-right md:text-sm">
+              {subtitle}
+            </p>
+          ) : null}
+        </div>
       </div>
     </section>
   );
@@ -70,11 +85,11 @@ export function SectionHeading({
   center?: boolean;
 }) {
   return (
-    <div className={`mb-10 max-w-2xl ${center ? 'mx-auto text-center' : ''}`}>
-      {eyebrow ? <p className="tr-eyebrow mb-3">{eyebrow}</p> : null}
-      <h2 className="text-3xl font-bold md:text-4xl">{title}</h2>
+    <div className={`mb-8 max-w-2xl ${center ? 'mx-auto text-center' : ''}`}>
+      {eyebrow ? <p className="tr-eyebrow mb-2">{eyebrow}</p> : null}
+      <h2 className="text-2xl font-bold md:text-3xl">{title}</h2>
       {subtitle ? (
-        <p className="mt-3 text-lg leading-relaxed text-charcoal/80">{subtitle}</p>
+        <p className="mt-2 text-base leading-relaxed text-charcoal/80">{subtitle}</p>
       ) : null}
     </div>
   );
@@ -83,17 +98,20 @@ export function SectionHeading({
 export function TrustPillars() {
   const {translations: tr} = useLocale();
   const items = [
-    {key: 'metro', icon: '🚇'},
-    {key: 'deposit', icon: '🛡️'},
-    {key: 'loyalty', icon: '⭐'},
+    {key: 'metro', Icon: IconMetro},
+    {key: 'deposit', Icon: IconShield},
+    {key: 'loyalty', Icon: IconStar},
   ] as const;
 
   return (
     <div className="grid gap-6 border-t border-white/10 pt-8 md:grid-cols-3">
-      {items.map(({key, icon}) => (
+      {items.map(({key, Icon}) => (
         <div key={key} className="flex gap-4">
-          <span className="text-2xl" aria-hidden>
-            {icon}
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-amber"
+            aria-hidden
+          >
+            <Icon size={20} />
           </span>
           <div>
             <h3 className="font-display text-lg font-semibold text-mist">
