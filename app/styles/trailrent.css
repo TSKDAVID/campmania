@@ -874,43 +874,50 @@
   }
 
   /*
-   * Desktop: title row on right, then image | booking aligned on row 2.
-   * Mobile: title → image → booking.
+   * Desktop: title row → image aligns with price row → booking below.
+   * Mobile: title → prices → image → booking.
    */
   .cm-product-layout {
     @apply grid items-start gap-8;
   }
 
-  .cm-product-buybox-intro {
-    @apply flex min-w-0 flex-col gap-5 md:gap-6;
-  }
-
+  .cm-product-buybox-title,
+  .cm-product-buybox-pricing,
   .cm-product-buybox-actions {
     @apply min-w-0;
+  }
+
+  .cm-product-buybox-pricing {
+    @apply flex flex-col gap-5 md:gap-6;
   }
 
   @media (min-width: 1024px) {
     .cm-product-layout {
       grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
-      grid-template-rows: auto auto;
+      grid-template-rows: auto auto auto;
       column-gap: 2.5rem;
-      row-gap: 1.5rem;
+      row-gap: 1.25rem;
     }
 
-    .cm-product-buybox-intro {
+    .cm-product-buybox-title {
       grid-column: 2;
       grid-row: 1;
     }
 
+    .cm-product-buybox-pricing {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
     .cm-product-layout-media {
       grid-column: 1;
-      grid-row: 2;
+      grid-row: 2 / 4;
       align-self: start;
     }
 
     .cm-product-buybox-actions {
       grid-column: 2;
-      grid-row: 2;
+      grid-row: 3;
       align-self: start;
     }
   }
@@ -919,7 +926,7 @@
     .cm-product-layout {
       grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
       column-gap: 3rem;
-      row-gap: 1.75rem;
+      row-gap: 1.5rem;
     }
   }
 
@@ -984,6 +991,16 @@
     @apply space-y-2 border-b border-stone/80 pb-5 md:space-y-3;
   }
 
+  .cm-product-header--title-only {
+    @apply border-0 pb-0;
+  }
+
+  @media (min-width: 1024px) {
+    .cm-product-buybox-pricing {
+      @apply border-b border-stone/80 pb-5;
+    }
+  }
+
   .cm-product-title {
     @apply font-display text-3xl font-bold leading-tight text-pine md:text-4xl;
   }
@@ -993,7 +1010,7 @@
   }
 
   .cm-product-price {
-    @apply pt-2;
+    @apply pt-0;
   }
 
   .cm-product-price-dual {

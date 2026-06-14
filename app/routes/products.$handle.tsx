@@ -199,8 +199,8 @@ export default function Product() {
             isSoloProduct ? ' cm-product-layout--solo' : ''
           }`}
         >
-          <div className="cm-product-buybox-intro">
-            <header className="cm-product-header">
+          <div className="cm-product-buybox-title">
+            <header className="cm-product-header cm-product-header--title-only">
               <p className="tr-eyebrow">
                 {isPackage ? tr.packages.eyebrow : tr.product.rental}
               </p>
@@ -208,16 +208,18 @@ export default function Product() {
               {kitSummary ? (
                 <p className="cm-product-subtitle">{kitSummary}</p>
               ) : null}
-              <ProductPriceBlock
-                fulfillmentMode={fulfillmentMode}
-                rentPrice={rentVariant?.price as MoneyV2 | undefined}
-                buyPrice={buyPriceMoney}
-                buyAvailable={buyAvailable}
-                compareAtPrice={rentVariant?.compareAtPrice as MoneyV2 | null | undefined}
-                savingsPercent={savingsPercent}
-              />
             </header>
+          </div>
 
+          <div className="cm-product-buybox-pricing">
+            <ProductPriceBlock
+              fulfillmentMode={fulfillmentMode}
+              rentPrice={rentVariant?.price as MoneyV2 | undefined}
+              buyPrice={buyPriceMoney}
+              buyAvailable={buyAvailable}
+              compareAtPrice={rentVariant?.compareAtPrice as MoneyV2 | null | undefined}
+              savingsPercent={savingsPercent}
+            />
             <ProductTrustBar isTrustedTier={trustedTier} />
           </div>
 
