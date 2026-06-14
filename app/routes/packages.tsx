@@ -3,7 +3,7 @@ import {TRAIL_PACKAGES} from '~/lib/trailrent/catalog';
 import {PackageCatalogGrid} from '~/components/trailrent/PackageCatalog';
 
 export const meta: Route.MetaFunction = () => [
-  {title: 'TrailRent | Trail Packages'},
+  {title: 'Campmania | Trail Packages'},
 ];
 
 export async function loader() {

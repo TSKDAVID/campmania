@@ -183,11 +183,16 @@ export function CtaSection() {
   );
 }
 
-export function TrustNoticesInline() {
+export function TrustNoticesInline({
+  isTrustedTier = false,
+}: {
+  /** When true, omit the zero-deposit notice (VIP customers). */
+  isTrustedTier?: boolean;
+}) {
   const {translations: tr} = useLocale();
   return (
     <div className="flex flex-wrap gap-4 text-sm text-muted">
-      <span>🛡️ {tr.trust.deposit}</span>
+      {!isTrustedTier ? <span>🛡️ {tr.trust.deposit}</span> : null}
       <span>🚇 {tr.trust.metro}</span>
       <span>⭐ {tr.trust.loyalty}</span>
     </div>

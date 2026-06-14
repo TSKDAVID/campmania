@@ -1,5 +1,6 @@
-import {useLoaderData} from 'react-router';
+import {Await, useLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
+import {Suspense} from 'react';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -9,14 +10,17 @@ import {
 } from '@shopify/hydrogen';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
+import {RentalProductForm} from '~/components/RentalProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {TrustNoticesInline} from '~/components/trailrent/ContentSections';
-import {useBookingWidget} from '~/components/trailrent/BookingWidget';
 import {useLocale} from '~/providers/LocaleProvider';
+import {CUSTOMER_RENTAL_HISTORY_QUERY} from '~/graphql/customer-account/CustomerRentalHistoryQuery';
+import {buildRentToOwnOffer} from '~/lib/trailrent/rent-to-own';
+import {isTrustedTier, parseCustomerTags} from '~/lib/trailrent/loyalty';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [
-    {title: `Hydrogen | ${data?.product.title ?? ''}`},
+    {title: `Campmania | ${data?.product.title ?? 'Product'}`},
     {
       rel: 'canonical',
       href: `/products/${data?.product.handle}`,
@@ -25,19 +29,11 @@ export const meta: Route.MetaFunction = ({data}) => {
 };
 
 export async function loader(args: Route.LoaderArgs) {
-  // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);
-
-  // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
-
   return {...deferredData, ...criticalData};
 }
 
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- */
 async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   const {handle} = params;
   const {storefront} = context;
@@ -50,37 +46,58 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
-    // Add other queries here, so that they are loaded in parallel
   ]);
 
   if (!product?.id) {
     throw new Response(null, {status: 404});
   }
 
-  // The API handle might be localized, so redirect to the localized handle
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
-  return {
-    product,
-  };
+  return {product};
 }
 
 /**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
+ * Deferred customer context for rent-to-own and Trusted Tier status.
+ * Uses Customer Account API — only fetched when the shopper is logged in.
  */
-function loadDeferredData({context, params}: Route.LoaderArgs) {
-  // Put any API calls that is not critical to be available on first page render
-  // For example: product reviews, product recommendations, social feeds.
+function loadDeferredData({context}: Route.LoaderArgs) {
+  const {customerAccount} = context;
 
-  return {};
+  const customerRentalContext = customerAccount
+    .isLoggedIn()
+    .then(async (loggedIn) => {
+      if (!loggedIn) {
+        return {tags: [] as string[], orders: []};
+      }
+
+      const {data, errors} = await customerAccount.query(
+        CUSTOMER_RENTAL_HISTORY_QUERY,
+        {
+          variables: {
+            language: customerAccount.i18n.language,
+            first: 25,
+          },
+        },
+      );
+
+      if (errors?.length || !data?.customer) {
+        return {tags: [] as string[], orders: []};
+      }
+
+      return {
+        tags: parseCustomerTags(data.customer.tags),
+        orders: data.customer.orders.nodes,
+      };
+    })
+    .catch(() => ({tags: [] as string[], orders: []}));
+
+  return {customerRentalContext};
 }
 
 export default function Product() {
-  const {product} = useLoaderData<typeof loader>();
-  const {translations: tr} = useLocale();
-  const {openBooking, drawer} = useBookingWidget();
+  const {product, customerRentalContext} = useLoaderData<typeof loader>();
+  const {locale} = useLocale();
 
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
@@ -89,12 +106,16 @@ export default function Product() {
 
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
-  const {title, descriptionHtml} = product;
+  const {title, descriptionHtml, id: productId} = product;
   const dailyRate = Number(selectedVariant?.price?.amount ?? 0);
+  const purchasePrice = Number(
+    selectedVariant?.compareAtPrice?.amount ??
+      selectedVariant?.price?.amount ??
+      0,
+  );
 
   return (
     <div className="tr-page-width tr-section">
-      {drawer}
       <div className="grid gap-10 lg:grid-cols-2">
         <ProductImage image={selectedVariant?.image} />
         <div>
@@ -105,24 +126,60 @@ export default function Product() {
               compareAtPrice={selectedVariant?.compareAtPrice}
             />
           </div>
-          <div className="mt-6">
-            <TrustNoticesInline />
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              openBooking({
-                id: product.id,
-                title: product.title,
-                dailyRate,
-                productHandle: product.handle,
-                variantId: selectedVariant?.id,
-              })
+
+          <Suspense
+            fallback={
+              <div className="mt-6">
+                <TrustNoticesInline isTrustedTier={false} />
+              </div>
             }
-            className="tr-btn-primary mt-8 w-full"
           >
-            {tr.booking.confirm}
-          </button>
+            <Await resolve={customerRentalContext}>
+              {(ctx) => (
+                <div className="mt-6">
+                  <TrustNoticesInline
+                    isTrustedTier={isTrustedTier(ctx.tags)}
+                  />
+                </div>
+              )}
+            </Await>
+          </Suspense>
+
+          {selectedVariant?.id ? (
+            <Suspense
+              fallback={
+                <div className="mt-8 animate-pulse rounded-md border border-stone bg-white p-6">
+                  <div className="h-6 w-1/2 rounded bg-stone" />
+                  <div className="mt-4 h-10 rounded bg-stone" />
+                  <div className="mt-4 h-10 rounded bg-stone" />
+                </div>
+              }
+            >
+              <Await resolve={customerRentalContext}>
+                {(ctx) => (
+                  <RentalProductForm
+                    variantId={selectedVariant.id}
+                    productTitle={title}
+                    dailyRate={dailyRate}
+                    purchasePrice={purchasePrice}
+                    rentToOwnOffer={buildRentToOwnOffer({
+                      productId,
+                      purchasePrice,
+                      orders: ctx.orders,
+                    })}
+                    isTrustedTier={isTrustedTier(ctx.tags)}
+                  />
+                )}
+              </Await>
+            </Suspense>
+          ) : (
+            <p className="mt-8 rounded-md border border-stone bg-mist p-4 text-sm text-muted">
+              {locale === 'ka'
+                ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
+                : 'This variant is currently unavailable.'}
+            </p>
+          )}
+
           <div
             className="prose mt-10 max-w-none text-muted"
             dangerouslySetInnerHTML={{__html: descriptionHtml}}

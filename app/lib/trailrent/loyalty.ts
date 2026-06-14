@@ -12,6 +12,11 @@ export type LoyaltyStatus = {
 const TRAIL_TESTED_TAG = 'tier:trail-tested';
 const RETURNS_FOR_TIER = 2;
 
+/** True when customer carries the Trail Tested VIP tag. */
+export function isTrustedTier(tags: string[]): boolean {
+  return tags.includes(TRAIL_TESTED_TAG);
+}
+
 /** Mock loyalty — production: read customer tags + order metafields from Shopify */
 export function getLoyaltyStatus(options: {
   tags?: string[];
@@ -23,7 +28,7 @@ export function getLoyaltyStatus(options: {
   const hasTrailTestedTag =
     tags.includes(TRAIL_TESTED_TAG) ||
     demoTier === 'trail-tested' ||
-    email === 'trail-tested@demo.trailrent.ge';
+    email === 'trail-tested@demo.campmania.ge';
 
   if (hasTrailTestedTag) {
     return {
@@ -41,7 +46,7 @@ export function getLoyaltyStatus(options: {
   }
 
   const cleanReturns =
-    demoTier === 'explorer' ? 1 : email === 'explorer@demo.trailrent.ge' ? 1 : 1;
+    demoTier === 'explorer' ? 1 : email === 'explorer@demo.campmania.ge' ? 1 : 1;
 
   const progressPercent = Math.round(
     (cleanReturns / RETURNS_FOR_TIER) * 100,

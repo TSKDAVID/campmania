@@ -6,7 +6,7 @@ export type TranslationKey = keyof typeof translations.ka;
 
 const translations = {
   ka: {
-    brand: 'TrailRent',
+    brand: 'Campmania',
     tagline: 'პრემიუმ ლაშქრობის აღჭურვილობის ქირა — თბილისი',
     announcement:
       'მეტროში მიღება · 0 ₾ დეპოზიტი · Trusted Tier პროგრამა',
@@ -21,7 +21,7 @@ const translations = {
     },
     hero: {
       eyebrow: 'საქართველოს ბუნებაში',
-      title: 'აირჩიეთ ბილიკი. აიღეთ კომპლექტი. გაემგზავრეთ.',
+      title: 'თქვენი შემდეგი სათავგადასავლო — სრულად მომზადებული.',
       subtitle:
         'სრული trail კომპლექტები ან ინდივიდუალური აღჭურვილობა — მეტროს გაჩვენებაზე მიღება, ციფრული ID-ით დადასტურება, 0 ₾ ნაღდი დეპოზიტი.',
       ctaPackages: 'სრული კომპლექტის ქირა',
@@ -31,9 +31,9 @@ const translations = {
       statDeposit: '0 ₾ დეპოზიტი',
     },
     intent: {
-      leftTitle: 'Trail კომპლექტები',
+      leftTitle: 'სრული ბილიკის კომპლექტის ქირა',
       leftDesc: 'ტობავარჩხილი, ბირთვისი, კაზბეგი — ყველაფერი ერთ პაკეტში.',
-      rightTitle: 'ინდივიდუალური აღჭურვილობა',
+      rightTitle: 'ინდივიდუალური აღჭურვილობის ნახვა',
       rightDesc: 'ანსამბლი, რუქსაკი, საძილებელი — აირჩიეთ რაც გჭირდებათ.',
     },
     trust: {
@@ -57,7 +57,7 @@ const translations = {
       step4Desc: 'უფასო დაბრუნება — Trusted Tier პროგრესი.',
     },
     whyUs: {
-      eyebrow: 'რატომ TrailRent',
+      eyebrow: 'რატომ Campmania',
       title: 'პრემიუმ გამოცდილება, უბრალო პროცესი',
     },
     reviews: {
@@ -107,6 +107,12 @@ const translations = {
       confirm: 'ხელმისაწვდომობის შემოწმება და დაჯავშნა',
       close: 'დახურვა',
       unavailable: 'მიუწვდომელია',
+      modeRent: 'ქირა',
+      modeBuy: 'ყიდვა (Rent-to-Own)',
+      buyNow: 'ყიდვა ახლა',
+      buyNowDiscount: 'ქირის ფასის ფასდაკლებით',
+      rentalCredit: 'ქირის კრედიტი',
+      addToCart: 'კალათაში დამატება',
     },
     loyalty: {
       eyebrow: 'Trusted Tier',
@@ -148,7 +154,7 @@ const translations = {
     },
   },
   en: {
-    brand: 'TrailRent',
+    brand: 'Campmania',
     tagline: 'Premium hiking gear rental — Tbilisi',
     announcement:
       'Metro hub pickup · 0 GEL deposit · Trusted Tier rewards',
@@ -163,7 +169,7 @@ const translations = {
     },
     hero: {
       eyebrow: 'Explore Georgia',
-      title: 'Pick your trail. Grab your kit. Go.',
+      title: 'Your Next Adventure, Fully Packed',
       subtitle:
         'Complete trail kits or à-la-carte gear — metro hub pickup, digital ID verification, zero cash deposit.',
       ctaPackages: 'Rent a complete kit',
@@ -173,9 +179,9 @@ const translations = {
       statDeposit: '0 GEL deposit',
     },
     intent: {
-      leftTitle: 'Trail packages',
+      leftTitle: 'Rent Complete Trail Packages',
       leftDesc: 'Tobavarchkhili, Birtvisi, Kazbegi — everything in one kit.',
-      rightTitle: 'Individual gear',
+      rightTitle: 'Browse Individual Gear',
       rightDesc: 'Tent, backpack, sleeping bag — pick exactly what you need.',
     },
     trust: {
@@ -199,7 +205,7 @@ const translations = {
       step4Desc: 'Free return — Trusted Tier progress.',
     },
     whyUs: {
-      eyebrow: 'Why TrailRent',
+      eyebrow: 'Why Campmania',
       title: 'Premium experience, simple process',
     },
     reviews: {
@@ -250,6 +256,12 @@ const translations = {
       confirm: 'Check availability & book',
       close: 'Close',
       unavailable: 'Unavailable',
+      modeRent: 'Rent',
+      modeBuy: 'Buy (Rent-to-Own)',
+      buyNow: 'Buy It Now for',
+      buyNowDiscount: 'with rental credit applied',
+      rentalCredit: 'Rental credit',
+      addToCart: 'Add to cart',
     },
     loyalty: {
       eyebrow: 'Trusted Tier',

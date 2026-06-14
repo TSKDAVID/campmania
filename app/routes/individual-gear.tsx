@@ -3,7 +3,7 @@ import {INDIVIDUAL_GEAR} from '~/lib/trailrent/catalog';
 import {GearCatalogGrid} from '~/components/trailrent/GearCatalog';
 
 export const meta: Route.MetaFunction = () => [
-  {title: 'TrailRent | Individual Gear'},
+  {title: 'Campmania | Individual Gear'},
 ];
 
 export async function loader() {

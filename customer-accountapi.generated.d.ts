@@ -71,8 +71,11 @@ export type CustomerAddressCreateMutation = {
 
 export type CustomerFragment = Pick<
   CustomerAccountAPI.Customer,
-  'id' | 'firstName' | 'lastName'
+  'id' | 'firstName' | 'lastName' | 'tags'
 > & {
+  emailAddress?: CustomerAccountAPI.Maybe<
+    Pick<CustomerAccountAPI.CustomerEmailAddress, 'emailAddress'>
+  >;
   defaultAddress?: CustomerAccountAPI.Maybe<
     Pick<
       CustomerAccountAPI.CustomerAddress,
@@ -134,8 +137,11 @@ export type CustomerDetailsQueryVariables = CustomerAccountAPI.Exact<{
 export type CustomerDetailsQuery = {
   customer: Pick<
     CustomerAccountAPI.Customer,
-    'id' | 'firstName' | 'lastName'
+    'id' | 'firstName' | 'lastName' | 'tags'
   > & {
+    emailAddress?: CustomerAccountAPI.Maybe<
+      Pick<CustomerAccountAPI.CustomerEmailAddress, 'emailAddress'>
+    >;
     defaultAddress?: CustomerAccountAPI.Maybe<
       Pick<
         CustomerAccountAPI.CustomerAddress,
@@ -477,6 +483,79 @@ export type CustomerOrdersQuery = {
   };
 };
 
+export type RentalHistoryLineItemFragment = Pick<
+  CustomerAccountAPI.LineItem,
+  'id' | 'productId' | 'variantId' | 'title'
+> & {
+  customAttributes: Array<Pick<CustomerAccountAPI.Attribute, 'key' | 'value'>>;
+  totalPrice?: CustomerAccountAPI.Maybe<
+    Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+  >;
+  currentTotalPrice?: CustomerAccountAPI.Maybe<
+    Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+  >;
+};
+
+export type RentalHistoryOrderFragment = Pick<
+  CustomerAccountAPI.Order,
+  'id' | 'processedAt'
+> & {
+  lineItems: {
+    nodes: Array<
+      Pick<
+        CustomerAccountAPI.LineItem,
+        'id' | 'productId' | 'variantId' | 'title'
+      > & {
+        customAttributes: Array<
+          Pick<CustomerAccountAPI.Attribute, 'key' | 'value'>
+        >;
+        totalPrice?: CustomerAccountAPI.Maybe<
+          Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+        >;
+        currentTotalPrice?: CustomerAccountAPI.Maybe<
+          Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+        >;
+      }
+    >;
+  };
+};
+
+export type CustomerRentalHistoryQueryVariables = CustomerAccountAPI.Exact<{
+  language?: CustomerAccountAPI.InputMaybe<CustomerAccountAPI.LanguageCode>;
+  first?: CustomerAccountAPI.InputMaybe<
+    CustomerAccountAPI.Scalars['Int']['input']
+  >;
+}>;
+
+export type CustomerRentalHistoryQuery = {
+  customer: Pick<CustomerAccountAPI.Customer, 'tags'> & {
+    orders: {
+      nodes: Array<
+        Pick<CustomerAccountAPI.Order, 'id' | 'processedAt'> & {
+          lineItems: {
+            nodes: Array<
+              Pick<
+                CustomerAccountAPI.LineItem,
+                'id' | 'productId' | 'variantId' | 'title'
+              > & {
+                customAttributes: Array<
+                  Pick<CustomerAccountAPI.Attribute, 'key' | 'value'>
+                >;
+                totalPrice?: CustomerAccountAPI.Maybe<
+                  Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+                >;
+                currentTotalPrice?: CustomerAccountAPI.Maybe<
+                  Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+                >;
+              }
+            >;
+          };
+        }
+      >;
+    };
+  };
+};
+
 export type CustomerUpdateMutationVariables = CustomerAccountAPI.Exact<{
   customer: CustomerAccountAPI.CustomerUpdateInput;
   language?: CustomerAccountAPI.InputMaybe<CustomerAccountAPI.LanguageCode>;
@@ -504,7 +583,7 @@ export type CustomerUpdateMutation = {
 };
 
 interface GeneratedQueryTypes {
-  '#graphql\n  query CustomerDetails($language: LanguageCode) @inContext(language: $language) {\n    customer {\n      ...Customer\n    }\n  }\n  #graphql\n  fragment Customer on Customer {\n    id\n    firstName\n    lastName\n    defaultAddress {\n      ...Address\n    }\n    addresses(first: 6) {\n      nodes {\n        ...Address\n      }\n    }\n  }\n  fragment Address on CustomerAddress {\n    id\n    formatted\n    firstName\n    lastName\n    company\n    address1\n    address2\n    territoryCode\n    zoneCode\n    city\n    zip\n    phoneNumber\n  }\n\n': {
+  '#graphql\n  query CustomerDetails($language: LanguageCode) @inContext(language: $language) {\n    customer {\n      ...Customer\n    }\n  }\n  #graphql\n  fragment Customer on Customer {\n    id\n    firstName\n    lastName\n    tags\n    emailAddress {\n      emailAddress\n    }\n    defaultAddress {\n      ...Address\n    }\n    addresses(first: 6) {\n      nodes {\n        ...Address\n      }\n    }\n  }\n  fragment Address on CustomerAddress {\n    id\n    formatted\n    firstName\n    lastName\n    company\n    address1\n    address2\n    territoryCode\n    zoneCode\n    city\n    zip\n    phoneNumber\n  }\n\n': {
     return: CustomerDetailsQuery;
     variables: CustomerDetailsQueryVariables;
   };
@@ -515,6 +594,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  #graphql\n  fragment CustomerOrders on Customer {\n    orders(\n      sortKey: PROCESSED_AT,\n      reverse: true,\n      first: $first,\n      last: $last,\n      before: $startCursor,\n      after: $endCursor,\n      query: $query\n    ) {\n      nodes {\n        ...OrderItem\n      }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        endCursor\n        startCursor\n      }\n    }\n  }\n  #graphql\n  fragment OrderItem on Order {\n    totalPrice {\n      amount\n      currencyCode\n    }\n    financialStatus\n    fulfillmentStatus\n    fulfillments(first: 1) {\n      nodes {\n        status\n      }\n    }\n    id\n    number\n    confirmationNumber\n    processedAt\n  }\n\n\n  query CustomerOrders(\n    $endCursor: String\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $query: String\n    $language: LanguageCode\n  ) @inContext(language: $language) {\n    customer {\n      ...CustomerOrders\n    }\n  }\n': {
     return: CustomerOrdersQuery;
     variables: CustomerOrdersQueryVariables;
+  };
+  '#graphql\n  query CustomerRentalHistory(\n    $language: LanguageCode\n    $first: Int\n  ) @inContext(language: $language) {\n    customer {\n      tags\n      orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {\n        nodes {\n          ...RentalHistoryOrder\n        }\n      }\n    }\n  }\n  #graphql\n  fragment RentalHistoryOrder on Order {\n    id\n    processedAt\n    lineItems(first: 50) {\n      nodes {\n        ...RentalHistoryLineItem\n      }\n    }\n  }\n  #graphql\n  fragment RentalHistoryLineItem on LineItem {\n    id\n    productId\n    variantId\n    title\n    customAttributes {\n      key\n      value\n    }\n    totalPrice {\n      amount\n      currencyCode\n    }\n    currentTotalPrice {\n      amount\n      currencyCode\n    }\n  }\n\n\n': {
+    return: CustomerRentalHistoryQuery;
+    variables: CustomerRentalHistoryQueryVariables;
   };
 }
 
