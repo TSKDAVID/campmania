@@ -14,14 +14,11 @@ export function shouldRevalidate() {
 
 export async function loader({context}: Route.LoaderArgs) {
   const {customerAccount} = context;
-  const {data, errors} = await customerAccount.query(
-    CUSTOMER_DETAILS_QUERY,
-    {
-      variables: {
-        language: customerAccount.i18n.language,
-      },
+  const {data, errors} = await customerAccount.query(CUSTOMER_DETAILS_QUERY, {
+    variables: {
+      language: customerAccount.i18n.language,
     },
-  );
+  });
 
   if (errors?.length || !data?.customer) {
     throw new Error('Customer not found');
@@ -73,19 +70,19 @@ function AccountMenu() {
   }
 
   return (
-    <nav role="navigation">
+    <nav role="navigation" className="flex flex-wrap gap-4 text-sm">
+      <NavLink to="/account" style={isActiveStyle}>
+        Dashboard
+      </NavLink>
       <NavLink to="/account/orders" style={isActiveStyle}>
-        Orders &nbsp;
+        Orders
       </NavLink>
-      &nbsp;|&nbsp;
       <NavLink to="/account/profile" style={isActiveStyle}>
-        &nbsp; Profile &nbsp;
+        Profile
       </NavLink>
-      &nbsp;|&nbsp;
       <NavLink to="/account/addresses" style={isActiveStyle}>
-        &nbsp; Addresses &nbsp;
+        Addresses
       </NavLink>
-      &nbsp;|&nbsp;
       <Logout />
     </nav>
   );

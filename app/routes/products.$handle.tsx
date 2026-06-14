@@ -1,20 +1,18 @@
-import {
-  redirect,
-  useLoaderData,
-} from 'react-router';
+import {useLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {
   getSelectedProductOptions,
   Analytics,
   useOptimisticVariant,
-  getProductOptions,
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
-import {ProductForm} from '~/components/ProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {TrustNoticesInline} from '~/components/trailrent/ContentSections';
+import {useBookingWidget} from '~/components/trailrent/BookingWidget';
+import {useLocale} from '~/providers/LocaleProvider';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [
@@ -40,11 +38,7 @@ export async function loader(args: Route.LoaderArgs) {
  * Load data necessary for rendering content above the fold. This is the critical data
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
-async function loadCriticalData({
-  context,
-  params,
-  request,
-}: Route.LoaderArgs) {
+async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   const {handle} = params;
   const {storefront} = context;
 
@@ -85,47 +79,55 @@ function loadDeferredData({context, params}: Route.LoaderArgs) {
 
 export default function Product() {
   const {product} = useLoaderData<typeof loader>();
+  const {translations: tr} = useLocale();
+  const {openBooking, drawer} = useBookingWidget();
 
-  // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
     getAdjacentAndFirstAvailableVariants(product),
   );
 
-  // Sets the search param to the selected variant without navigation
-  // only when no search params are set in the url
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
-  // Get the product options array
-  const productOptions = getProductOptions({
-    ...product,
-    selectedOrFirstAvailableVariant: selectedVariant,
-  });
-
   const {title, descriptionHtml} = product;
+  const dailyRate = Number(selectedVariant?.price?.amount ?? 0);
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
-        <ProductForm
-          productOptions={productOptions}
-          selectedVariant={selectedVariant}
-        />
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
+    <div className="tr-page-width tr-section">
+      {drawer}
+      <div className="grid gap-10 lg:grid-cols-2">
+        <ProductImage image={selectedVariant?.image} />
+        <div>
+          <h1 className="font-display text-3xl font-bold">{title}</h1>
+          <div className="mt-4">
+            <ProductPrice
+              price={selectedVariant?.price}
+              compareAtPrice={selectedVariant?.compareAtPrice}
+            />
+          </div>
+          <div className="mt-6">
+            <TrustNoticesInline />
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              openBooking({
+                id: product.id,
+                title: product.title,
+                dailyRate,
+                productHandle: product.handle,
+                variantId: selectedVariant?.id,
+              })
+            }
+            className="tr-btn-primary mt-8 w-full"
+          >
+            {tr.booking.confirm}
+          </button>
+          <div
+            className="prose mt-10 max-w-none text-muted"
+            dangerouslySetInnerHTML={{__html: descriptionHtml}}
+          />
+        </div>
       </div>
       <Analytics.ProductView
         data={{

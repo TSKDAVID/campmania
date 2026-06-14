@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-pine: #0d2818;
+  --color-forest: #1a3d2e;
+  --color-moss: #4a7c59;
+  --color-sage: #8faf9a;
+  --color-mist: #f0f4f1;
+  --color-stone: #e4eae6;
+  --color-amber: #d4a574;
+  --color-charcoal: #1c2421;
+  --color-muted: #5a6b62;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-label: 'DM Sans', system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-mist text-charcoal antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    @apply text-pine;
+  }
+}
+
+@layer components {
+  .tr-page-width {
+    @apply mx-auto max-w-7xl px-5 md:px-8;
+  }
+
+  .tr-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-moss;
+    font-family: var(--font-label);
+  }
+
+  .tr-btn {
+    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition;
+    font-family: var(--font-label);
+  }
+
+  .tr-btn-primary {
+    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition bg-pine text-mist hover:bg-forest;
+    font-family: var(--font-label);
+  }
+
+  .tr-btn-secondary {
+    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition border border-pine bg-transparent text-pine hover:bg-pine hover:text-mist;
+    font-family: var(--font-label);
+  }
+
+  .tr-btn-ghost {
+    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition border border-white/30 bg-white/5 text-mist hover:bg-white/15;
+    font-family: var(--font-label);
+  }
+
+  .tr-card {
+    @apply rounded-md border border-stone bg-white shadow-sm transition hover:shadow-md;
+  }
+
+  .tr-pill {
+    @apply rounded-full border border-stone bg-white px-4 py-2 text-sm font-medium text-charcoal transition hover:border-moss hover:text-forest;
+  }
+
+  .tr-pill-active {
+    @apply border-forest bg-forest text-mist;
+  }
+
+  .tr-section {
+    @apply py-16 md:py-24;
+  }
+
+  .header {
+    @apply sticky top-0 z-50 border-b border-white/10 bg-pine text-mist;
+    height: auto;
+    min-height: var(--header-height);
+  }
+
+  .header a,
+  .header button {
+    @apply text-mist;
+  }
+
+  .header-menu-desktop {
+    @apply gap-6;
+  }
+
+  .footer {
+    @apply bg-pine text-sage;
+  }
+
+  .footer a {
+    @apply text-sage hover:text-mist;
+  }
+
+  main {
+    @apply min-h-[50vh];
+  }
+}

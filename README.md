@@ -1,45 +1,61 @@
-# Hydrogen template: Skeleton
+# TrailRent — Hiking Gear Rental (Georgia)
 
-Hydrogen is Shopify’s stack for headless commerce. Hydrogen is designed to dovetail with [Remix](https://remix.run/), Shopify’s full stack web framework. This template contains a **minimal setup** of components, queries and tooling to get started with Hydrogen.
+Premium outdoor gear rental for Tbilisi, Georgia. **Shopify Hydrogen** headless storefront + business docs and content.
 
-[Check out Hydrogen docs](https://shopify.dev/custom-storefronts/hydrogen)
-[Get familiar with Remix](https://remix.run/docs/en/v1)
+## Stack
 
-## What's included
+| Folder | Purpose |
+|--------|---------|
+| [`storefront/`](storefront/) | **TrailRent Hydrogen app** (TypeScript, React Router 7, Tailwind) — primary storefront |
+| [`docs/`](docs/) | Shopify Admin setup guides |
+| [`content/`](content/) | Page copy, emails, rental agreement, checklists |
+| [`templates/`](templates/) | Product CSV import, SEO metadata |
 
-- Remix
-- Hydrogen
-- Oxygen
-- Vite
-- Shopify CLI
-- ESLint
-- Prettier
-- GraphQL generator
-- TypeScript and JavaScript flavors
-- Minimal setup of components and routes
-
-## Getting started
-
-**Requirements:**
-
-- Node.js version 18.0.0 or higher
+## Quick start (storefront)
 
 ```bash
-npm create @shopify/hydrogen@latest
-```
-
-## Building for production
-
-```bash
-npm run build
-```
-
-## Local development
-
-```bash
+cd storefront
+npm install
 npm run dev
 ```
 
-## Setup for using Customer Account API (`/account` section)
+Open http://localhost:3000 — uses Mock.shop until you link your store:
 
-Follow step 1 and 2 of <https://shopify.dev/docs/custom-storefronts/building-with-the-customer-account-api/hydrogen#step-1-set-up-a-public-domain-for-local-development>
+```bash
+npx shopify hydrogen link
+npx shopify hydrogen env pull
+```
+
+## Features
+
+- **Trail packages** + **individual gear** catalogs with filters
+- **Booking widget** — date range, metro station, price calc (mock → cart attributes when linked)
+- **Trusted Tier loyalty** — Explorer / Trail Tested (`tier:trail-tested` tag)
+- **Metro hub pickup**, zero deposit, digital ID flow (copy + UX)
+- **Georgian (default) + English** language switcher
+
+## Business model
+
+- **Service area:** Tbilisi, Georgia
+- **Pickup/return:** Metro hub (not door delivery)
+- **Deposit:** 0 GEL after digital ID verification
+- **Loyalty:** Trusted Tier — clean returns unlock Trail Tested benefits
+
+## Legacy
+
+The Liquid OS 2.0 theme has been replaced by the Hydrogen storefront in `storefront/`. Content in `content/` and product CSVs remain for Shopify Admin setup.
+
+## Replace before launch
+
+- `[Your Brand]` — business name
+- `[yourbrand]` — handle / domain
+- Contact email, phone, delivery hours in storefront env / settings
+
+## Deploy
+
+```bash
+cd storefront
+npx shopify hydrogen deploy
+```
+
+Push to GitHub when ready — see [`storefront/README.md`](storefront/README.md).

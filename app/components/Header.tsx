@@ -7,6 +7,7 @@ import {
 } from '@shopify/hydrogen';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
+import {LanguageSwitcher} from '~/components/trailrent/HomeSections';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -101,6 +102,7 @@ function HeaderCtas({
 }: Pick<HeaderProps, 'isLoggedIn' | 'cart'>) {
   return (
     <nav className="header-ctas" role="navigation">
+      <LanguageSwitcher />
       <HeaderMenuMobileToggle />
       <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
         <Suspense fallback="Sign in">
@@ -136,7 +138,7 @@ function SearchToggle() {
   );
 }
 
-function CartBadge({count}: {count: number | null}) {
+function CartBadge({count}: {count: number}) {
   const {open} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
 
@@ -154,14 +156,14 @@ function CartBadge({count}: {count: number | null}) {
         } as CartViewPayload);
       }}
     >
-      Cart {count === null ? <span>&nbsp;</span> : count}
+      Cart <span aria-label={`(items: ${count})`}>{count}</span>
     </a>
   );
 }
 
 function CartToggle({cart}: Pick<HeaderProps, 'cart'>) {
   return (
-    <Suspense fallback={<CartBadge count={null} />}>
+    <Suspense fallback={<CartBadge count={0} />}>
       <Await resolve={cart}>
         <CartBanner />
       </Await>
@@ -176,44 +178,12 @@ function CartBanner() {
 }
 
 const FALLBACK_HEADER_MENU = {
-  id: 'gid://shopify/Menu/199655587896',
+  id: 'trailrent-menu',
   items: [
-    {
-      id: 'gid://shopify/MenuItem/461609500728',
-      resourceId: null,
-      tags: [],
-      title: 'Collections',
-      type: 'HTTP',
-      url: '/collections',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461609533496',
-      resourceId: null,
-      tags: [],
-      title: 'Blog',
-      type: 'HTTP',
-      url: '/blogs/journal',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461609566264',
-      resourceId: null,
-      tags: [],
-      title: 'Policies',
-      type: 'HTTP',
-      url: '/policies',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461609599032',
-      resourceId: 'gid://shopify/Page/92591030328',
-      tags: [],
-      title: 'About',
-      type: 'PAGE',
-      url: '/pages/about',
-      items: [],
-    },
+    {id: '1', resourceId: null, tags: [], title: 'Packages', type: 'HTTP', url: '/packages', items: []},
+    {id: '2', resourceId: null, tags: [], title: 'Gear', type: 'HTTP', url: '/individual-gear', items: []},
+    {id: '3', resourceId: null, tags: [], title: 'How it works', type: 'HTTP', url: '/pages/how-it-works', items: []},
+    {id: '4', resourceId: null, tags: [], title: 'FAQ', type: 'HTTP', url: '/pages/faq', items: []},
   ],
 };
 
