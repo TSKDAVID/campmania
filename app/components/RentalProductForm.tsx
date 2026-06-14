@@ -9,11 +9,11 @@ import {
   isDateRangeValid,
 } from '~/lib/trailrent/pricing';
 import {
-  IconCalendar,
   IconCart,
   IconMapPin,
   IconShield,
 } from '~/components/trailrent/Icons';
+import {RentalDateRangePicker} from '~/components/trailrent/RentalDateRangePicker';
 
 type FulfillmentMode = 'rent' | 'purchase';
 
@@ -127,11 +127,9 @@ export function RentalProductForm({
       className={`cm-rental-form${compact ? ' cm-rental-form--compact' : ''}${layout === 'wide' ? ' cm-rental-form--wide' : ''}`}
     >
       <header className="cm-rental-form-header">
-        <p className="tr-eyebrow">{tr.booking.title}</p>
+        <p className="cm-rental-form-eyebrow">{tr.booking.title}</p>
         {!compact ? (
-          <h2 className="mt-1 font-display text-xl font-bold text-pine md:text-2xl">
-            {productTitle}
-          </h2>
+          <h2 className="cm-rental-form-title">{productTitle}</h2>
         ) : null}
       </header>
 
@@ -162,38 +160,12 @@ export function RentalProductForm({
         <div className="cm-rental-form-fields">
           {isRentMode ? (
             <div className="cm-rental-field">
-              <label className="cm-form-label">
-                <span className="inline-flex items-center gap-2">
-                  <IconCalendar size={16} className="text-moss" />
-                  {tr.booking.dates}
-                </span>
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <span className="mb-1 block text-xs font-medium text-muted">
-                    {tr.booking.startDate}
-                  </span>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="cm-form-field"
-                    aria-label={tr.booking.startDate}
-                  />
-                </div>
-                <div>
-                  <span className="mb-1 block text-xs font-medium text-muted">
-                    {tr.booking.endDate}
-                  </span>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="cm-form-field"
-                    aria-label={tr.booking.endDate}
-                  />
-                </div>
-              </div>
+              <RentalDateRangePicker
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+              />
             </div>
           ) : (
             <div className="cm-rental-rto-banner">

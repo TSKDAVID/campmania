@@ -144,6 +144,11 @@ const translations = {
       buyNowDiscount: 'ქირის ფასის ფასდაკლებით',
       rentalCredit: 'ქირის კრედიტი',
       addToCart: 'კალათაში დამატება',
+      preset2Days: '2 დღე',
+      preset3Days: '3 დღე',
+      presetWeek: '1 კვირა',
+      invalidRange: 'დასრულების თარიღი უნდა იყოს დაწყების შემდეგ',
+      tapToChange: 'შეცვლა',
     },
     loyalty: {
       eyebrow: 'Trusted Tier',
@@ -371,6 +376,11 @@ const translations = {
       buyNowDiscount: 'with rental credit applied',
       rentalCredit: 'Rental credit',
       addToCart: 'Add to cart',
+      preset2Days: '2 days',
+      preset3Days: '3 days',
+      presetWeek: '1 week',
+      invalidRange: 'End date must be after start date',
+      tapToChange: 'Change',
     },
     loyalty: {
       eyebrow: 'Trusted Tier',

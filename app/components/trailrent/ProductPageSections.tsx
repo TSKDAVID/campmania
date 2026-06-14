@@ -28,11 +28,9 @@ export function ProductPriceBlock({
     <div className="cm-product-price" aria-label="Price" role="group">
       <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
         {price ? (
-          <p className="font-display text-4xl font-bold leading-none text-forest md:text-[2.75rem]">
+          <p className="cm-price-amount">
             <Money data={price} />
-            <span className="ml-1.5 text-lg font-semibold text-muted md:text-xl">
-              {tr.product.perDay}
-            </span>
+            <span className="cm-price-suffix">{tr.product.perDay}</span>
           </p>
         ) : null}
         {compareAtPrice && compareAt && compareAt > 0 ? (
