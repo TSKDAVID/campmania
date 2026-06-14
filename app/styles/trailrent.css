@@ -818,4 +818,250 @@
   .cm-rental-submit {
     @apply mt-5 w-full;
   }
+
+  /* ── Homepage (commerce-first) ───────────────────────────────────────── */
+  .cm-home {
+    @apply bg-mist pb-10 md:pb-14;
+  }
+
+  .cm-home-top {
+    @apply space-y-4 pb-6 pt-4 sm:space-y-5 sm:pt-5 md:pt-6;
+  }
+
+  .cm-home-bottom {
+    @apply space-y-8 pt-2 md:space-y-10;
+  }
+
+  .cm-home-search {
+    @apply flex w-full items-center gap-3 rounded-full border border-stone/80 bg-white px-4 py-3 text-left text-sm text-muted shadow-sm transition hover:border-moss/40 hover:shadow-md;
+    font-family: var(--font-body);
+  }
+
+  .cm-home-promo {
+    @apply relative block overflow-hidden rounded-2xl border border-stone/60 shadow-lg shadow-pine/10 no-underline hover:no-underline md:rounded-3xl;
+    aspect-ratio: 4 / 3;
+  }
+
+  @media (min-width: 768px) {
+    .cm-home-promo {
+      aspect-ratio: 21 / 9;
+    }
+  }
+
+  .cm-home-promo-image {
+    @apply absolute inset-0 h-full w-full object-cover transition duration-500;
+  }
+
+  .cm-home-promo:hover .cm-home-promo-image {
+    transform: scale(1.02);
+  }
+
+  .cm-home-promo-overlay {
+    @apply absolute inset-0 bg-gradient-to-r from-pine/90 via-pine/55 to-pine/20;
+  }
+
+  .cm-home-promo-content {
+    @apply relative flex h-full flex-col justify-end p-5 sm:p-6 md:max-w-xl md:p-8 lg:max-w-2xl;
+  }
+
+  .cm-home-promo-badge {
+    @apply mb-2 inline-flex w-fit rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-mist backdrop-blur-sm;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-promo-title {
+    @apply font-display text-2xl font-bold leading-tight text-white sm:text-3xl md:text-4xl;
+  }
+
+  .cm-home-promo-subtitle {
+    @apply mt-2 line-clamp-2 text-sm leading-relaxed text-mist/90 sm:mt-3 sm:text-base md:line-clamp-none;
+  }
+
+  .cm-home-promo-cta {
+    @apply mt-4 inline-flex w-fit items-center gap-2 rounded-md bg-amber px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-pine transition sm:mt-5;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-promo:hover .cm-home-promo-cta {
+    @apply bg-amber/90;
+  }
+
+  .cm-home-quicknav {
+    @apply -mx-1 flex gap-2 overflow-x-auto pb-1;
+    scrollbar-width: none;
+  }
+
+  .cm-home-quicknav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cm-home-quicknav-item {
+    @apply flex min-w-[7.5rem] shrink-0 flex-col items-center gap-2 rounded-xl border border-stone/70 bg-white px-3 py-3 text-center no-underline hover:no-underline transition hover:border-moss/40 hover:shadow-sm sm:min-w-0 sm:flex-1;
+  }
+
+  .cm-home-quicknav-icon {
+    @apply flex h-10 w-10 items-center justify-center rounded-full bg-mist text-forest;
+  }
+
+  .cm-home-quicknav-label {
+    @apply text-[11px] font-semibold leading-snug text-charcoal sm:text-xs;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-categories {
+    @apply border-y border-stone/70 bg-white py-6 md:py-8;
+  }
+
+  .cm-home-section-head {
+    @apply mb-4 flex items-end justify-between gap-4 md:mb-5;
+  }
+
+  .cm-home-section-title {
+    @apply flex items-center gap-2 font-display text-xl font-bold text-pine md:text-2xl;
+  }
+
+  .cm-home-section-subtitle {
+    @apply mt-1 text-sm text-muted md:text-base;
+  }
+
+  .cm-home-section-link {
+    @apply inline-flex items-center gap-1.5 text-sm font-semibold text-moss transition hover:text-forest no-underline hover:no-underline;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-cat-grid {
+    display: grid;
+    gap: 0.625rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 640px) {
+    .cm-home-cat-grid {
+      gap: 0.75rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cm-home-cat-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  .cm-home-cat {
+    @apply relative flex min-h-[5.5rem] flex-col justify-between overflow-hidden rounded-xl border border-stone/50 p-3 no-underline hover:no-underline transition hover:-translate-y-0.5 hover:shadow-md sm:min-h-[6.5rem] sm:p-4;
+  }
+
+  .cm-home-cat-icon {
+    @apply text-pine/70;
+  }
+
+  .cm-home-cat-label {
+    @apply text-right text-xs font-bold leading-snug text-pine sm:text-sm;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-cat--moss {
+    @apply bg-moss/12;
+  }
+
+  .cm-home-cat--amber {
+    @apply bg-amber/20;
+  }
+
+  .cm-home-cat--sage {
+    @apply bg-sage/25;
+  }
+
+  .cm-home-cat--stone {
+    @apply bg-stone/80;
+  }
+
+  .cm-home-cat--forest {
+    @apply bg-forest/10;
+  }
+
+  .cm-home-cat--pine {
+    @apply bg-pine/8;
+  }
+
+  .cm-home-products {
+    @apply py-6 md:py-8;
+  }
+
+  .cm-home-products-empty {
+    @apply rounded-2xl border border-dashed border-stone bg-white px-6 py-12 text-center text-charcoal/70;
+  }
+
+  .cm-home-tile-grid {
+    @apply grid gap-3 sm:grid-cols-2 sm:gap-4;
+  }
+
+  .cm-home-tile {
+    @apply relative block min-h-[11rem] overflow-hidden rounded-2xl border border-stone/60 no-underline hover:no-underline sm:min-h-[12rem];
+  }
+
+  .cm-home-tile-image {
+    @apply absolute inset-0 h-full w-full object-cover transition duration-500;
+  }
+
+  .cm-home-tile:hover .cm-home-tile-image {
+    transform: scale(1.05);
+  }
+
+  .cm-home-tile-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-pine/95 via-pine/50 to-pine/20;
+  }
+
+  .cm-home-tile-body {
+    @apply relative flex h-full min-h-[11rem] flex-col justify-end p-4 sm:min-h-[12rem] sm:p-5;
+  }
+
+  .cm-home-tile-title {
+    @apply font-display text-lg font-bold text-white sm:text-xl;
+  }
+
+  .cm-home-tile-desc {
+    @apply mt-1 line-clamp-2 text-xs leading-relaxed text-mist/85 sm:text-sm;
+  }
+
+  .cm-home-tile-cta {
+    @apply mt-3 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber sm:text-sm;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-perks {
+    @apply flex flex-col gap-2 rounded-xl border border-stone/60 bg-white p-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-6 sm:p-4;
+  }
+
+  .cm-home-perk {
+    @apply flex items-center gap-2 text-xs font-semibold text-charcoal sm:text-sm;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-steps {
+    @apply rounded-2xl border border-stone/60 bg-white p-4 sm:p-5 md:p-6;
+  }
+
+  .cm-home-steps-grid {
+    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .cm-home-step {
+    @apply rounded-xl bg-mist/50 p-3.5 sm:p-4;
+  }
+
+  .cm-home-step-num {
+    @apply flex h-7 w-7 items-center justify-center rounded-full bg-pine text-xs font-bold text-mist;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-step-title {
+    @apply mt-2 text-sm font-bold text-pine;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-step-desc {
+    @apply mt-1 text-xs leading-relaxed text-muted;
+  }
 }
