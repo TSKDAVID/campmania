@@ -2,6 +2,7 @@ import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {Money} from '@shopify/hydrogen';
 import {useLocale} from '~/providers/LocaleProvider';
 import {formatGel} from '~/lib/trailrent/pricing';
+import type {FulfillmentMode} from '~/components/RentalProductForm';
 import {
   IconCheck,
   IconMetro,
@@ -11,11 +12,17 @@ import {
 } from '~/components/trailrent/Icons';
 
 export function ProductPriceBlock({
-  price,
+  fulfillmentMode = 'rent',
+  rentPrice,
+  buyPrice,
+  buyAvailable = false,
   compareAtPrice,
   savingsPercent,
 }: {
-  price?: MoneyV2;
+  fulfillmentMode?: FulfillmentMode;
+  rentPrice?: MoneyV2;
+  buyPrice?: MoneyV2;
+  buyAvailable?: boolean;
   compareAtPrice?: MoneyV2 | null;
   savingsPercent?: number;
 }) {
@@ -23,23 +30,35 @@ export function ProductPriceBlock({
   const compareAt = compareAtPrice
     ? Number(compareAtPrice.amount)
     : undefined;
+  const buyAmount = buyPrice ? Number(buyPrice.amount) : undefined;
+  const isPurchase = fulfillmentMode === 'purchase';
 
   return (
     <div className="cm-product-price" aria-label="Price" role="group">
       <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-        {price ? (
+        {isPurchase && buyPrice ? (
           <p className="cm-price-amount">
-            <Money data={price} />
+            <Money data={buyPrice} />
+          </p>
+        ) : rentPrice ? (
+          <p className="cm-price-amount">
+            <Money data={rentPrice} />
             <span className="cm-price-suffix">{tr.product.perDay}</span>
           </p>
         ) : null}
-        {compareAtPrice && compareAt && compareAt > 0 ? (
+        {compareAtPrice && compareAt && compareAt > 0 && !isPurchase ? (
           <p className="pb-1 text-lg text-muted line-through">
             <Money data={compareAtPrice} />
           </p>
         ) : null}
       </div>
-      {savingsPercent ? (
+      {buyAvailable && buyAmount && !isPurchase ? (
+        <p className="cm-product-buy-hint">
+          {tr.product.orBuyFor}{' '}
+          <span className="font-semibold text-forest">{formatGel(buyAmount)}</span>
+        </p>
+      ) : null}
+      {savingsPercent && !isPurchase ? (
         <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber/20 px-3.5 py-1.5 text-sm font-semibold text-pine">
           <span className="rounded-full bg-amber px-2 py-0.5 text-xs font-bold text-pine">
             −{savingsPercent}%

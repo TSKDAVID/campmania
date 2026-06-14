@@ -964,6 +964,11 @@
     font-family: var(--font-body);
   }
 
+  .cm-product-buy-hint {
+    @apply mt-2 text-sm text-muted;
+    font-family: var(--font-body);
+  }
+
   /*
    * Mobile / tablet: booking first (conversion), kit list second, full width.
    * XL+: kit list | booking side-by-side — booking gets 3/5 of buy-box width.

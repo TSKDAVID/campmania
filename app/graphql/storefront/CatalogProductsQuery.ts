@@ -25,6 +25,25 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
         currencyCode
       }
     }
+    variants(first: 10) {
+      nodes {
+        id
+        title
+        availableForSale
+        price {
+          amount
+          currencyCode
+        }
+        compareAtPrice {
+          amount
+          currencyCode
+        }
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
     selectedOrFirstAvailableVariant(
       selectedOptions: []
       ignoreUnknownOptions: true
@@ -46,6 +65,9 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
       type
     }
     kitSummary: metafield(namespace: "custom", key: "kit_summary") {
+      value
+    }
+    availableForPurchase: metafield(namespace: "custom", key: "available_for_purchase") {
       value
     }
   }

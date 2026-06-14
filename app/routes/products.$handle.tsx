@@ -1,3 +1,5 @@
+import {useMemo, useState} from 'react';
+import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {useLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {
@@ -8,7 +10,10 @@ import {
   useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
 import {ProductImage} from '~/components/ProductImage';
-import {RentalProductForm} from '~/components/RentalProductForm';
+import {
+  RentalProductForm,
+  type FulfillmentMode,
+} from '~/components/RentalProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {
   ProductDescription,
@@ -20,6 +25,10 @@ import {useLocale} from '~/providers/LocaleProvider';
 import {loadCustomerRentalContext} from '~/lib/trailrent/customer-rental-context';
 import {buildRentToOwnOffer} from '~/lib/trailrent/rent-to-own';
 import {isTrustedTier} from '~/lib/trailrent/loyalty';
+import {
+  collectProductVariants,
+  resolveFulfillmentVariants,
+} from '~/lib/trailrent/product-variants';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [
@@ -82,6 +91,8 @@ function parseIncludedItems(metafield?: {value: string; type: string} | null): s
 export default function Product() {
   const {product, customerRentalContext} = useLoaderData<typeof loader>();
   const {locale, translations: tr} = useLocale();
+  const [fulfillmentMode, setFulfillmentMode] =
+    useState<FulfillmentMode>('rent');
 
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
@@ -90,14 +101,22 @@ export default function Product() {
 
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
+  const fulfillment = useMemo(() => {
+    const variants = collectProductVariants(product);
+    return resolveFulfillmentVariants({
+      variants,
+      availableForPurchaseMeta: product.availableForPurchase?.value,
+    });
+  }, [product]);
+
+  const rentVariant = fulfillment?.rentVariant;
+  const buyVariant = fulfillment?.buyVariant;
+  const buyAvailable = fulfillment?.buyAvailable ?? false;
+
   const {title, descriptionHtml, id: productId, tags = []} = product;
-  const dailyRate = Number(selectedVariant?.price?.amount ?? 0);
-  const compareAt = Number(selectedVariant?.compareAtPrice?.amount ?? 0);
-  const purchasePrice = Number(
-    selectedVariant?.compareAtPrice?.amount ??
-      selectedVariant?.price?.amount ??
-      0,
-  );
+  const dailyRate = Number(rentVariant?.price?.amount ?? 0);
+  const purchasePrice = Number(buyVariant?.price?.amount ?? 0);
+  const compareAt = Number(rentVariant?.compareAtPrice?.amount ?? 0);
   const includedItems = parseIncludedItems(product.includedItems);
   const kitSummary = product.kitSummary?.value?.trim();
   const isPackage =
@@ -114,6 +133,21 @@ export default function Product() {
     orders: customerRentalContext.orders,
   });
 
+  const bookingFormProps = rentVariant?.id
+    ? {
+        rentVariantId: rentVariant.id,
+        buyVariantId: buyVariant?.id,
+        buyAvailable,
+        productTitle: title,
+        dailyRate,
+        purchasePrice,
+        rentToOwnOffer,
+        isTrustedTier: trustedTier,
+        onModeChange: setFulfillmentMode,
+        compact: true as const,
+      }
+    : null;
+
   return (
     <article className="cm-product-page">
       <div className="cm-product-page-inner">
@@ -124,7 +158,7 @@ export default function Product() {
         >
           <aside className="cm-product-layout-media" aria-label={title}>
             <ProductImage
-              image={selectedVariant?.image}
+              image={selectedVariant?.image ?? rentVariant?.image}
               title={title}
               variant={includedItems.length === 0 ? 'solo' : 'kit'}
             />
@@ -140,8 +174,11 @@ export default function Product() {
                 <p className="cm-product-subtitle">{kitSummary}</p>
               ) : null}
               <ProductPriceBlock
-                price={selectedVariant?.price}
-                compareAtPrice={selectedVariant?.compareAtPrice}
+                fulfillmentMode={fulfillmentMode}
+                rentPrice={rentVariant?.price as MoneyV2 | undefined}
+                buyPrice={buyVariant?.price as MoneyV2 | undefined}
+                buyAvailable={buyAvailable}
+                compareAtPrice={rentVariant?.compareAtPrice as MoneyV2 | null | undefined}
                 savingsPercent={savingsPercent}
               />
             </header>
@@ -152,16 +189,8 @@ export default function Product() {
               <div className="cm-product-buybox-panels">
                 <ProductIncludedPanel items={includedItems} />
 
-                {selectedVariant?.id ? (
-                  <RentalProductForm
-                    variantId={selectedVariant.id}
-                    productTitle={title}
-                    dailyRate={dailyRate}
-                    purchasePrice={purchasePrice}
-                    rentToOwnOffer={rentToOwnOffer}
-                    isTrustedTier={trustedTier}
-                    compact
-                  />
+                {bookingFormProps ? (
+                  <RentalProductForm {...bookingFormProps} />
                 ) : (
                   <p className="cm-product-unavailable">
                     {locale === 'ka'
@@ -170,18 +199,9 @@ export default function Product() {
                   </p>
                 )}
               </div>
-            ) : selectedVariant?.id ? (
+            ) : bookingFormProps ? (
               <div className="cm-product-booking">
-                <RentalProductForm
-                  variantId={selectedVariant.id}
-                  productTitle={title}
-                  dailyRate={dailyRate}
-                  purchasePrice={purchasePrice}
-                  rentToOwnOffer={rentToOwnOffer}
-                  isTrustedTier={trustedTier}
-                  compact
-                  layout="wide"
-                />
+                <RentalProductForm {...bookingFormProps} layout="wide" />
               </div>
             ) : (
               <p className="cm-product-unavailable">
@@ -202,10 +222,10 @@ export default function Product() {
             {
               id: product.id,
               title: product.title,
-              price: selectedVariant?.price.amount || '0',
+              price: rentVariant?.price.amount || '0',
               vendor: product.vendor,
-              variantId: selectedVariant?.id || '',
-              variantTitle: selectedVariant?.title || '',
+              variantId: rentVariant?.id || '',
+              variantTitle: rentVariant?.title || '',
               quantity: 1,
             },
           ],
@@ -279,6 +299,11 @@ const PRODUCT_FRAGMENT = `#graphql
         }
       }
     }
+    variants(first: 25) {
+      nodes {
+        ...ProductVariant
+      }
+    }
     selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {
       ...ProductVariant
     }
@@ -295,6 +320,9 @@ const PRODUCT_FRAGMENT = `#graphql
       type
     }
     kitSummary: metafield(namespace: "custom", key: "kit_summary") {
+      value
+    }
+    availableForPurchase: metafield(namespace: "custom", key: "available_for_purchase") {
       value
     }
   }

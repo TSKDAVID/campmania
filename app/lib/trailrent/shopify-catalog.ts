@@ -12,6 +12,11 @@ import {
   type PackageItem,
 } from '~/lib/trailrent/catalog';
 import {formatGel} from '~/lib/trailrent/pricing';
+import {
+  pickRentVariant,
+  collectProductVariants,
+  type FulfillmentVariantNode,
+} from '~/lib/trailrent/product-variants';
 
 /** Create these collections in Shopify Admin and add products. */
 export const SHOPIFY_COLLECTION_HANDLES = {
@@ -38,9 +43,15 @@ type CatalogProductNode = {
   selectedOrFirstAvailableVariant?: {
     id: string;
     availableForSale: boolean;
+    title?: string | null;
     price: {amount: string; currencyCode: string};
     compareAtPrice?: {amount: string; currencyCode: string} | null;
+    selectedOptions?: Array<{name: string; value: string}>;
   } | null;
+  variants?: {
+    nodes: FulfillmentVariantNode[];
+  } | null;
+  availableForPurchase?: {value: string} | null;
   includedItems?: {value: string; type: string} | null;
   kitSummary?: {value: string} | null;
 };
@@ -93,6 +104,14 @@ function parseIncludedItems(metafield?: {value: string; type: string} | null): s
     .filter(Boolean);
 }
 
+function catalogRentVariant(product: CatalogProductNode) {
+  const variants = collectProductVariants({
+    variants: product.variants,
+    selectedOrFirstAvailableVariant: product.selectedOrFirstAvailableVariant,
+  });
+  return pickRentVariant(variants) ?? product.selectedOrFirstAvailableVariant;
+}
+
 function mapPackageProduct(
   product: CatalogProductNode,
   locale: 'ka' | 'en',
@@ -101,7 +120,7 @@ function mapPackageProduct(
   const duration = tagValue(product.tags, 'duration') ?? '2-day';
   const difficulty = tagValue(product.tags, 'difficulty') ?? 'moderate';
 
-  const variant = product.selectedOrFirstAvailableVariant;
+  const variant = catalogRentVariant(product);
   const dailyRate = Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount);
   const compareAt = Number(
     variant?.compareAtPrice?.amount ??
@@ -146,7 +165,7 @@ function mapGearProduct(
   locale: 'ka' | 'en',
 ): ShopifyGearItem {
   const category = tagValue(product.tags, 'gear') ?? 'tent';
-  const variant = product.selectedOrFirstAvailableVariant;
+  const variant = catalogRentVariant(product);
   const dailyRate = Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount);
 
   return {

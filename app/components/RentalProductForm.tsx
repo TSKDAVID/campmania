@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
 import {useLocale} from '~/providers/LocaleProvider';
 import {METRO_STATIONS, getStationLabel} from '~/lib/trailrent/metro';
@@ -15,7 +15,7 @@ import {
 } from '~/components/trailrent/Icons';
 import {RentalDateRangePicker} from '~/components/trailrent/RentalDateRangePicker';
 
-type FulfillmentMode = 'rent' | 'purchase';
+export type FulfillmentMode = 'rent' | 'purchase';
 
 export type RentToOwnOffer = {
   eligible: boolean;
@@ -24,13 +24,16 @@ export type RentToOwnOffer = {
 };
 
 export type RentalProductFormProps = {
-  variantId: string;
+  rentVariantId: string;
+  buyVariantId?: string;
+  buyAvailable: boolean;
   productTitle: string;
   dailyRate: number;
-  purchasePrice?: number;
+  purchasePrice: number;
   rentToOwnOffer?: RentToOwnOffer;
   isTrustedTier?: boolean;
   onSuccess?: () => void;
+  onModeChange?: (mode: FulfillmentMode) => void;
   /** Hides duplicate product title when shown beside the page header. */
   compact?: boolean;
   /** Two-column booking layout for full-width solo product pages. */
@@ -43,14 +46,15 @@ function buildLineAttributes(options: {
   endDate: string;
   metroId: string;
   rentalCredit?: number;
+  rentalDays?: number;
 }): Array<{key: string; value: string}> {
-  const {mode, startDate, endDate, metroId, rentalCredit} = options;
+  const {mode, startDate, endDate, metroId, rentalCredit, rentalDays} = options;
   const isPurchase = mode === 'purchase';
 
   const attributes: Array<{key: string; value: string}> = [
     {key: 'fulfillment_mode', value: mode},
     {key: 'metro_station', value: metroId},
-    {key: 'rent_to_own', value: isPurchase ? 'true' : 'false'},
+    {key: 'rent_to_own', value: isPurchase && rentalCredit ? 'true' : 'false'},
   ];
 
   if (isPurchase) {
@@ -64,6 +68,7 @@ function buildLineAttributes(options: {
     attributes.push(
       {key: 'rental_start', value: startDate},
       {key: 'rental_end', value: endDate},
+      {key: 'rental_days', value: String(rentalDays ?? 1)},
     );
   }
 
@@ -71,13 +76,16 @@ function buildLineAttributes(options: {
 }
 
 export function RentalProductForm({
-  variantId,
+  rentVariantId,
+  buyVariantId,
+  buyAvailable,
   productTitle,
   dailyRate,
   purchasePrice,
   rentToOwnOffer,
   isTrustedTier = false,
   onSuccess,
+  onModeChange,
   compact = false,
   layout = 'stacked',
 }: RentalProductFormProps) {
@@ -89,8 +97,15 @@ export function RentalProductForm({
   const [metroId, setMetroId] = useState(METRO_STATIONS[0]?.id ?? '');
   const [mode, setMode] = useState<FulfillmentMode>('rent');
 
-  const canBuy = rentToOwnOffer?.eligible === true;
+  const showBuyToggle = buyAvailable && Boolean(buyVariantId);
   const isRentMode = mode === 'rent';
+  const hasRentToOwnCredit =
+    rentToOwnOffer?.eligible === true &&
+    (rentToOwnOffer.rentalCredit ?? 0) > 0;
+
+  useEffect(() => {
+    onModeChange?.(mode);
+  }, [mode, onModeChange]);
 
   const datesValid = isDateRangeValid(startDate, endDate);
   const station = METRO_STATIONS.find((s) => s.id === metroId);
@@ -100,27 +115,50 @@ export function RentalProductForm({
     [dailyRate, startDate, endDate],
   );
 
+  const activeVariantId = isRentMode ? rentVariantId : (buyVariantId ?? rentVariantId);
+  const cartQuantity = isRentMode ? rentalPricing.days : 1;
+
+  const buyDisplayTotal = hasRentToOwnCredit
+    ? rentToOwnOffer!.buyNowPrice
+    : purchasePrice;
+
   const cartLines: OptimisticCartLineInput[] = useMemo(
     () => [
       {
-        merchandiseId: variantId,
-        quantity: 1,
+        merchandiseId: activeVariantId,
+        quantity: cartQuantity,
         attributes: buildLineAttributes({
           mode,
           startDate,
           endDate,
           metroId,
-          rentalCredit: rentToOwnOffer?.rentalCredit,
+          rentalCredit: hasRentToOwnCredit ? rentToOwnOffer?.rentalCredit : undefined,
+          rentalDays: rentalPricing.days,
         }),
       },
     ],
-    [variantId, mode, startDate, endDate, metroId, rentToOwnOffer?.rentalCredit],
+    [
+      activeVariantId,
+      cartQuantity,
+      mode,
+      startDate,
+      endDate,
+      metroId,
+      hasRentToOwnCredit,
+      rentToOwnOffer?.rentalCredit,
+      rentalPricing.days,
+    ],
   );
 
-  const canSubmit = isRentMode ? datesValid : canBuy;
-  const displayTotal = isRentMode
-    ? rentalPricing.total
-    : (rentToOwnOffer?.buyNowPrice ?? purchasePrice ?? dailyRate);
+  const canSubmit = isRentMode
+    ? datesValid
+    : showBuyToggle && Boolean(buyVariantId);
+
+  const displayTotal = isRentMode ? rentalPricing.total : buyDisplayTotal;
+
+  const setFulfillmentMode = (next: FulfillmentMode) => {
+    setMode(next);
+  };
 
   return (
     <div
@@ -133,7 +171,7 @@ export function RentalProductForm({
         ) : null}
       </header>
 
-      {canBuy ? (
+      {showBuyToggle ? (
         <div
           className="cm-rental-mode-toggle"
           role="group"
@@ -141,14 +179,14 @@ export function RentalProductForm({
         >
           <button
             type="button"
-            onClick={() => setMode('rent')}
+            onClick={() => setFulfillmentMode('rent')}
             className={`cm-rental-mode-btn ${isRentMode ? 'cm-rental-mode-btn--active' : ''}`}
           >
             {tr.booking.modeRent}
           </button>
           <button
             type="button"
-            onClick={() => setMode('purchase')}
+            onClick={() => setFulfillmentMode('purchase')}
             className={`cm-rental-mode-btn ${!isRentMode ? 'cm-rental-mode-btn--buy' : ''}`}
           >
             {tr.booking.modeBuy}
@@ -170,14 +208,22 @@ export function RentalProductForm({
           ) : (
             <div className="cm-rental-rto-banner">
               <p className="text-sm font-semibold text-pine">
-                {tr.booking.buyNow} {formatGel(displayTotal)}
+                {tr.booking.buyOutright} {formatGel(buyDisplayTotal)}
               </p>
-              {rentToOwnOffer?.rentalCredit ? (
-                <p className="mt-1 text-sm text-muted">
-                  {tr.booking.rentalCredit}: −{formatGel(rentToOwnOffer.rentalCredit)} ·{' '}
-                  {tr.booking.buyNowDiscount}
-                </p>
-              ) : null}
+              {hasRentToOwnCredit ? (
+                <>
+                  <p className="mt-1 text-sm text-muted">
+                    {tr.booking.rentalCredit}: −
+                    {formatGel(rentToOwnOffer!.rentalCredit)} ·{' '}
+                    {tr.booking.buyNowDiscount}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">
+                    {tr.booking.rtoCheckoutNote}
+                  </p>
+                </>
+              ) : (
+                <p className="mt-1 text-sm text-muted">{tr.booking.buyIncludesPickup}</p>
+              )}
             </div>
           )}
 
@@ -185,7 +231,7 @@ export function RentalProductForm({
             <label htmlFor="rental-metro-select" className="cm-form-label">
               <span className="inline-flex items-center gap-2">
                 <IconMapPin size={16} className="text-moss" />
-                {tr.booking.metro}
+                {isRentMode ? tr.booking.metro : tr.booking.pickupMetro}
               </span>
             </label>
             <select
@@ -225,10 +271,16 @@ export function RentalProductForm({
               </>
             ) : (
               <div className="cm-rental-summary-row">
-                <span>{tr.booking.buyNow}</span>
-                <span>{formatGel(displayTotal)}</span>
+                <span>{tr.booking.purchasePrice}</span>
+                <span>{formatGel(purchasePrice)}</span>
               </div>
             )}
+            {hasRentToOwnCredit && !isRentMode ? (
+              <div className="cm-rental-summary-row text-moss">
+                <span>{tr.booking.rentalCredit}</span>
+                <span>−{formatGel(rentToOwnOffer!.rentalCredit)}</span>
+              </div>
+            ) : null}
             <div className="cm-rental-summary-total">
               <span>{tr.booking.total}</span>
               <span>{formatGel(displayTotal)}</span>
@@ -262,7 +314,7 @@ export function RentalProductForm({
                 {canSubmit
                   ? isRentMode
                     ? tr.booking.addToCart
-                    : `${tr.booking.buyNow} ${formatGel(displayTotal)}`
+                    : `${tr.booking.addToCartBuy} · ${formatGel(purchasePrice)}`
                   : tr.booking.unavailable}
               </button>
             )}
