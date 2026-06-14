@@ -108,16 +108,18 @@ export function ProductIncludedPanel({items}: {items: string[]}) {
           </h2>
         </div>
       </div>
-      <ul className="cm-product-included-list">
-        {items.map((item) => (
-          <li key={item} className="cm-product-included-item">
-            <span className="cm-product-included-check" aria-hidden>
-              <IconCheck size={12} />
-            </span>
-            <span className="cm-product-included-text">{item}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="cm-product-included-body">
+        <ul className="cm-product-included-list">
+          {items.map((item) => (
+            <li key={item} className="cm-product-included-item">
+              <span className="cm-product-included-check" aria-hidden>
+                <IconCheck size={12} />
+              </span>
+              <span className="cm-product-included-text">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
