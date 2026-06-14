@@ -383,7 +383,7 @@
   }
 
   .cm-product-gallery-frame {
-    @apply overflow-hidden rounded-2xl border border-stone/70 bg-white shadow-lg shadow-pine/5;
+    @apply relative aspect-[4/5] w-full max-h-[min(72vh,680px)] overflow-hidden rounded-2xl border border-stone/70 bg-stone shadow-lg shadow-pine/5;
   }
 
   .cm-product-gallery-placeholder {

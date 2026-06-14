@@ -1,6 +1,5 @@
-import {Await, useLoaderData} from 'react-router';
+import {useLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
-import {Suspense} from 'react';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -18,9 +17,9 @@ import {
   ProductTrustBar,
 } from '~/components/trailrent/ProductPageSections';
 import {useLocale} from '~/providers/LocaleProvider';
-import {CUSTOMER_RENTAL_HISTORY_QUERY} from '~/graphql/customer-account/CustomerRentalHistoryQuery';
+import {loadCustomerRentalContext} from '~/lib/trailrent/customer-rental-context';
 import {buildRentToOwnOffer} from '~/lib/trailrent/rent-to-own';
-import {isTrustedTier, parseCustomerTags} from '~/lib/trailrent/loyalty';
+import {isTrustedTier} from '~/lib/trailrent/loyalty';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [
@@ -33,9 +32,12 @@ export const meta: Route.MetaFunction = ({data}) => {
 };
 
 export async function loader(args: Route.LoaderArgs) {
-  const deferredData = loadDeferredData(args);
-  const criticalData = await loadCriticalData(args);
-  return {...deferredData, ...criticalData};
+  const [criticalData, customerRentalContext] = await Promise.all([
+    loadCriticalData(args),
+    loadCustomerRentalContext(args.context),
+  ]);
+
+  return {...criticalData, customerRentalContext};
 }
 
 async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
@@ -59,40 +61,6 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
   return {product};
-}
-
-function loadDeferredData({context}: Route.LoaderArgs) {
-  const {customerAccount} = context;
-
-  const customerRentalContext = customerAccount
-    .isLoggedIn()
-    .then(async (loggedIn) => {
-      if (!loggedIn) {
-        return {tags: [] as string[], orders: []};
-      }
-
-      const {data, errors} = await customerAccount.query(
-        CUSTOMER_RENTAL_HISTORY_QUERY,
-        {
-          variables: {
-            language: customerAccount.i18n.language,
-            first: 25,
-          },
-        },
-      );
-
-      if (errors?.length || !data?.customer) {
-        return {tags: [] as string[], orders: []};
-      }
-
-      return {
-        tags: parseCustomerTags(data.customer.tags),
-        orders: data.customer.orders.nodes,
-      };
-    })
-    .catch(() => ({tags: [] as string[], orders: []}));
-
-  return {customerRentalContext};
 }
 
 function parseIncludedItems(metafield?: {value: string; type: string} | null): string[] {
@@ -139,6 +107,13 @@ export default function Product() {
       ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
       : undefined;
 
+  const trustedTier = isTrustedTier(customerRentalContext.tags);
+  const rentToOwnOffer = buildRentToOwnOffer({
+    productId,
+    purchasePrice,
+    orders: customerRentalContext.orders,
+  });
+
   return (
     <article className="cm-product-page">
       <div className="tr-page-width cm-product-page-inner">
@@ -164,15 +139,7 @@ export default function Product() {
             </header>
 
             <div className="cm-product-meta">
-              <Suspense
-                fallback={<ProductTrustBar isTrustedTier={false} />}
-              >
-                <Await resolve={customerRentalContext}>
-                  {(ctx) => (
-                    <ProductTrustBar isTrustedTier={isTrustedTier(ctx.tags)} />
-                  )}
-                </Await>
-              </Suspense>
+              <ProductTrustBar isTrustedTier={trustedTier} />
 
               {includedItems.length > 0 ? (
                 <ProductIncludedPanel items={includedItems} />
@@ -180,33 +147,14 @@ export default function Product() {
             </div>
 
             {selectedVariant?.id ? (
-              <Suspense
-                fallback={
-                  <div className="cm-rental-form animate-pulse">
-                    <div className="h-6 w-1/2 rounded-lg bg-stone" />
-                    <div className="mt-6 h-10 rounded-lg bg-stone" />
-                    <div className="mt-4 h-10 rounded-lg bg-stone" />
-                    <div className="mt-6 h-12 rounded-lg bg-stone" />
-                  </div>
-                }
-              >
-                <Await resolve={customerRentalContext}>
-                  {(ctx) => (
-                    <RentalProductForm
-                      variantId={selectedVariant.id}
-                      productTitle={title}
-                      dailyRate={dailyRate}
-                      purchasePrice={purchasePrice}
-                      rentToOwnOffer={buildRentToOwnOffer({
-                        productId,
-                        purchasePrice,
-                        orders: ctx.orders,
-                      })}
-                      isTrustedTier={isTrustedTier(ctx.tags)}
-                    />
-                  )}
-                </Await>
-              </Suspense>
+              <RentalProductForm
+                variantId={selectedVariant.id}
+                productTitle={title}
+                dailyRate={dailyRate}
+                purchasePrice={purchasePrice}
+                rentToOwnOffer={rentToOwnOffer}
+                isTrustedTier={trustedTier}
+              />
             ) : (
               <p className="cm-product-unavailable">
                 {locale === 'ka'
