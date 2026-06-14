@@ -95,9 +95,27 @@ function loadDeferredData({context}: Route.LoaderArgs) {
   return {customerRentalContext};
 }
 
+import {formatGel} from '~/lib/trailrent/pricing';
+
+function parseIncludedItems(metafield?: {value: string; type: string} | null): string[] {
+  if (!metafield?.value) return [];
+  try {
+    const parsed = JSON.parse(metafield.value) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string');
+    }
+  } catch {
+    // fall through — treat as newline list
+  }
+  return metafield.value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 export default function Product() {
   const {product, customerRentalContext} = useLoaderData<typeof loader>();
-  const {locale} = useLocale();
+  const {locale, translations: tr} = useLocale();
 
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
@@ -108,11 +126,17 @@ export default function Product() {
 
   const {title, descriptionHtml, id: productId} = product;
   const dailyRate = Number(selectedVariant?.price?.amount ?? 0);
+  const compareAt = Number(selectedVariant?.compareAtPrice?.amount ?? 0);
   const purchasePrice = Number(
     selectedVariant?.compareAtPrice?.amount ??
       selectedVariant?.price?.amount ??
       0,
   );
+  const includedItems = parseIncludedItems(product.includedItems);
+  const savingsPercent =
+    compareAt > dailyRate && compareAt > 0
+      ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
+      : undefined;
 
   return (
     <div className="tr-page-width tr-section">
@@ -125,7 +149,36 @@ export default function Product() {
               price={selectedVariant?.price}
               compareAtPrice={selectedVariant?.compareAtPrice}
             />
+            {savingsPercent ? (
+              <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-amber/15 px-3 py-1 text-sm font-semibold text-forest">
+                {tr.product.kitSavings}: -{savingsPercent}%
+                {compareAt > 0 ? (
+                  <span className="font-normal text-muted line-through">
+                    {tr.product.wasPrice} {formatGel(compareAt)}
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
           </div>
+
+          {includedItems.length > 0 ? (
+            <div className="mt-6 rounded-lg border border-stone/80 bg-mist/50 p-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-moss">
+                {tr.product.included}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {includedItems.map((item) => (
+                  <li key={item} className="flex gap-2 text-sm text-charcoal/80">
+                    <span
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-moss"
+                      aria-hidden
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           <Suspense
             fallback={
@@ -278,6 +331,14 @@ const PRODUCT_FRAGMENT = `#graphql
     seo {
       description
       title
+    }
+    tags
+    includedItems: metafield(namespace: "custom", key: "included_items") {
+      value
+      type
+    }
+    kitSummary: metafield(namespace: "custom", key: "kit_summary") {
+      value
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}

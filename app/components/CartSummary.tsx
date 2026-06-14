@@ -3,6 +3,7 @@ import type {CartLayout} from '~/components/CartMain';
 import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
+import {useLocale} from '~/providers/LocaleProvider';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -10,6 +11,7 @@ type CartSummaryProps = {
 };
 
 export function CartSummary({cart, layout}: CartSummaryProps) {
+  const {translations: tr} = useLocale();
   const className =
     layout === 'page' ? 'cart-summary-page' : 'cart-summary-aside';
   const summaryId = useId();
@@ -20,9 +22,9 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
 
   return (
     <div aria-labelledby={summaryId} className={className}>
-      <h4 id={summaryId}>Totals</h4>
+      <h4 id={summaryId}>{tr.cart.totals}</h4>
       <dl role="group" className="cart-subtotal">
-        <dt>Subtotal</dt>
+        <dt>{tr.cart.subtotal}</dt>
         <dd>
           {cart?.cost?.subtotalAmount?.amount ? (
             <Money data={cart?.cost?.subtotalAmount} />
@@ -35,38 +37,55 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
         discountCodes={cart?.discountCodes}
         discountsHeadingId={discountsHeadingId}
         discountCodeInputId={discountCodeInputId}
+        labels={tr.cart}
       />
       <CartGiftCard
         giftCardCodes={cart?.appliedGiftCards}
         giftCardHeadingId={giftCardHeadingId}
         giftCardInputId={giftCardInputId}
+        labels={tr.cart}
       />
-      <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
+      <CartCheckoutActions
+        checkoutUrl={cart?.checkoutUrl}
+        label={tr.cart.checkout}
+      />
     </div>
   );
 }
 
-function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
+function CartCheckoutActions({
+  checkoutUrl,
+  label,
+}: {
+  checkoutUrl?: string;
+  label: string;
+}) {
   if (!checkoutUrl) return null;
 
   return (
     <div>
       <a href={checkoutUrl} target="_self">
-        <p>Continue to Checkout &rarr;</p>
+        <p>{label}</p>
       </a>
       <br />
     </div>
   );
 }
 
+type CartLabels = ReturnType<
+  typeof import('~/providers/LocaleProvider').useLocale
+>['translations']['cart'];
+
 function CartDiscounts({
   discountCodes,
   discountsHeadingId,
   discountCodeInputId,
+  labels,
 }: {
   discountCodes?: CartApiQueryFragment['discountCodes'];
   discountsHeadingId: string;
   discountCodeInputId: string;
+  labels: CartLabels;
 }) {
   const codes: string[] =
     discountCodes
@@ -74,11 +93,11 @@ function CartDiscounts({
       ?.map(({code}) => code) || [];
 
   return (
-    <section aria-label="Discounts">
+    <section aria-label={labels.discounts}>
       {/* Have existing discount, display it with a remove option */}
       <dl hidden={!codes.length}>
         <div>
-          <dt id={discountsHeadingId}>Discounts</dt>
+          <dt id={discountsHeadingId}>{labels.discounts}</dt>
           <UpdateDiscountForm>
             <div
               className="cart-discount"
@@ -87,8 +106,8 @@ function CartDiscounts({
             >
               <code>{codes?.join(', ')}</code>
               &nbsp;
-              <button type="submit" aria-label="Remove discount">
-                Remove
+              <button type="submit" aria-label={labels.remove}>
+                {labels.remove}
               </button>
             </div>
           </UpdateDiscountForm>
@@ -99,17 +118,17 @@ function CartDiscounts({
       <UpdateDiscountForm discountCodes={codes}>
         <div>
           <label htmlFor={discountCodeInputId} className="sr-only">
-            Discount code
+            {labels.discountCode}
           </label>
           <input
             id={discountCodeInputId}
             type="text"
             name="discountCode"
-            placeholder="Discount code"
+            placeholder={labels.discountCode}
           />
           &nbsp;
-          <button type="submit" aria-label="Apply discount code">
-            Apply
+          <button type="submit" aria-label={labels.apply}>
+            {labels.apply}
           </button>
         </div>
       </UpdateDiscountForm>
@@ -141,10 +160,12 @@ function CartGiftCard({
   giftCardCodes,
   giftCardHeadingId,
   giftCardInputId,
+  labels,
 }: {
   giftCardCodes: CartApiQueryFragment['appliedGiftCards'] | undefined;
   giftCardHeadingId: string;
   giftCardInputId: string;
+  labels: CartLabels;
 }) {
   const giftCardCodeInput = useRef<HTMLInputElement>(null);
   const removeButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -193,15 +214,16 @@ function CartGiftCard({
   };
 
   return (
-    <section aria-label="Gift cards">
+    <section aria-label={labels.giftCards}>
       {giftCardCodes && giftCardCodes.length > 0 && (
         <dl>
-          <dt id={giftCardHeadingId}>Applied Gift Card(s)</dt>
+          <dt id={giftCardHeadingId}>{labels.giftCards}</dt>
           {giftCardCodes.map((giftCard) => (
             <dd key={giftCard.id} className="cart-discount">
               <RemoveGiftCardForm
                 giftCardId={giftCard.id}
                 lastCharacters={giftCard.lastCharacters}
+                removeLabel={labels.remove}
                 onRemoveClick={() => handleRemoveClick(giftCard.id)}
                 buttonRef={(el: HTMLButtonElement | null) => {
                   if (el) {
@@ -223,22 +245,22 @@ function CartGiftCard({
       <AddGiftCardForm fetcherKey="gift-card-add">
         <div>
           <label htmlFor={giftCardInputId} className="sr-only">
-            Gift card code
+            {labels.giftCardCode}
           </label>
           <input
             id={giftCardInputId}
             type="text"
             name="giftCardCode"
-            placeholder="Gift card code"
+            placeholder={labels.giftCardCode}
             ref={giftCardCodeInput}
           />
           &nbsp;
           <button
             type="submit"
             disabled={giftCardAddFetcher.state !== 'idle'}
-            aria-label="Apply gift card code"
+            aria-label={labels.apply}
           >
-            Apply
+            {labels.apply}
           </button>
         </div>
       </AddGiftCardForm>
@@ -267,12 +289,14 @@ function AddGiftCardForm({
 function RemoveGiftCardForm({
   giftCardId,
   lastCharacters,
+  removeLabel,
   children,
   onRemoveClick,
   buttonRef,
 }: {
   giftCardId: string;
   lastCharacters: string;
+  removeLabel: string;
   children: React.ReactNode;
   onRemoveClick?: () => void;
   buttonRef?: (el: HTMLButtonElement | null) => void;
@@ -293,7 +317,7 @@ function RemoveGiftCardForm({
         onClick={onRemoveClick}
         ref={buttonRef}
       >
-        Remove
+        {removeLabel}
       </button>
     </CartForm>
   );

@@ -93,12 +93,18 @@ const translations = {
       noResults: 'კომპლექტები ვერ მოიძებნა',
       included: 'რა შედის',
       bookKit: 'კომპლექტის დაჯავშნა',
+      viewAndBook: 'ნახვა და დაჯავშნა',
+      shopifySetupHint:
+        'დემო კომპლექტები — Shopify Admin-ში შექმენით კოლექცია trail-packages და დაამატეთ პროდუქტები.',
     },
     gear: {
       eyebrow: 'à la carte',
       title: 'ინდივიდუალური აღჭურვილობა',
       subtitle: 'აირჩიეთ კონკრეტული ნივთები — დაამატეთ თქვენს კომპლექტს.',
       bookItem: 'დაჯავშნა',
+      viewAndBook: 'ნახვა და დაჯავშნა',
+      shopifySetupHint:
+        'დემო ნივთები — Shopify Admin-ში შექმენით კოლექცია individual-gear და დაამატეთ პროდუქტები.',
     },
     booking: {
       title: 'ქირის დაჯავშნა',
@@ -169,11 +175,25 @@ const translations = {
       pickupNote: 'მეტრო / მიღების დეტალები',
       agreement: 'ვეთანხმები ქირის ხელშეკრულებას',
       deliveryNote: 'მეტროს გაჩვენება · უფასო დაბრუნება',
+      empty:
+        'კალათა ცარიელია — აირჩიეთ კომპლექტი ან აღჭურვილობა და დაიწყეთ ქირა.',
+      continueShopping: 'შოპინგის გაგრძელება →',
+      totals: 'სულ',
+      subtotal: 'ქვეჯამი',
+      checkout: 'გადახდაზე გადასვლა →',
+      discounts: 'ფასდაკლებები',
+      discountCode: 'ფასდაკლების კოდი',
+      apply: 'გამოყენება',
+      remove: 'წაშლა',
+      giftCards: 'სასაჩუქრე ბარათები',
+      giftCardCode: 'ბარათის კოდი',
     },
     product: {
       specs: 'მახასიათებლები',
       included: 'რა შედის',
       completeKit: 'დაასრულეთ კომპლექტი',
+      kitSavings: 'კომპლექტის ფასდაკლება',
+      wasPrice: 'ღირ.',
     },
     footer: {
       rent: 'ქირა',
@@ -278,12 +298,18 @@ const translations = {
       noResults: 'No packages found',
       included: 'Included',
       bookKit: 'Book this kit',
+      viewAndBook: 'View & book',
+      shopifySetupHint:
+        'Showing demo kits — create a trail-packages collection in Shopify Admin and add products.',
     },
     gear: {
       eyebrow: 'À la carte',
       title: 'Individual gear',
       subtitle: 'Pick specific items — add to your kit.',
       bookItem: 'Book item',
+      viewAndBook: 'View & book',
+      shopifySetupHint:
+        'Showing demo gear — create an individual-gear collection in Shopify Admin and add products.',
     },
     booking: {
       title: 'Book rental',
@@ -355,11 +381,25 @@ const translations = {
       pickupNote: 'Metro / pickup details',
       agreement: 'I agree to the rental agreement',
       deliveryNote: 'Metro hub pickup · Free return',
+      empty:
+        "Looks like you haven't added anything yet — browse packages or gear to get started.",
+      continueShopping: 'Continue shopping →',
+      totals: 'Totals',
+      subtotal: 'Subtotal',
+      checkout: 'Continue to Checkout →',
+      discounts: 'Discounts',
+      discountCode: 'Discount code',
+      apply: 'Apply',
+      remove: 'Remove',
+      giftCards: 'Gift cards',
+      giftCardCode: 'Gift card code',
     },
     product: {
       specs: 'Specifications',
       included: "What's included",
       completeKit: 'Complete your kit',
+      kitSavings: 'Kit bundle savings',
+      wasPrice: 'Was',
     },
     footer: {
       rent: 'Rent',

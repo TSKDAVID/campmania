@@ -1,21 +1,26 @@
-import {useSearchParams} from 'react-router';
+import {Link, useSearchParams} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
-import {GEAR_FILTERS, type GearItem} from '~/lib/trailrent/catalog';
+import {GEAR_FILTERS} from '~/lib/trailrent/catalog';
+import type {ShopifyGearItem} from '~/lib/trailrent/shopify-catalog';
 import {PageBanner} from '~/components/trailrent/HomeSections';
-import {useBookingWidget} from '~/components/trailrent/BookingWidget';
 import {GearFiltersBar} from '~/components/trailrent/CatalogFilters';
+import {IconArrowRight} from '~/components/trailrent/Icons';
 
-export function GearCatalogGrid({gear}: {gear: GearItem[]}) {
+export function GearCatalogGrid({
+  gear,
+  shopifyConnected,
+}: {
+  gear: ShopifyGearItem[];
+  shopifyConnected?: boolean;
+}) {
   const {translations: tr} = useLocale();
   const [params] = useSearchParams();
   const category = params.get('gear') ?? '';
-  const {openBooking, drawer} = useBookingWidget();
 
   const filtered = category ? gear.filter((g) => g.category === category) : gear;
 
   return (
     <>
-      {drawer}
       <PageBanner
         eyebrow={tr.gear.eyebrow}
         title={tr.gear.title}
@@ -24,44 +29,77 @@ export function GearCatalogGrid({gear}: {gear: GearItem[]}) {
       />
       <section className="tr-section-tight bg-white">
         <div className="tr-page-width">
+          {!shopifyConnected ? (
+            <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
+              {tr.gear.shopifySetupHint}
+            </p>
+          ) : null}
           <GearFiltersBar options={GEAR_FILTERS} />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((item) => (
-              <article key={item.id} className="cm-kit-card group">
-                <div className="cm-kit-card-media bg-gradient-to-br from-stone via-mist to-sage/20">
-                  <div className="cm-kit-card-pattern opacity-20" aria-hidden />
-                </div>
-                <div className="p-4 md:p-5">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-moss">
-                    {item.categoryLabel}
-                  </span>
-                  <h3 className="mt-1 font-display text-lg font-bold text-pine group-hover:text-forest">
-                    {item.title}
-                  </h3>
-                  <p className="mt-0.5 text-sm text-muted">{item.subtitle}</p>
-                  <div className="mt-3 flex items-baseline justify-between border-t border-stone/70 pt-3">
-                    <p className="font-display text-xl font-bold text-forest">
-                      {item.priceLabel}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openBooking({
-                        id: item.id,
-                        title: item.title,
-                        dailyRate: item.dailyRate,
-                        productHandle: item.productHandle,
-                      })
-                    }
-                    className="tr-btn-secondary mt-3 w-full py-2.5 text-xs"
+            {filtered.map((item) => {
+              const productUrl = item.productHandle
+                ? `/products/${item.productHandle}`
+                : null;
+
+              return (
+                <article key={item.id} className="cm-kit-card group">
+                  <Link
+                    to={productUrl ?? '#'}
+                    className="cm-kit-card-media relative block overflow-hidden bg-stone no-underline hover:no-underline"
                   >
-                    {tr.gear.bookItem}
-                  </button>
-                </div>
-              </article>
-            ))}
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.imageAlt ?? item.title}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="cm-kit-card-pattern absolute inset-0 bg-gradient-to-br from-stone via-mist to-sage/20 opacity-80" />
+                    )}
+                  </Link>
+                  <div className="p-4 md:p-5">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-moss">
+                      {item.categoryLabel}
+                    </span>
+                    <h3 className="mt-1 font-display text-lg font-bold text-pine group-hover:text-forest">
+                      {productUrl ? (
+                        <Link
+                          to={productUrl}
+                          className="no-underline hover:no-underline"
+                        >
+                          {item.title}
+                        </Link>
+                      ) : (
+                        item.title
+                      )}
+                    </h3>
+                    <p className="mt-0.5 line-clamp-2 text-sm text-muted">
+                      {item.subtitle}
+                    </p>
+                    <div className="mt-3 flex items-baseline justify-between border-t border-stone/70 pt-3">
+                      <p className="font-display text-xl font-bold text-forest">
+                        {item.priceLabel}
+                      </p>
+                    </div>
+                    {productUrl ? (
+                      <Link
+                        to={productUrl}
+                        className="tr-btn-secondary mt-3 flex w-full items-center justify-center gap-2 py-2.5 text-xs"
+                      >
+                        {tr.gear.viewAndBook}
+                        <IconArrowRight size={14} />
+                      </Link>
+                    ) : (
+                      <span className="mt-3 block text-center text-xs text-muted">
+                        Shopify product pending
+                      </span>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
