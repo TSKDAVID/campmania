@@ -1,6 +1,7 @@
 import {Suspense} from 'react';
-import {Await, NavLink} from 'react-router';
+import {Await, Link, NavLink} from 'react-router';
 import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
+import {useLocale} from '~/providers/LocaleProvider';
 
 interface FooterProps {
   footer: Promise<FooterQuery | null>;
@@ -10,120 +11,149 @@ interface FooterProps {
 
 export function Footer({
   footer: footerPromise,
-  header,
-  publicStoreDomain,
 }: FooterProps) {
+  const {translations: tr, locale} = useLocale();
+  const year = new Date().getFullYear();
+
   return (
-    <Suspense>
-      <Await resolve={footerPromise}>
-        {(footer) => (
-          <footer className="footer">
-            {footer?.menu && header.shop.primaryDomain?.url && (
-              <FooterMenu
-                menu={footer.menu}
-                primaryDomainUrl={header.shop.primaryDomain.url}
-                publicStoreDomain={publicStoreDomain}
-              />
-            )}
-          </footer>
-        )}
-      </Await>
-    </Suspense>
+    <footer className="cm-site-footer">
+      <div className="tr-page-width tr-section-tight">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+          {/* Brand column */}
+          <div className="lg:col-span-1">
+            <Link to="/" className="inline-block">
+              <span className="font-display text-2xl text-mist">{tr.brand}</span>
+            </Link>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-sage">
+              {tr.tagline}
+            </p>
+            <p className="mt-4 text-xs text-sage/80">{tr.footer.hours}</p>
+          </div>
+
+          {/* Rent */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-mist">
+              {tr.footer.rent}
+            </h3>
+            <ul className="mt-4 space-y-2.5">
+              <li>
+                <Link to="/packages" className="cm-footer-link">
+                  {tr.nav.packages}
+                </Link>
+              </li>
+              <li>
+                <Link to="/individual-gear" className="cm-footer-link">
+                  {tr.nav.gear}
+                </Link>
+              </li>
+              <li>
+                <Link to="/collections/all" className="cm-footer-link">
+                  {locale === 'ka' ? 'Shopify კატალოგი' : 'Shop catalog'}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-mist">
+              {tr.footer.support}
+            </h3>
+            <ul className="mt-4 space-y-2.5">
+              <li>
+                <Link to="/pages/how-it-works" className="cm-footer-link">
+                  {tr.pages.howItWorks}
+                </Link>
+              </li>
+              <li>
+                <Link to="/pages/faq" className="cm-footer-link">
+                  {tr.pages.faq}
+                </Link>
+              </li>
+              <li>
+                <Link to="/pages/contact" className="cm-footer-link">
+                  {tr.pages.contact}
+                </Link>
+              </li>
+              <li>
+                <Link to="/account" className="cm-footer-link">
+                  {tr.nav.account}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Policies */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-mist">
+              {locale === 'ka' ? 'იურიდიული' : 'Legal'}
+            </h3>
+            <Suspense fallback={<PolicyLinksFallback />}>
+              <Await resolve={footerPromise}>
+                {(footer) => <PolicyLinks menu={footer?.menu ?? null} />}
+              </Await>
+            </Suspense>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-sage/70 md:flex-row">
+          <p>
+            © {year} {tr.brand}.{' '}
+            {locale === 'ka'
+              ? 'ყველა უფლება დაცულია.'
+              : 'All rights reserved.'}
+          </p>
+          <p>
+            {locale === 'ka'
+              ? 'პრემიუმ ლაშქრობის აღჭურვილობის ქირა · თბილისი, საქართველო'
+              : 'Premium hiking gear rental · Tbilisi, Georgia'}
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 }
 
-function FooterMenu({
-  menu,
-  primaryDomainUrl,
-  publicStoreDomain,
-}: {
-  menu: FooterQuery['menu'];
-  primaryDomainUrl: FooterProps['header']['shop']['primaryDomain']['url'];
-  publicStoreDomain: string;
-}) {
+const POLICY_LINKS = [
+  {id: 'privacy', href: '/policies/privacy-policy', label: 'Privacy Policy'},
+  {id: 'terms', href: '/policies/terms-of-service', label: 'Terms of Service'},
+  {id: 'refund', href: '/policies/refund-policy', label: 'Refund Policy'},
+  {id: 'shipping', href: '/policies/shipping-policy', label: 'Shipping Policy'},
+];
+
+function PolicyLinksFallback() {
   return (
-    <nav className="footer-menu" role="navigation">
-      {(menu || FALLBACK_FOOTER_MENU).items.map((item) => {
-        if (!item.url) return null;
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain) ||
-          item.url.includes(primaryDomainUrl)
-            ? new URL(item.url).pathname
-            : item.url;
-        const isExternal = !url.startsWith('/');
-        return isExternal ? (
-          <a href={url} key={item.id} rel="noopener noreferrer" target="_blank">
-            {item.title}
-          </a>
-        ) : (
-          <NavLink
-            end
-            key={item.id}
-            prefetch="intent"
-            style={activeLinkStyle}
-            to={url}
-          >
+    <ul className="mt-4 space-y-2.5">
+      {POLICY_LINKS.map((item) => (
+        <li key={item.id}>
+          <NavLink to={item.href} className="cm-footer-link">
+            {item.label}
+          </NavLink>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function PolicyLinks({menu}: {menu: FooterQuery['menu'] | null}) {
+  const items = menu?.items?.length
+    ? menu.items.filter((i) => i.url)
+    : POLICY_LINKS.map((p) => ({
+        id: p.id,
+        url: p.href,
+        title: p.label,
+      }));
+
+  return (
+    <ul className="mt-4 space-y-2.5">
+      {items.map((item) => (
+        <li key={item.id}>
+          <NavLink to={item.url!} className="cm-footer-link">
             {item.title}
           </NavLink>
-        );
-      })}
-    </nav>
+        </li>
+      ))}
+    </ul>
   );
-}
-
-const FALLBACK_FOOTER_MENU = {
-  id: 'gid://shopify/Menu/199655620664',
-  items: [
-    {
-      id: 'gid://shopify/MenuItem/461633060920',
-      resourceId: 'gid://shopify/ShopPolicy/23358046264',
-      tags: [],
-      title: 'Privacy Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/privacy-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633093688',
-      resourceId: 'gid://shopify/ShopPolicy/23358013496',
-      tags: [],
-      title: 'Refund Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/refund-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633126456',
-      resourceId: 'gid://shopify/ShopPolicy/23358111800',
-      tags: [],
-      title: 'Shipping Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/shipping-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633159224',
-      resourceId: 'gid://shopify/ShopPolicy/23358079032',
-      tags: [],
-      title: 'Terms of Service',
-      type: 'SHOP_POLICY',
-      url: '/policies/terms-of-service',
-      items: [],
-    },
-  ],
-};
-
-function activeLinkStyle({
-  isActive,
-  isPending,
-}: {
-  isActive: boolean;
-  isPending: boolean;
-}) {
-  return {
-    fontWeight: isActive ? 'bold' : undefined,
-    color: isPending ? 'grey' : 'white',
-  };
 }

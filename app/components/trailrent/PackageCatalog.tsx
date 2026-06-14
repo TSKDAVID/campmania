@@ -6,7 +6,7 @@ import {
   TREK_FILTERS,
   type PackageItem,
 } from '~/lib/trailrent/catalog';
-import {SectionHeading} from '~/components/trailrent/HomeSections';
+import {PageBanner} from '~/components/trailrent/HomeSections';
 import {useBookingWidget} from '~/components/trailrent/BookingWidget';
 
 function FilterPills({
@@ -62,14 +62,13 @@ export function PackageCatalogGrid({packages}: {packages: PackageItem[]}) {
   return (
     <>
       {drawer}
+      <PageBanner
+        eyebrow={tr.packages.eyebrow}
+        title={tr.packages.title}
+        subtitle={tr.packages.subtitle}
+      />
       <section className="tr-section bg-mist">
         <div className="tr-page-width">
-          <SectionHeading
-            eyebrow={tr.packages.eyebrow}
-            title={tr.packages.title}
-            subtitle={tr.packages.subtitle}
-          />
-
           <div className="mb-8 space-y-4 rounded-md border border-stone bg-white p-5">
             <p className="text-sm font-semibold uppercase tracking-wide text-muted">
               {tr.packages.filters}

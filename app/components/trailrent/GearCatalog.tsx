@@ -1,7 +1,7 @@
 import {useSearchParams} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {GEAR_FILTERS, type GearItem} from '~/lib/trailrent/catalog';
-import {SectionHeading} from '~/components/trailrent/HomeSections';
+import {PageBanner} from '~/components/trailrent/HomeSections';
 import {useBookingWidget} from '~/components/trailrent/BookingWidget';
 
 export function GearCatalogGrid({gear}: {gear: GearItem[]}) {
@@ -17,14 +17,13 @@ export function GearCatalogGrid({gear}: {gear: GearItem[]}) {
   return (
     <>
       {drawer}
+      <PageBanner
+        eyebrow={tr.gear.eyebrow}
+        title={tr.gear.title}
+        subtitle={tr.gear.subtitle}
+      />
       <section className="tr-section bg-white">
         <div className="tr-page-width">
-          <SectionHeading
-            eyebrow={tr.gear.eyebrow}
-            title={tr.gear.title}
-            subtitle={tr.gear.subtitle}
-          />
-
           <div className="mb-8 flex flex-wrap gap-2">
             <button
               type="button"

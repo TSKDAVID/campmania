@@ -32,27 +32,12 @@ export default function AccountDashboard() {
   const tags = parseCustomerTags(customer.tags);
   const loyalty = getLoyaltyStatus({tags, email});
 
-  const greeting =
-    customer.firstName != null
-      ? locale === 'ka'
-        ? `გამარჯობა, ${customer.firstName}`
-        : `Welcome back, ${customer.firstName}`
-      : locale === 'ka'
-        ? 'თქვენი ანგარიში'
-        : 'Your account';
-
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="font-display text-2xl font-bold text-charcoal">
-          {greeting}
-        </h1>
-        {email ? (
-          <p className="mt-1 text-sm text-muted">{email}</p>
-        ) : null}
-      </header>
+      {email ? (
+        <p className="text-sm text-muted">{email}</p>
+      ) : null}
 
-      {/* ── Loyalty Progress Card ─────────────────────────────────────────── */}
       <LoyaltyProgressCard status={loyalty} />
 
       {/* ── Quick links ─────────────────────────────────────────────────── */}

@@ -8,6 +8,7 @@ import {
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {LanguageSwitcher} from '~/components/trailrent/HomeSections';
+import {useLocale} from '~/providers/LocaleProvider';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -18,101 +19,119 @@ interface HeaderProps {
 
 type Viewport = 'desktop' | 'mobile';
 
+/** Campmania primary navigation — always use branded routes, not Shopify default menu. */
+function useCampmaniaNav() {
+  const {translations: tr} = useLocale();
+  return [
+    {id: 'packages', to: '/packages', label: tr.nav.packages},
+    {id: 'gear', to: '/individual-gear', label: tr.nav.gear},
+    {id: 'how', to: '/pages/how-it-works', label: tr.nav.howItWorks},
+    {id: 'faq', to: '/pages/faq', label: tr.nav.faq},
+  ] as const;
+}
+
 export function Header({
-  header,
   isLoggedIn,
   cart,
-  publicStoreDomain,
 }: HeaderProps) {
-  const {shop, menu} = header;
+  const {translations: tr} = useLocale();
+  const navItems = useCampmaniaNav();
+
   return (
-    <header className="header">
-      <NavLink prefetch="intent" to="/" style={activeLinkStyle} end>
-        <strong>{shop.name}</strong>
-      </NavLink>
-      <HeaderMenu
-        menu={menu}
-        viewport="desktop"
-        primaryDomainUrl={header.shop.primaryDomain.url}
-        publicStoreDomain={publicStoreDomain}
-      />
-      <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
+    <header className="cm-site-header">
+      <div className="cm-site-header-inner">
+        {/* Logo */}
+        <NavLink prefetch="intent" to="/" className="group shrink-0" end>
+          <span className="font-display text-2xl tracking-tight text-mist transition group-hover:text-amber">
+            {tr.brand}
+          </span>
+          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.2em] text-sage">
+            Tbilisi · Georgia
+          </span>
+        </NavLink>
+
+        {/* Desktop nav */}
+        <nav
+          className="hidden items-center gap-8 lg:flex"
+          role="navigation"
+          aria-label="Main"
+        >
+          {navItems.map((item) => (
+            <NavLink
+              key={item.id}
+              to={item.to}
+              prefetch="intent"
+              className={({isActive}) =>
+                `cm-nav-link ${isActive ? 'cm-nav-link-active' : ''}`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 md:gap-3">
+          <LanguageSwitcher />
+          <NavLink
+            prefetch="intent"
+            to="/account"
+            className="hidden text-sm font-medium text-sage transition hover:text-mist sm:inline"
+          >
+            <Suspense fallback={tr.nav.account}>
+              <Await resolve={isLoggedIn} errorElement={tr.nav.account}>
+                {(loggedIn) => (loggedIn ? tr.nav.account : tr.nav.account)}
+              </Await>
+            </Suspense>
+          </NavLink>
+          <SearchToggle />
+          <CartToggle cart={cart} />
+          <HeaderMenuMobileToggle />
+        </div>
+      </div>
     </header>
   );
 }
 
 export function HeaderMenu({
-  menu,
-  primaryDomainUrl,
   viewport,
-  publicStoreDomain,
 }: {
-  menu: HeaderProps['header']['menu'];
-  primaryDomainUrl: HeaderProps['header']['shop']['primaryDomain']['url'];
+  menu?: HeaderProps['header']['menu'];
+  primaryDomainUrl?: string;
   viewport: Viewport;
-  publicStoreDomain: HeaderProps['publicStoreDomain'];
+  publicStoreDomain?: string;
 }) {
-  const className = `header-menu-${viewport}`;
   const {close} = useAside();
+  const navItems = useCampmaniaNav();
+
+  if (viewport === 'desktop') return null;
 
   return (
-    <nav className={className} role="navigation">
-      {viewport === 'mobile' && (
+    <nav className="flex flex-col gap-1 p-2" role="navigation">
+      {navItems.map((item) => (
         <NavLink
-          end
+          key={item.id}
+          to={item.to}
           onClick={close}
           prefetch="intent"
-          style={activeLinkStyle}
-          to="/"
+          className={({isActive}) =>
+            `rounded-md px-4 py-3 text-base font-medium transition ${
+              isActive
+                ? 'bg-pine/10 text-pine'
+                : 'text-charcoal hover:bg-stone/50'
+            }`
+          }
         >
-          Home
+          {item.label}
         </NavLink>
-      )}
-      {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
-        if (!item.url) return null;
-
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain) ||
-          item.url.includes(primaryDomainUrl)
-            ? new URL(item.url).pathname
-            : item.url;
-        return (
-          <NavLink
-            className="header-menu-item"
-            end
-            key={item.id}
-            onClick={close}
-            prefetch="intent"
-            style={activeLinkStyle}
-            to={url}
-          >
-            {item.title}
-          </NavLink>
-        );
-      })}
-    </nav>
-  );
-}
-
-function HeaderCtas({
-  isLoggedIn,
-  cart,
-}: Pick<HeaderProps, 'isLoggedIn' | 'cart'>) {
-  return (
-    <nav className="header-ctas" role="navigation">
-      <LanguageSwitcher />
-      <HeaderMenuMobileToggle />
-      <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
-        <Suspense fallback="Sign in">
-          <Await resolve={isLoggedIn} errorElement="Sign in">
-            {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
-          </Await>
-        </Suspense>
+      ))}
+      <NavLink
+        to="/account"
+        onClick={close}
+        className="mt-2 rounded-md border border-stone px-4 py-3 text-center text-sm font-semibold text-pine"
+      >
+        Account
       </NavLink>
-      <SearchToggle />
-      <CartToggle cart={cart} />
     </nav>
   );
 }
@@ -121,19 +140,37 @@ function HeaderMenuMobileToggle() {
   const {open} = useAside();
   return (
     <button
-      className="header-menu-mobile-toggle reset"
+      type="button"
+      className="cm-icon-btn lg:hidden"
       onClick={() => open('mobile')}
+      aria-label="Open menu"
     >
-      <h3>☰</h3>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path
+          d="M4 7h16M4 12h16M4 17h16"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
     </button>
   );
 }
 
 function SearchToggle() {
   const {open} = useAside();
+  const {translations: tr} = useLocale();
   return (
-    <button className="reset" onClick={() => open('search')}>
-      Search
+    <button
+      type="button"
+      className="cm-icon-btn"
+      onClick={() => open('search')}
+      aria-label={tr.nav.search}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M20 20l-3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
     </button>
   );
 }
@@ -141,10 +178,13 @@ function SearchToggle() {
 function CartBadge({count}: {count: number}) {
   const {open} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
+  const {translations: tr} = useLocale();
 
   return (
-    <a
-      href="/cart"
+    <button
+      type="button"
+      className="cm-icon-btn relative"
+      aria-label={`${tr.nav.cart} (${count})`}
       onClick={(e) => {
         e.preventDefault();
         open('cart');
@@ -156,8 +196,22 @@ function CartBadge({count}: {count: number}) {
         } as CartViewPayload);
       }}
     >
-      Cart <span aria-label={`(items: ${count})`}>{count}</span>
-    </a>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path
+          d="M6 6h15l-1.5 9h-12L6 6zM6 6L5 3H2"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <circle cx="9" cy="20" r="1.5" fill="currentColor" />
+        <circle cx="18" cy="20" r="1.5" fill="currentColor" />
+      </svg>
+      {count > 0 ? (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber px-1 text-[10px] font-bold text-pine">
+          {count}
+        </span>
+      ) : null}
+    </button>
   );
 }
 
@@ -175,27 +229,4 @@ function CartBanner() {
   const originalCart = useAsyncValue() as CartApiQueryFragment | null;
   const cart = useOptimisticCart(originalCart);
   return <CartBadge count={cart?.totalQuantity ?? 0} />;
-}
-
-const FALLBACK_HEADER_MENU = {
-  id: 'trailrent-menu',
-  items: [
-    {id: '1', resourceId: null, tags: [], title: 'Packages', type: 'HTTP', url: '/packages', items: []},
-    {id: '2', resourceId: null, tags: [], title: 'Gear', type: 'HTTP', url: '/individual-gear', items: []},
-    {id: '3', resourceId: null, tags: [], title: 'How it works', type: 'HTTP', url: '/pages/how-it-works', items: []},
-    {id: '4', resourceId: null, tags: [], title: 'FAQ', type: 'HTTP', url: '/pages/faq', items: []},
-  ],
-};
-
-function activeLinkStyle({
-  isActive,
-  isPending,
-}: {
-  isActive: boolean;
-  isPending: boolean;
-}) {
-  return {
-    fontWeight: isActive ? 'bold' : undefined,
-    color: isPending ? 'grey' : 'black',
-  };
 }

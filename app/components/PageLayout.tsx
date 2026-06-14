@@ -15,6 +15,7 @@ import {
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
 import {AnnouncementBar} from '~/components/trailrent/HomeSections';
+import {useLocale} from '~/providers/LocaleProvider';
 
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
@@ -58,8 +59,9 @@ export function PageLayout({
 }
 
 function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
+  const {translations: tr} = useLocale();
   return (
-    <Aside type="cart" heading="CART">
+    <Aside type="cart" heading={tr.cart.title}>
       <Suspense fallback={<p>Loading cart ...</p>}>
         <Await resolve={cart}>
           {(cart) => {
@@ -160,17 +162,15 @@ function MobileMenuAside({
   header: PageLayoutProps['header'];
   publicStoreDomain: PageLayoutProps['publicStoreDomain'];
 }) {
+  const {translations: tr} = useLocale();
   return (
-    header.menu &&
-    header.shop.primaryDomain?.url && (
-      <Aside type="mobile" heading="MENU">
-        <HeaderMenu
-          menu={header.menu}
-          viewport="mobile"
-          primaryDomainUrl={header.shop.primaryDomain.url}
-          publicStoreDomain={publicStoreDomain}
-        />
-      </Aside>
-    )
+    <Aside type="mobile" heading={tr.brand}>
+      <HeaderMenu
+        menu={header.menu}
+        viewport="mobile"
+        primaryDomainUrl={header.shop.primaryDomain?.url ?? ''}
+        publicStoreDomain={publicStoreDomain}
+      />
+    </Aside>
   );
 }

@@ -13,6 +13,7 @@
   --font-display: 'Instrument Serif', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-label: 'DM Sans', system-ui, sans-serif;
+  --header-height: 72px;
 }
 
 @layer base {
@@ -25,7 +26,10 @@
     font-family: var(--font-body);
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     @apply text-pine;
   }
@@ -62,7 +66,11 @@
   }
 
   .tr-card {
-    @apply rounded-md border border-stone bg-white shadow-sm transition hover:shadow-md;
+    @apply rounded-lg border border-stone/80 bg-white shadow-sm transition hover:shadow-md;
+  }
+
+  .tr-card-elevated {
+    @apply rounded-xl border border-stone/60 bg-white shadow-lg shadow-pine/5 transition hover:-translate-y-0.5 hover:shadow-xl;
   }
 
   .tr-pill {
@@ -77,27 +85,45 @@
     @apply py-16 md:py-24;
   }
 
-  .header {
-    @apply sticky top-0 z-50 border-b border-white/10 bg-pine text-mist;
-    height: auto;
+  .tr-section-tight {
+    @apply py-10 md:py-14;
+  }
+
+  /* ── Site header ─────────────────────────────────────────────────────── */
+  .cm-site-header {
+    @apply sticky top-0 z-50 border-b border-white/10 bg-pine/95 text-mist backdrop-blur-md;
     min-height: var(--header-height);
   }
 
-  .header a,
-  .header button {
+  .cm-site-header-inner {
+    @apply tr-page-width flex items-center justify-between gap-4 py-3 md:py-4;
+  }
+
+  .cm-nav-link {
+    @apply relative text-sm font-medium text-sage transition hover:text-mist;
+    font-family: var(--font-label);
+  }
+
+  .cm-nav-link-active {
     @apply text-mist;
   }
 
-  .header-menu-desktop {
-    @apply gap-6;
+  .cm-nav-link-active::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 h-0.5 w-full bg-amber;
   }
 
-  .footer {
-    @apply bg-pine text-sage;
+  .cm-icon-btn {
+    @apply flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-sage transition hover:border-white/30 hover:bg-white/10 hover:text-mist;
   }
 
-  .footer a {
-    @apply text-sage hover:text-mist;
+  /* ── Site footer ─────────────────────────────────────────────────────── */
+  .cm-site-footer {
+    @apply mt-auto border-t border-white/10 bg-pine text-sage;
+  }
+
+  .cm-footer-link {
+    @apply text-sm text-sage transition hover:text-mist;
   }
 
   main {

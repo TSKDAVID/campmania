@@ -5,7 +5,7 @@ export function AnnouncementBar() {
   const {translations} = useLocale();
 
   return (
-    <div className="bg-pine text-center text-sm text-sage">
+    <div className="border-b border-amber/20 bg-forest text-center text-xs font-medium tracking-wide text-sage md:text-sm">
       <div className="tr-page-width py-2.5">{translations.announcement}</div>
     </div>
   );
@@ -31,6 +31,30 @@ export function LanguageSwitcher() {
         EN
       </button>
     </div>
+  );
+}
+
+export function PageBanner({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <section className="border-b border-white/10 bg-gradient-to-br from-pine via-forest to-pine text-mist">
+      <div className="tr-page-width py-12 md:py-16">
+        {eyebrow ? <p className="tr-eyebrow text-amber">{eyebrow}</p> : null}
+        <h1 className="mt-3 max-w-2xl font-display text-3xl font-bold md:text-4xl">
+          {title}
+        </h1>
+        {subtitle ? (
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-sage">{subtitle}</p>
+        ) : null}
+      </div>
+    </section>
   );
 }
 
