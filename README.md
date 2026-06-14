@@ -21,22 +21,35 @@ Sign in uses **Shopify Customer Account API** (OAuth). The error `redirect_uri m
 
 **Shopify Admin → Settings → Customer accounts** — turn on customer accounts (new customer accounts recommended).
 
-### 2. Add callback URLs (required)
+### 2. Register callback URLs (required)
 
-**Shopify Admin → Sales channels → Headless** → your Hydrogen storefront → **Customer Account API** → **Application setup** → **Callback URL(s)**.
+Shopify blocks `localhost` for login — use your **Oxygen preview URL** or a tunnel for local testing.
 
-Add **every** URL you use:
+**Option A — CLI (fastest for Oxygen):**
 
-| Environment | Callback URL |
-|-------------|--------------|
-| Local dev | `http://localhost:3000/account/authorize` |
-| Oxygen preview | `https://YOUR-STORE.o2.myshopify.dev/account/authorize` |
+```bash
+npx shopify hydrogen customer-account-push \
+  --dev-origin "https://campmania-4c29d91072afb5138da1.o2.myshopify.dev" \
+  --storefront-id "gid://shopify/HydrogenStorefront/1000148205"
+```
 
-Your current Oxygen URL (from the browser address bar when deployed):
+Re-run with your new Oxygen URL after each deploy if the subdomain changes.
 
-`https://campmania-4c29d91072afb5138da1.o2.myshopify.dev/account/authorize`
+**Option B — Shopify Admin manually:**
 
-If you redeploy and the `.o2.myshopify.dev` subdomain changes, add the new URL too.
+**Sales channels → Headless → campmania → Storefront settings → Customer Account API → Application setup**
+
+Add:
+
+| Field | Value |
+|-------|--------|
+| Callback URI | `https://campmania-4c29d91072afb5138da1.o2.myshopify.dev/account/authorize` |
+| JavaScript origin | `https://campmania-4c29d91072afb5138da1.o2.myshopify.dev` |
+| Logout URI | `https://campmania-4c29d91072afb5138da1.o2.myshopify.dev` |
+
+Ensure the app type is **Public client** (required for JavaScript origins).
+
+**Local dev:** Shopify does not allow `localhost` callbacks. Use the Oxygen preview URL for login testing, or run `npm run dev -- --customer-account-push` (Shopify CLI tunnel).
 
 ### 3. Pull env vars
 

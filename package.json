@@ -7,6 +7,8 @@
   "scripts": {
     "build": "shopify hydrogen build --codegen",
     "dev": "shopify hydrogen dev --codegen",
+    "dev:auth": "shopify hydrogen dev --codegen --customer-account-push",
+    "auth:push": "shopify hydrogen customer-account-push --dev-origin https://campmania-4c29d91072afb5138da1.o2.myshopify.dev --storefront-id gid://shopify/HydrogenStorefront/1000148205",
     "preview": "shopify hydrogen preview --build",
     "lint": "eslint --no-error-on-unmatched-pattern .",
     "typecheck": "react-router typegen && tsc --noEmit",
