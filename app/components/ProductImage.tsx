@@ -28,12 +28,12 @@ export function ProductImage({
       <div className="cm-product-gallery-frame">
         <Image
           alt={image.altText || title || 'Product Image'}
-          aspectRatio={variant === 'solo' ? '1' : '3/4'}
+          aspectRatio={variant === 'solo' ? '4/5' : '3/4'}
           data={image}
           key={image.id}
           sizes={
             variant === 'solo'
-              ? '(min-width: 1280px) 28vw, (min-width: 1024px) 32vw, 100vw'
+              ? '(min-width: 1280px) 46vw, (min-width: 1024px) 44vw, 100vw'
               : '(min-width: 1280px) 32vw, (min-width: 1024px) 38vw, 100vw'
           }
           className="cm-product-gallery-image"

@@ -877,19 +877,25 @@
 
   @media (min-width: 1024px) {
     .cm-product-layout {
-      grid-template-columns: minmax(0, 36fr) minmax(0, 64fr);
+      grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
       gap: 2.5rem;
     }
 
-    /* Individual gear: smaller gallery, more room for booking */
+    /* Individual gear: larger gallery fills left canvas; buy box unchanged */
     .cm-product-layout--solo {
-      grid-template-columns: minmax(0, 32fr) minmax(0, 68fr);
+      grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+      gap: 2rem;
     }
   }
 
   @media (min-width: 1280px) {
     .cm-product-layout {
       gap: 3rem;
+    }
+
+    .cm-product-layout--solo {
+      grid-template-columns: minmax(0, 50fr) minmax(0, 50fr);
+      gap: 2.5rem;
     }
   }
 
@@ -901,6 +907,17 @@
     .cm-product-layout-media {
       position: sticky;
       top: calc(var(--site-top-height) + 1rem);
+    }
+
+    .cm-product-layout--solo .cm-product-layout-media {
+      align-self: stretch;
+      margin-left: -0.75rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .cm-product-layout--solo .cm-product-layout-media {
+      margin-left: -1.5rem;
     }
   }
 
@@ -916,8 +933,12 @@
     @apply relative aspect-[3/4] w-full max-h-[min(68vh,520px)] overflow-hidden rounded-2xl border border-stone/70 bg-white shadow-lg shadow-pine/5;
   }
 
+  .cm-product-layout--solo .cm-product-gallery {
+    @apply flex h-full min-h-0 w-full;
+  }
+
   .cm-product-layout--solo .cm-product-gallery-frame {
-    @apply aspect-square max-h-[min(60vh,480px)] bg-mist;
+    @apply aspect-[4/5] w-full max-h-[min(82vh,720px)] min-h-[min(68vh,580px)] bg-white shadow-xl shadow-pine/10;
   }
 
   .cm-product-gallery-placeholder {
@@ -925,7 +946,7 @@
   }
 
   .cm-product-layout--solo .cm-product-gallery-placeholder {
-    @apply aspect-square max-h-[min(60vh,480px)] bg-mist;
+    @apply aspect-[4/5] max-h-[min(82vh,720px)] min-h-[min(68vh,580px)] bg-white;
   }
 
   .cm-product-gallery-image,
@@ -935,7 +956,7 @@
 
   .cm-product-layout--solo .cm-product-gallery-image,
   .cm-product-layout--solo .cm-product-gallery-frame img {
-    @apply object-contain p-4 md:p-6;
+    @apply object-contain p-3 md:p-5 lg:p-6;
   }
 
   .cm-product-header {
