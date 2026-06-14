@@ -42,7 +42,7 @@ export function GearCatalogGrid({
 
               const inner = (
                 <>
-                  <div className="cm-kit-card-media relative overflow-hidden bg-stone">
+                  <div className="cm-kit-card-media relative overflow-hidden">
                     {item.imageUrl ? (
                       <CatalogCardImage
                         src={item.imageUrl}

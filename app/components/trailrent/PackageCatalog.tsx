@@ -25,17 +25,19 @@ function PackageCard({
   pkg,
   itemsCountLabel,
   savingsLabel,
+  includedLabel,
 }: {
   pkg: ShopifyPackageItem;
   itemsCountLabel: string;
   savingsLabel?: string;
+  includedLabel: string;
 }) {
   const diffStyle = DIFFICULTY_STYLES[pkg.difficulty] ?? 'bg-stone text-muted';
   const productUrl = pkg.productHandle ? `/products/${pkg.productHandle}` : null;
 
   const inner = (
     <>
-      <div className="cm-kit-card-media relative overflow-hidden bg-stone">
+      <div className="cm-kit-card-media relative overflow-hidden">
         {pkg.imageUrl ? (
           <CatalogCardImage
             src={pkg.imageUrl}
@@ -71,6 +73,31 @@ function PackageCard({
         </div>
 
         <h3 className="cm-kit-card-title">{pkg.title}</h3>
+
+        <div className="cm-kit-card-reveal" aria-hidden>
+          <div className="cm-kit-card-reveal-inner">
+            {pkg.description ? (
+              <p className="cm-kit-card-desc">{pkg.description}</p>
+            ) : null}
+            {pkg.items.length > 0 ? (
+              <div>
+                <p className="cm-kit-card-included-label">{includedLabel}</p>
+                <ul className="cm-kit-card-included-list">
+                  {pkg.items.slice(0, 5).map((item) => (
+                    <li key={item} className="cm-kit-card-included-item">
+                      {item}
+                    </li>
+                  ))}
+                  {pkg.items.length > 5 ? (
+                    <li className="cm-kit-card-included-more text-xs text-muted">
+                      +{pkg.items.length - 5}
+                    </li>
+                  ) : null}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </div>
 
         <div className="cm-kit-card-footer">
           <div className="min-w-0">
@@ -153,7 +180,7 @@ export function PackageCatalogGrid({
               {tr.packages.shopifySetupHint}
             </p>
           ) : null}
-          <div className="cm-catalog-layout">
+          <div className="cm-catalog-layout cm-catalog-layout--packages">
             <PackageFiltersPanel
               groups={filterGroups}
               resultCount={filtered.length}
@@ -176,6 +203,7 @@ export function PackageCatalogGrid({
                       pkg={pkg}
                       itemsCountLabel={tr.packages.itemsCount}
                       savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
+                      includedLabel={tr.packages.included}
                     />
                   ))}
                 </div>
