@@ -33,6 +33,8 @@ export type RentalProductFormProps = {
   onSuccess?: () => void;
   /** Hides duplicate product title when shown beside the page header. */
   compact?: boolean;
+  /** Two-column booking layout for full-width solo product pages. */
+  layout?: 'stacked' | 'wide';
 };
 
 function buildLineAttributes(options: {
@@ -77,6 +79,7 @@ export function RentalProductForm({
   isTrustedTier = false,
   onSuccess,
   compact = false,
+  layout = 'stacked',
 }: RentalProductFormProps) {
   const {translations: tr, locale} = useLocale();
   const defaults = getDefaultDateRange();
@@ -121,7 +124,7 @@ export function RentalProductForm({
 
   return (
     <div
-      className={`cm-rental-form${compact ? ' cm-rental-form--compact' : ''}`}
+      className={`cm-rental-form${compact ? ' cm-rental-form--compact' : ''}${layout === 'wide' ? ' cm-rental-form--wide' : ''}`}
     >
       <header className="cm-rental-form-header">
         <p className="tr-eyebrow">{tr.booking.title}</p>
@@ -155,139 +158,145 @@ export function RentalProductForm({
         </div>
       ) : null}
 
-      {isRentMode ? (
-        <div className="cm-rental-field">
-          <label className="cm-form-label">
-            <span className="inline-flex items-center gap-2">
-              <IconCalendar size={16} className="text-moss" />
-              {tr.booking.dates}
-            </span>
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <span className="mb-1 block text-xs font-medium text-muted">
-                {tr.booking.startDate}
-              </span>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="cm-form-field"
-                aria-label={tr.booking.startDate}
-              />
+      <div className="cm-rental-form-body">
+        <div className="cm-rental-form-fields">
+          {isRentMode ? (
+            <div className="cm-rental-field">
+              <label className="cm-form-label">
+                <span className="inline-flex items-center gap-2">
+                  <IconCalendar size={16} className="text-moss" />
+                  {tr.booking.dates}
+                </span>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="mb-1 block text-xs font-medium text-muted">
+                    {tr.booking.startDate}
+                  </span>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="cm-form-field"
+                    aria-label={tr.booking.startDate}
+                  />
+                </div>
+                <div>
+                  <span className="mb-1 block text-xs font-medium text-muted">
+                    {tr.booking.endDate}
+                  </span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="cm-form-field"
+                    aria-label={tr.booking.endDate}
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="mb-1 block text-xs font-medium text-muted">
-                {tr.booking.endDate}
-              </span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="cm-form-field"
-                aria-label={tr.booking.endDate}
-              />
+          ) : (
+            <div className="cm-rental-rto-banner">
+              <p className="text-sm font-semibold text-pine">
+                {tr.booking.buyNow} {formatGel(displayTotal)}
+              </p>
+              {rentToOwnOffer?.rentalCredit ? (
+                <p className="mt-1 text-sm text-muted">
+                  {tr.booking.rentalCredit}: −{formatGel(rentToOwnOffer.rentalCredit)} ·{' '}
+                  {tr.booking.buyNowDiscount}
+                </p>
+              ) : null}
             </div>
+          )}
+
+          <div className="cm-rental-field">
+            <label htmlFor="rental-metro-select" className="cm-form-label">
+              <span className="inline-flex items-center gap-2">
+                <IconMapPin size={16} className="text-moss" />
+                {tr.booking.metro}
+              </span>
+            </label>
+            <select
+              id="rental-metro-select"
+              value={metroId}
+              onChange={(e) => setMetroId(e.target.value)}
+              className="cm-form-field"
+            >
+              {METRO_STATIONS.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {getStationLabel(s, locale)} · {s.line}
+                </option>
+              ))}
+            </select>
+            {station ? (
+              <p className="mt-2 text-sm text-muted">
+                {tr.booking.pickupWindow}: {station.pickupWindow}
+              </p>
+            ) : null}
           </div>
         </div>
-      ) : (
-        <div className="cm-rental-rto-banner">
-          <p className="text-sm font-semibold text-pine">
-            {tr.booking.buyNow} {formatGel(displayTotal)}
-          </p>
-          {rentToOwnOffer?.rentalCredit ? (
-            <p className="mt-1 text-sm text-muted">
-              {tr.booking.rentalCredit}: −{formatGel(rentToOwnOffer.rentalCredit)} ·{' '}
-              {tr.booking.buyNowDiscount}
+
+        <div className="cm-rental-form-checkout">
+          <div className="cm-rental-summary">
+            {isRentMode ? (
+              <>
+                <div className="cm-rental-summary-row">
+                  <span>{tr.booking.dailyRate}</span>
+                  <span>{formatGel(dailyRate)}</span>
+                </div>
+                <div className="cm-rental-summary-row">
+                  <span>
+                    {rentalPricing.days} {tr.booking.days}
+                  </span>
+                  <span>{formatGel(rentalPricing.subtotal)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="cm-rental-summary-row">
+                <span>{tr.booking.buyNow}</span>
+                <span>{formatGel(displayTotal)}</span>
+              </div>
+            )}
+            <div className="cm-rental-summary-total">
+              <span>{tr.booking.total}</span>
+              <span>{formatGel(displayTotal)}</span>
+            </div>
+          </div>
+
+          {!isTrustedTier ? (
+            <p className="cm-rental-notice">
+              <IconShield size={18} className="shrink-0 text-moss" />
+              <span>{tr.booking.idNotice}</span>
             </p>
           ) : null}
-        </div>
-      )}
 
-      <div className="cm-rental-field">
-        <label htmlFor="rental-metro-select" className="cm-form-label">
-          <span className="inline-flex items-center gap-2">
-            <IconMapPin size={16} className="text-moss" />
-            {tr.booking.metro}
-          </span>
-        </label>
-        <select
-          id="rental-metro-select"
-          value={metroId}
-          onChange={(e) => setMetroId(e.target.value)}
-          className="cm-form-field"
-        >
-          {METRO_STATIONS.map((s) => (
-            <option key={s.id} value={s.id}>
-              {getStationLabel(s, locale)} · {s.line}
-            </option>
-          ))}
-        </select>
-        {station ? (
-          <p className="mt-2 text-sm text-muted">
-            {tr.booking.pickupWindow}: {station.pickupWindow}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="cm-rental-summary">
-        {isRentMode ? (
-          <>
-            <div className="cm-rental-summary-row">
-              <span>{tr.booking.dailyRate}</span>
-              <span>{formatGel(dailyRate)}</span>
-            </div>
-            <div className="cm-rental-summary-row">
-              <span>
-                {rentalPricing.days} {tr.booking.days}
-              </span>
-              <span>{formatGel(rentalPricing.subtotal)}</span>
-            </div>
-          </>
-        ) : (
-          <div className="cm-rental-summary-row">
-            <span>{tr.booking.buyNow}</span>
-            <span>{formatGel(displayTotal)}</span>
-          </div>
-        )}
-        <div className="cm-rental-summary-total">
-          <span>{tr.booking.total}</span>
-          <span>{formatGel(displayTotal)}</span>
-        </div>
-      </div>
-
-      {!isTrustedTier ? (
-        <p className="cm-rental-notice">
-          <IconShield size={18} className="shrink-0 text-moss" />
-          <span>{tr.booking.idNotice}</span>
-        </p>
-      ) : null}
-
-      <CartForm
-        route="/cart"
-        inputs={{lines: cartLines}}
-        action={CartForm.ACTIONS.LinesAdd}
-      >
-        {(fetcher) => (
-          <button
-            type="submit"
-            disabled={!canSubmit || fetcher.state !== 'idle'}
-            onClick={() => {
-              if (canSubmit && fetcher.state === 'idle') {
-                onSuccess?.();
-              }
-            }}
-            className="tr-btn-primary cm-rental-submit disabled:cursor-not-allowed disabled:opacity-50"
+          <CartForm
+            route="/cart"
+            inputs={{lines: cartLines}}
+            action={CartForm.ACTIONS.LinesAdd}
           >
-            <IconCart size={18} />
-            {canSubmit
-              ? isRentMode
-                ? tr.booking.addToCart
-                : `${tr.booking.buyNow} ${formatGel(displayTotal)}`
-              : tr.booking.unavailable}
-          </button>
-        )}
-      </CartForm>
+            {(fetcher) => (
+              <button
+                type="submit"
+                disabled={!canSubmit || fetcher.state !== 'idle'}
+                onClick={() => {
+                  if (canSubmit && fetcher.state === 'idle') {
+                    onSuccess?.();
+                  }
+                }}
+                className="tr-btn-primary cm-rental-submit disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <IconCart size={18} />
+                {canSubmit
+                  ? isRentMode
+                    ? tr.booking.addToCart
+                    : `${tr.booking.buyNow} ${formatGel(displayTotal)}`
+                  : tr.booking.unavailable}
+              </button>
+            )}
+          </CartForm>
+        </div>
+      </div>
     </div>
   );
 }

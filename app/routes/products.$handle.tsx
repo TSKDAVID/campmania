@@ -117,9 +117,17 @@ export default function Product() {
   return (
     <article className="cm-product-page">
       <div className="cm-product-page-inner">
-        <div className="cm-product-layout">
+        <div
+          className={`cm-product-layout${
+            includedItems.length === 0 ? ' cm-product-layout--solo' : ''
+          }`}
+        >
           <aside className="cm-product-layout-media" aria-label={title}>
-            <ProductImage image={selectedVariant?.image} title={title} />
+            <ProductImage
+              image={selectedVariant?.image}
+              title={title}
+              variant={includedItems.length === 0 ? 'solo' : 'kit'}
+            />
           </aside>
 
           <div className="cm-product-buybox">
@@ -140,18 +148,30 @@ export default function Product() {
 
             <ProductTrustBar isTrustedTier={trustedTier} />
 
-            <div
-              className={`cm-product-buybox-panels${
-                includedItems.length === 0
-                  ? ' cm-product-buybox-panels--solo'
-                  : ''
-              }`}
-            >
-              {includedItems.length > 0 ? (
+            {includedItems.length > 0 ? (
+              <div className="cm-product-buybox-panels">
                 <ProductIncludedPanel items={includedItems} />
-              ) : null}
 
-              {selectedVariant?.id ? (
+                {selectedVariant?.id ? (
+                  <RentalProductForm
+                    variantId={selectedVariant.id}
+                    productTitle={title}
+                    dailyRate={dailyRate}
+                    purchasePrice={purchasePrice}
+                    rentToOwnOffer={rentToOwnOffer}
+                    isTrustedTier={trustedTier}
+                    compact
+                  />
+                ) : (
+                  <p className="cm-product-unavailable">
+                    {locale === 'ka'
+                      ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
+                      : 'This variant is currently unavailable.'}
+                  </p>
+                )}
+              </div>
+            ) : selectedVariant?.id ? (
+              <div className="cm-product-booking">
                 <RentalProductForm
                   variantId={selectedVariant.id}
                   productTitle={title}
@@ -159,15 +179,17 @@ export default function Product() {
                   purchasePrice={purchasePrice}
                   rentToOwnOffer={rentToOwnOffer}
                   isTrustedTier={trustedTier}
+                  compact
+                  layout="wide"
                 />
-              ) : (
-                <p className="cm-product-unavailable">
-                  {locale === 'ka'
-                    ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
-                    : 'This variant is currently unavailable.'}
-                </p>
-              )}
-            </div>
+              </div>
+            ) : (
+              <p className="cm-product-unavailable">
+                {locale === 'ka'
+                  ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
+                  : 'This variant is currently unavailable.'}
+              </p>
+            )}
           </div>
         </div>
 

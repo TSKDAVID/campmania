@@ -4,6 +4,7 @@
   --cart-aside-summary-height: 250px;
   --grid-item-width: 355px;
   --header-height: 64px;
+  --site-top-height: 7rem;
   --color-dark: #000;
   --color-light: #fff;
 }
@@ -170,7 +171,7 @@ img {
   transition: opacity 400ms ease-in-out;
   transition: opacity 400ms;
   visibility: hidden;
-  z-index: 10;
+  z-index: 40;
 }
 
 .overlay .close-outside {
@@ -199,10 +200,45 @@ img {
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
+  z-index: 60;
 }
 /* reveal aside */
 .overlay.expanded aside {
   transform: translateX(calc(var(--aside-width) * -1));
+}
+
+/* Mobile menu: panel below sticky header, auto height (no empty white sheet) */
+@media (max-width: 63.99em) {
+  .overlay--mobile aside {
+    width: 100%;
+    max-width: 100%;
+    right: -100%;
+    height: auto;
+    min-height: 0;
+    max-height: calc(100dvh - var(--site-top-height, 7rem));
+    top: var(--site-top-height, 7rem);
+    overflow-y: auto;
+    border-radius: 0 0 1rem 1rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  }
+
+  .overlay--mobile.expanded aside {
+    transform: translateX(-100%);
+  }
+
+  .overlay--mobile .close-outside {
+    width: 100%;
+    height: var(--site-top-height, 7rem);
+  }
+
+  .overlay--mobile aside main {
+    margin: 0;
+    padding: 0;
+  }
+
+  .overlay--mobile aside header {
+    display: none;
+  }
 }
 
 button.reset {

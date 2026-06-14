@@ -37,7 +37,7 @@ export function GearCatalogGrid({
           ) : null}
           <GearFiltersBar options={GEAR_FILTERS} />
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="cm-catalog-grid">
             {filtered.map((item) => {
               const productUrl = item.productHandle
                 ? `/products/${item.productHandle}`
@@ -58,11 +58,11 @@ export function GearCatalogGrid({
                       <div className="cm-kit-card-pattern absolute inset-0 bg-gradient-to-br from-stone via-mist to-sage/20 opacity-80" />
                     )}
                   </Link>
-                  <div className="p-4 md:p-5">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-moss">
+                  <div className="cm-kit-card-body">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-moss sm:text-[11px]">
                       {item.categoryLabel}
                     </span>
-                    <h3 className="mt-1 font-display text-lg font-bold text-pine group-hover:text-forest">
+                    <h3 className="cm-kit-card-title mt-1 font-display font-bold text-pine group-hover:text-forest">
                       {productUrl ? (
                         <Link
                           to={productUrl}
@@ -74,18 +74,18 @@ export function GearCatalogGrid({
                         item.title
                       )}
                     </h3>
-                    <p className="mt-0.5 line-clamp-2 text-sm text-muted">
+                    <p className="mt-0.5 line-clamp-2 text-xs text-muted sm:text-sm">
                       {item.subtitle}
                     </p>
                     <div className="mt-3 flex items-baseline justify-between border-t border-stone/70 pt-3">
-                      <p className="font-display text-xl font-bold text-forest">
+                      <p className="font-display text-lg font-bold text-forest sm:text-xl">
                         {item.priceLabel}
                       </p>
                     </div>
                     {productUrl ? (
                       <Link
                         to={productUrl}
-                        className="tr-btn-secondary mt-3 flex w-full items-center justify-center gap-2 py-2.5 text-xs"
+                        className="tr-btn-secondary cm-kit-card-cta mt-2 flex w-full items-center justify-center gap-2 py-2 text-xs sm:mt-3"
                       >
                         {tr.gear.viewAndBook}
                         <IconArrowRight size={14} />

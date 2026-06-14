@@ -20,7 +20,7 @@ export function ProductItem({
 
   return (
     <Link
-      className="cm-product-card"
+      className="cm-product-card group"
       key={product.id}
       prefetch="intent"
       to={variantUrl}
@@ -33,7 +33,7 @@ export function ProductItem({
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             data={image}
             loading={loading}
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+            sizes="(min-width: 1280px) 22vw, (min-width: 1024px) 28vw, (min-width: 640px) 44vw, 48vw"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-forest/20 to-moss/30 text-sage">
@@ -47,10 +47,10 @@ export function ProductItem({
         </div>
       </div>
       <div className="cm-product-card-body">
-        <h3 className="font-display text-lg font-semibold leading-snug text-pine transition group-hover:text-forest">
+        <h3 className="font-display font-semibold leading-snug text-pine transition group-hover:text-forest">
           {product.title}
         </h3>
-        <p className="mt-auto pt-3 text-sm font-semibold text-moss">
+        <p className="mt-auto pt-2 text-xs font-semibold text-moss sm:pt-3 sm:text-sm">
           <Money data={product.priceRange.minVariantPrice} />
           <span className="ml-1 font-normal text-muted">
             {locale === 'ka' ? '/ დღე' : '/ day'}

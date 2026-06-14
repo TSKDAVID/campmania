@@ -42,8 +42,8 @@ export function Header({
     <header className="cm-site-header">
       <div className="cm-site-header-inner">
         {/* Logo */}
-        <NavLink prefetch="intent" to="/" className="group shrink-0" end>
-          <span className="font-display text-2xl tracking-tight text-mist transition group-hover:text-amber">
+        <NavLink prefetch="intent" to="/" className="group min-w-0 shrink-0" end>
+          <span className="font-display text-xl tracking-tight text-mist transition group-hover:text-amber sm:text-2xl">
             {tr.brand}
           </span>
           <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.2em] text-sage">
@@ -72,7 +72,7 @@ export function Header({
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
           <LanguageSwitcher />
           <AccountLink isLoggedIn={isLoggedIn} />
           <SearchToggle />
@@ -101,7 +101,7 @@ export function HeaderMenu({
   if (viewport === 'desktop') return null;
 
   return (
-    <nav className="flex flex-col gap-1 p-2" role="navigation">
+    <nav className="cm-mobile-nav" role="navigation">
       {navItems.map((item) => (
         <NavLink
           key={item.id}
@@ -109,11 +109,7 @@ export function HeaderMenu({
           onClick={close}
           prefetch="intent"
           className={({isActive}) =>
-            `rounded-md px-4 py-3 text-base font-medium transition no-underline hover:no-underline ${
-              isActive
-                ? 'bg-pine/10 text-pine'
-                : 'text-charcoal hover:bg-stone/50'
-            }`
+            `cm-mobile-nav-link ${isActive ? 'cm-mobile-nav-link-active' : ''}`
           }
         >
           {item.label}
@@ -126,7 +122,7 @@ export function HeaderMenu({
               <NavLink
                 to={loggedIn ? '/account' : '/account/login'}
                 onClick={close}
-                className="mt-2 rounded-md border border-stone px-4 py-3 text-center text-sm font-semibold text-pine no-underline hover:no-underline"
+                className="cm-mobile-nav-account"
               >
                 {loggedIn ? tr.nav.account : tr.nav.signIn}
               </NavLink>
@@ -137,7 +133,7 @@ export function HeaderMenu({
         <NavLink
           to="/account/login"
           onClick={close}
-          className="mt-2 rounded-md border border-stone px-4 py-3 text-center text-sm font-semibold text-pine no-underline hover:no-underline"
+          className="cm-mobile-nav-account"
         >
           {tr.nav.signIn}
         </NavLink>

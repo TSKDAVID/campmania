@@ -57,19 +57,19 @@ function PackageCard({
           </>
         )}
         <span
-          className={`absolute right-3 top-3 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${diffStyle}`}
+          className={`cm-kit-card-badge absolute right-2 top-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide sm:right-3 sm:top-3 sm:px-2.5 sm:text-[11px] ${diffStyle}`}
         >
           {pkg.difficultyLabel}
         </span>
         {pkg.savingsPercent ? (
-          <span className="absolute left-3 top-3 rounded-full bg-amber px-2.5 py-0.5 text-[11px] font-bold text-pine">
+          <span className="cm-kit-card-badge absolute left-2 top-2 rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-pine sm:left-3 sm:top-3 sm:px-2.5 sm:text-[11px]">
             -{pkg.savingsPercent}%
           </span>
         ) : null}
       </Link>
 
-      <div className="flex flex-1 flex-col p-4 md:p-5">
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
+      <div className="cm-kit-card-body">
+        <div className="cm-kit-card-meta flex flex-wrap items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted sm:text-[11px]">
           <span className="rounded-sm bg-stone/80 px-2 py-0.5 text-charcoal/80">
             {pkg.trekLabel}
           </span>
@@ -77,7 +77,7 @@ function PackageCard({
           <span>{pkg.durationLabel}</span>
         </div>
 
-        <h3 className="mt-2 font-display text-xl font-bold leading-snug text-pine group-hover:text-forest">
+        <h3 className="cm-kit-card-title mt-1.5 font-display font-bold leading-snug text-pine group-hover:text-forest sm:mt-2">
           {productUrl ? (
             <Link to={productUrl} className="no-underline hover:no-underline">
               {pkg.title}
@@ -86,13 +86,13 @@ function PackageCard({
             pkg.title
           )}
         </h3>
-        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">
+        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted sm:text-sm">
           {pkg.description}
         </p>
 
         <div className="mt-3 border-t border-stone/70 pt-3">
           <div className="flex flex-wrap items-baseline gap-2">
-            <p className="font-display text-2xl font-bold text-forest">
+            <p className="font-display text-lg font-bold text-forest sm:text-2xl">
               {pkg.priceLabel}
             </p>
             {pkg.compareAtPrice ? (
@@ -103,13 +103,16 @@ function PackageCard({
           </div>
         </div>
 
-        <div className="mt-3 flex-1">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-moss">
+        <div className="cm-kit-card-included mt-2 flex-1 sm:mt-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-moss sm:text-[11px]">
             {includedLabel}
           </p>
-          <ul className="mt-2 space-y-1">
+          <ul className="mt-1.5 space-y-1 sm:mt-2">
             {pkg.items.slice(0, 3).map((item) => (
-              <li key={item} className="flex gap-2 text-sm text-charcoal/75">
+              <li
+                key={item}
+                className="cm-kit-card-included-item flex gap-2 text-xs text-charcoal/75 sm:text-sm"
+              >
                 <span
                   className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-moss"
                   aria-hidden
@@ -124,7 +127,7 @@ function PackageCard({
         </div>
 
         {productUrl ? (
-          <Link to={productUrl} className="tr-btn-primary mt-4 w-full gap-2">
+          <Link to={productUrl} className="tr-btn-primary cm-kit-card-cta mt-3 w-full gap-2 sm:mt-4">
             {bookLabel}
             <IconArrowRight size={16} className="opacity-80" />
           </Link>

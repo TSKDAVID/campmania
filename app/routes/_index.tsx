@@ -269,7 +269,7 @@ function FeaturedProducts({
 
         <Suspense
           fallback={
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="cm-product-grid">
               {Array.from({length: 4}).map((_, i) => (
                 <div
                   key={i}
@@ -282,7 +282,7 @@ function FeaturedProducts({
           <Await resolve={products}>
             {(response) =>
               response?.products.nodes.length ? (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="cm-product-grid">
                   {response.products.nodes.map((product, index) => (
                     <ProductItem
                       key={product.id}
