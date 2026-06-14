@@ -1,27 +1,34 @@
-/** Consistent cropped thumbnails for package & gear catalog cards (4:5). */
+/** Width-only Shopify CDN resize — no crop (for object-contain cards). */
 export function catalogCardImageUrl(
   url?: string | null,
   width = 800,
+  options?: {crop?: boolean},
 ): string | undefined {
   if (!url) return undefined;
-  const height = Math.round(width * 1.25);
+  const crop = options?.crop !== false;
   try {
     const parsed = new URL(url);
     parsed.searchParams.set('width', String(width));
-    parsed.searchParams.set('height', String(height));
-    parsed.searchParams.set('crop', 'center');
+    if (crop) {
+      const height = Math.round(width * 1.25);
+      parsed.searchParams.set('height', String(height));
+      parsed.searchParams.set('crop', 'center');
+    }
     return parsed.toString();
   } catch {
     return url;
   }
 }
 
-export function catalogCardImageSrcSet(url?: string | null): string | undefined {
+export function catalogCardImageSrcSet(
+  url?: string | null,
+  options?: {crop?: boolean},
+): string | undefined {
   if (!url) return undefined;
   const widths = [320, 480, 640, 800];
   return widths
     .map((w) => {
-      const src = catalogCardImageUrl(url, w);
+      const src = catalogCardImageUrl(url, w, options);
       return src ? `${src} ${w}w` : null;
     })
     .filter(Boolean)

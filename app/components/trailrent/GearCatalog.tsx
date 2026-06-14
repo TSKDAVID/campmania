@@ -2,7 +2,7 @@ import {Link, useSearchParams} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {GEAR_FILTERS} from '~/lib/trailrent/catalog';
 import type {ShopifyGearItem} from '~/lib/trailrent/shopify-catalog';
-import {PageBanner} from '~/components/trailrent/HomeSections';
+import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
 import {GearFiltersBar} from '~/components/trailrent/CatalogFilters';
 import {CatalogCardImage} from '~/components/trailrent/CatalogCardImage';
 import {IconArrowRight} from '~/components/trailrent/Icons';
@@ -22,13 +22,9 @@ export function GearCatalogGrid({
 
   return (
     <>
-      <PageBanner
-        eyebrow={tr.gear.eyebrow}
-        title={tr.gear.title}
-        compact
-      />
-      <section className="tr-section-tight bg-white">
-        <div className="tr-page-width">
+      <section className="cm-catalog-page bg-white">
+        <div className="tr-page-width cm-catalog-page-inner">
+          <CatalogPageHeading title={tr.gear.title} />
           {!shopifyConnected ? (
             <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
               {tr.gear.shopifySetupHint}
@@ -51,6 +47,7 @@ export function GearCatalogGrid({
                       <CatalogCardImage
                         src={item.imageUrl}
                         alt={item.imageAlt ?? item.title}
+                        fit="contain"
                       />
                     ) : (
                       <div className="cm-kit-card-pattern absolute inset-0 bg-gradient-to-br from-stone via-mist to-sage/20 opacity-80" />

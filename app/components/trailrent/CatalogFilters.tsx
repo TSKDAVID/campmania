@@ -131,15 +131,11 @@ export function GearFiltersBar({
   const active = params.get(paramName);
 
   return (
-    <div className="cm-filter-panel cm-filter-panel-inline">
-      <div className="cm-filter-panel-header">
-        <div className="flex items-center gap-2.5">
-          <span className="cm-filter-panel-icon" aria-hidden>
-            <IconFilter size={18} />
-          </span>
-          <p className="text-sm font-semibold text-pine">{tr.packages.filters}</p>
-        </div>
-      </div>
+    <div
+      className="cm-filter-panel cm-filter-panel-inline"
+      role="region"
+      aria-label={tr.packages.filters}
+    >
       <div className="cm-filter-panel-body">
         <div className="cm-filter-pills">
           <button

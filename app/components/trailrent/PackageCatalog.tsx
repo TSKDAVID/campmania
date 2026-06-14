@@ -7,7 +7,7 @@ import {
   TREK_FILTERS,
 } from '~/lib/trailrent/catalog';
 import type {ShopifyPackageItem} from '~/lib/trailrent/shopify-catalog';
-import {PageBanner} from '~/components/trailrent/HomeSections';
+import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
 import {
   buildPackageFilterGroups,
   PackageFiltersPanel,
@@ -40,6 +40,7 @@ function PackageCard({
           <CatalogCardImage
             src={pkg.imageUrl}
             alt={pkg.imageAlt ?? pkg.title}
+            fit="contain"
           />
         ) : (
           <>
@@ -144,13 +145,9 @@ export function PackageCatalogGrid({
 
   return (
     <>
-      <PageBanner
-        eyebrow={tr.packages.eyebrow}
-        title={tr.packages.title}
-        compact
-      />
-      <section className="tr-section-tight bg-mist">
-        <div className="tr-page-width">
+      <section className="cm-catalog-page bg-mist">
+        <div className="tr-page-width cm-catalog-page-inner">
+          <CatalogPageHeading title={tr.packages.title} />
           {!shopifyConnected ? (
             <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
               {tr.packages.shopifySetupHint}

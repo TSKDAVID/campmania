@@ -41,6 +41,10 @@ export function LanguageSwitcher() {
   );
 }
 
+export function CatalogPageHeading({title}: {title: string}) {
+  return <h1 className="cm-catalog-heading">{title}</h1>;
+}
+
 export function PageBanner({
   eyebrow,
   title,
