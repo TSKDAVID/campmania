@@ -31,6 +31,8 @@ export type RentalProductFormProps = {
   rentToOwnOffer?: RentToOwnOffer;
   isTrustedTier?: boolean;
   onSuccess?: () => void;
+  /** Hides duplicate product title when shown beside the page header. */
+  compact?: boolean;
 };
 
 function buildLineAttributes(options: {
@@ -74,6 +76,7 @@ export function RentalProductForm({
   rentToOwnOffer,
   isTrustedTier = false,
   onSuccess,
+  compact = false,
 }: RentalProductFormProps) {
   const {translations: tr, locale} = useLocale();
   const defaults = getDefaultDateRange();
@@ -117,12 +120,16 @@ export function RentalProductForm({
     : (rentToOwnOffer?.buyNowPrice ?? purchasePrice ?? dailyRate);
 
   return (
-    <div className="cm-rental-form">
+    <div
+      className={`cm-rental-form${compact ? ' cm-rental-form--compact' : ''}`}
+    >
       <header className="cm-rental-form-header">
         <p className="tr-eyebrow">{tr.booking.title}</p>
-        <h2 className="mt-1 font-display text-xl font-bold text-pine md:text-2xl">
-          {productTitle}
-        </h2>
+        {!compact ? (
+          <h2 className="mt-1 font-display text-xl font-bold text-pine md:text-2xl">
+            {productTitle}
+          </h2>
+        ) : null}
       </header>
 
       {canBuy ? (

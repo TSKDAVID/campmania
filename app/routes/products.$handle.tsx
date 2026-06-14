@@ -138,30 +138,35 @@ export default function Product() {
               />
             </header>
 
-            <div className="cm-product-meta">
-              <ProductTrustBar isTrustedTier={trustedTier} />
+            <ProductTrustBar isTrustedTier={trustedTier} />
 
+            <div
+              className={`cm-product-action-row${
+                includedItems.length === 0 ? ' cm-product-action-row--solo' : ''
+              }`}
+            >
               {includedItems.length > 0 ? (
                 <ProductIncludedPanel items={includedItems} />
               ) : null}
-            </div>
 
-            {selectedVariant?.id ? (
-              <RentalProductForm
-                variantId={selectedVariant.id}
-                productTitle={title}
-                dailyRate={dailyRate}
-                purchasePrice={purchasePrice}
-                rentToOwnOffer={rentToOwnOffer}
-                isTrustedTier={trustedTier}
-              />
-            ) : (
-              <p className="cm-product-unavailable">
-                {locale === 'ka'
-                  ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
-                  : 'This variant is currently unavailable.'}
-              </p>
-            )}
+              {selectedVariant?.id ? (
+                <RentalProductForm
+                  variantId={selectedVariant.id}
+                  productTitle={title}
+                  dailyRate={dailyRate}
+                  purchasePrice={purchasePrice}
+                  rentToOwnOffer={rentToOwnOffer}
+                  isTrustedTier={trustedTier}
+                  compact
+                />
+              ) : (
+                <p className="cm-product-unavailable">
+                  {locale === 'ka'
+                    ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
+                    : 'This variant is currently unavailable.'}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
