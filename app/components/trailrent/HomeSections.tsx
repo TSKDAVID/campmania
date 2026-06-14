@@ -6,18 +6,6 @@ import {
   IconStar,
 } from '~/components/trailrent/Icons';
 
-export function AnnouncementBar() {
-  const {translations} = useLocale();
-
-  return (
-    <div className="cm-announcement-bar" role="note" aria-label={translations.announcement}>
-      <div className="tr-page-width cm-announcement-bar-inner">
-        {translations.announcement}
-      </div>
-    </div>
-  );
-}
-
 export function LanguageSwitcher() {
   const {locale, setLocale} = useLocale();
 

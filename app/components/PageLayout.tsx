@@ -14,7 +14,6 @@ import {
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
-import {AnnouncementBar} from '~/components/trailrent/HomeSections';
 import {useLocale} from '~/providers/LocaleProvider';
 
 interface PageLayoutProps {
@@ -44,7 +43,6 @@ export function PageLayout({
         isLoggedIn={isLoggedIn}
       />
       <div className="cm-site-top">
-        <AnnouncementBar />
         {header ? (
           <Header
             header={header}
