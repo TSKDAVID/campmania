@@ -103,6 +103,18 @@ export function coalesceMetafieldValue(
   return undefined;
 }
 
+export function metafieldValueByKeys(
+  metafields: Array<{key: string; value?: string | null}> | null | undefined,
+  keys: string[],
+): string | undefined {
+  if (!metafields?.length) return undefined;
+  for (const key of keys) {
+    const hit = metafields.find((field) => field.key === key);
+    if (hit?.value != null && hit.value.trim() !== '') return hit.value;
+  }
+  return undefined;
+}
+
 export function pickRentVariant(
   variants: FulfillmentVariantNode[],
 ): FulfillmentVariantNode | undefined {
@@ -183,12 +195,11 @@ export function resolveFulfillmentVariants(options: {
   let buyAvailable = false;
   if (metaFlag === false) {
     buyAvailable = false;
-  } else if (metaFlag === true) {
+  } else {
     buyAvailable =
       (hasDistinctBuy && buyInStock) ||
-      (purchasePriceFromMeta != null && purchasePriceFromMeta > 0);
-  } else {
-    buyAvailable = hasDistinctBuy && buyInStock;
+      (purchasePriceFromMeta != null && purchasePriceFromMeta > 0) ||
+      (metaFlag === true && purchasePrice > 0);
   }
 
   return {

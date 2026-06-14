@@ -28,6 +28,7 @@ import {isTrustedTier} from '~/lib/trailrent/loyalty';
 import {
   collectProductVariants,
   coalesceMetafieldValue,
+  metafieldValueByKeys,
   resolveFulfillmentVariants,
 } from '~/lib/trailrent/product-variants';
 
@@ -102,29 +103,48 @@ export default function Product() {
 
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
+  const {title, descriptionHtml, id: productId, tags = []} = product;
+  const includedItems = parseIncludedItems(product.includedItems);
+  const isSoloProduct = includedItems.length === 0;
+
   const fulfillment = useMemo(() => {
     const variants = collectProductVariants(product);
+    const availableMeta = coalesceMetafieldValue(
+      metafieldValueByKeys(product.fulfillmentMetafields, [
+        'available-to-purchase',
+        'available_for_purchase',
+      ]),
+      product.availableForPurchase?.value,
+      product.availableForPurchaseAlt?.value,
+    );
+    const purchaseMeta = coalesceMetafieldValue(
+      metafieldValueByKeys(product.fulfillmentMetafields, [
+        'purchase-price',
+        'purchase_price',
+      ]),
+      product.purchasePriceMeta?.value,
+      product.purchasePriceMetaAlt?.value,
+    );
+
     return resolveFulfillmentVariants({
       variants,
-      availableForPurchaseMeta: coalesceMetafieldValue(
-        product.availableForPurchase?.value,
-        product.availableForPurchaseAlt?.value,
-      ),
-      purchasePriceMeta: coalesceMetafieldValue(
-        product.purchasePriceMeta?.value,
-        product.purchasePriceMetaAlt?.value,
-      ),
+      availableForPurchaseMeta: availableMeta,
+      purchasePriceMeta: purchaseMeta,
     });
   }, [product]);
 
   const rentVariant = fulfillment?.rentVariant;
   const buyVariant = fulfillment?.buyVariant;
-  const buyAvailable = fulfillment?.buyAvailable ?? false;
   const buyCheckoutReady = fulfillment?.buyCheckoutReady ?? false;
-
-  const {title, descriptionHtml, id: productId, tags = []} = product;
   const dailyRate = Number(rentVariant?.price?.amount ?? 0);
-  const purchasePrice = fulfillment?.purchasePrice ?? 0;
+  let purchasePrice = fulfillment?.purchasePrice ?? 0;
+  const compareAt = Number(rentVariant?.compareAtPrice?.amount ?? 0);
+  if (purchasePrice <= 0 && compareAt > dailyRate) {
+    purchasePrice = compareAt;
+  }
+  const buyAvailable =
+    (fulfillment?.buyAvailable ?? false) ||
+    (purchasePrice > dailyRate && compareAt > dailyRate);
   const buyPriceMoney: MoneyV2 | undefined =
     purchasePrice > 0
       ? {
@@ -135,8 +155,7 @@ export default function Product() {
               'GEL') as MoneyV2['currencyCode'],
         }
       : undefined;
-  const compareAt = Number(rentVariant?.compareAtPrice?.amount ?? 0);
-  const includedItems = parseIncludedItems(product.includedItems);
+
   const kitSummary = product.kitSummary?.value?.trim();
   const isPackage =
     includedItems.length > 0 || tags.some((t: string) => t.startsWith('trek-'));
@@ -170,17 +189,19 @@ export default function Product() {
 
   return (
     <article className="cm-product-page">
-      <div className="cm-product-page-inner">
+      <div
+        className={`cm-product-page-inner${isSoloProduct ? ' cm-product-page-inner--solo' : ''}`}
+      >
         <div
           className={`cm-product-layout${
-            includedItems.length === 0 ? ' cm-product-layout--solo' : ''
+            isSoloProduct ? ' cm-product-layout--solo' : ''
           }`}
         >
           <aside className="cm-product-layout-media" aria-label={title}>
             <ProductImage
               image={selectedVariant?.image ?? rentVariant?.image}
               title={title}
-              variant={includedItems.length === 0 ? 'solo' : 'kit'}
+              variant={isSoloProduct ? 'solo' : 'kit'}
             />
           </aside>
 
@@ -353,6 +374,18 @@ const PRODUCT_FRAGMENT = `#graphql
     }
     purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
       value
+    }
+    fulfillmentMetafields: metafields(
+      identifiers: [
+        {namespace: "custom", key: "available-to-purchase"},
+        {namespace: "custom", key: "available_for_purchase"},
+        {namespace: "custom", key: "purchase-price"},
+        {namespace: "custom", key: "purchase_price"},
+      ]
+    ) {
+      key
+      value
+      type
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}
