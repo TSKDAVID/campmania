@@ -4,6 +4,7 @@ import {GEAR_FILTERS} from '~/lib/trailrent/catalog';
 import type {ShopifyGearItem} from '~/lib/trailrent/shopify-catalog';
 import {PageBanner} from '~/components/trailrent/HomeSections';
 import {GearFiltersBar} from '~/components/trailrent/CatalogFilters';
+import {CatalogCardImage} from '~/components/trailrent/CatalogCardImage';
 import {IconArrowRight} from '~/components/trailrent/Icons';
 
 export function GearCatalogGrid({
@@ -49,11 +50,9 @@ export function GearCatalogGrid({
                     className="cm-kit-card-media relative block overflow-hidden bg-stone no-underline hover:no-underline"
                   >
                     {item.imageUrl ? (
-                      <img
+                      <CatalogCardImage
                         src={item.imageUrl}
                         alt={item.imageAlt ?? item.title}
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                        loading="lazy"
                       />
                     ) : (
                       <div className="cm-kit-card-pattern absolute inset-0 bg-gradient-to-br from-stone via-mist to-sage/20 opacity-80" />

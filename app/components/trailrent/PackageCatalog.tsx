@@ -12,6 +12,7 @@ import {
   buildPackageFilterGroups,
   PackageFiltersPanel,
 } from '~/components/trailrent/CatalogFilters';
+import {CatalogCardImage} from '~/components/trailrent/CatalogCardImage';
 import {IconArrowRight, IconMountain} from '~/components/trailrent/Icons';
 
 const DIFFICULTY_STYLES: Record<string, string> = {
@@ -42,11 +43,9 @@ function PackageCard({
         tabIndex={productUrl ? 0 : -1}
       >
         {pkg.imageUrl ? (
-          <img
+          <CatalogCardImage
             src={pkg.imageUrl}
             alt={pkg.imageAlt ?? pkg.title}
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-            loading="lazy"
           />
         ) : (
           <>
