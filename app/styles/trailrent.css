@@ -357,25 +357,50 @@
     font-family: var(--font-label);
   }
 
-  /* ── Product page ────────────────────────────────────────────────────── */
+  /* ── Product page (PDP) ──────────────────────────────────────────────── */
   .cm-product-page {
     @apply bg-mist pb-12 pt-5 md:pb-14 md:pt-8;
   }
 
+  /* Wider canvas than default pages — industry PDP uses more horizontal space */
   .cm-product-page-inner {
-    @apply space-y-10 md:space-y-12;
+    @apply mx-auto w-full max-w-[90rem] space-y-10 px-5 md:space-y-12 md:px-8;
   }
 
+  /*
+   * Desktop: narrow gallery (~36%) + wide buy box (~64%).
+   * Mobile: stack gallery → buy box.
+   */
   .cm-product-layout {
-    @apply grid items-start gap-6 lg:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)] lg:gap-8 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] xl:gap-10;
+    @apply grid items-start gap-8;
+  }
+
+  @media (min-width: 1024px) {
+    .cm-product-layout {
+      grid-template-columns: minmax(0, 36fr) minmax(0, 64fr);
+      gap: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .cm-product-layout {
+      gap: 3rem;
+    }
   }
 
   .cm-product-layout-media {
-    @apply lg:sticky lg:top-[calc(var(--site-top-height)+1rem)] lg:self-start;
+    @apply min-w-0;
   }
 
-  .cm-product-layout-details {
-    @apply flex min-w-0 flex-col gap-4 md:gap-5;
+  @media (min-width: 1024px) {
+    .cm-product-layout-media {
+      position: sticky;
+      top: calc(var(--site-top-height) + 1rem);
+    }
+  }
+
+  .cm-product-buybox {
+    @apply flex min-w-0 flex-col gap-5 md:gap-6;
   }
 
   .cm-product-gallery {
@@ -383,11 +408,11 @@
   }
 
   .cm-product-gallery-frame {
-    @apply relative aspect-[4/5] w-full max-h-[min(78vh,600px)] overflow-hidden rounded-2xl border border-stone/70 bg-stone shadow-lg shadow-pine/5;
+    @apply relative aspect-[3/4] w-full max-h-[min(68vh,520px)] overflow-hidden rounded-2xl border border-stone/70 bg-stone shadow-lg shadow-pine/5;
   }
 
   .cm-product-gallery-placeholder {
-    @apply flex aspect-[4/5] items-center justify-center rounded-2xl border border-dashed border-stone bg-white;
+    @apply flex aspect-[3/4] max-h-[min(68vh,520px)] items-center justify-center rounded-2xl border border-dashed border-stone bg-white;
   }
 
   .cm-product-gallery-image,
@@ -396,62 +421,67 @@
   }
 
   .cm-product-header {
-    @apply space-y-2 border-b border-stone/80 pb-4 md:space-y-3 md:pb-5;
+    @apply space-y-2 border-b border-stone/80 pb-5 md:space-y-3;
   }
 
   .cm-product-title {
-    @apply font-display text-3xl font-bold leading-tight text-pine md:text-[2rem] lg:text-4xl;
+    @apply font-display text-3xl font-bold leading-tight text-pine md:text-4xl;
   }
 
   .cm-product-subtitle {
-    @apply max-w-xl text-base leading-relaxed text-muted md:text-lg;
+    @apply max-w-2xl text-base leading-relaxed text-muted md:text-lg;
   }
 
   .cm-product-price {
     @apply pt-1;
   }
 
-  .cm-product-action-row {
-    @apply grid gap-4 lg:grid-cols-2 lg:items-stretch lg:gap-5;
+  /*
+   * Mobile / tablet: booking first (conversion), kit list second, full width.
+   * XL+: kit list | booking side-by-side — booking gets 3/5 of buy-box width.
+   */
+  .cm-product-buybox-panels {
+    @apply flex flex-col gap-5;
   }
 
-  .cm-product-action-row--solo {
-    @apply lg:grid-cols-1;
+  .cm-product-buybox-panels .cm-rental-form {
+    order: 1;
   }
 
-  .cm-product-action-row .cm-product-included {
-    @apply flex h-full min-h-0 flex-col;
+  .cm-product-buybox-panels .cm-product-included {
+    order: 2;
   }
 
-  .cm-product-action-row .cm-product-included-header {
-    @apply px-3.5 py-3 md:px-4 md:py-3.5;
-  }
+  @media (min-width: 1280px) {
+    .cm-product-buybox-panels {
+      display: grid;
+      grid-template-columns: minmax(280px, 2fr) minmax(380px, 3fr);
+      gap: 1.5rem;
+      align-items: start;
+    }
 
-  .cm-product-action-row .cm-product-included-icon {
-    @apply h-9 w-9;
-  }
+    .cm-product-buybox-panels .cm-rental-form,
+    .cm-product-buybox-panels .cm-product-included {
+      order: unset;
+    }
 
-  .cm-product-action-row .cm-product-included-title {
-    @apply text-base md:text-lg;
-  }
-
-  .cm-product-action-row .cm-product-included-body {
-    @apply flex-1 px-3.5 py-3.5 md:px-4 md:py-4;
-    padding-left: 1rem;
-  }
-
-  @media (min-width: 768px) {
-    .cm-product-action-row .cm-product-included-body {
-      padding-left: 1.25rem;
+    .cm-product-buybox-panels .cm-rental-form {
+      position: sticky;
+      top: calc(var(--site-top-height) + 1rem);
     }
   }
 
-  .cm-product-action-row .cm-product-included-list {
-    @apply gap-y-2.5 md:grid-cols-1;
+  .cm-product-buybox-panels--solo {
+    @apply xl:max-w-xl;
   }
 
-  .cm-product-action-row .cm-rental-form {
-    @apply h-full lg:sticky lg:top-[calc(var(--site-top-height)+1rem)];
+  .cm-product-buybox-panels .cm-product-included-body {
+    @apply px-5 py-4;
+    padding-left: 1.25rem;
+  }
+
+  .cm-product-buybox-panels .cm-product-included-list {
+    @apply md:grid-cols-1;
   }
 
   .cm-product-trust {
@@ -480,7 +510,7 @@
   }
 
   .cm-product-trust-label {
-    @apply text-[11px] font-semibold leading-snug text-charcoal sm:text-xs;
+    @apply text-xs font-semibold leading-snug text-charcoal;
   }
 
   .cm-product-included {
@@ -488,7 +518,7 @@
   }
 
   .cm-product-included-header {
-    @apply flex items-center gap-3 border-b border-stone/60 bg-mist/30 px-4 py-3.5 md:px-5 md:py-4;
+    @apply flex items-center gap-3 border-b border-stone/60 bg-mist/30 px-5 py-4;
   }
 
   .cm-product-included-icon {
@@ -501,23 +531,16 @@
   }
 
   .cm-product-included-title {
-    @apply mt-0.5 font-display text-lg font-bold leading-tight text-pine md:text-xl;
+    @apply mt-0.5 font-display text-lg font-bold leading-tight text-pine;
   }
 
-  /* Align list with header title column (icon width + gap + header padding) */
   .cm-product-included-body {
-    @apply px-4 py-4 md:px-5 md:py-5;
-    padding-left: calc(1rem + 2.5rem + 0.75rem);
-  }
-
-  @media (min-width: 768px) {
-    .cm-product-included-body {
-      padding-left: calc(1.25rem + 2.5rem + 0.75rem);
-    }
+    @apply px-5 py-4;
+    padding-left: 1.25rem;
   }
 
   .cm-product-included-list {
-    @apply m-0 grid list-none gap-x-8 gap-y-3 p-0 md:grid-cols-2;
+    @apply m-0 grid list-none gap-y-2.5 p-0;
   }
 
   .cm-product-included-item {

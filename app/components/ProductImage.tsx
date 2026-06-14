@@ -25,10 +25,10 @@ export function ProductImage({
       <div className="cm-product-gallery-frame">
         <Image
           alt={image.altText || title || 'Product Image'}
-          aspectRatio="4/5"
+          aspectRatio="3/4"
           data={image}
           key={image.id}
-          sizes="(min-width: 1024px) 48vw, 100vw"
+          sizes="(min-width: 1280px) 32vw, (min-width: 1024px) 38vw, 100vw"
           className="cm-product-gallery-image"
         />
       </div>

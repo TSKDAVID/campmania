@@ -116,13 +116,13 @@ export default function Product() {
 
   return (
     <article className="cm-product-page">
-      <div className="tr-page-width cm-product-page-inner">
+      <div className="cm-product-page-inner">
         <div className="cm-product-layout">
-          <div className="cm-product-layout-media">
+          <aside className="cm-product-layout-media" aria-label={title}>
             <ProductImage image={selectedVariant?.image} title={title} />
-          </div>
+          </aside>
 
-          <div className="cm-product-layout-details">
+          <div className="cm-product-buybox">
             <header className="cm-product-header">
               <p className="tr-eyebrow">
                 {isPackage ? tr.packages.eyebrow : tr.product.rental}
@@ -141,8 +141,10 @@ export default function Product() {
             <ProductTrustBar isTrustedTier={trustedTier} />
 
             <div
-              className={`cm-product-action-row${
-                includedItems.length === 0 ? ' cm-product-action-row--solo' : ''
+              className={`cm-product-buybox-panels${
+                includedItems.length === 0
+                  ? ' cm-product-buybox-panels--solo'
+                  : ''
               }`}
             >
               {includedItems.length > 0 ? (
@@ -157,7 +159,6 @@ export default function Product() {
                   purchasePrice={purchasePrice}
                   rentToOwnOffer={rentToOwnOffer}
                   isTrustedTier={trustedTier}
-                  compact
                 />
               ) : (
                 <p className="cm-product-unavailable">
