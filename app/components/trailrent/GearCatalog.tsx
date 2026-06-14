@@ -20,38 +20,39 @@ export function GearCatalogGrid({
   const filtered = category ? gear.filter((g) => g.category === category) : gear;
 
   return (
-    <>
-      <section className="cm-catalog-page bg-white">
-        <div className="tr-page-width cm-catalog-page-inner">
-          <CatalogPageHeading title={tr.gear.title} />
-          {!shopifyConnected ? (
-            <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
-              {tr.gear.shopifySetupHint}
-            </p>
-          ) : null}
-          <div className="cm-catalog-filters-sticky">
-            <GearFiltersBar options={GEAR_FILTERS} />
-          </div>
+    <section className="cm-catalog-page bg-white">
+      <div className="tr-page-width cm-catalog-page-intro">
+        <CatalogPageHeading title={tr.gear.title} />
+        {!shopifyConnected ? (
+          <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
+            {tr.gear.shopifySetupHint}
+          </p>
+        ) : null}
+      </div>
 
-          <div className="cm-catalog-grid cm-catalog-grid--gear">
-            {filtered.map((item, index) => (
-              <CatalogProductCard
-                key={item.id}
-                to={
-                  item.productHandle
-                    ? `/products/${item.productHandle}`
-                    : null
-                }
-                title={item.title}
-                imageUrl={item.imageUrl}
-                imageAlt={item.imageAlt}
-                price={item.priceLabel}
-                loading={index < 4 ? 'eager' : 'lazy'}
-              />
-            ))}
-          </div>
+      <div className="cm-catalog-filters-sticky">
+        <div className="tr-page-width">
+          <GearFiltersBar options={GEAR_FILTERS} />
         </div>
-      </section>
-    </>
+      </div>
+
+      <div className="tr-page-width cm-catalog-page-body">
+        <div className="cm-catalog-grid cm-catalog-grid--gear">
+          {filtered.map((item, index) => (
+            <CatalogProductCard
+              key={item.id}
+              to={
+                item.productHandle ? `/products/${item.productHandle}` : null
+              }
+              title={item.title}
+              imageUrl={item.imageUrl}
+              imageAlt={item.imageAlt}
+              price={item.priceLabel}
+              loading={index < 4 ? 'eager' : 'lazy'}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
