@@ -37,7 +37,8 @@ export function CatalogProductCard({
         <div className="cm-kit-card-footer">
           <p className="cm-kit-card-price">{price}</p>
           <span className="cm-kit-card-arrow" aria-hidden>
-            <IconArrowRight size={18} />
+            <IconArrowRight size={16} className="sm:hidden" />
+            <IconArrowRight size={18} className="hidden sm:block" />
           </span>
         </div>
       </div>

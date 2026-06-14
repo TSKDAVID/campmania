@@ -35,6 +35,6 @@ export function catalogCardImageSrcSet(
     .join(', ');
 }
 
-/** Sizes for 2-col mobile grids scaling up to 4-col desktop. */
+/** Sizes for 2-col mobile → 3-col tablet → 4-col desktop product grids. */
 export const CATALOG_CARD_IMAGE_SIZES =
-  '(min-width: 1280px) 22vw, (min-width: 1024px) 28vw, (min-width: 640px) 44vw, 48vw';
+  '(min-width: 1024px) 22vw, (min-width: 768px) 30vw, (min-width: 640px) 44vw, 48vw';

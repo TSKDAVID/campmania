@@ -47,7 +47,7 @@
 
 @layer components {
   .tr-page-width {
-    @apply mx-auto max-w-7xl px-4 sm:px-5 md:px-8;
+    @apply mx-auto max-w-7xl px-3 sm:px-5 md:px-8;
   }
 
   .tr-eyebrow {
@@ -160,15 +160,15 @@
 
   /* ── Catalog pages (no hero — title inline with content) ─────────────── */
   .cm-catalog-page {
-    @apply pb-8 pt-3 md:pb-10 md:pt-4;
+    @apply pb-6 pt-2 sm:pb-8 sm:pt-3 md:pb-10 md:pt-4;
   }
 
   .cm-catalog-page-inner {
-    @apply space-y-3 md:space-y-4;
+    @apply space-y-2.5 sm:space-y-3 md:space-y-4;
   }
 
   .cm-catalog-heading {
-    @apply m-0 font-display text-lg font-bold leading-tight text-pine sm:text-xl;
+    @apply m-0 font-display text-base font-bold leading-tight text-pine sm:text-lg md:text-xl;
   }
 
   /* ── Slim catalog page banner (content pages only) ───────────────────── */
@@ -499,46 +499,53 @@
 
   .cm-catalog-grid {
     display: grid;
-    gap: 0.625rem;
+    gap: 0.5rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @media (min-width: 640px) {
     .cm-catalog-grid {
-      gap: 1rem;
+      gap: 0.75rem;
     }
   }
 
-  @media (min-width: 1280px) {
-    .cm-catalog-grid {
+  @media (min-width: 768px) {
+    .cm-catalog-grid:not(.cm-catalog-grid--packages) {
+      gap: 0.875rem;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.25rem;
     }
   }
 
-  /* Standard product grid: 2-up mobile → 3 tablet → 4 desktop */
+  @media (min-width: 1024px) {
+    .cm-catalog-grid:not(.cm-catalog-grid--packages) {
+      gap: 1rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Standard product grid — kept in sync with .cm-catalog-grid above */
   .cm-product-grid {
     display: grid;
-    gap: 0.625rem;
+    gap: 0.5rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @media (min-width: 640px) {
     .cm-product-grid {
-      gap: 1rem;
+      gap: 0.75rem;
     }
   }
 
   @media (min-width: 768px) {
     .cm-product-grid {
-      gap: 1.25rem;
+      gap: 0.875rem;
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
-  @media (min-width: 1280px) {
+  @media (min-width: 1024px) {
     .cm-product-grid {
-      gap: 1.5rem;
+      gap: 1rem;
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
@@ -562,7 +569,7 @@
   }
 
   .cm-kit-card--product .cm-kit-card-media {
-    @apply bg-white;
+    @apply aspect-[4/5] bg-white sm:aspect-[3/4];
   }
 
   .cm-kit-card--package .cm-kit-card-media {
@@ -602,6 +609,34 @@
 
   .cm-kit-card-body {
     @apply flex min-w-0 flex-1 flex-col px-3 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5;
+  }
+
+  .cm-kit-card--product .cm-kit-card-body {
+    @apply px-2.5 pb-2.5 pt-2 sm:px-3 sm:pb-3 sm:pt-2.5 md:px-3.5 md:pb-3.5;
+  }
+
+  .cm-kit-card--product .cm-kit-card-title {
+    @apply text-xs leading-snug sm:text-sm md:text-base;
+  }
+
+  .cm-kit-card--product .cm-kit-card-footer {
+    @apply mt-1.5 gap-1.5 border-t border-stone/60 pt-1.5 sm:mt-2 sm:pt-2;
+  }
+
+  .cm-kit-card--product .cm-kit-card-price {
+    @apply text-sm leading-none sm:text-base md:text-lg;
+  }
+
+  .cm-kit-card--product .cm-kit-card-price .text-sm {
+    @apply text-[11px] sm:text-xs;
+  }
+
+  .cm-kit-card--product .cm-kit-card-arrow {
+    @apply h-7 w-7 sm:h-8 sm:w-8;
+  }
+
+  .cm-kit-card--product .cm-kit-card-image--contain {
+    @apply px-1 py-1.5 sm:px-1.5 sm:py-2 md:px-2 md:py-2.5;
   }
 
   .cm-kit-card-reveal {
@@ -1363,7 +1398,7 @@
   }
 
   .cm-home-products {
-    @apply py-6 md:py-8;
+    @apply py-5 sm:py-6 md:py-8;
   }
 
   .cm-home-products-empty {
