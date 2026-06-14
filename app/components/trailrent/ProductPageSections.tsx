@@ -69,13 +69,16 @@ export function ProductTrustBar({isTrustedTier = false}: {isTrustedTier?: boolea
   ];
 
   return (
-    <ul className="cm-product-trust">
+    <ul className="cm-product-trust" role="list">
       {items.map(({Icon, label, tone}) => (
         <li key={label} className="cm-product-trust-item">
-          <span className={`cm-product-trust-icon cm-product-trust-icon--${tone}`}>
-            <Icon size={18} />
+          <span
+            className={`cm-product-trust-icon cm-product-trust-icon--${tone}`}
+            aria-hidden
+          >
+            <Icon size={16} />
           </span>
-          <span>{label}</span>
+          <span className="cm-product-trust-label">{label}</span>
         </li>
       ))}
     </ul>
@@ -87,27 +90,31 @@ export function ProductIncludedPanel({items}: {items: string[]}) {
   if (!items.length) return null;
 
   return (
-    <section className="cm-product-included" aria-labelledby="product-included-heading">
+    <section
+      className="cm-product-included"
+      aria-labelledby="product-included-heading"
+    >
       <div className="cm-product-included-header">
         <span className="cm-product-included-icon" aria-hidden>
-          <IconPackage size={20} />
+          <IconPackage size={18} />
         </span>
-        <div>
-          <h2 id="product-included-heading" className="font-display text-lg font-bold text-pine">
-            {tr.product.included}
-          </h2>
-          <p className="mt-0.5 text-sm text-muted">
+        <div className="min-w-0 flex-1">
+          <p className="cm-product-included-eyebrow">{tr.product.included}</p>
+          <h2
+            id="product-included-heading"
+            className="cm-product-included-title"
+          >
             {items.length} {tr.product.itemsIncluded}
-          </p>
+          </h2>
         </div>
       </div>
       <ul className="cm-product-included-list">
         {items.map((item) => (
           <li key={item} className="cm-product-included-item">
             <span className="cm-product-included-check" aria-hidden>
-              <IconCheck size={14} />
+              <IconCheck size={12} />
             </span>
-            <span>{item}</span>
+            <span className="cm-product-included-text">{item}</span>
           </li>
         ))}
       </ul>

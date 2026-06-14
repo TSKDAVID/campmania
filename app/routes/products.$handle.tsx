@@ -163,19 +163,21 @@ export default function Product() {
               />
             </header>
 
-            <Suspense
-              fallback={<ProductTrustBar isTrustedTier={false} />}
-            >
-              <Await resolve={customerRentalContext}>
-                {(ctx) => (
-                  <ProductTrustBar isTrustedTier={isTrustedTier(ctx.tags)} />
-                )}
-              </Await>
-            </Suspense>
+            <div className="cm-product-meta">
+              <Suspense
+                fallback={<ProductTrustBar isTrustedTier={false} />}
+              >
+                <Await resolve={customerRentalContext}>
+                  {(ctx) => (
+                    <ProductTrustBar isTrustedTier={isTrustedTier(ctx.tags)} />
+                  )}
+                </Await>
+              </Suspense>
 
-            {includedItems.length > 0 ? (
-              <ProductIncludedPanel items={includedItems} />
-            ) : null}
+              {includedItems.length > 0 ? (
+                <ProductIncludedPanel items={includedItems} />
+              ) : null}
+            </div>
 
             {selectedVariant?.id ? (
               <Suspense
