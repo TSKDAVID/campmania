@@ -935,12 +935,6 @@
   }
 
   @media (min-width: 1024px) {
-    .cm-product-layout-media {
-      position: sticky;
-      top: calc(var(--site-top-height) + 1rem);
-    }
-
-    /* Gallery grows into column gap — buy box width stays fixed */
     .cm-product-layout-media .cm-product-gallery-frame,
     .cm-product-layout-media .cm-product-gallery-placeholder {
       width: calc(100% + 1.25rem);
@@ -1017,6 +1011,10 @@
     @apply grid gap-3 sm:grid-cols-2 sm:gap-4;
   }
 
+  .cm-product-price-dual--rent-only {
+    @apply max-w-md sm:grid-cols-1;
+  }
+
   .cm-product-price-chip {
     @apply rounded-xl border border-stone/70 bg-white px-4 py-3 shadow-sm;
   }
@@ -1087,11 +1085,6 @@
     .cm-product-buybox-panels .cm-product-included {
       order: unset;
     }
-
-    .cm-product-buybox-panels .cm-rental-form {
-      position: sticky;
-      top: calc(var(--site-top-height) + 1rem);
-    }
   }
 
   .cm-product-buybox-panels .cm-product-included-body {
@@ -1106,13 +1099,6 @@
   /* Solo gear: full-width booking card under header + trust */
   .cm-product-booking {
     @apply w-full min-w-0;
-  }
-
-  @media (min-width: 1024px) {
-    .cm-product-booking .cm-rental-form {
-      position: sticky;
-      top: calc(var(--site-top-height) + 1rem);
-    }
   }
 
   .cm-product-trust {

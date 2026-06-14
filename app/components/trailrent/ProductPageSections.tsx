@@ -36,19 +36,27 @@ export function ProductPriceBlock({
   const buyAmount = moneyAmount(buyPrice);
   const compareAt = moneyAmount(compareAtPrice ?? undefined);
   const isPurchase = fulfillmentMode === 'purchase';
+  const showBuyChip =
+    buyAvailable && buyAmount != null && buyAmount > 0 && rentAmount != null;
   const showKitCompare =
     compareAt != null &&
     compareAt > 0 &&
     !buyAvailable &&
     rentAmount != null &&
     compareAt > rentAmount;
+  const isRentActive = !isPurchase || !showBuyChip;
+  const isBuyActive = isPurchase && showBuyChip;
 
-  if (buyAvailable && buyAmount != null && rentAmount != null) {
-    return (
-      <div className="cm-product-price" aria-label="Price" role="group">
-        <div className="cm-product-price-dual">
+  if (rentAmount == null && buyAmount == null) return null;
+
+  return (
+    <div className="cm-product-price" aria-label="Price" role="group">
+      <div
+        className={`cm-product-price-dual${!showBuyChip ? ' cm-product-price-dual--rent-only' : ''}`}
+      >
+        {rentAmount != null ? (
           <div
-            className={`cm-product-price-chip${!isPurchase ? ' cm-product-price-chip--active' : ''}`}
+            className={`cm-product-price-chip${isRentActive ? ' cm-product-price-chip--active' : ''}`}
           >
             <span className="cm-product-price-chip-label">{tr.booking.modeRent}</span>
             <p className="cm-product-price-chip-value">
@@ -56,34 +64,21 @@ export function ProductPriceBlock({
               <span className="cm-product-price-chip-unit">{tr.product.perDay}</span>
             </p>
           </div>
+        ) : null}
+        {showBuyChip ? (
           <div
-            className={`cm-product-price-chip cm-product-price-chip--buy${isPurchase ? ' cm-product-price-chip--active' : ''}`}
+            className={`cm-product-price-chip cm-product-price-chip--buy${isBuyActive ? ' cm-product-price-chip--active' : ''}`}
           >
             <span className="cm-product-price-chip-label">{tr.booking.modeBuy}</span>
-            <p className="cm-product-price-chip-value">{formatGel(buyAmount)}</p>
+            <p className="cm-product-price-chip-value">{formatGel(buyAmount!)}</p>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="cm-product-price" aria-label="Price" role="group">
-      <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-        {isPurchase && buyAmount != null ? (
-          <p className="cm-price-amount">{formatGel(buyAmount)}</p>
-        ) : rentAmount != null ? (
-          <p className="cm-price-amount">
-            {formatGel(rentAmount)}
-            <span className="cm-price-suffix">{tr.product.perDay}</span>
-          </p>
-        ) : null}
-        {showKitCompare && compareAtPrice ? (
-          <p className="pb-1 text-lg text-muted line-through">
-            {formatGel(compareAt!)}
-          </p>
         ) : null}
       </div>
+      {showKitCompare ? (
+        <p className="mt-3 text-lg text-muted line-through">
+          {formatGel(compareAt!)}
+        </p>
+      ) : null}
       {savingsPercent && !isPurchase ? (
         <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber/20 px-3.5 py-1.5 text-sm font-semibold text-pine">
           <span className="rounded-full bg-amber px-2 py-0.5 text-xs font-bold text-pine">
