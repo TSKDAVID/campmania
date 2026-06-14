@@ -874,24 +874,52 @@
   }
 
   /*
-   * Desktop: balanced gallery + buy box.
-   * Mobile: stack gallery → buy box.
+   * Desktop: title row on right, then image | booking aligned on row 2.
+   * Mobile: title → image → booking.
    */
   .cm-product-layout {
     @apply grid items-start gap-8;
   }
 
+  .cm-product-buybox-intro {
+    @apply flex min-w-0 flex-col gap-5 md:gap-6;
+  }
+
+  .cm-product-buybox-actions {
+    @apply min-w-0;
+  }
+
   @media (min-width: 1024px) {
     .cm-product-layout {
       grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
-      gap: 2.5rem;
+      grid-template-rows: auto auto;
+      column-gap: 2.5rem;
+      row-gap: 1.5rem;
+    }
+
+    .cm-product-buybox-intro {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .cm-product-layout-media {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+
+    .cm-product-buybox-actions {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: start;
     }
   }
 
   @media (min-width: 1280px) {
     .cm-product-layout {
       grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
-      gap: 3rem;
+      column-gap: 3rem;
+      row-gap: 1.75rem;
     }
   }
 
@@ -919,10 +947,6 @@
       width: calc(100% + 1.5rem);
       margin-right: calc(-1 * 1.5rem);
     }
-  }
-
-  .cm-product-buybox {
-    @apply flex min-w-0 flex-col gap-5 md:gap-6;
   }
 
   .cm-product-gallery {

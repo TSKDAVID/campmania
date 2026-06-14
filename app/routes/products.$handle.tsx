@@ -199,15 +199,7 @@ export default function Product() {
             isSoloProduct ? ' cm-product-layout--solo' : ''
           }`}
         >
-          <aside className="cm-product-layout-media" aria-label={title}>
-            <ProductImage
-              image={selectedVariant?.image ?? rentVariant?.image}
-              title={title}
-              variant={isSoloProduct ? 'solo' : 'kit'}
-            />
-          </aside>
-
-          <div className="cm-product-buybox">
+          <div className="cm-product-buybox-intro">
             <header className="cm-product-header">
               <p className="tr-eyebrow">
                 {isPackage ? tr.packages.eyebrow : tr.product.rental}
@@ -227,7 +219,17 @@ export default function Product() {
             </header>
 
             <ProductTrustBar isTrustedTier={trustedTier} />
+          </div>
 
+          <aside className="cm-product-layout-media" aria-label={title}>
+            <ProductImage
+              image={selectedVariant?.image ?? rentVariant?.image}
+              title={title}
+              variant={isSoloProduct ? 'solo' : 'kit'}
+            />
+          </aside>
+
+          <div className="cm-product-buybox-actions">
             {includedItems.length > 0 ? (
               <div className="cm-product-buybox-panels">
                 <ProductIncludedPanel items={includedItems} />
