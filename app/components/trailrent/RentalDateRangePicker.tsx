@@ -1,4 +1,4 @@
-import {useId, useMemo} from 'react';
+import {useId, useMemo, useRef} from 'react';
 import {useLocale} from '~/providers/LocaleProvider';
 import {IconCalendar} from '~/components/trailrent/Icons';
 import {
@@ -150,13 +150,42 @@ function DateField({
   onChange: (value: string) => void;
 }) {
   const {translations: tr} = useLocale();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const openPicker = () => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    input.focus({preventScroll: true});
+
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // showPicker can throw outside a direct user gesture
+      }
+    }
+
+    input.click();
+  };
 
   return (
-    <label htmlFor={id} className="cm-date-range-field">
-      <span className="cm-date-range-field-label">{label}</span>
-      <span className="cm-date-range-field-value">{displayValue}</span>
-      <span className="cm-date-range-field-hint">{tr.booking.tapToChange}</span>
+    <div className="cm-date-range-field">
+      <button
+        type="button"
+        className="cm-date-range-field-trigger"
+        onClick={openPicker}
+        aria-haspopup="dialog"
+        aria-controls={id}
+        aria-label={`${label}: ${displayValue}`}
+      >
+        <span className="cm-date-range-field-label">{label}</span>
+        <span className="cm-date-range-field-value">{displayValue}</span>
+        <span className="cm-date-range-field-hint">{tr.booking.tapToChange}</span>
+      </button>
       <input
+        ref={inputRef}
         id={id}
         type="date"
         className="cm-date-range-native"
@@ -164,7 +193,8 @@ function DateField({
         min={min}
         onChange={(event) => onChange(event.target.value)}
         aria-label={label}
+        tabIndex={-1}
       />
-    </label>
+    </div>
   );
 }
