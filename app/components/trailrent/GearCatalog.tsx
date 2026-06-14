@@ -44,12 +44,9 @@ export function GearCatalogGrid({
                 ? `/products/${item.productHandle}`
                 : null;
 
-              return (
-                <article key={item.id} className="cm-kit-card group">
-                  <Link
-                    to={productUrl ?? '#'}
-                    className="cm-kit-card-media relative block overflow-hidden bg-stone no-underline hover:no-underline"
-                  >
+              const inner = (
+                <>
+                  <div className="cm-kit-card-media relative overflow-hidden bg-stone">
                     {item.imageUrl ? (
                       <CatalogCardImage
                         src={item.imageUrl}
@@ -58,45 +55,36 @@ export function GearCatalogGrid({
                     ) : (
                       <div className="cm-kit-card-pattern absolute inset-0 bg-gradient-to-br from-stone via-mist to-sage/20 opacity-80" />
                     )}
-                  </Link>
-                  <div className="cm-kit-card-body">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-moss sm:text-[11px]">
-                      {item.categoryLabel}
-                    </span>
-                    <h3 className="cm-kit-card-title mt-1 font-display font-bold text-pine group-hover:text-forest">
-                      {productUrl ? (
-                        <Link
-                          to={productUrl}
-                          className="no-underline hover:no-underline"
-                        >
-                          {item.title}
-                        </Link>
-                      ) : (
-                        item.title
-                      )}
-                    </h3>
-                    <p className="mt-0.5 line-clamp-2 text-xs text-muted sm:text-sm">
-                      {item.subtitle}
-                    </p>
-                    <div className="mt-3 flex items-baseline justify-between border-t border-stone/70 pt-3">
-                      <p className="font-display text-lg font-bold text-forest sm:text-xl">
-                        {item.priceLabel}
-                      </p>
-                    </div>
-                    {productUrl ? (
-                      <Link
-                        to={productUrl}
-                        className="tr-btn-secondary cm-kit-card-cta mt-2 flex w-full items-center justify-center gap-2 py-2 text-xs sm:mt-3"
-                      >
-                        {tr.gear.viewAndBook}
-                        <IconArrowRight size={14} />
-                      </Link>
-                    ) : (
-                      <span className="mt-3 block text-center text-xs text-muted">
-                        Shopify product pending
-                      </span>
-                    )}
                   </div>
+                  <div className="cm-kit-card-body">
+                    <h3 className="cm-kit-card-title">{item.title}</h3>
+                    <div className="cm-kit-card-footer">
+                      <p className="cm-kit-card-price">{item.priceLabel}</p>
+                      <span className="cm-kit-card-arrow" aria-hidden>
+                        <IconArrowRight size={18} />
+                      </span>
+                    </div>
+                  </div>
+                </>
+              );
+
+              if (!productUrl) {
+                return (
+                  <article key={item.id} className="cm-kit-card">
+                    {inner}
+                  </article>
+                );
+              }
+
+              return (
+                <article key={item.id} className="cm-kit-card group">
+                  <Link
+                    to={productUrl}
+                    className="cm-kit-card-link no-underline hover:no-underline"
+                    prefetch="intent"
+                  >
+                    {inner}
+                  </Link>
                 </article>
               );
             })}

@@ -106,8 +106,9 @@ const translations = {
       showing: 'ნაჩვენებია',
       noResults: 'კომპლექტები ვერ მოიძებნა',
       included: 'რა შედის',
-      bookKit: 'კომპლექტის დაჯავშნა',
-      viewAndBook: 'ნახვა და დაჯავშნა',
+      itemsCount: 'ნივთი',
+      bookKit: 'დაჯავშნა',
+      viewAndBook: 'დაჯავშნა',
       shopifySetupHint:
         'დემო კომპლექტები — Shopify Admin-ში შექმენით კოლექცია trail-packages და დაამატეთ პროდუქტები.',
     },
@@ -116,7 +117,7 @@ const translations = {
       title: 'ინდივიდუალური აღჭურვილობა',
       subtitle: 'აირჩიეთ კონკრეტული ნივთები — დაამატეთ თქვენს კომპლექტს.',
       bookItem: 'დაჯავშნა',
-      viewAndBook: 'ნახვა და დაჯავშნა',
+      viewAndBook: 'დაჯავშნა',
       shopifySetupHint:
         'დემო ნივთები — Shopify Admin-ში შექმენით კოლექცია individual-gear და დაამატეთ პროდუქტები.',
     },
@@ -329,8 +330,9 @@ const translations = {
       showing: 'Showing',
       noResults: 'No packages found',
       included: 'Included',
-      bookKit: 'Book this kit',
-      viewAndBook: 'View & book',
+      itemsCount: 'items',
+      bookKit: 'Book',
+      viewAndBook: 'Book',
       shopifySetupHint:
         'Showing demo kits — create a trail-packages collection in Shopify Admin and add products.',
     },
@@ -339,7 +341,7 @@ const translations = {
       title: 'Individual gear',
       subtitle: 'Pick specific items — add to your kit.',
       bookItem: 'Book item',
-      viewAndBook: 'View & book',
+      viewAndBook: 'Book',
       shopifySetupHint:
         'Showing demo gear — create an individual-gear collection in Shopify Admin and add products.',
     },

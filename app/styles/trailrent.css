@@ -363,32 +363,66 @@
   }
 
   .cm-kit-card--package {
+    display: block;
+  }
+
+  .cm-kit-card-link {
+    @apply flex h-full flex-col text-charcoal;
+    color: inherit;
+  }
+
+  .cm-kit-card--package .cm-kit-card-link {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(110px, 34%) minmax(0, 1fr);
+    min-height: 7.5rem;
   }
 
-  @media (min-width: 540px) {
-    .cm-kit-card--package {
-      grid-template-columns: minmax(130px, 34%) minmax(0, 1fr);
-    }
-  }
-
-  @media (min-width: 768px) {
-    .cm-kit-card--package {
-      grid-template-columns: minmax(160px, 32%) minmax(0, 1fr);
+  @media (min-width: 640px) {
+    .cm-kit-card--package .cm-kit-card-link {
+      grid-template-columns: minmax(150px, 28%) minmax(0, 1fr);
+      min-height: 8.5rem;
     }
   }
 
   .cm-kit-card--package .cm-kit-card-media {
-    @apply aspect-[4/3] sm:aspect-auto sm:min-h-[11rem] sm:h-full md:min-h-[12rem];
+    @apply aspect-auto h-full min-h-[7.5rem] sm:min-h-[8.5rem];
   }
 
   .cm-kit-card--package .cm-kit-card-body {
-    @apply justify-center py-3 sm:py-3.5 md:py-4;
+    @apply flex min-w-0 flex-col justify-center py-2.5 pl-0 pr-2.5 sm:py-3 sm:pr-3;
   }
 
-  .cm-kit-card--package .cm-kit-card-included {
-    @apply mt-2 sm:mt-2.5;
+  .cm-kit-card-meta {
+    @apply flex flex-wrap items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted;
+    font-family: var(--font-label);
+  }
+
+  .cm-kit-card-footer {
+    @apply mt-auto flex items-center justify-between gap-2 border-t border-stone/60 pt-2;
+  }
+
+  .cm-kit-card-price {
+    @apply font-display text-base font-bold leading-none text-forest sm:text-lg;
+  }
+
+  .cm-kit-card-compare {
+    @apply mt-0.5 text-[11px] text-muted line-through;
+  }
+
+  .cm-kit-card-count {
+    @apply mt-0.5 text-[11px] text-muted;
+  }
+
+  .cm-kit-card-arrow {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mist text-forest transition;
+  }
+
+  .cm-kit-card-link:hover .cm-kit-card-arrow {
+    @apply bg-pine text-mist;
+  }
+
+  .cm-kit-card-pending {
+    @apply block px-3 py-2 text-center text-xs text-muted;
   }
 
   .cm-kit-card-included-list {
@@ -425,18 +459,19 @@
   }
 
   .cm-kit-card-body {
-    @apply flex min-w-0 flex-1 flex-col p-2.5 sm:p-4 md:p-5;
+    @apply flex min-w-0 flex-1 flex-col p-2.5 sm:p-3;
   }
 
   .cm-kit-card-title {
-    @apply text-sm sm:text-lg md:text-xl;
+    @apply line-clamp-2 text-sm font-bold leading-snug text-pine sm:text-base;
+    font-family: var(--font-display);
   }
 
   .cm-kit-card-cta {
     @apply py-2 text-[11px] sm:py-3 sm:text-sm;
   }
 
-  .cm-kit-card-included-item:nth-child(n + 3) {
+  .cm-kit-card:not(.cm-kit-card--package) .cm-kit-card-included-item:nth-child(n + 3) {
     display: none;
   }
 

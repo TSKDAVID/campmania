@@ -23,25 +23,19 @@ const DIFFICULTY_STYLES: Record<string, string> = {
 
 function PackageCard({
   pkg,
-  bookLabel,
-  includedLabel,
+  itemsCountLabel,
   savingsLabel,
 }: {
   pkg: ShopifyPackageItem;
-  bookLabel: string;
-  includedLabel: string;
+  itemsCountLabel: string;
   savingsLabel?: string;
 }) {
   const diffStyle = DIFFICULTY_STYLES[pkg.difficulty] ?? 'bg-stone text-muted';
   const productUrl = pkg.productHandle ? `/products/${pkg.productHandle}` : null;
 
-  return (
-    <article className="cm-kit-card cm-kit-card--package group">
-      <Link
-        to={productUrl ?? '#'}
-        className="cm-kit-card-media relative block overflow-hidden bg-stone no-underline hover:no-underline"
-        tabIndex={productUrl ? 0 : -1}
-      >
+  const inner = (
+    <>
+      <div className="cm-kit-card-media relative overflow-hidden bg-stone">
         {pkg.imageUrl ? (
           <CatalogCardImage
             src={pkg.imageUrl}
@@ -57,88 +51,67 @@ function PackageCard({
           </>
         )}
         <span
-          className={`cm-kit-card-badge absolute right-2 top-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide sm:right-3 sm:top-3 sm:px-2.5 sm:text-[11px] ${diffStyle}`}
+          className={`cm-kit-card-badge absolute right-2 top-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${diffStyle}`}
         >
           {pkg.difficultyLabel}
         </span>
         {pkg.savingsPercent ? (
-          <span className="cm-kit-card-badge absolute left-2 top-2 rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-pine sm:left-3 sm:top-3 sm:px-2.5 sm:text-[11px]">
+          <span className="cm-kit-card-badge absolute left-2 top-2 rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-pine">
             -{pkg.savingsPercent}%
           </span>
         ) : null}
-      </Link>
+      </div>
 
       <div className="cm-kit-card-body">
-        <div className="cm-kit-card-meta flex flex-wrap items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted sm:text-[11px]">
-          <span className="rounded-sm bg-stone/80 px-2 py-0.5 text-charcoal/80">
-            {pkg.trekLabel}
-          </span>
-          <span className="text-stone">·</span>
+        <div className="cm-kit-card-meta">
+          <span>{pkg.trekLabel}</span>
+          <span aria-hidden>·</span>
           <span>{pkg.durationLabel}</span>
         </div>
 
-        <h3 className="cm-kit-card-title mt-1.5 font-display font-bold leading-snug text-pine group-hover:text-forest sm:mt-2">
-          {productUrl ? (
-            <Link to={productUrl} className="no-underline hover:no-underline">
-              {pkg.title}
-            </Link>
-          ) : (
-            pkg.title
-          )}
-        </h3>
-        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted sm:text-sm">
-          {pkg.description}
-        </p>
+        <h3 className="cm-kit-card-title">{pkg.title}</h3>
 
-        <div className="mt-3 border-t border-stone/70 pt-3">
-          <div className="flex flex-wrap items-baseline gap-2">
-            <p className="font-display text-lg font-bold text-forest sm:text-2xl">
-              {pkg.priceLabel}
-            </p>
+        <div className="cm-kit-card-footer">
+          <div className="min-w-0">
+            <p className="cm-kit-card-price">{pkg.priceLabel}</p>
             {pkg.compareAtPrice ? (
-              <p className="text-sm text-muted line-through">
-                {savingsLabel} ₾{pkg.compareAtPrice}
+              <p className="cm-kit-card-compare">
+                <span className="sr-only">{savingsLabel}</span>
+                ₾{pkg.compareAtPrice}
+              </p>
+            ) : null}
+            {pkg.items.length > 0 ? (
+              <p className="cm-kit-card-count">
+                {pkg.items.length} {itemsCountLabel}
               </p>
             ) : null}
           </div>
-        </div>
-
-        <div className="cm-kit-card-included mt-2 flex-1 sm:mt-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-moss sm:text-[11px]">
-            {includedLabel}
-          </p>
-          <ul className="cm-kit-card-included-list mt-1.5 sm:mt-2">
-            {pkg.items.slice(0, 4).map((item) => (
-              <li
-                key={item}
-                className="cm-kit-card-included-item flex gap-2 text-xs text-charcoal/75 sm:text-sm"
-              >
-                <span
-                  className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-moss"
-                  aria-hidden
-                />
-                <span className="line-clamp-1">{item}</span>
-              </li>
-            ))}
-            {pkg.items.length > 4 ? (
-              <li className="cm-kit-card-included-more text-xs text-muted">
-                +{pkg.items.length - 4} more
-              </li>
-            ) : null}
-          </ul>
-        </div>
-
-        {productUrl ? (
-          <Link to={productUrl} className="tr-btn-primary cm-kit-card-cta mt-3 w-full gap-2 sm:mt-4">
-            {bookLabel}
-            <IconArrowRight size={16} className="opacity-80" />
-          </Link>
-        ) : (
-          <span className="mt-4 block rounded-md border border-dashed border-stone px-3 py-2 text-center text-xs text-muted">
-            Shopify product pending
+          <span className="cm-kit-card-arrow" aria-hidden>
+            <IconArrowRight size={18} />
           </span>
-        )}
+        </div>
       </div>
+    </>
+  );
+
+  if (!productUrl) {
+    return (
+      <article className="cm-kit-card cm-kit-card--package">
+        {inner}
+        <span className="cm-kit-card-pending">Shopify product pending</span>
+      </article>
+    );
+  }
+
+  return (
+    <article className="cm-kit-card cm-kit-card--package group">
+      <Link
+        to={productUrl}
+        className="cm-kit-card-link no-underline hover:no-underline"
+        prefetch="intent"
+      >
+        {inner}
+      </Link>
     </article>
   );
 }
@@ -197,9 +170,6 @@ export function PackageCatalogGrid({
                   <p className="mt-4 font-display text-lg font-semibold text-pine">
                     {tr.packages.noResults}
                   </p>
-                  <p className="mt-1 text-sm text-muted">
-                    {tr.packages.subtitle}
-                  </p>
                 </div>
               ) : (
                 <div className="cm-catalog-grid cm-catalog-grid--packages">
@@ -207,8 +177,7 @@ export function PackageCatalogGrid({
                     <PackageCard
                       key={pkg.id}
                       pkg={pkg}
-                      includedLabel={tr.packages.included}
-                      bookLabel={tr.packages.viewAndBook}
+                      itemsCountLabel={tr.packages.itemsCount}
                       savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
                     />
                   ))}
