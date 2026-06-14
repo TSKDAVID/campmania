@@ -1,22 +1,3 @@
-/**
- * RentalProductForm — Campmania custom booking component.
- *
- * Replaces the standard Shopify "Add to Cart" form with a rental-specific flow:
- *   1. Date range picker (start → end)
- *   2. Metro hub dropdown (Tbilisi station hand-delivery)
- *   3. Rent vs Buy (Rent-to-Own) toggle when eligible
- *
- * Cart line attributes contract (consumed by backend / Zapiet / custom app):
- *   - fulfillment_mode:  "rent" | "purchase"
- *   - rental_start:      ISO date (rent only)
- *   - rental_end:        ISO date (rent only)
- *   - metro_station:     station id slug
- *   - rent_to_own:       "true" | "false"
- *   - rental_credit_applied: prior rental fee credited (purchase only)
- *
- * Rent-to-own eligibility is resolved by the parent route loader (order history).
- * Pass `rentToOwnOffer` when the customer previously rented this exact product.
- */
 import {useMemo, useState} from 'react';
 import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
 import {useLocale} from '~/providers/LocaleProvider';
@@ -27,34 +8,31 @@ import {
   getDefaultDateRange,
   isDateRangeValid,
 } from '~/lib/trailrent/pricing';
+import {
+  IconCalendar,
+  IconCart,
+  IconMapPin,
+  IconShield,
+} from '~/components/trailrent/Icons';
 
-/** Fulfillment mode — maps to cart attribute `fulfillment_mode`. */
 type FulfillmentMode = 'rent' | 'purchase';
 
 export type RentToOwnOffer = {
   eligible: boolean;
-  /** Prior rental fee to subtract from purchase price. */
   rentalCredit: number;
-  /** Final discounted buy-now price. */
   buyNowPrice: number;
 };
 
 export type RentalProductFormProps = {
-  /** Shopify variant GID — required for cart LinesAdd. */
   variantId: string;
   productTitle: string;
-  /** Daily rental rate in GEL. */
   dailyRate: number;
-  /** Full purchase price before rent-to-own credit (optional). */
   purchasePrice?: number;
-  /** Set when parent loader confirms prior rental of this product. */
   rentToOwnOffer?: RentToOwnOffer;
-  /** True when customer has `tier:trail-tested` tag — hides deposit warning. */
   isTrustedTier?: boolean;
   onSuccess?: () => void;
 };
 
-/** Build cart line attributes for the selected mode and booking details. */
 function buildLineAttributes(options: {
   mode: FulfillmentMode;
   startDate: string;
@@ -116,7 +94,6 @@ export function RentalProductForm({
     [dailyRate, startDate, endDate],
   );
 
-  /** Cart lines payload — recomputed when form state changes. */
   const cartLines: OptimisticCartLineInput[] = useMemo(
     () => [
       {
@@ -140,101 +117,98 @@ export function RentalProductForm({
     : (rentToOwnOffer?.buyNowPrice ?? purchasePrice ?? dailyRate);
 
   return (
-    <div className="rounded-md border border-stone bg-white p-6 shadow-sm">
-      <p className="tr-eyebrow text-muted">{tr.booking.title}</p>
-      <h2 className="mt-1 font-display text-xl font-bold text-charcoal">
-        {productTitle}
-      </h2>
+    <div className="cm-rental-form">
+      <header className="cm-rental-form-header">
+        <p className="tr-eyebrow">{tr.booking.title}</p>
+        <h2 className="mt-1 font-display text-xl font-bold text-pine md:text-2xl">
+          {productTitle}
+        </h2>
+      </header>
 
-      {/* ── Rent / Buy toggle (only when rent-to-own eligible) ─────────── */}
       {canBuy ? (
         <div
-          className="mt-6 flex rounded-sm border border-stone p-1"
+          className="cm-rental-mode-toggle"
           role="group"
           aria-label={`${tr.booking.modeRent} / ${tr.booking.modeBuy}`}
         >
           <button
             type="button"
             onClick={() => setMode('rent')}
-            className={`flex-1 rounded-sm px-4 py-2.5 text-sm font-semibold transition ${
-              isRentMode
-                ? 'bg-pine text-mist'
-                : 'text-muted hover:bg-stone/50'
-            }`}
+            className={`cm-rental-mode-btn ${isRentMode ? 'cm-rental-mode-btn--active' : ''}`}
           >
             {tr.booking.modeRent}
           </button>
           <button
             type="button"
             onClick={() => setMode('purchase')}
-            className={`flex-1 rounded-sm px-4 py-2.5 text-sm font-semibold transition ${
-              !isRentMode
-                ? 'bg-amber text-pine'
-                : 'text-muted hover:bg-stone/50'
-            }`}
+            className={`cm-rental-mode-btn ${!isRentMode ? 'cm-rental-mode-btn--buy' : ''}`}
           >
             {tr.booking.modeBuy}
           </button>
         </div>
       ) : null}
 
-      {/* ── Date range (rent mode only) ─────────────────────────────────── */}
       {isRentMode ? (
-        <div className="mt-6">
-          <label className="mb-2 block text-sm font-semibold uppercase tracking-wide text-muted">
-            {tr.booking.dates}
+        <div className="cm-rental-field">
+          <label className="cm-form-label">
+            <span className="inline-flex items-center gap-2">
+              <IconCalendar size={16} className="text-moss" />
+              {tr.booking.dates}
+            </span>
           </label>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <span className="text-xs text-muted">{tr.booking.startDate}</span>
+              <span className="mb-1 block text-xs font-medium text-muted">
+                {tr.booking.startDate}
+              </span>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="mt-1 w-full rounded-sm border border-stone bg-mist px-3 py-2 text-charcoal"
+                className="cm-form-field"
                 aria-label={tr.booking.startDate}
               />
             </div>
             <div>
-              <span className="text-xs text-muted">{tr.booking.endDate}</span>
+              <span className="mb-1 block text-xs font-medium text-muted">
+                {tr.booking.endDate}
+              </span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="mt-1 w-full rounded-sm border border-stone bg-mist px-3 py-2 text-charcoal"
+                className="cm-form-field"
                 aria-label={tr.booking.endDate}
               />
             </div>
           </div>
         </div>
       ) : (
-        /* Rent-to-own purchase summary */
-        <div className="mt-6 rounded-md border border-amber/40 bg-amber/5 p-4">
+        <div className="cm-rental-rto-banner">
           <p className="text-sm font-semibold text-pine">
             {tr.booking.buyNow} {formatGel(displayTotal)}
           </p>
           {rentToOwnOffer?.rentalCredit ? (
             <p className="mt-1 text-sm text-muted">
-              {tr.booking.rentalCredit}: −{formatGel(rentToOwnOffer.rentalCredit)}{' '}
-              · {tr.booking.buyNowDiscount}
+              {tr.booking.rentalCredit}: −{formatGel(rentToOwnOffer.rentalCredit)} ·{' '}
+              {tr.booking.buyNowDiscount}
             </p>
           ) : null}
         </div>
       )}
 
-      {/* ── Metro hub selector ──────────────────────────────────────────── */}
-      <div className="mt-6">
-        <label
-          htmlFor="rental-metro-select"
-          className="mb-2 block text-sm font-semibold uppercase tracking-wide text-muted"
-        >
-          {tr.booking.metro}
+      <div className="cm-rental-field">
+        <label htmlFor="rental-metro-select" className="cm-form-label">
+          <span className="inline-flex items-center gap-2">
+            <IconMapPin size={16} className="text-moss" />
+            {tr.booking.metro}
+          </span>
         </label>
         <select
           id="rental-metro-select"
           value={metroId}
           onChange={(e) => setMetroId(e.target.value)}
-          className="w-full rounded-sm border border-stone bg-mist px-3 py-2.5 text-charcoal"
+          className="cm-form-field"
         >
           {METRO_STATIONS.map((s) => (
             <option key={s.id} value={s.id}>
@@ -249,41 +223,39 @@ export function RentalProductForm({
         ) : null}
       </div>
 
-      {/* ── Pricing summary ─────────────────────────────────────────────── */}
-      <div className="mt-6 rounded-md border border-stone bg-mist/50 p-4">
+      <div className="cm-rental-summary">
         {isRentMode ? (
           <>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted">{tr.booking.dailyRate}</span>
+            <div className="cm-rental-summary-row">
+              <span>{tr.booking.dailyRate}</span>
               <span>{formatGel(dailyRate)}</span>
             </div>
-            <div className="mt-2 flex justify-between text-sm">
-              <span className="text-muted">
+            <div className="cm-rental-summary-row">
+              <span>
                 {rentalPricing.days} {tr.booking.days}
               </span>
               <span>{formatGel(rentalPricing.subtotal)}</span>
             </div>
           </>
         ) : (
-          <div className="flex justify-between text-sm">
-            <span className="text-muted">{tr.booking.buyNow}</span>
+          <div className="cm-rental-summary-row">
+            <span>{tr.booking.buyNow}</span>
             <span>{formatGel(displayTotal)}</span>
           </div>
         )}
-        <div className="mt-3 flex justify-between border-t border-stone pt-3 font-semibold text-charcoal">
+        <div className="cm-rental-summary-total">
           <span>{tr.booking.total}</span>
-          <span className="text-forest">{formatGel(displayTotal)}</span>
+          <span>{formatGel(displayTotal)}</span>
         </div>
       </div>
 
-      {/* ── Deposit notice (hidden for Trusted Tier VIP) ────────────────── */}
       {!isTrustedTier ? (
-        <p className="mt-4 rounded-md border border-moss/30 bg-moss/5 p-3 text-sm leading-relaxed text-muted">
-          🛡️ {tr.booking.idNotice}
+        <p className="cm-rental-notice">
+          <IconShield size={18} className="shrink-0 text-moss" />
+          <span>{tr.booking.idNotice}</span>
         </p>
       ) : null}
 
-      {/* ── Submit — Hydrogen CartForm → POST /cart LinesAdd ────────────── */}
       <CartForm
         route="/cart"
         inputs={{lines: cartLines}}
@@ -298,11 +270,12 @@ export function RentalProductForm({
                 onSuccess?.();
               }
             }}
-            className="tr-btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-50"
+            className="tr-btn-primary cm-rental-submit disabled:cursor-not-allowed disabled:opacity-50"
           >
+            <IconCart size={18} />
             {canSubmit
               ? isRentMode
-                ? tr.booking.confirm
+                ? tr.booking.addToCart
                 : `${tr.booking.buyNow} ${formatGel(displayTotal)}`
               : tr.booking.unavailable}
           </button>

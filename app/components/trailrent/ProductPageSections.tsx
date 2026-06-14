@@ -1,0 +1,139 @@
+import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
+import {Money} from '@shopify/hydrogen';
+import {useLocale} from '~/providers/LocaleProvider';
+import {formatGel} from '~/lib/trailrent/pricing';
+import {
+  IconCheck,
+  IconMetro,
+  IconPackage,
+  IconShield,
+  IconStar,
+} from '~/components/trailrent/Icons';
+
+export function ProductPriceBlock({
+  price,
+  compareAtPrice,
+  savingsPercent,
+}: {
+  price?: MoneyV2;
+  compareAtPrice?: MoneyV2 | null;
+  savingsPercent?: number;
+}) {
+  const {translations: tr} = useLocale();
+  const compareAt = compareAtPrice
+    ? Number(compareAtPrice.amount)
+    : undefined;
+
+  return (
+    <div className="cm-product-price" aria-label="Price" role="group">
+      <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+        {price ? (
+          <p className="font-display text-4xl font-bold leading-none text-forest md:text-[2.75rem]">
+            <Money data={price} />
+            <span className="ml-1.5 text-lg font-semibold text-muted md:text-xl">
+              {tr.product.perDay}
+            </span>
+          </p>
+        ) : null}
+        {compareAtPrice && compareAt && compareAt > 0 ? (
+          <p className="pb-1 text-lg text-muted line-through">
+            <Money data={compareAtPrice} />
+          </p>
+        ) : null}
+      </div>
+      {savingsPercent ? (
+        <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber/20 px-3.5 py-1.5 text-sm font-semibold text-pine">
+          <span className="rounded-full bg-amber px-2 py-0.5 text-xs font-bold text-pine">
+            −{savingsPercent}%
+          </span>
+          {tr.product.kitSavings}
+          {compareAt ? (
+            <span className="font-normal text-muted">
+              · {tr.product.wasPrice} {formatGel(compareAt)}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+export function ProductTrustBar({isTrustedTier = false}: {isTrustedTier?: boolean}) {
+  const {translations: tr} = useLocale();
+  const items = [
+    ...(!isTrustedTier
+      ? [{Icon: IconShield, label: tr.trust.deposit, tone: 'moss' as const}]
+      : []),
+    {Icon: IconMetro, label: tr.trust.metro, tone: 'forest' as const},
+    {Icon: IconStar, label: tr.trust.loyalty, tone: 'amber' as const},
+  ];
+
+  return (
+    <ul className="cm-product-trust">
+      {items.map(({Icon, label, tone}) => (
+        <li key={label} className="cm-product-trust-item">
+          <span className={`cm-product-trust-icon cm-product-trust-icon--${tone}`}>
+            <Icon size={18} />
+          </span>
+          <span>{label}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function ProductIncludedPanel({items}: {items: string[]}) {
+  const {translations: tr} = useLocale();
+  if (!items.length) return null;
+
+  return (
+    <section className="cm-product-included" aria-labelledby="product-included-heading">
+      <div className="cm-product-included-header">
+        <span className="cm-product-included-icon" aria-hidden>
+          <IconPackage size={20} />
+        </span>
+        <div>
+          <h2 id="product-included-heading" className="font-display text-lg font-bold text-pine">
+            {tr.product.included}
+          </h2>
+          <p className="mt-0.5 text-sm text-muted">
+            {items.length} {tr.product.itemsIncluded}
+          </p>
+        </div>
+      </div>
+      <ul className="cm-product-included-list">
+        {items.map((item) => (
+          <li key={item} className="cm-product-included-item">
+            <span className="cm-product-included-check" aria-hidden>
+              <IconCheck size={14} />
+            </span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+export function ProductDescription({
+  html,
+  title,
+}: {
+  html: string;
+  title: string;
+}) {
+  const {translations: tr} = useLocale();
+  if (!html?.trim()) return null;
+
+  return (
+    <section className="cm-product-description" aria-labelledby="product-description-heading">
+      <h2 id="product-description-heading" className="cm-product-description-title">
+        {title || tr.product.about}
+      </h2>
+      <div
+        className="cm-product-description-body"
+        dangerouslySetInnerHTML={{__html: html}}
+      />
+    </section>
+  );
+}

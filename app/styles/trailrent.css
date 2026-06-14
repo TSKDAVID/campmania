@@ -332,4 +332,190 @@
     @apply mb-1.5 block text-xs font-bold uppercase tracking-[0.1em] text-muted;
     font-family: var(--font-label);
   }
+
+  /* ── Product page ────────────────────────────────────────────────────── */
+  .cm-product-page {
+    @apply bg-mist pb-16 pt-6 md:pt-10;
+  }
+
+  .cm-product-page-inner {
+    @apply space-y-12 md:space-y-16;
+  }
+
+  .cm-product-layout {
+    @apply grid items-start gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16;
+  }
+
+  .cm-product-layout-media {
+    @apply lg:sticky lg:top-[calc(var(--header-height)+1.5rem)] lg:self-start;
+  }
+
+  .cm-product-layout-details {
+    @apply flex min-w-0 flex-col gap-6 md:gap-7;
+  }
+
+  .cm-product-gallery {
+    @apply w-full;
+  }
+
+  .cm-product-gallery-frame {
+    @apply overflow-hidden rounded-2xl border border-stone/70 bg-white shadow-lg shadow-pine/5;
+  }
+
+  .cm-product-gallery-placeholder {
+    @apply flex aspect-[4/5] items-center justify-center rounded-2xl border border-dashed border-stone bg-white;
+  }
+
+  .cm-product-gallery-image,
+  .cm-product-gallery-frame img {
+    @apply h-full w-full object-cover;
+  }
+
+  .cm-product-header {
+    @apply space-y-3 border-b border-stone/80 pb-6;
+  }
+
+  .cm-product-title {
+    @apply font-display text-3xl font-bold leading-tight text-pine md:text-4xl lg:text-[2.75rem];
+  }
+
+  .cm-product-subtitle {
+    @apply max-w-xl text-base leading-relaxed text-muted md:text-lg;
+  }
+
+  .cm-product-price {
+    @apply pt-1;
+  }
+
+  .cm-product-trust {
+    @apply flex flex-wrap gap-2.5;
+  }
+
+  .cm-product-trust-item {
+    @apply inline-flex items-center gap-2 rounded-full border border-stone/80 bg-white px-3 py-2 text-xs font-semibold text-charcoal shadow-sm;
+    font-family: var(--font-label);
+  }
+
+  .cm-product-trust-icon {
+    @apply flex h-7 w-7 items-center justify-center rounded-full;
+  }
+
+  .cm-product-trust-icon--moss {
+    @apply bg-moss/15 text-moss;
+  }
+
+  .cm-product-trust-icon--forest {
+    @apply bg-forest/10 text-forest;
+  }
+
+  .cm-product-trust-icon--amber {
+    @apply bg-amber/20 text-pine;
+  }
+
+  .cm-product-included {
+    @apply rounded-2xl border border-stone/70 bg-white p-5 shadow-sm md:p-6;
+  }
+
+  .cm-product-included-header {
+    @apply flex items-start gap-3 border-b border-stone/70 pb-4;
+  }
+
+  .cm-product-included-icon {
+    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-moss/10 text-moss;
+  }
+
+  .cm-product-included-list {
+    @apply mt-4 grid gap-2 sm:grid-cols-2;
+  }
+
+  .cm-product-included-item {
+    @apply flex items-start gap-2.5 text-sm leading-snug text-charcoal/85;
+  }
+
+  .cm-product-included-check {
+    @apply mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-moss/15 text-moss;
+  }
+
+  .cm-product-description {
+    @apply rounded-2xl border border-stone/70 bg-white p-6 shadow-sm md:p-8;
+  }
+
+  .cm-product-description-title {
+    @apply mb-4 font-display text-2xl font-bold text-pine;
+  }
+
+  .cm-product-description-body {
+    @apply max-w-none text-base leading-relaxed text-muted;
+    font-family: var(--font-body);
+  }
+
+  .cm-product-description-body p {
+    @apply mb-4 last:mb-0;
+  }
+
+  .cm-product-description-body ul {
+    @apply my-4 list-disc space-y-1 pl-5;
+  }
+
+  .cm-product-unavailable {
+    @apply rounded-xl border border-stone bg-white p-5 text-sm text-muted;
+  }
+
+  .cm-rental-form {
+    @apply rounded-2xl border border-stone/70 bg-white p-5 shadow-md shadow-pine/5 md:p-6;
+  }
+
+  .cm-rental-form-header {
+    @apply border-b border-stone/70 pb-4;
+  }
+
+  .cm-rental-mode-toggle {
+    @apply mt-5 flex rounded-lg border border-stone bg-mist/40 p-1;
+  }
+
+  .cm-rental-mode-btn {
+    @apply flex-1 rounded-md px-4 py-2.5 text-sm font-semibold text-muted transition;
+    font-family: var(--font-label);
+  }
+
+  .cm-rental-mode-btn--active {
+    @apply bg-pine text-mist shadow-sm;
+  }
+
+  .cm-rental-mode-btn--buy {
+    @apply bg-amber text-pine shadow-sm;
+  }
+
+  .cm-rental-field {
+    @apply mt-5;
+  }
+
+  .cm-rental-rto-banner {
+    @apply mt-5 rounded-xl border border-amber/40 bg-amber/10 p-4;
+  }
+
+  .cm-rental-summary {
+    @apply mt-5 space-y-2 rounded-xl border border-stone/70 bg-mist/40 p-4;
+  }
+
+  .cm-rental-summary-row {
+    @apply flex justify-between text-sm text-muted;
+  }
+
+  .cm-rental-summary-total {
+    @apply flex justify-between border-t border-stone/80 pt-3 text-base font-bold text-pine;
+    font-family: var(--font-label);
+  }
+
+  .cm-rental-summary-total span:last-child {
+    @apply text-forest;
+  }
+
+  .cm-rental-notice {
+    @apply mt-4 flex items-start gap-2.5 rounded-xl border border-moss/25 bg-moss/5 p-3.5 text-sm leading-relaxed text-muted;
+  }
+
+  .cm-rental-submit {
+    @apply mt-5 w-full;
+  }
 }

@@ -194,6 +194,10 @@ const translations = {
       completeKit: 'დაასრულეთ კომპლექტი',
       kitSavings: 'კომპლექტის ფასდაკლება',
       wasPrice: 'ღირ.',
+      perDay: '/ დღე',
+      rental: 'ქირა',
+      about: 'აღწერა',
+      itemsIncluded: 'ნივთი შედის',
     },
     footer: {
       rent: 'ქირა',
@@ -400,6 +404,10 @@ const translations = {
       completeKit: 'Complete your kit',
       kitSavings: 'Kit bundle savings',
       wasPrice: 'Was',
+      perDay: '/ day',
+      rental: 'Rental',
+      about: 'About this item',
+      itemsIncluded: 'items included',
     },
     footer: {
       rent: 'Rent',

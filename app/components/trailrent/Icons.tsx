@@ -195,3 +195,20 @@ export function IconPackage(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconCheck(props: IconProps) {
+  return (
+    <Icon {...props} size={props.size ?? 16}>
+      <path d="M5 12.5l3.5 3.5L19 7" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconCart(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 8h13l-1.5 9H8L6 8z" {...stroke} />
+      <path d="M9 8V6a3 3 0 016 0v2" {...stroke} />
+    </Icon>
+  );
+}

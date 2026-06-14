@@ -8,11 +8,15 @@ import {
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
-import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {RentalProductForm} from '~/components/RentalProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {TrustNoticesInline} from '~/components/trailrent/ContentSections';
+import {
+  ProductDescription,
+  ProductIncludedPanel,
+  ProductPriceBlock,
+  ProductTrustBar,
+} from '~/components/trailrent/ProductPageSections';
 import {useLocale} from '~/providers/LocaleProvider';
 import {CUSTOMER_RENTAL_HISTORY_QUERY} from '~/graphql/customer-account/CustomerRentalHistoryQuery';
 import {buildRentToOwnOffer} from '~/lib/trailrent/rent-to-own';
@@ -57,10 +61,6 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   return {product};
 }
 
-/**
- * Deferred customer context for rent-to-own and Trusted Tier status.
- * Uses Customer Account API — only fetched when the shopper is logged in.
- */
 function loadDeferredData({context}: Route.LoaderArgs) {
   const {customerAccount} = context;
 
@@ -95,8 +95,6 @@ function loadDeferredData({context}: Route.LoaderArgs) {
   return {customerRentalContext};
 }
 
-import {formatGel} from '~/lib/trailrent/pricing';
-
 function parseIncludedItems(metafield?: {value: string; type: string} | null): string[] {
   if (!metafield?.value) return [];
   try {
@@ -124,7 +122,7 @@ export default function Product() {
 
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
-  const {title, descriptionHtml, id: productId} = product;
+  const {title, descriptionHtml, id: productId, tags = []} = product;
   const dailyRate = Number(selectedVariant?.price?.amount ?? 0);
   const compareAt = Number(selectedVariant?.compareAtPrice?.amount ?? 0);
   const purchasePrice = Number(
@@ -133,112 +131,93 @@ export default function Product() {
       0,
   );
   const includedItems = parseIncludedItems(product.includedItems);
+  const kitSummary = product.kitSummary?.value?.trim();
+  const isPackage =
+    includedItems.length > 0 || tags.some((t: string) => t.startsWith('trek-'));
   const savingsPercent =
     compareAt > dailyRate && compareAt > 0
       ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
       : undefined;
 
   return (
-    <div className="tr-page-width tr-section">
-      <div className="grid gap-10 lg:grid-cols-2">
-        <ProductImage image={selectedVariant?.image} />
-        <div>
-          <h1 className="font-display text-3xl font-bold">{title}</h1>
-          <div className="mt-4">
-            <ProductPrice
-              price={selectedVariant?.price}
-              compareAtPrice={selectedVariant?.compareAtPrice}
-            />
-            {savingsPercent ? (
-              <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-amber/15 px-3 py-1 text-sm font-semibold text-forest">
-                {tr.product.kitSavings}: -{savingsPercent}%
-                {compareAt > 0 ? (
-                  <span className="font-normal text-muted line-through">
-                    {tr.product.wasPrice} {formatGel(compareAt)}
-                  </span>
-                ) : null}
-              </p>
-            ) : null}
+    <article className="cm-product-page">
+      <div className="tr-page-width cm-product-page-inner">
+        <div className="cm-product-layout">
+          <div className="cm-product-layout-media">
+            <ProductImage image={selectedVariant?.image} title={title} />
           </div>
 
-          {includedItems.length > 0 ? (
-            <div className="mt-6 rounded-lg border border-stone/80 bg-mist/50 p-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-moss">
-                {tr.product.included}
+          <div className="cm-product-layout-details">
+            <header className="cm-product-header">
+              <p className="tr-eyebrow">
+                {isPackage ? tr.packages.eyebrow : tr.product.rental}
               </p>
-              <ul className="mt-3 space-y-2">
-                {includedItems.map((item) => (
-                  <li key={item} className="flex gap-2 text-sm text-charcoal/80">
-                    <span
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-moss"
-                      aria-hidden
-                    />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+              <h1 className="cm-product-title">{title}</h1>
+              {kitSummary ? (
+                <p className="cm-product-subtitle">{kitSummary}</p>
+              ) : null}
+              <ProductPriceBlock
+                price={selectedVariant?.price}
+                compareAtPrice={selectedVariant?.compareAtPrice}
+                savingsPercent={savingsPercent}
+              />
+            </header>
 
-          <Suspense
-            fallback={
-              <div className="mt-6">
-                <TrustNoticesInline isTrustedTier={false} />
-              </div>
-            }
-          >
-            <Await resolve={customerRentalContext}>
-              {(ctx) => (
-                <div className="mt-6">
-                  <TrustNoticesInline
-                    isTrustedTier={isTrustedTier(ctx.tags)}
-                  />
-                </div>
-              )}
-            </Await>
-          </Suspense>
-
-          {selectedVariant?.id ? (
             <Suspense
-              fallback={
-                <div className="mt-8 animate-pulse rounded-md border border-stone bg-white p-6">
-                  <div className="h-6 w-1/2 rounded bg-stone" />
-                  <div className="mt-4 h-10 rounded bg-stone" />
-                  <div className="mt-4 h-10 rounded bg-stone" />
-                </div>
-              }
+              fallback={<ProductTrustBar isTrustedTier={false} />}
             >
               <Await resolve={customerRentalContext}>
                 {(ctx) => (
-                  <RentalProductForm
-                    variantId={selectedVariant.id}
-                    productTitle={title}
-                    dailyRate={dailyRate}
-                    purchasePrice={purchasePrice}
-                    rentToOwnOffer={buildRentToOwnOffer({
-                      productId,
-                      purchasePrice,
-                      orders: ctx.orders,
-                    })}
-                    isTrustedTier={isTrustedTier(ctx.tags)}
-                  />
+                  <ProductTrustBar isTrustedTier={isTrustedTier(ctx.tags)} />
                 )}
               </Await>
             </Suspense>
-          ) : (
-            <p className="mt-8 rounded-md border border-stone bg-mist p-4 text-sm text-muted">
-              {locale === 'ka'
-                ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
-                : 'This variant is currently unavailable.'}
-            </p>
-          )}
 
-          <div
-            className="prose mt-10 max-w-none text-muted"
-            dangerouslySetInnerHTML={{__html: descriptionHtml}}
-          />
+            {includedItems.length > 0 ? (
+              <ProductIncludedPanel items={includedItems} />
+            ) : null}
+
+            {selectedVariant?.id ? (
+              <Suspense
+                fallback={
+                  <div className="cm-rental-form animate-pulse">
+                    <div className="h-6 w-1/2 rounded-lg bg-stone" />
+                    <div className="mt-6 h-10 rounded-lg bg-stone" />
+                    <div className="mt-4 h-10 rounded-lg bg-stone" />
+                    <div className="mt-6 h-12 rounded-lg bg-stone" />
+                  </div>
+                }
+              >
+                <Await resolve={customerRentalContext}>
+                  {(ctx) => (
+                    <RentalProductForm
+                      variantId={selectedVariant.id}
+                      productTitle={title}
+                      dailyRate={dailyRate}
+                      purchasePrice={purchasePrice}
+                      rentToOwnOffer={buildRentToOwnOffer({
+                        productId,
+                        purchasePrice,
+                        orders: ctx.orders,
+                      })}
+                      isTrustedTier={isTrustedTier(ctx.tags)}
+                    />
+                  )}
+                </Await>
+              </Suspense>
+            ) : (
+              <p className="cm-product-unavailable">
+                {locale === 'ka'
+                  ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
+                  : 'This variant is currently unavailable.'}
+              </p>
+            )}
+          </div>
         </div>
+
+        <ProductDescription html={descriptionHtml} title={tr.product.about} />
       </div>
+
       <Analytics.ProductView
         data={{
           products: [
@@ -254,7 +233,7 @@ export default function Product() {
           ],
         }}
       />
-    </div>
+    </article>
   );
 }
 
