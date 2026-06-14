@@ -17,10 +17,6 @@ export function shouldRevalidate() {
   return true;
 }
 
-/**
- * Loads the authenticated Shopify customer via Customer Account API.
- * If not logged in, redirects to Shopify OAuth (/account/login flow).
- */
 export async function loader({context}: Route.LoaderArgs) {
   const {customerAccount} = context;
   const {data, errors} = await customerAccount.query(CUSTOMER_DETAILS_QUERY, {
@@ -43,6 +39,20 @@ export async function loader({context}: Route.LoaderArgs) {
   );
 }
 
+function customerInitials(
+  firstName?: string | null,
+  lastName?: string | null,
+  email?: string | null,
+) {
+  const fromName = [firstName, lastName]
+    .filter(Boolean)
+    .map((part) => part!.charAt(0))
+    .join('')
+    .toUpperCase();
+  if (fromName) return fromName.slice(0, 2);
+  return email?.charAt(0).toUpperCase() ?? '?';
+}
+
 export default function AccountLayout() {
   const {customer} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
@@ -51,96 +61,98 @@ export default function AccountLayout() {
   const tags = parseCustomerTags(customer.tags);
   const loyalty = getLoyaltyStatus({tags, email, tagsOnly: true});
 
-  const heading = customer.firstName
+  const displayName =
+    [customer.firstName, customer.lastName].filter(Boolean).join(' ') ||
+    (locale === 'ka' ? 'მომხმარებელი' : 'Member');
+
+  const greeting = customer.firstName
     ? locale === 'ka'
       ? `გამარჯობა, ${customer.firstName}`
-      : `Welcome, ${customer.firstName}`
+      : `Hi, ${customer.firstName}`
     : locale === 'ka'
       ? 'თქვენი ანგარიში'
       : 'Your account';
 
   return (
-    <div className="bg-mist">
-      <div className="border-b border-stone bg-white">
-        <div className="tr-page-width py-10 md:py-12">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="tr-eyebrow">{locale === 'ka' ? 'ანგარიში' : 'Account'}</p>
-              <h1 className="mt-2 font-display text-3xl font-bold text-pine md:text-4xl">
-                {heading}
-              </h1>
-              {email ? (
-                <p className="mt-2 text-sm text-charcoal/70">{email}</p>
-              ) : null}
-            </div>
+    <div className="min-h-screen bg-mist">
+      <div className="cm-account-header">
+        <div className="cm-account-header-inner">
+          <div
+            className="cm-account-avatar"
+            aria-hidden
+          >
+            {customerInitials(customer.firstName, customer.lastName, email)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="tr-eyebrow">{tr.account.eyebrow}</p>
+            <h1 className="mt-1 font-display text-2xl font-bold text-pine md:text-3xl">
+              {greeting}
+            </h1>
+            <p className="mt-1 truncate text-sm text-muted">{email ?? displayName}</p>
+          </div>
+          <div className="flex shrink-0 flex-col items-end gap-1">
             <span
-              className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${
-                loyalty.isVerified
-                  ? 'bg-amber text-pine'
-                  : 'border border-stone bg-mist text-muted'
+              className={`cm-loyalty-tier-pill ${
+                loyalty.isVerified ? 'cm-loyalty-tier-vip' : 'border border-stone bg-mist text-muted'
               }`}
             >
               {loyalty.isVerified ? tr.loyalty.trailTested : tr.loyalty.explorer}
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+              {tr.account.tierMember}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="tr-page-width py-8 md:py-12">
-        <AccountMenu />
-        <div className="mt-8">
-          <Outlet context={{customer}} />
-        </div>
+      <AccountMenu />
+
+      <div className="tr-page-width py-6 md:py-8">
+        <Outlet context={{customer}} />
       </div>
     </div>
   );
 }
 
 function AccountMenu() {
-  const {locale} = useLocale();
+  const {translations: tr} = useLocale();
   const links = [
-    {to: '/account', label: locale === 'ka' ? 'პანელი' : 'Dashboard', end: true},
-    {to: '/account/orders', label: locale === 'ka' ? 'შეკვეთები' : 'Orders'},
-    {to: '/account/profile', label: locale === 'ka' ? 'პროფილი' : 'Profile'},
-    {to: '/account/addresses', label: locale === 'ka' ? 'მისამართები' : 'Addresses'},
+    {to: '/account', label: tr.account.dashboard, end: true},
+    {to: '/account/orders', label: tr.account.orders},
+    {to: '/account/profile', label: tr.account.profile},
+    {to: '/account/addresses', label: tr.account.addresses},
   ];
 
   return (
-    <nav
-      className="flex flex-wrap gap-2 border-b border-stone pb-4"
-      role="navigation"
-      aria-label="Account"
-    >
-      {links.map((link) => (
-        <NavLink
-          key={link.to}
-          to={link.to}
-          end={link.end}
-          className={({isActive}) =>
-            `rounded-full px-4 py-2 text-sm font-semibold transition no-underline hover:no-underline ${
-              isActive
-                ? 'bg-pine text-mist'
-                : 'bg-white text-muted hover:bg-stone/80 hover:text-charcoal'
-            }`
-          }
-        >
-          {link.label}
-        </NavLink>
-      ))}
+    <nav className="cm-account-nav" role="navigation" aria-label="Account">
+      <div className="flex flex-1 flex-wrap">
+        {links.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            end={link.end}
+            className={({isActive}) =>
+              `cm-account-nav-link ${isActive ? 'cm-account-nav-link-active' : ''}`
+            }
+          >
+            {link.label}
+          </NavLink>
+        ))}
+      </div>
       <Logout />
     </nav>
   );
 }
 
 function Logout() {
-  const {locale} = useLocale();
+  const {translations: tr} = useLocale();
   return (
-    <Form className="ml-auto" method="POST" action="/account/logout">
+    <Form className="ml-auto shrink-0" method="POST" action="/account/logout">
       <button
         type="submit"
-        className="rounded-full border border-stone bg-white px-4 py-2 text-sm font-semibold text-muted transition hover:border-pine hover:text-pine"
+        className="px-4 py-3.5 text-sm font-semibold text-muted transition hover:text-pine"
       >
-        {locale === 'ka' ? 'გასვლა' : 'Sign out'}
+        {tr.account.signOut}
       </button>
     </Form>
   );

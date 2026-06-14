@@ -264,4 +264,72 @@
   main {
     @apply min-h-[50vh];
   }
+
+  /* ── Account area ────────────────────────────────────────────────────── */
+  .cm-account-header {
+    @apply border-b border-stone bg-white;
+  }
+
+  .cm-account-header-inner {
+    @apply tr-page-width flex flex-wrap items-center gap-5 py-6 md:py-8;
+  }
+
+  .cm-account-avatar {
+    @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-pine font-display text-xl font-bold text-mist;
+  }
+
+  .cm-account-nav {
+    @apply tr-page-width flex flex-wrap items-center gap-1 border-b border-stone bg-white px-0;
+  }
+
+  .cm-account-nav-link {
+    @apply relative px-4 py-3.5 text-sm font-semibold text-muted transition no-underline hover:no-underline hover:text-charcoal;
+    font-family: var(--font-label);
+  }
+
+  .cm-account-nav-link-active {
+    @apply text-pine;
+  }
+
+  .cm-account-nav-link-active::after {
+    content: '';
+    @apply absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-amber;
+  }
+
+  .cm-account-panel {
+    @apply rounded-xl border border-stone/70 bg-white p-5 shadow-sm md:p-6;
+  }
+
+  .cm-loyalty-card {
+    @apply overflow-hidden rounded-xl border border-stone/70 bg-white shadow-sm;
+  }
+
+  .cm-loyalty-card-banner {
+    @apply bg-gradient-to-r from-pine via-forest to-moss px-5 py-4 text-mist md:px-6 md:py-5;
+  }
+
+  .cm-loyalty-tier-pill {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em];
+  }
+
+  .cm-loyalty-tier-explorer {
+    @apply bg-white/15 text-mist;
+  }
+
+  .cm-loyalty-tier-vip {
+    @apply bg-amber text-pine;
+  }
+
+  .cm-quick-link {
+    @apply flex items-center gap-3 rounded-lg border border-stone/60 bg-mist/30 px-4 py-3 text-sm font-semibold text-pine transition hover:border-moss/40 hover:bg-white no-underline hover:no-underline;
+  }
+
+  .cm-form-field {
+    @apply block w-full rounded-lg border border-stone bg-white px-3.5 py-2.5 text-sm text-charcoal outline-none transition focus:border-moss focus:ring-2 focus:ring-moss/20;
+  }
+
+  .cm-form-label {
+    @apply mb-1.5 block text-xs font-bold uppercase tracking-[0.1em] text-muted;
+    font-family: var(--font-label);
+  }
 }
