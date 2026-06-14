@@ -33,6 +33,15 @@
     font-family: var(--font-display);
     @apply text-pine;
   }
+
+  a {
+    @apply no-underline;
+  }
+
+  a:hover,
+  a:focus {
+    text-decoration: none;
+  }
 }
 
 @layer components {
@@ -46,31 +55,31 @@
   }
 
   .tr-btn {
-    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition;
+    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline;
     font-family: var(--font-label);
   }
 
   .tr-btn-primary {
-    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition bg-pine text-mist hover:bg-forest;
+    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline bg-pine text-mist hover:bg-forest;
     font-family: var(--font-label);
   }
 
   .tr-btn-secondary {
-    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition border border-pine bg-transparent text-pine hover:bg-pine hover:text-mist;
+    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-pine bg-transparent text-pine hover:bg-pine hover:text-mist;
     font-family: var(--font-label);
   }
 
   .tr-btn-ghost {
-    @apply inline-flex items-center justify-center rounded-sm px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition border border-white/30 bg-white/5 text-mist hover:bg-white/15;
+    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-white/30 bg-white/5 text-mist hover:border-white/50 hover:bg-white/15;
     font-family: var(--font-label);
   }
 
   .tr-card {
-    @apply rounded-lg border border-stone/80 bg-white shadow-sm transition hover:shadow-md;
+    @apply rounded-xl border border-stone/80 bg-white shadow-sm transition hover:shadow-md;
   }
 
   .tr-card-elevated {
-    @apply rounded-xl border border-stone/60 bg-white shadow-lg shadow-pine/5 transition hover:-translate-y-0.5 hover:shadow-xl;
+    @apply rounded-2xl border border-stone/60 bg-white shadow-lg shadow-pine/5 transition hover:-translate-y-0.5 hover:shadow-xl no-underline hover:no-underline;
   }
 
   .tr-pill {
@@ -89,6 +98,14 @@
     @apply py-10 md:py-14;
   }
 
+  .cm-link {
+    @apply text-moss transition hover:text-forest no-underline hover:no-underline;
+  }
+
+  .cm-link-subtle {
+    @apply text-sm font-semibold text-moss transition hover:text-forest no-underline hover:no-underline;
+  }
+
   /* ── Site header ─────────────────────────────────────────────────────── */
   .cm-site-header {
     @apply sticky top-0 z-50 border-b border-white/10 bg-pine/95 text-mist backdrop-blur-md;
@@ -100,7 +117,7 @@
   }
 
   .cm-nav-link {
-    @apply relative text-sm font-medium text-sage transition hover:text-mist;
+    @apply relative text-sm font-medium text-sage/90 transition hover:text-mist no-underline hover:no-underline;
     font-family: var(--font-label);
   }
 
@@ -114,7 +131,7 @@
   }
 
   .cm-icon-btn {
-    @apply flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-sage transition hover:border-white/30 hover:bg-white/10 hover:text-mist;
+    @apply flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-sage transition hover:border-white/30 hover:bg-white/10 hover:text-mist no-underline hover:no-underline;
   }
 
   /* ── Site footer ─────────────────────────────────────────────────────── */
@@ -123,7 +140,20 @@
   }
 
   .cm-footer-link {
-    @apply text-sm text-sage transition hover:text-mist;
+    @apply text-sm text-sage/90 transition hover:text-mist no-underline hover:no-underline;
+  }
+
+  /* ── Product cards ───────────────────────────────────────────────────── */
+  .cm-product-card {
+    @apply flex h-full flex-col overflow-hidden rounded-2xl border border-stone/60 bg-white p-0 shadow-lg shadow-pine/5 transition hover:-translate-y-0.5 hover:shadow-xl no-underline hover:no-underline;
+  }
+
+  .cm-product-card-image {
+    @apply relative aspect-[4/5] overflow-hidden bg-stone;
+  }
+
+  .cm-product-card-body {
+    @apply flex flex-1 flex-col p-5;
   }
 
   main {

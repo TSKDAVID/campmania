@@ -47,17 +47,17 @@ export default function AccountDashboard() {
         </h2>
         <ul className="mt-4 space-y-2 text-moss">
           <li>
-            <a href="/account/orders" className="hover:underline">
+            <a href="/account/orders" className="cm-link">
               {locale === 'ka' ? 'შეკვეთები' : 'Orders'}
             </a>
           </li>
           <li>
-            <a href="/packages" className="hover:underline">
+            <a href="/packages" className="cm-link">
               {tr.nav.packages}
             </a>
           </li>
           <li>
-            <a href="/individual-gear" className="hover:underline">
+            <a href="/individual-gear" className="cm-link">
               {tr.nav.gear}
             </a>
           </li>

@@ -51,7 +51,7 @@ export function PageBanner({
           {title}
         </h1>
         {subtitle ? (
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-sage">{subtitle}</p>
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-mist/85">{subtitle}</p>
         ) : null}
       </div>
     </section>
@@ -74,7 +74,7 @@ export function SectionHeading({
       {eyebrow ? <p className="tr-eyebrow mb-3">{eyebrow}</p> : null}
       <h2 className="text-3xl font-bold md:text-4xl">{title}</h2>
       {subtitle ? (
-        <p className="mt-3 text-lg leading-relaxed text-muted">{subtitle}</p>
+        <p className="mt-3 text-lg leading-relaxed text-charcoal/80">{subtitle}</p>
       ) : null}
     </div>
   );

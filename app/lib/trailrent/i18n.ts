@@ -74,6 +74,13 @@ const translations = {
       subtitle: 'დაჯავშნეთ ახლა — მეტროში მიღება უკვე 24 საათში.',
       button: 'კომპლექტების ნახვა',
     },
+    featured: {
+      eyebrow: 'Shopify კატალოგი',
+      title: 'რჩეული აღჭურვილობა',
+      subtitle: 'პრემიუმ ნივთები პირდაპირ ჩვენი მაღაზიიდან — აირჩიეთ და დაჯავშნეთ.',
+      viewAll: 'ყველა პროდუქტი',
+      empty: 'პროდუქტები მალე გამოჩნდება — დაამატეთ ნივთები Shopify Admin-ში.',
+    },
     packages: {
       eyebrow: 'ბილიკის კომპლექტები',
       title: 'Trail კომპლექტები',
@@ -221,6 +228,13 @@ const translations = {
       title: 'Ready for your next trail?',
       subtitle: 'Book now — metro pickup within 24 hours.',
       button: 'Browse packages',
+    },
+    featured: {
+      eyebrow: 'Live inventory',
+      title: 'Featured gear',
+      subtitle: 'Premium rental items pulled directly from our Shopify store.',
+      viewAll: 'View all products',
+      empty: 'Products coming soon — add items in Shopify Admin.',
     },
     packages: {
       eyebrow: 'Trail packages',

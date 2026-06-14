@@ -80,7 +80,7 @@ export function PackageCatalogGrid({packages}: {packages: PackageItem[]}) {
               <button
                 type="button"
                 onClick={() => setParams({}, {preventScrollReset: true})}
-                className="text-sm text-moss underline"
+                className="cm-link text-sm"
               >
                 {tr.packages.clearAll}
               </button>

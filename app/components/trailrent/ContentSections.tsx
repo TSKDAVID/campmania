@@ -157,7 +157,7 @@ export function FaqSection() {
             </details>
           ))}
         </div>
-        <Link to="/pages/faq" className="mt-6 inline-block text-moss underline">
+        <Link to="/pages/faq" className="cm-link-subtle mt-6 inline-flex items-center gap-2">
           {tr.faq.viewAll}
         </Link>
       </div>

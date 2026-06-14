@@ -216,7 +216,6 @@ button.reset:not(:has(> *)) {
 }
 
 button.reset:hover:not(:has(> *)) {
-  text-decoration: underline;
   cursor: pointer;
 }
 
