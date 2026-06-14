@@ -11,6 +11,7 @@ const translations = {
     announcement:
       'მეტროში მიღება · 0 ₾ დეპოზიტი · Trusted Tier პროგრამა',
     nav: {
+      home: 'მთავარი',
       packages: 'ბილიკის კომპლექტები',
       gear: 'ინდივიდუალური აღჭურვილობა',
       howItWorks: 'როგორ მუშაობს',
@@ -236,6 +237,7 @@ const translations = {
     announcement:
       'Metro hub pickup · 0 GEL deposit · Trusted Tier rewards',
     nav: {
+      home: 'Home',
       packages: 'Trail packages',
       gear: 'Individual gear',
       howItWorks: 'How it works',

@@ -20,15 +20,23 @@ interface HeaderProps {
 
 type Viewport = 'desktop' | 'mobile';
 
+type NavItem = {
+  id: string;
+  to: string;
+  label: string;
+  end?: boolean;
+};
+
 /** Campmania primary navigation — always use branded routes, not Shopify default menu. */
-function useCampmaniaNav() {
+function useCampmaniaNav(): NavItem[] {
   const {translations: tr} = useLocale();
   return [
+    {id: 'home', to: '/', label: tr.nav.home, end: true},
     {id: 'packages', to: '/packages', label: tr.nav.packages},
     {id: 'gear', to: '/individual-gear', label: tr.nav.gear},
     {id: 'how', to: '/pages/how-it-works', label: tr.nav.howItWorks},
     {id: 'faq', to: '/pages/faq', label: tr.nav.faq},
-  ] as const;
+  ];
 }
 
 export function Header({
@@ -61,6 +69,7 @@ export function Header({
             <NavLink
               key={item.id}
               to={item.to}
+              end={item.end}
               prefetch="intent"
               className={({isActive}) =>
                 `cm-nav-link ${isActive ? 'cm-nav-link-active' : ''}`
@@ -106,6 +115,7 @@ export function HeaderMenu({
         <NavLink
           key={item.id}
           to={item.to}
+          end={item.end}
           onClick={close}
           prefetch="intent"
           className={({isActive}) =>
