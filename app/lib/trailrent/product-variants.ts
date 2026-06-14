@@ -104,12 +104,12 @@ export function coalesceMetafieldValue(
 }
 
 export function metafieldValueByKeys(
-  metafields: Array<{key: string; value?: string | null}> | null | undefined,
+  metafields: Array<{key: string; value?: string | null} | null> | null | undefined,
   keys: string[],
 ): string | undefined {
   if (!metafields?.length) return undefined;
   for (const key of keys) {
-    const hit = metafields.find((field) => field.key === key);
+    const hit = metafields.find((field) => field?.key === key);
     if (hit?.value != null && hit.value.trim() !== '') return hit.value;
   }
   return undefined;
