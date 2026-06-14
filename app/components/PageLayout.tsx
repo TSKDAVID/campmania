@@ -36,7 +36,6 @@ export function PageLayout({
 }: PageLayoutProps) {
   return (
     <Aside.Provider>
-      <AnnouncementBar />
       <CartAside cart={cart} />
       <SearchAside />
       <MobileMenuAside
@@ -44,14 +43,17 @@ export function PageLayout({
         publicStoreDomain={publicStoreDomain}
         isLoggedIn={isLoggedIn}
       />
-      {header && (
-        <Header
-          header={header}
-          cart={cart}
-          isLoggedIn={isLoggedIn}
-          publicStoreDomain={publicStoreDomain}
-        />
-      )}
+      <div className="cm-site-top">
+        <AnnouncementBar />
+        {header ? (
+          <Header
+            header={header}
+            cart={cart}
+            isLoggedIn={isLoggedIn}
+            publicStoreDomain={publicStoreDomain}
+          />
+        ) : null}
+      </div>
       <main>{children}</main>
       <Footer
         footer={footer}

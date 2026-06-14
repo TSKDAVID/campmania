@@ -10,8 +10,10 @@ export function AnnouncementBar() {
   const {translations} = useLocale();
 
   return (
-    <div className="border-b border-amber/20 bg-forest text-center text-xs font-medium tracking-wide text-sage md:text-sm">
-      <div className="tr-page-width py-2.5">{translations.announcement}</div>
+    <div className="cm-announcement-bar" role="note" aria-label={translations.announcement}>
+      <div className="tr-page-width cm-announcement-bar-inner">
+        {translations.announcement}
+      </div>
     </div>
   );
 }

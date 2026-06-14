@@ -14,6 +14,8 @@
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-label: 'DM Sans', system-ui, sans-serif;
   --header-height: 72px;
+  --announcement-height: 2.5rem;
+  --site-top-height: calc(var(--announcement-height) + var(--header-height));
 }
 
 @layer base {
@@ -106,9 +108,23 @@
     @apply text-sm font-semibold text-moss transition hover:text-forest no-underline hover:no-underline;
   }
 
-  /* ── Site header ─────────────────────────────────────────────────────── */
+  /* ── Site header + announcement ──────────────────────────────────────── */
+  .cm-site-top {
+    @apply sticky top-0 z-50;
+  }
+
+  .cm-announcement-bar {
+    @apply border-b border-amber/20 bg-forest text-center text-xs font-medium tracking-wide text-sage md:text-sm;
+    min-height: var(--announcement-height);
+    font-family: var(--font-label);
+  }
+
+  .cm-announcement-bar-inner {
+    @apply flex min-h-[var(--announcement-height)] items-center justify-center px-5 py-2 md:px-8;
+  }
+
   .cm-site-header {
-    @apply sticky top-0 z-50 border-b border-white/10 bg-pine/95 text-mist backdrop-blur-md;
+    @apply border-b border-white/10 bg-pine/95 text-mist backdrop-blur-md;
     min-height: var(--header-height);
   }
 
@@ -140,11 +156,11 @@
   }
 
   .cm-filter-panel-inline {
-    @apply lg:sticky lg:top-[calc(var(--header-height)+1rem)];
+    @apply lg:sticky lg:top-[calc(var(--site-top-height)+1rem)];
   }
 
   .cm-filter-panel:not(.cm-filter-panel-inline) {
-    @apply mb-6 lg:sticky lg:top-[calc(var(--header-height)+1rem)] lg:mb-0;
+    @apply mb-6 lg:sticky lg:top-[calc(var(--site-top-height)+1rem)] lg:mb-0;
   }
 
   .cm-filter-panel-header {
@@ -355,7 +371,7 @@
   }
 
   .cm-product-layout-media {
-    @apply lg:sticky lg:top-[calc(var(--header-height)+1.5rem)] lg:self-start;
+    @apply lg:sticky lg:top-[calc(var(--site-top-height)+1.5rem)] lg:self-start;
   }
 
   .cm-product-layout-details {
