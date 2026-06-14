@@ -207,7 +207,7 @@
 
   /* ── Catalog filters ─────────────────────────────────────────────────── */
   .cm-filter-panel {
-    @apply relative overflow-hidden rounded-xl border border-stone/80 bg-white shadow-sm;
+    @apply relative overflow-hidden rounded-xl border border-stone bg-mist shadow-sm;
     z-index: 30;
   }
 
@@ -220,24 +220,41 @@
   @media (min-width: 1024px) {
     .cm-catalog-filters-sticky {
       position: sticky;
-      top: calc(var(--site-top-height) + 0.5rem);
+      top: var(--header-height);
       z-index: 40;
-      padding-bottom: 0.25rem;
-      background-color: #ffffff;
+      margin-bottom: 0.75rem;
+      padding: 0;
+      background-color: transparent;
+      border-bottom: none;
+      box-shadow: none;
+    }
+
+    .cm-catalog-filters-sticky::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 100vw;
+      margin-left: -50vw;
+      background-color: var(--color-mist);
+      border-bottom: 1px solid var(--color-stone);
+      box-shadow: 0 4px 12px -4px rgb(13 40 24 / 0.1);
     }
   }
 
   .cm-filter-panel-inline {
-    @apply w-full rounded-lg border-stone/60 shadow-none;
+    @apply w-full rounded-lg border-stone bg-mist shadow-none;
   }
 
   @media (max-width: 1023px) {
     .cm-filter-panel-inline {
-      @apply rounded-none border-0 bg-transparent shadow-none;
+      @apply rounded-lg border-stone bg-mist shadow-sm;
     }
 
     .cm-filter-panel-inline .cm-filter-panel-body {
-      @apply p-0;
+      @apply p-2;
     }
 
     .cm-filter-panel-inline .cm-filter-pill {
@@ -246,8 +263,12 @@
   }
 
   @media (min-width: 1024px) {
+    .cm-catalog-filters-sticky .cm-filter-panel-inline {
+      @apply rounded-none border-0 bg-transparent shadow-none;
+    }
+
     .cm-filter-panel-inline .cm-filter-panel-body {
-      @apply p-2.5;
+      @apply px-1 py-2.5;
     }
 
     .cm-filter-panel-inline .cm-filter-pills {
@@ -403,7 +424,7 @@
   }
 
   .cm-filter-pill {
-    @apply rounded-md border border-stone bg-white px-2.5 py-1.5 text-xs font-semibold text-charcoal transition hover:border-moss/50 hover:text-forest;
+    @apply rounded-md border border-stone/90 bg-white px-2.5 py-1.5 text-xs font-semibold text-charcoal shadow-sm shadow-pine/5 transition hover:border-moss/60 hover:text-forest;
     font-family: var(--font-label);
   }
 
