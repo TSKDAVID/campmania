@@ -27,6 +27,7 @@ import {buildRentToOwnOffer} from '~/lib/trailrent/rent-to-own';
 import {isTrustedTier} from '~/lib/trailrent/loyalty';
 import {
   collectProductVariants,
+  coalesceMetafieldValue,
   resolveFulfillmentVariants,
 } from '~/lib/trailrent/product-variants';
 
@@ -105,17 +106,35 @@ export default function Product() {
     const variants = collectProductVariants(product);
     return resolveFulfillmentVariants({
       variants,
-      availableForPurchaseMeta: product.availableForPurchase?.value,
+      availableForPurchaseMeta: coalesceMetafieldValue(
+        product.availableForPurchase?.value,
+        product.availableForPurchaseAlt?.value,
+      ),
+      purchasePriceMeta: coalesceMetafieldValue(
+        product.purchasePriceMeta?.value,
+        product.purchasePriceMetaAlt?.value,
+      ),
     });
   }, [product]);
 
   const rentVariant = fulfillment?.rentVariant;
   const buyVariant = fulfillment?.buyVariant;
   const buyAvailable = fulfillment?.buyAvailable ?? false;
+  const buyCheckoutReady = fulfillment?.buyCheckoutReady ?? false;
 
   const {title, descriptionHtml, id: productId, tags = []} = product;
   const dailyRate = Number(rentVariant?.price?.amount ?? 0);
-  const purchasePrice = Number(buyVariant?.price?.amount ?? 0);
+  const purchasePrice = fulfillment?.purchasePrice ?? 0;
+  const buyPriceMoney: MoneyV2 | undefined =
+    purchasePrice > 0
+      ? {
+          amount: String(purchasePrice),
+          currencyCode:
+            (buyVariant?.price.currencyCode ??
+              rentVariant?.price.currencyCode ??
+              'GEL') as MoneyV2['currencyCode'],
+        }
+      : undefined;
   const compareAt = Number(rentVariant?.compareAtPrice?.amount ?? 0);
   const includedItems = parseIncludedItems(product.includedItems);
   const kitSummary = product.kitSummary?.value?.trim();
@@ -138,6 +157,7 @@ export default function Product() {
         rentVariantId: rentVariant.id,
         buyVariantId: buyVariant?.id,
         buyAvailable,
+        buyCheckoutReady,
         productTitle: title,
         dailyRate,
         purchasePrice,
@@ -176,7 +196,7 @@ export default function Product() {
               <ProductPriceBlock
                 fulfillmentMode={fulfillmentMode}
                 rentPrice={rentVariant?.price as MoneyV2 | undefined}
-                buyPrice={buyVariant?.price as MoneyV2 | undefined}
+                buyPrice={buyPriceMoney}
                 buyAvailable={buyAvailable}
                 compareAtPrice={rentVariant?.compareAtPrice as MoneyV2 | null | undefined}
                 savingsPercent={savingsPercent}
@@ -322,7 +342,16 @@ const PRODUCT_FRAGMENT = `#graphql
     kitSummary: metafield(namespace: "custom", key: "kit_summary") {
       value
     }
-    availableForPurchase: metafield(namespace: "custom", key: "available_for_purchase") {
+    availableForPurchase: metafield(namespace: "custom", key: "available-to-purchase") {
+      value
+    }
+    availableForPurchaseAlt: metafield(namespace: "custom", key: "available_for_purchase") {
+      value
+    }
+    purchasePriceMeta: metafield(namespace: "custom", key: "purchase-price") {
+      value
+    }
+    purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
       value
     }
   }

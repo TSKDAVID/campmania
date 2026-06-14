@@ -67,7 +67,16 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
     kitSummary: metafield(namespace: "custom", key: "kit_summary") {
       value
     }
-    availableForPurchase: metafield(namespace: "custom", key: "available_for_purchase") {
+    availableForPurchase: metafield(namespace: "custom", key: "available-to-purchase") {
+      value
+    }
+    availableForPurchaseAlt: metafield(namespace: "custom", key: "available_for_purchase") {
+      value
+    }
+    purchasePriceMeta: metafield(namespace: "custom", key: "purchase-price") {
+      value
+    }
+    purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
       value
     }
   }

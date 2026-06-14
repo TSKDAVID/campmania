@@ -148,6 +148,8 @@ const translations = {
       addToCartBuy: 'კალათაში დამატება',
       rtoCheckoutNote:
         'ქირის კრედიტი გადაირიცხება შეკვეთის დადასტურების შემდეგ.',
+      buyVariantSetupHint:
+        'შენიშვნა: checkout-ზე სწორი ფასისთვის Shopify-ში დაამატეთ Buy ვარიანტი ₾250-ით.',
       buyNowDiscount: 'ქირის ფასის ფასდაკლებით',
       rentalCredit: 'ქირის კრედიტი',
       addToCart: 'კალათაში დამატება',
@@ -389,6 +391,8 @@ const translations = {
       addToCartBuy: 'Add to cart',
       rtoCheckoutNote:
         'Your rental credit will be applied after we confirm the order.',
+      buyVariantSetupHint:
+        'Note: add a Buy variant at this price in Shopify so checkout charges the correct amount.',
       buyNowDiscount: 'with rental credit applied',
       rentalCredit: 'Rental credit',
       addToCart: 'Add to cart',

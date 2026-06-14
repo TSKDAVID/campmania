@@ -27,6 +27,8 @@ export type RentalProductFormProps = {
   rentVariantId: string;
   buyVariantId?: string;
   buyAvailable: boolean;
+  /** Dedicated Buy variant exists — checkout charges correct purchase price. */
+  buyCheckoutReady?: boolean;
   productTitle: string;
   dailyRate: number;
   purchasePrice: number;
@@ -47,8 +49,9 @@ function buildLineAttributes(options: {
   metroId: string;
   rentalCredit?: number;
   rentalDays?: number;
+  quotedPurchasePrice?: number;
 }): Array<{key: string; value: string}> {
-  const {mode, startDate, endDate, metroId, rentalCredit, rentalDays} = options;
+  const {mode, startDate, endDate, metroId, rentalCredit, rentalDays, quotedPurchasePrice} = options;
   const isPurchase = mode === 'purchase';
 
   const attributes: Array<{key: string; value: string}> = [
@@ -62,6 +65,12 @@ function buildLineAttributes(options: {
       attributes.push({
         key: 'rental_credit_applied',
         value: String(rentalCredit),
+      });
+    }
+    if (quotedPurchasePrice != null && quotedPurchasePrice > 0) {
+      attributes.push({
+        key: 'quoted_purchase_price',
+        value: String(quotedPurchasePrice),
       });
     }
   } else {
@@ -79,6 +88,7 @@ export function RentalProductForm({
   rentVariantId,
   buyVariantId,
   buyAvailable,
+  buyCheckoutReady = false,
   productTitle,
   dailyRate,
   purchasePrice,
@@ -97,7 +107,7 @@ export function RentalProductForm({
   const [metroId, setMetroId] = useState(METRO_STATIONS[0]?.id ?? '');
   const [mode, setMode] = useState<FulfillmentMode>('rent');
 
-  const showBuyToggle = buyAvailable && Boolean(buyVariantId);
+  const showBuyToggle = buyAvailable && purchasePrice > 0;
   const isRentMode = mode === 'rent';
   const hasRentToOwnCredit =
     rentToOwnOffer?.eligible === true &&
@@ -134,6 +144,8 @@ export function RentalProductForm({
           metroId,
           rentalCredit: hasRentToOwnCredit ? rentToOwnOffer?.rentalCredit : undefined,
           rentalDays: rentalPricing.days,
+          quotedPurchasePrice:
+            !isRentMode && !buyVariantId ? purchasePrice : undefined,
         }),
       },
     ],
@@ -152,7 +164,7 @@ export function RentalProductForm({
 
   const canSubmit = isRentMode
     ? datesValid
-    : showBuyToggle && Boolean(buyVariantId);
+    : showBuyToggle && purchasePrice > 0;
 
   const displayTotal = isRentMode ? rentalPricing.total : buyDisplayTotal;
 
@@ -224,6 +236,11 @@ export function RentalProductForm({
               ) : (
                 <p className="mt-1 text-sm text-muted">{tr.booking.buyIncludesPickup}</p>
               )}
+              {!buyCheckoutReady && purchasePrice > 0 ? (
+                <p className="mt-2 text-xs leading-relaxed text-amber-800">
+                  {tr.booking.buyVariantSetupHint}
+                </p>
+              ) : null}
             </div>
           )}
 

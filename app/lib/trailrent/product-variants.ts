@@ -51,11 +51,54 @@ export function parseAvailableForPurchase(
 ): boolean | undefined {
   if (value == null || value.trim() === '') return undefined;
   const normalized = value.trim().toLowerCase();
-  if (normalized === 'true' || normalized === '1' || normalized === 'yes') {
+  if (
+    normalized === 'true' ||
+    normalized === '1' ||
+    normalized === 'yes' ||
+    normalized === 'on'
+  ) {
     return true;
   }
-  if (normalized === 'false' || normalized === '0' || normalized === 'no') {
+  if (
+    normalized === 'false' ||
+    normalized === '0' ||
+    normalized === 'no' ||
+    normalized === 'off'
+  ) {
     return false;
+  }
+  return undefined;
+}
+
+/** Parse Shopify money metafield (JSON or plain number). */
+export function parsePurchasePriceMetafield(
+  value?: string | null,
+): number | undefined {
+  if (value == null || value.trim() === '') return undefined;
+
+  const trimmed = value.trim();
+  try {
+    const parsed = JSON.parse(trimmed) as {
+      amount?: string | number;
+      currency_code?: string;
+    };
+    if (parsed.amount != null) {
+      const amount = Number(parsed.amount);
+      return Number.isFinite(amount) && amount > 0 ? amount : undefined;
+    }
+  } catch {
+    // plain number string
+  }
+
+  const amount = Number(trimmed.replace(/[^\d.]/g, ''));
+  return Number.isFinite(amount) && amount > 0 ? amount : undefined;
+}
+
+export function coalesceMetafieldValue(
+  ...values: Array<string | null | undefined>
+): string | null | undefined {
+  for (const value of values) {
+    if (value != null && value.trim() !== '') return value;
   }
   return undefined;
 }
@@ -106,26 +149,44 @@ export type ResolvedFulfillmentVariants = {
   rentVariant: FulfillmentVariantNode;
   buyVariant?: FulfillmentVariantNode;
   buyAvailable: boolean;
+  /** Purchase price from Buy variant or purchase-price metafield. */
+  purchasePrice: number;
+  /** True when checkout can charge the buy price via a dedicated Buy variant. */
+  buyCheckoutReady: boolean;
 };
 
 export function resolveFulfillmentVariants(options: {
   variants: FulfillmentVariantNode[];
   availableForPurchaseMeta?: string | null;
+  purchasePriceMeta?: string | null;
 }): ResolvedFulfillmentVariants | null {
   const rentVariant = pickRentVariant(options.variants);
   if (!rentVariant) return null;
 
   const buyVariant = pickBuyVariant(options.variants, rentVariant);
   const metaFlag = parseAvailableForPurchase(options.availableForPurchaseMeta);
+  const purchasePriceFromMeta = parsePurchasePriceMetafield(
+    options.purchasePriceMeta,
+  );
   const hasDistinctBuy =
     Boolean(buyVariant) && buyVariant!.id !== rentVariant.id;
   const buyInStock = buyVariant?.availableForSale !== false;
+  const purchasePriceFromVariant = hasDistinctBuy
+    ? Number(buyVariant!.price.amount)
+    : 0;
+
+  const purchasePrice =
+    purchasePriceFromVariant > 0
+      ? purchasePriceFromVariant
+      : (purchasePriceFromMeta ?? 0);
 
   let buyAvailable = false;
   if (metaFlag === false) {
     buyAvailable = false;
   } else if (metaFlag === true) {
-    buyAvailable = hasDistinctBuy && buyInStock;
+    buyAvailable =
+      (hasDistinctBuy && buyInStock) ||
+      (purchasePriceFromMeta != null && purchasePriceFromMeta > 0);
   } else {
     buyAvailable = hasDistinctBuy && buyInStock;
   }
@@ -134,6 +195,8 @@ export function resolveFulfillmentVariants(options: {
     rentVariant,
     buyVariant: hasDistinctBuy ? buyVariant : undefined,
     buyAvailable,
+    purchasePrice,
+    buyCheckoutReady: hasDistinctBuy && buyInStock,
   };
 }
 
