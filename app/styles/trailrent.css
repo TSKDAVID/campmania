@@ -968,7 +968,38 @@
   }
 
   .cm-product-price {
-    @apply pt-1;
+    @apply pt-2;
+  }
+
+  .cm-product-price-dual {
+    @apply grid gap-3 sm:grid-cols-2 sm:gap-4;
+  }
+
+  .cm-product-price-chip {
+    @apply rounded-xl border border-stone/70 bg-white px-4 py-3 shadow-sm;
+  }
+
+  .cm-product-price-chip--active {
+    @apply border-pine/35 bg-pine/5 ring-1 ring-pine/15;
+  }
+
+  .cm-product-price-chip--buy.cm-product-price-chip--active {
+    @apply border-amber/50 bg-amber/10 ring-amber/25;
+  }
+
+  .cm-product-price-chip-label {
+    @apply block text-xs font-semibold uppercase tracking-wide text-muted;
+    font-family: var(--font-label);
+  }
+
+  .cm-product-price-chip-value {
+    @apply mt-1 text-2xl font-bold leading-none tracking-tight text-forest tabular-nums md:text-3xl;
+    font-family: var(--font-body);
+  }
+
+  .cm-product-price-chip-unit {
+    @apply ml-1 text-sm font-medium text-muted md:text-base;
+    font-family: var(--font-body);
   }
 
   .cm-price-amount {
@@ -1182,9 +1213,41 @@
     @apply mt-0;
   }
 
+  .cm-rental-form-fields .cm-rental-mode-slot {
+    @apply mt-0;
+  }
+
   .cm-rental-form-fields .cm-rental-field,
   .cm-rental-form-fields .cm-rental-rto-banner {
     @apply mt-5;
+  }
+
+  .cm-rental-form-fields .cm-rental-field--mode {
+    @apply mt-0;
+  }
+
+  /* Keep card height stable when switching rent / buy */
+  .cm-rental-mode-slot {
+    display: grid;
+    grid-template: 1fr / 1fr;
+  }
+
+  .cm-rental-mode-panel {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .cm-rental-mode-panel--active {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .cm-rental-form-fields .cm-rental-rto-banner {
+    @apply mt-0;
   }
 
   .cm-rental-form-checkout {
@@ -1257,14 +1320,26 @@
     @apply mt-5 space-y-2 rounded-xl border border-stone/70 bg-mist/40 p-4;
   }
 
+  .cm-rental-summary-rows {
+    min-height: 3.25rem;
+  }
+
   .cm-rental-summary-row {
-    @apply flex justify-between text-sm text-muted;
+    @apply flex justify-between gap-3 text-sm text-muted;
     font-family: var(--font-body);
   }
 
+  .cm-rental-summary-amount {
+    @apply shrink-0 font-semibold tabular-nums text-charcoal;
+  }
+
   .cm-rental-summary-total {
-    @apply flex justify-between border-t border-stone/80 pt-3 text-base font-semibold text-pine;
+    @apply flex justify-between gap-3 border-t border-stone/80 pt-3 text-base font-semibold text-pine;
     font-family: var(--font-body);
+  }
+
+  .cm-rental-summary-total-amount {
+    @apply shrink-0 text-xl font-bold tabular-nums text-forest;
   }
 
   .cm-rental-summary-total span:last-child {

@@ -18,7 +18,8 @@ export function calculateRentalTotal(
 }
 
 export function formatGel(amount: number): string {
-  return `₾${amount.toFixed(0)}`;
+  const hasCents = Math.round(amount * 100) % 100 !== 0;
+  return `₾${amount.toFixed(hasCents ? 2 : 0)}`;
 }
 
 export function getDefaultDateRange(): {start: string; end: string} {

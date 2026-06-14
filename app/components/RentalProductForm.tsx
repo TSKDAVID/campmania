@@ -208,41 +208,51 @@ export function RentalProductForm({
 
       <div className="cm-rental-form-body">
         <div className="cm-rental-form-fields">
-          {isRentMode ? (
-            <div className="cm-rental-field">
-              <RentalDateRangePicker
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-              />
+          <div className="cm-rental-mode-slot">
+            <div
+              className={`cm-rental-mode-panel${isRentMode ? ' cm-rental-mode-panel--active' : ''}`}
+              aria-hidden={!isRentMode}
+            >
+              <div className="cm-rental-field cm-rental-field--mode">
+                <RentalDateRangePicker
+                  startDate={startDate}
+                  endDate={endDate}
+                  onStartDateChange={setStartDate}
+                  onEndDateChange={setEndDate}
+                />
+              </div>
             </div>
-          ) : (
-            <div className="cm-rental-rto-banner">
-              <p className="text-sm font-semibold text-pine">
-                {tr.booking.buyOutright} {formatGel(buyDisplayTotal)}
-              </p>
-              {hasRentToOwnCredit ? (
-                <>
-                  <p className="mt-1 text-sm text-muted">
-                    {tr.booking.rentalCredit}: −
-                    {formatGel(rentToOwnOffer!.rentalCredit)} ·{' '}
-                    {tr.booking.buyNowDiscount}
-                  </p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">
-                    {tr.booking.rtoCheckoutNote}
-                  </p>
-                </>
-              ) : (
-                <p className="mt-1 text-sm text-muted">{tr.booking.buyIncludesPickup}</p>
-              )}
-              {!buyCheckoutReady && purchasePrice > 0 ? (
-                <p className="mt-2 text-xs leading-relaxed text-amber-800">
-                  {tr.booking.buyVariantSetupHint}
+            <div
+              className={`cm-rental-mode-panel${!isRentMode ? ' cm-rental-mode-panel--active' : ''}`}
+              aria-hidden={isRentMode}
+            >
+              <div className="cm-rental-rto-banner cm-rental-field--mode">
+                <p className="text-sm font-semibold text-pine">
+                  {tr.booking.buyOutright}{' '}
+                  <span className="text-lg tabular-nums">{formatGel(buyDisplayTotal)}</span>
                 </p>
-              ) : null}
+                {hasRentToOwnCredit ? (
+                  <>
+                    <p className="mt-1 text-sm text-muted">
+                      {tr.booking.rentalCredit}: −
+                      {formatGel(rentToOwnOffer!.rentalCredit)} ·{' '}
+                      {tr.booking.buyNowDiscount}
+                    </p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted">
+                      {tr.booking.rtoCheckoutNote}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-sm text-muted">{tr.booking.buyIncludesPickup}</p>
+                )}
+                {!buyCheckoutReady && purchasePrice > 0 ? (
+                  <p className="mt-2 text-xs leading-relaxed text-amber-800">
+                    {tr.booking.buyVariantSetupHint}
+                  </p>
+                ) : null}
+              </div>
             </div>
-          )}
+          </div>
 
           <div className="cm-rental-field">
             <label htmlFor="rental-metro-select" className="cm-form-label">
@@ -273,34 +283,40 @@ export function RentalProductForm({
 
         <div className="cm-rental-form-checkout">
           <div className="cm-rental-summary">
-            {isRentMode ? (
-              <>
+            <div className="cm-rental-summary-rows">
+              {isRentMode ? (
+                <>
+                  <div className="cm-rental-summary-row">
+                    <span>{tr.booking.dailyRate}</span>
+                    <span className="cm-rental-summary-amount">{formatGel(dailyRate)}</span>
+                  </div>
+                  <div className="cm-rental-summary-row">
+                    <span>
+                      {rentalPricing.days} {tr.booking.days}
+                    </span>
+                    <span className="cm-rental-summary-amount">
+                      {formatGel(rentalPricing.subtotal)}
+                    </span>
+                  </div>
+                </>
+              ) : (
                 <div className="cm-rental-summary-row">
-                  <span>{tr.booking.dailyRate}</span>
-                  <span>{formatGel(dailyRate)}</span>
+                  <span>{tr.booking.purchasePrice}</span>
+                  <span className="cm-rental-summary-amount">{formatGel(purchasePrice)}</span>
                 </div>
-                <div className="cm-rental-summary-row">
-                  <span>
-                    {rentalPricing.days} {tr.booking.days}
-                  </span>
-                  <span>{formatGel(rentalPricing.subtotal)}</span>
-                </div>
-              </>
-            ) : (
-              <div className="cm-rental-summary-row">
-                <span>{tr.booking.purchasePrice}</span>
-                <span>{formatGel(purchasePrice)}</span>
-              </div>
-            )}
+              )}
+            </div>
             {hasRentToOwnCredit && !isRentMode ? (
               <div className="cm-rental-summary-row text-moss">
                 <span>{tr.booking.rentalCredit}</span>
-                <span>−{formatGel(rentToOwnOffer!.rentalCredit)}</span>
+                <span className="cm-rental-summary-amount">
+                  −{formatGel(rentToOwnOffer!.rentalCredit)}
+                </span>
               </div>
             ) : null}
             <div className="cm-rental-summary-total">
               <span>{tr.booking.total}</span>
-              <span>{formatGel(displayTotal)}</span>
+              <span className="cm-rental-summary-total-amount">{formatGel(displayTotal)}</span>
             </div>
           </div>
 

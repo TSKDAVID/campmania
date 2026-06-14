@@ -1,5 +1,4 @@
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
-import {Money} from '@shopify/hydrogen';
 import {useLocale} from '~/providers/LocaleProvider';
 import {formatGel} from '~/lib/trailrent/pricing';
 import type {FulfillmentMode} from '~/components/RentalProductForm';
@@ -10,6 +9,12 @@ import {
   IconShield,
   IconStar,
 } from '~/components/trailrent/Icons';
+
+function moneyAmount(price?: MoneyV2): number | undefined {
+  if (!price?.amount) return undefined;
+  const amount = Number(price.amount);
+  return Number.isFinite(amount) ? amount : undefined;
+}
 
 export function ProductPriceBlock({
   fulfillmentMode = 'rent',
@@ -27,37 +32,58 @@ export function ProductPriceBlock({
   savingsPercent?: number;
 }) {
   const {translations: tr} = useLocale();
-  const compareAt = compareAtPrice
-    ? Number(compareAtPrice.amount)
-    : undefined;
-  const buyAmount = buyPrice ? Number(buyPrice.amount) : undefined;
+  const rentAmount = moneyAmount(rentPrice);
+  const buyAmount = moneyAmount(buyPrice);
+  const compareAt = moneyAmount(compareAtPrice ?? undefined);
   const isPurchase = fulfillmentMode === 'purchase';
+  const showKitCompare =
+    compareAt != null &&
+    compareAt > 0 &&
+    !buyAvailable &&
+    rentAmount != null &&
+    compareAt > rentAmount;
+
+  if (buyAvailable && buyAmount != null && rentAmount != null) {
+    return (
+      <div className="cm-product-price" aria-label="Price" role="group">
+        <div className="cm-product-price-dual">
+          <div
+            className={`cm-product-price-chip${!isPurchase ? ' cm-product-price-chip--active' : ''}`}
+          >
+            <span className="cm-product-price-chip-label">{tr.booking.modeRent}</span>
+            <p className="cm-product-price-chip-value">
+              {formatGel(rentAmount)}
+              <span className="cm-product-price-chip-unit">{tr.product.perDay}</span>
+            </p>
+          </div>
+          <div
+            className={`cm-product-price-chip cm-product-price-chip--buy${isPurchase ? ' cm-product-price-chip--active' : ''}`}
+          >
+            <span className="cm-product-price-chip-label">{tr.booking.modeBuy}</span>
+            <p className="cm-product-price-chip-value">{formatGel(buyAmount)}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="cm-product-price" aria-label="Price" role="group">
       <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-        {isPurchase && buyPrice ? (
+        {isPurchase && buyAmount != null ? (
+          <p className="cm-price-amount">{formatGel(buyAmount)}</p>
+        ) : rentAmount != null ? (
           <p className="cm-price-amount">
-            <Money data={buyPrice} />
-          </p>
-        ) : rentPrice ? (
-          <p className="cm-price-amount">
-            <Money data={rentPrice} />
+            {formatGel(rentAmount)}
             <span className="cm-price-suffix">{tr.product.perDay}</span>
           </p>
         ) : null}
-        {compareAtPrice && compareAt && compareAt > 0 && !isPurchase ? (
+        {showKitCompare && compareAtPrice ? (
           <p className="pb-1 text-lg text-muted line-through">
-            <Money data={compareAtPrice} />
+            {formatGel(compareAt!)}
           </p>
         ) : null}
       </div>
-      {buyAvailable && buyAmount && !isPurchase ? (
-        <p className="cm-product-buy-hint">
-          {tr.product.orBuyFor}{' '}
-          <span className="font-semibold text-forest">{formatGel(buyAmount)}</span>
-        </p>
-      ) : null}
       {savingsPercent && !isPurchase ? (
         <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber/20 px-3.5 py-1.5 text-sm font-semibold text-pine">
           <span className="rounded-full bg-amber px-2 py-0.5 text-xs font-bold text-pine">

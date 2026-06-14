@@ -160,7 +160,9 @@ export default function Product() {
   const isPackage =
     includedItems.length > 0 || tags.some((t: string) => t.startsWith('trek-'));
   const savingsPercent =
-    compareAt > dailyRate && compareAt > 0
+    !buyAvailable &&
+    compareAt > dailyRate &&
+    compareAt > 0
       ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
       : undefined;
 
