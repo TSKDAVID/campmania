@@ -53,21 +53,15 @@ export function PageBanner({
   compact?: boolean;
 }) {
   return (
-    <section className="border-b border-white/10 bg-gradient-to-br from-pine via-forest to-pine text-mist">
-      <div
-        className={`tr-page-width ${compact ? 'py-8 md:py-10' : 'py-10 md:py-14'}`}
-      >
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            {eyebrow ? <p className="tr-eyebrow text-amber">{eyebrow}</p> : null}
-            <h1 className="mt-2 font-display text-3xl font-bold md:text-[2.25rem]">
-              {title}
-            </h1>
+    <section className={`cm-page-banner${compact ? ' cm-page-banner--compact' : ''}`}>
+      <div className="tr-page-width cm-page-banner-inner">
+        <div className="cm-page-banner-row">
+          <div className="min-w-0">
+            {eyebrow ? <p className="cm-page-banner-eyebrow">{eyebrow}</p> : null}
+            <h1 className="cm-page-banner-title">{title}</h1>
           </div>
           {subtitle ? (
-            <p className="max-w-md text-base leading-relaxed text-mist/80 md:text-right md:text-sm">
-              {subtitle}
-            </p>
+            <p className="cm-page-banner-subtitle">{subtitle}</p>
           ) : null}
         </div>
       </div>

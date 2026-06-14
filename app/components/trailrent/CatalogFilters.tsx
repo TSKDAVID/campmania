@@ -131,7 +131,7 @@ export function GearFiltersBar({
   const active = params.get(paramName);
 
   return (
-    <div className="cm-filter-panel cm-filter-panel-inline mb-6">
+    <div className="cm-filter-panel cm-filter-panel-inline">
       <div className="cm-filter-panel-header">
         <div className="flex items-center gap-2.5">
           <span className="cm-filter-panel-icon" aria-hidden>

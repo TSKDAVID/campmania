@@ -18,10 +18,10 @@ const PROMO_IMAGE =
   'https://images.unsplash.com/photo-1478131143081-80f7f84b84c7?auto=format&fit=crop&w=2000&q=80';
 
 const PACKAGE_TILE_IMAGE =
-  'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=80';
+  'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=75';
 
 const GEAR_TILE_IMAGE =
-  'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=1200&q=80';
+  'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=800&q=75';
 
 const HOME_CATEGORIES = [
   {
@@ -199,7 +199,14 @@ export function HomeShopTiles() {
       <div className="cm-home-tile-grid">
         {tiles.map((tile) => (
           <Link key={tile.to} to={tile.to} className={`cm-home-tile ${tile.accent}`}>
-            <img src={tile.image} alt="" className="cm-home-tile-image" loading="lazy" />
+            <img
+              src={tile.image}
+              alt=""
+              className="cm-home-tile-image"
+              loading="eager"
+              decoding="async"
+              referrerPolicy="no-referrer"
+            />
             <div className="cm-home-tile-overlay" aria-hidden />
             <div className="cm-home-tile-body">
               <h3 className="cm-home-tile-title">{tile.title}</h3>

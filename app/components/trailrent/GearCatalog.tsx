@@ -25,7 +25,6 @@ export function GearCatalogGrid({
       <PageBanner
         eyebrow={tr.gear.eyebrow}
         title={tr.gear.title}
-        subtitle={tr.gear.subtitle}
         compact
       />
       <section className="tr-section-tight bg-white">
@@ -35,9 +34,11 @@ export function GearCatalogGrid({
               {tr.gear.shopifySetupHint}
             </p>
           ) : null}
-          <GearFiltersBar options={GEAR_FILTERS} />
+          <div className="cm-catalog-filters-sticky">
+            <GearFiltersBar options={GEAR_FILTERS} />
+          </div>
 
-          <div className="cm-catalog-grid">
+          <div className="cm-catalog-grid cm-catalog-grid--gear">
             {filtered.map((item) => {
               const productUrl = item.productHandle
                 ? `/products/${item.productHandle}`

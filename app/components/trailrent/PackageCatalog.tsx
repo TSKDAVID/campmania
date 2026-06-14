@@ -36,7 +36,7 @@ function PackageCard({
   const productUrl = pkg.productHandle ? `/products/${pkg.productHandle}` : null;
 
   return (
-    <article className="cm-kit-card group">
+    <article className="cm-kit-card cm-kit-card--package group">
       <Link
         to={productUrl ?? '#'}
         className="cm-kit-card-media relative block overflow-hidden bg-stone no-underline hover:no-underline"
@@ -107,8 +107,8 @@ function PackageCard({
           <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-moss sm:text-[11px]">
             {includedLabel}
           </p>
-          <ul className="mt-1.5 space-y-1 sm:mt-2">
-            {pkg.items.slice(0, 3).map((item) => (
+          <ul className="cm-kit-card-included-list mt-1.5 sm:mt-2">
+            {pkg.items.slice(0, 4).map((item) => (
               <li
                 key={item}
                 className="cm-kit-card-included-item flex gap-2 text-xs text-charcoal/75 sm:text-sm"
@@ -120,8 +120,10 @@ function PackageCard({
                 <span className="line-clamp-1">{item}</span>
               </li>
             ))}
-            {pkg.items.length > 3 ? (
-              <li className="text-xs text-muted">+{pkg.items.length - 3} more</li>
+            {pkg.items.length > 4 ? (
+              <li className="cm-kit-card-included-more text-xs text-muted">
+                +{pkg.items.length - 4} more
+              </li>
             ) : null}
           </ul>
         </div>
@@ -172,7 +174,6 @@ export function PackageCatalogGrid({
       <PageBanner
         eyebrow={tr.packages.eyebrow}
         title={tr.packages.title}
-        subtitle={tr.packages.subtitle}
         compact
       />
       <section className="tr-section-tight bg-mist">
@@ -201,7 +202,7 @@ export function PackageCatalogGrid({
                   </p>
                 </div>
               ) : (
-                <div className="cm-catalog-grid">
+                <div className="cm-catalog-grid cm-catalog-grid--packages">
                   {filtered.map((pkg) => (
                     <PackageCard
                       key={pkg.id}
