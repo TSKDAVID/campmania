@@ -50,7 +50,7 @@ export default function Collection() {
         <div className="tr-page-width">
           <PaginatedResourceSection<CollectionItemFragment>
             connection={products}
-            resourcesClassName="cm-product-grid"
+            resourcesClassName="cm-catalog-grid"
           >
             {({node: product, index}) => (
               <ProductItem

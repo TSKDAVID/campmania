@@ -76,11 +76,11 @@ function FeaturedProducts({
 
         <Suspense
           fallback={
-            <div className="cm-product-grid">
+            <div className="cm-catalog-grid">
               {Array.from({length: 4}).map((_, i) => (
                 <div
                   key={i}
-                  className="aspect-[4/5] animate-pulse rounded-2xl bg-stone/60"
+                  className="aspect-[3/4] animate-pulse rounded-xl bg-stone/60"
                 />
               ))}
             </div>
@@ -89,7 +89,7 @@ function FeaturedProducts({
           <Await resolve={products}>
             {(response) =>
               response?.products.nodes.length ? (
-                <div className="cm-product-grid">
+                <div className="cm-catalog-grid">
                   {response.products.nodes.map((product, index) => (
                     <ProductItem
                       key={product.id}

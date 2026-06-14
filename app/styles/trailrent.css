@@ -553,8 +553,16 @@
     @apply flex h-full flex-col;
   }
 
+  .cm-kit-card--product .cm-kit-card-link {
+    @apply flex h-full flex-col;
+  }
+
   .cm-kit-card-media {
     @apply relative flex aspect-[3/4] shrink-0 items-center justify-center overflow-hidden bg-white;
+  }
+
+  .cm-kit-card--product .cm-kit-card-media {
+    @apply bg-white;
   }
 
   .cm-kit-card--package .cm-kit-card-media {
@@ -566,7 +574,7 @@
   }
 
   .cm-kit-card-image--contain {
-    @apply object-contain px-0 py-1.5 sm:py-2;
+    @apply max-h-full w-full object-contain object-center px-1.5 py-2 sm:px-2.5 sm:py-3;
   }
 
   .cm-kit-card--package .cm-kit-card-body {
@@ -622,6 +630,10 @@
 
     .cm-kit-card--package:hover .cm-kit-card-reveal {
       grid-template-rows: 1fr;
+    }
+
+    .cm-kit-card--product:hover {
+      @apply -translate-y-0.5 shadow-md;
     }
   }
 

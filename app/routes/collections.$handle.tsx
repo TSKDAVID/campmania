@@ -74,7 +74,7 @@ export default function Collection() {
       <p className="collection-description">{collection.description}</p>
       <PaginatedResourceSection<ProductItemFragment>
         connection={collection.products}
-        resourcesClassName="cm-product-grid"
+        resourcesClassName="cm-catalog-grid"
       >
         {({node: product, index}) => (
           <ProductItem

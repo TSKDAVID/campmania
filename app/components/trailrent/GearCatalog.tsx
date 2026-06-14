@@ -3,8 +3,8 @@ import {useLocale} from '~/providers/LocaleProvider';
 import {GEAR_FILTERS} from '~/lib/trailrent/catalog';
 import type {ShopifyGearItem} from '~/lib/trailrent/shopify-catalog';
 import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
+import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {GearFiltersBar} from '~/components/trailrent/CatalogFilters';
-import {GearProductCard} from '~/components/trailrent/GearProductCard';
 
 export function GearCatalogGrid({
   gear,
@@ -33,11 +33,19 @@ export function GearCatalogGrid({
             <GearFiltersBar options={GEAR_FILTERS} />
           </div>
 
-          <div className="cm-product-grid">
+          <div className="cm-catalog-grid cm-catalog-grid--gear">
             {filtered.map((item, index) => (
-              <GearProductCard
+              <CatalogProductCard
                 key={item.id}
-                item={item}
+                to={
+                  item.productHandle
+                    ? `/products/${item.productHandle}`
+                    : null
+                }
+                title={item.title}
+                imageUrl={item.imageUrl}
+                imageAlt={item.imageAlt}
+                price={item.priceLabel}
                 loading={index < 4 ? 'eager' : 'lazy'}
               />
             ))}

@@ -1,9 +1,9 @@
-import {Link} from 'react-router';
-import {Image, Money} from '@shopify/hydrogen';
+import {Money} from '@shopify/hydrogen';
 import type {
   ProductItemFragment,
   CollectionItemFragment,
 } from 'storefrontapi.generated';
+import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {useVariantUrl} from '~/lib/variants';
 import {useLocale} from '~/providers/LocaleProvider';
 
@@ -19,44 +19,21 @@ export function ProductItem({
   const image = product.featuredImage;
 
   return (
-    <Link
-      className="cm-product-card group"
+    <CatalogProductCard
       key={product.id}
-      prefetch="intent"
       to={variantUrl}
-    >
-      <div className="cm-product-card-image">
-        {image ? (
-          <Image
-            alt={image.altText || product.title}
-            aspectRatio="4/5"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-            data={image}
-            loading={loading}
-            sizes="(min-width: 1280px) 22vw, (min-width: 1024px) 28vw, (min-width: 640px) 44vw, 48vw"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-forest/20 to-moss/30 text-sage">
-            {locale === 'ka' ? 'სურათი მალე' : 'Image coming soon'}
-          </div>
-        )}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-pine/70 to-transparent p-4 opacity-0 transition group-hover:opacity-100">
-          <span className="text-xs font-semibold uppercase tracking-wider text-mist">
-            {locale === 'ka' ? 'დეტალები →' : 'View details →'}
-          </span>
-        </div>
-      </div>
-      <div className="cm-product-card-body">
-        <h3 className="font-display font-semibold leading-snug text-pine transition group-hover:text-forest">
-          {product.title}
-        </h3>
-        <p className="mt-auto pt-2 text-xs font-semibold text-moss sm:pt-3 sm:text-sm">
+      title={product.title}
+      imageUrl={image?.url}
+      imageAlt={image?.altText ?? product.title}
+      loading={loading}
+      price={
+        <>
           <Money data={product.priceRange.minVariantPrice} />
-          <span className="ml-1 font-normal text-muted">
+          <span className="ml-1 text-sm font-normal text-muted">
             {locale === 'ka' ? '/ დღე' : '/ day'}
           </span>
-        </p>
-      </div>
-    </Link>
+        </>
+      }
+    />
   );
 }
