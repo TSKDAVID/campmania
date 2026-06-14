@@ -17,18 +17,21 @@ export function isTrustedTier(tags: string[]): boolean {
   return tags.includes(TRAIL_TESTED_TAG);
 }
 
-/** Mock loyalty — production: read customer tags + order metafields from Shopify */
+/** Mock loyalty — production: read customer tags from Shopify Customer Account API */
 export function getLoyaltyStatus(options: {
   tags?: string[];
   email?: string | null;
   demoTier?: LoyaltyTier | null;
+  /** When true, only use Shopify customer tags (logged-in production users). */
+  tagsOnly?: boolean;
 }): LoyaltyStatus {
-  const {tags = [], email, demoTier} = options;
+  const {tags = [], email, demoTier, tagsOnly = false} = options;
 
   const hasTrailTestedTag =
     tags.includes(TRAIL_TESTED_TAG) ||
-    demoTier === 'trail-tested' ||
-    email === 'trail-tested@demo.campmania.ge';
+    (!tagsOnly &&
+      (demoTier === 'trail-tested' ||
+        email === 'trail-tested@demo.campmania.ge'));
 
   if (hasTrailTestedTag) {
     return {
@@ -46,7 +49,11 @@ export function getLoyaltyStatus(options: {
   }
 
   const cleanReturns =
-    demoTier === 'explorer' ? 1 : email === 'explorer@demo.campmania.ge' ? 1 : 1;
+    !tagsOnly && demoTier === 'explorer'
+      ? 1
+      : !tagsOnly && email === 'explorer@demo.campmania.ge'
+        ? 1
+        : 1;
 
   const progressPercent = Math.round(
     (cleanReturns / RETURNS_FOR_TIER) * 100,

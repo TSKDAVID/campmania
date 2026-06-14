@@ -8,11 +8,19 @@ import {
 import type {Route} from './+types/account';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 import {useLocale} from '~/providers/LocaleProvider';
+import {
+  getLoyaltyStatus,
+  parseCustomerTags,
+} from '~/lib/trailrent/loyalty';
 
 export function shouldRevalidate() {
   return true;
 }
 
+/**
+ * Loads the authenticated Shopify customer via Customer Account API.
+ * If not logged in, redirects to Shopify OAuth (/account/login flow).
+ */
 export async function loader({context}: Route.LoaderArgs) {
   const {customerAccount} = context;
   const {data, errors} = await customerAccount.query(CUSTOMER_DETAILS_QUERY, {
@@ -22,7 +30,7 @@ export async function loader({context}: Route.LoaderArgs) {
   });
 
   if (errors?.length || !data?.customer) {
-    throw new Error('Customer not found');
+    throw await customerAccount.handleAuthStatus();
   }
 
   return remixData(
@@ -37,7 +45,11 @@ export async function loader({context}: Route.LoaderArgs) {
 
 export default function AccountLayout() {
   const {customer} = useLoaderData<typeof loader>();
-  const {locale} = useLocale();
+  const {translations: tr, locale} = useLocale();
+
+  const email = customer.emailAddress?.emailAddress ?? null;
+  const tags = parseCustomerTags(customer.tags);
+  const loyalty = getLoyaltyStatus({tags, email, tagsOnly: true});
 
   const heading = customer.firstName
     ? locale === 'ka'
@@ -51,10 +63,26 @@ export default function AccountLayout() {
     <div className="bg-mist">
       <div className="border-b border-stone bg-white">
         <div className="tr-page-width py-10 md:py-12">
-          <p className="tr-eyebrow">{locale === 'ka' ? 'ანგარიში' : 'Account'}</p>
-          <h1 className="mt-2 font-display text-3xl font-bold text-pine md:text-4xl">
-            {heading}
-          </h1>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="tr-eyebrow">{locale === 'ka' ? 'ანგარიში' : 'Account'}</p>
+              <h1 className="mt-2 font-display text-3xl font-bold text-pine md:text-4xl">
+                {heading}
+              </h1>
+              {email ? (
+                <p className="mt-2 text-sm text-charcoal/70">{email}</p>
+              ) : null}
+            </div>
+            <span
+              className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${
+                loyalty.isVerified
+                  ? 'bg-amber text-pine'
+                  : 'border border-stone bg-mist text-muted'
+              }`}
+            >
+              {loyalty.isVerified ? tr.loyalty.trailTested : tr.loyalty.explorer}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -89,7 +117,7 @@ function AccountMenu() {
           to={link.to}
           end={link.end}
           className={({isActive}) =>
-            `rounded-full px-4 py-2 text-sm font-semibold transition ${
+            `rounded-full px-4 py-2 text-sm font-semibold transition no-underline hover:no-underline ${
               isActive
                 ? 'bg-pine text-mist'
                 : 'bg-white text-muted hover:bg-stone/80 hover:text-charcoal'

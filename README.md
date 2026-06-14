@@ -11,7 +11,19 @@ npx shopify hydrogen env pull   # first time only — pulls Storefront API token
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000 (or the network URL shown in the terminal if port 3000 is busy).
+
+## Customer login (Shopify)
+
+Sign in uses **Shopify Customer Account API** (OAuth), not a custom password form.
+
+1. Run `npx shopify hydrogen env pull` so `.env` has `PUBLIC_CUSTOMER_ACCOUNT_API_*` vars.
+2. In **Shopify Admin → Settings → Customer accounts**, enable customer accounts and add this callback for local dev:
+   - `http://localhost:3000/account/authorize`
+3. Click **Sign in** in the header → `/account/login` → redirects to Shopify → back to `/account`.
+4. **Loyalty (Trail Tested VIP):** assign customer tag `tier:trail-tested` in **Admin → Customers**; the account dashboard reads tags via the Customer Account API.
+
+If localhost fails to load, use `npm run dev -- --host` and open the URL Vite prints (often `http://127.0.0.1:3000`).
 
 ## Connect to Shopify
 

@@ -73,17 +73,7 @@ export function Header({
         {/* Actions */}
         <div className="flex items-center gap-2 md:gap-3">
           <LanguageSwitcher />
-          <NavLink
-            prefetch="intent"
-            to="/account"
-            className="hidden text-sm font-medium text-sage transition hover:text-mist sm:inline"
-          >
-            <Suspense fallback={tr.nav.account}>
-              <Await resolve={isLoggedIn} errorElement={tr.nav.account}>
-                {(loggedIn) => (loggedIn ? tr.nav.account : tr.nav.account)}
-              </Await>
-            </Suspense>
-          </NavLink>
+          <AccountLink isLoggedIn={isLoggedIn} />
           <SearchToggle />
           <CartToggle cart={cart} />
           <HeaderMenuMobileToggle />
@@ -95,13 +85,16 @@ export function Header({
 
 export function HeaderMenu({
   viewport,
+  isLoggedIn,
 }: {
   menu?: HeaderProps['header']['menu'];
   primaryDomainUrl?: string;
   viewport: Viewport;
   publicStoreDomain?: string;
+  isLoggedIn?: Promise<boolean>;
 }) {
   const {close} = useAside();
+  const {translations: tr} = useLocale();
   const navItems = useCampmaniaNav();
 
   if (viewport === 'desktop') return null;
@@ -115,7 +108,7 @@ export function HeaderMenu({
           onClick={close}
           prefetch="intent"
           className={({isActive}) =>
-            `rounded-md px-4 py-3 text-base font-medium transition ${
+            `rounded-md px-4 py-3 text-base font-medium transition no-underline hover:no-underline ${
               isActive
                 ? 'bg-pine/10 text-pine'
                 : 'text-charcoal hover:bg-stone/50'
@@ -125,14 +118,63 @@ export function HeaderMenu({
           {item.label}
         </NavLink>
       ))}
-      <NavLink
-        to="/account"
-        onClick={close}
-        className="mt-2 rounded-md border border-stone px-4 py-3 text-center text-sm font-semibold text-pine"
-      >
-        Account
-      </NavLink>
+      {isLoggedIn ? (
+        <Suspense fallback={null}>
+          <Await resolve={isLoggedIn}>
+            {(loggedIn) => (
+              <NavLink
+                to={loggedIn ? '/account' : '/account/login'}
+                onClick={close}
+                className="mt-2 rounded-md border border-stone px-4 py-3 text-center text-sm font-semibold text-pine no-underline hover:no-underline"
+              >
+                {loggedIn ? tr.nav.account : tr.nav.signIn}
+              </NavLink>
+            )}
+          </Await>
+        </Suspense>
+      ) : (
+        <NavLink
+          to="/account/login"
+          onClick={close}
+          className="mt-2 rounded-md border border-stone px-4 py-3 text-center text-sm font-semibold text-pine no-underline hover:no-underline"
+        >
+          {tr.nav.signIn}
+        </NavLink>
+      )}
     </nav>
+  );
+}
+
+/** Sign in → Shopify OAuth. Account → dashboard when authenticated. */
+function AccountLink({isLoggedIn}: {isLoggedIn: Promise<boolean>}) {
+  const {translations: tr} = useLocale();
+
+  return (
+    <Suspense
+      fallback={
+        <span className="hidden text-sm text-sage sm:inline">{tr.nav.signIn}</span>
+      }
+    >
+      <Await resolve={isLoggedIn} errorElement={
+        <NavLink
+          prefetch="intent"
+          to="/account/login"
+          className="hidden text-sm font-medium text-sage transition hover:text-mist no-underline hover:no-underline sm:inline"
+        >
+          {tr.nav.signIn}
+        </NavLink>
+      }>
+        {(loggedIn) => (
+          <NavLink
+            prefetch="intent"
+            to={loggedIn ? '/account' : '/account/login'}
+            className="hidden text-sm font-medium text-sage transition hover:text-mist no-underline hover:no-underline sm:inline"
+          >
+            {loggedIn ? tr.nav.account : tr.nav.signIn}
+          </NavLink>
+        )}
+      </Await>
+    </Suspense>
   );
 }
 

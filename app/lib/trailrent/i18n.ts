@@ -16,6 +16,7 @@ const translations = {
       howItWorks: 'როგორ მუშაობს',
       faq: 'FAQ',
       account: 'ანგარიში',
+      signIn: 'შესვლა',
       cart: 'კალათა',
       search: 'ძიება',
     },
@@ -133,6 +134,8 @@ const translations = {
         '0 ₾ დეპოზიტი · პრიორიტეტული დაჯავშნა · უფასო აფგრეიდები',
       cleanReturns: 'სუფთა დაბრუნებები',
       demoToggle: 'დემო: Tier-ის გადართვა',
+      shopifyNote:
+        'VIP სტატუსი მოდის Shopify-ის ტეგიდან: tier:trail-tested (Admin → Customers).',
     },
     cart: {
       title: 'თქვენი ქირის კალათა',
@@ -171,6 +174,7 @@ const translations = {
       howItWorks: 'How it works',
       faq: 'FAQ',
       account: 'Account',
+      signIn: 'Sign in',
       cart: 'Cart',
       search: 'Search',
     },
@@ -289,6 +293,8 @@ const translations = {
         '0 GEL deposit · Priority booking · Free upgrades',
       cleanReturns: 'Clean returns',
       demoToggle: 'Demo: toggle tier',
+      shopifyNote:
+        'VIP status syncs from your Shopify customer tag: tier:trail-tested (Admin → Customers).',
     },
     cart: {
       title: 'Your rental cart',

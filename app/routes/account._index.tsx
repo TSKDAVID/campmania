@@ -30,7 +30,7 @@ export default function AccountDashboard() {
 
   const email = customer.emailAddress?.emailAddress ?? null;
   const tags = parseCustomerTags(customer.tags);
-  const loyalty = getLoyaltyStatus({tags, email});
+  const loyalty = getLoyaltyStatus({tags, email, tagsOnly: true});
 
   return (
     <div className="space-y-8">
@@ -134,6 +134,9 @@ function LoyaltyProgressCard({
             </li>
           ))}
         </ul>
+        <p className="mt-6 rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs leading-relaxed text-sage/90">
+          {tr.loyalty.shopifyNote}
+        </p>
       </div>
     </div>
   );
