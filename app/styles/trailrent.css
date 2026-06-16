@@ -679,7 +679,8 @@
       width: 220px;
       z-index: 12;
       opacity: 0;
-      transform: translateX(-0.5rem);
+      /* Start slightly to the right, then slide into place on hover */
+      transform: translateX(0.5rem);
       pointer-events: none;
       transition: opacity 0.22s ease, transform 0.22s ease;
     }
@@ -693,20 +694,6 @@
       opacity: 1;
       transform: translateX(0);
       pointer-events: auto;
-    }
-
-    /* Cards in even/last positions flip the reveal to the left
-       so it doesn't overflow the grid edge */
-    .cm-kit-card--package:nth-child(2n) .cm-kit-card-reveal,
-    .cm-kit-card--package:last-child .cm-kit-card-reveal {
-      left: auto;
-      right: calc(100% + 0.6rem);
-      transform: translateX(0.5rem);
-    }
-
-    .cm-kit-card--package:nth-child(2n):hover .cm-kit-card-reveal,
-    .cm-kit-card--package:last-child:hover .cm-kit-card-reveal {
-      transform: translateX(0);
     }
 
     .cm-kit-card--product:hover {
