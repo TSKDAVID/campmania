@@ -580,6 +580,18 @@
     @apply aspect-[3/4] bg-white;
   }
 
+  .cm-kit-card-includes-strip {
+    @apply -mt-2 flex min-h-0 flex-wrap gap-1.5 px-3 pb-1 sm:px-3.5;
+  }
+
+  .cm-kit-card-includes-thumb {
+    @apply flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-stone/70 bg-white text-[10px] font-semibold text-forest shadow-sm;
+  }
+
+  .cm-kit-card-includes-thumb img {
+    @apply h-full w-full object-cover;
+  }
+
   .cm-kit-card-image {
     @apply h-full w-full object-cover object-center transition duration-300 ease-out;
   }
@@ -610,6 +622,19 @@
   .cm-kit-card-title {
     @apply line-clamp-2 text-sm font-bold leading-snug text-pine sm:text-base;
     font-family: var(--font-display);
+  }
+
+  .cm-kit-card-duration-row {
+    @apply mt-2 flex flex-wrap gap-1.5;
+  }
+
+  .cm-kit-card-duration-btn {
+    @apply rounded-full border border-stone/80 bg-white px-2.5 py-1 text-[11px] font-semibold text-charcoal transition hover:border-moss/40 hover:text-forest;
+    font-family: var(--font-body);
+  }
+
+  .cm-kit-card-duration-btn--active {
+    @apply border-forest bg-forest text-mist;
   }
 
   .cm-kit-card-body {
@@ -670,7 +695,7 @@
       @apply z-10 border-moss/40 shadow-lg;
     }
 
-    /* Reveal panel floats to the right of the card */
+    /* Reveal panel floats to the right side from top edge */
     .cm-kit-card--package .cm-kit-card-reveal {
       display: block;
       position: absolute;
