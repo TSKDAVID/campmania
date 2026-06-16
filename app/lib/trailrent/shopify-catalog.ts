@@ -13,6 +13,12 @@ import {
 } from '~/lib/trailrent/catalog';
 import {formatGel} from '~/lib/trailrent/pricing';
 import {
+  parseGearBuilderMetafields,
+  capacityFromVariantTitle,
+  type GearBuilderProduct,
+  type PackageDuration,
+} from '~/lib/trailrent/gear-builder';
+import {
   pickRentVariant,
   collectProductVariants,
   type FulfillmentVariantNode,
@@ -53,7 +59,14 @@ type CatalogProductNode = {
   } | null;
   availableForPurchase?: {value: string} | null;
   includedItems?: {value: string; type: string} | null;
+  includedProductHandles?: {value: string} | null;
   kitSummary?: {value: string} | null;
+  gearItemType?: {value: string} | null;
+  gearBuilderEnabled?: {value: string} | null;
+  gearCapacityLiters?: {value: string} | null;
+  gearCapacityClass?: {value: string} | null;
+  gearDurationFit?: {value: string} | null;
+  gearThumbnailPriority?: {value: string} | null;
 };
 
 export type ShopifyPackageItem = PackageItem & {
@@ -63,6 +76,8 @@ export type ShopifyPackageItem = PackageItem & {
   imageAlt?: string;
   compareAtPrice?: number;
   savingsPercent?: number;
+  includedProductHandles: string[];
+  defaultDuration: PackageDuration;
 };
 
 export type ShopifyGearItem = GearItem & {
@@ -70,6 +85,7 @@ export type ShopifyGearItem = GearItem & {
   variantId?: string;
   imageUrl?: string;
   imageAlt?: string;
+  builderProduct: GearBuilderProduct;
 };
 
 function tagValue(tags: string[], prefix: string): string | undefined {
@@ -104,6 +120,22 @@ function parseIncludedItems(metafield?: {value: string; type: string} | null): s
     .filter(Boolean);
 }
 
+function parseIncludedProductHandles(metafield?: {value: string} | null): string[] {
+  if (!metafield?.value) return [];
+  try {
+    const parsed = JSON.parse(metafield.value) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string');
+    }
+  } catch {
+    // fall through
+  }
+  return metafield.value
+    .split(/[,\n]/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 function catalogRentVariant(product: CatalogProductNode) {
   const variants = collectProductVariants({
     variants: product.variants,
@@ -112,12 +144,58 @@ function catalogRentVariant(product: CatalogProductNode) {
   return pickRentVariant(variants) ?? product.selectedOrFirstAvailableVariant;
 }
 
+function mapGearBuilderProduct(product: CatalogProductNode): GearBuilderProduct {
+  const variant = catalogRentVariant(product);
+  const variants = (product.variants?.nodes ?? []).map((entry) => ({
+    id: entry.id,
+    title: entry.title ?? '',
+    availableForSale: entry.availableForSale !== false,
+    price: Number(entry.price.amount),
+    capacityLiters: capacityFromVariantTitle(entry.title ?? ''),
+  }));
+
+  const metafields = parseGearBuilderMetafields({
+    itemType: product.gearItemType?.value,
+    builderEnabled: product.gearBuilderEnabled?.value,
+    capacityLiters: product.gearCapacityLiters?.value,
+    capacityClass: product.gearCapacityClass?.value,
+    durationFit: product.gearDurationFit?.value,
+    thumbnailPriority: product.gearThumbnailPriority?.value,
+  });
+
+  if (!product.gearBuilderEnabled?.value && !product.gearItemType?.value) {
+    const category = tagValue(product.tags, 'gear');
+    if (category) {
+      metafields.itemType =
+        category === 'sleeping'
+          ? 'sleeping_bag'
+          : category === 'electronics'
+            ? 'lighting'
+            : (category as GearBuilderProduct['metafields']['itemType']);
+      metafields.builderEnabled = true;
+    }
+  }
+
+  return {
+    id: product.id,
+    handle: product.handle,
+    title: product.title,
+    imageUrl: product.featuredImage?.url,
+    imageAlt: product.featuredImage?.altText ?? product.title,
+    dailyRate: Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount),
+    variantId: variant?.id,
+    availableForSale: variant?.availableForSale !== false,
+    metafields,
+    variants,
+  };
+}
+
 function mapPackageProduct(
   product: CatalogProductNode,
   locale: 'ka' | 'en',
 ): ShopifyPackageItem {
   const trek = tagValue(product.tags, 'trek') ?? 'tobavarchkhili';
-  const duration = tagValue(product.tags, 'duration') ?? '2-day';
+  const duration = (tagValue(product.tags, 'duration') ?? '2-day') as PackageDuration;
   const difficulty = tagValue(product.tags, 'difficulty') ?? 'moderate';
 
   const variant = catalogRentVariant(product);
@@ -130,6 +208,9 @@ function mapPackageProduct(
 
   const items = parseIncludedItems(product.includedItems);
   const summary = product.kitSummary?.value ?? product.description;
+  const includedProductHandles = parseIncludedProductHandles(
+    product.includedProductHandles,
+  );
 
   const savingsPercent =
     compareAt > dailyRate && compareAt > 0
@@ -157,6 +238,8 @@ function mapPackageProduct(
     imageAlt: product.featuredImage?.altText ?? product.title,
     compareAtPrice: compareAt > 0 ? compareAt : undefined,
     savingsPercent,
+    includedProductHandles,
+    defaultDuration: duration,
   };
 }
 
@@ -167,6 +250,7 @@ function mapGearProduct(
   const category = tagValue(product.tags, 'gear') ?? 'tent';
   const variant = catalogRentVariant(product);
   const dailyRate = Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount);
+  const builderProduct = mapGearBuilderProduct(product);
 
   return {
     id: product.id,
@@ -182,6 +266,7 @@ function mapGearProduct(
     variantId: variant?.id,
     imageUrl: product.featuredImage?.url,
     imageAlt: product.featuredImage?.altText ?? product.title,
+    builderProduct,
   };
 }
 
@@ -219,6 +304,13 @@ export async function loadShopifyGear(
   return (collection.products.nodes as CatalogProductNode[]).map((product) =>
     mapGearProduct(product, locale),
   );
+}
+
+export async function loadGearBuilderCatalog(
+  storefront: Storefront,
+): Promise<GearBuilderProduct[]> {
+  const gear = await loadShopifyGear(storefront, 'en');
+  return gear.map((item) => item.builderProduct);
 }
 
 export {CATALOG_PRODUCT_FRAGMENT, COLLECTION_PRODUCTS_QUERY};

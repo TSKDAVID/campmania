@@ -1714,7 +1714,7 @@
   }
 
   .cm-home-tile-grid {
-    @apply grid gap-3 sm:grid-cols-2 sm:gap-4;
+    @apply grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3;
   }
 
   .cm-home-tile {
@@ -1727,6 +1727,10 @@
 
   .cm-home-tile--gear {
     background: linear-gradient(145deg, #0d2818 0%, #2d5a42 100%);
+  }
+
+  .cm-home-tile--builder {
+    background: linear-gradient(145deg, #2a4a3a 0%, #6b8f71 100%);
   }
 
   .cm-home-tile-image {
@@ -1793,5 +1797,159 @@
 
   .cm-home-step-desc {
     @apply mt-1 text-xs leading-relaxed text-muted;
+  }
+
+  /* Gear Builder */
+  .cm-gear-builder-page {
+    @apply py-6 md:py-10;
+  }
+
+  .cm-gear-builder-page-inner {
+    @apply space-y-6;
+  }
+
+  .cm-gear-builder-header {
+    @apply max-w-3xl;
+  }
+
+  .cm-gear-builder-title {
+    @apply font-display text-3xl font-bold text-pine md:text-4xl;
+  }
+
+  .cm-gear-builder-subtitle {
+    @apply mt-2 text-sm text-muted md:text-base;
+  }
+
+  .cm-gear-builder-strip {
+    @apply flex flex-wrap items-center gap-2 rounded-2xl border border-stone/60 bg-white p-3 md:p-4;
+  }
+
+  .cm-gear-builder-strip-item {
+    @apply flex items-center;
+  }
+
+  .cm-gear-builder-plus {
+    @apply mx-1 text-lg font-bold text-moss;
+  }
+
+  .cm-gear-builder-slot {
+    @apply flex min-w-[5.5rem] flex-col items-center gap-1 rounded-xl border border-stone/70 bg-mist/40 px-2 py-2 text-center transition hover:border-moss/40 hover:bg-moss/5;
+  }
+
+  .cm-gear-builder-slot--active {
+    @apply border-moss bg-moss/10 ring-2 ring-moss/25;
+  }
+
+  .cm-gear-builder-slot--add {
+    @apply cursor-pointer list-none border-dashed;
+  }
+
+  .cm-gear-builder-slot-image {
+    @apply h-12 w-12 rounded-lg object-cover;
+  }
+
+  .cm-gear-builder-slot-icon {
+    @apply flex h-12 w-12 items-center justify-center rounded-lg bg-pine/10 text-xl;
+  }
+
+  .cm-gear-builder-slot-label {
+    @apply max-w-[6.5rem] truncate text-[11px] font-semibold text-charcoal;
+  }
+
+  .cm-gear-builder-add-menu {
+    @apply absolute z-20 mt-2 flex min-w-[10rem] flex-col rounded-xl border border-stone/70 bg-white p-1 shadow-lg;
+  }
+
+  .cm-gear-builder-add {
+    @apply relative;
+  }
+
+  .cm-gear-builder-add-menu button {
+    @apply flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-mist;
+  }
+
+  .cm-gear-builder-toolbar {
+    @apply flex flex-wrap items-center gap-3;
+  }
+
+  .cm-gear-builder-layout {
+    @apply grid gap-6 lg:grid-cols-[1fr_18rem];
+  }
+
+  .cm-gear-builder-main {
+    @apply rounded-2xl border border-stone/60 bg-white p-4 md:p-6;
+  }
+
+  .cm-gear-builder-section-title {
+    @apply mb-4 font-display text-xl font-bold text-pine;
+  }
+
+  .cm-gear-builder-hint,
+  .cm-gear-builder-empty {
+    @apply text-sm text-muted;
+  }
+
+  .cm-gear-builder-options {
+    @apply grid gap-4 sm:grid-cols-2;
+  }
+
+  .cm-gear-builder-option {
+    @apply flex gap-3 rounded-xl border border-stone/60 p-3;
+  }
+
+  .cm-gear-builder-option-media img {
+    @apply h-20 w-20 rounded-lg object-cover;
+  }
+
+  .cm-gear-builder-option-fallback {
+    @apply flex h-20 w-20 items-center justify-center rounded-lg bg-mist text-moss;
+  }
+
+  .cm-gear-builder-option-title {
+    @apply text-sm font-bold text-pine;
+  }
+
+  .cm-gear-builder-option-price {
+    @apply mt-1 text-sm text-muted;
+  }
+
+  .cm-gear-builder-variant-row {
+    @apply mt-2 flex flex-wrap gap-1.5;
+  }
+
+  .cm-gear-builder-variant-btn {
+    @apply rounded-full border border-stone px-2.5 py-1 text-xs font-semibold hover:border-moss disabled:opacity-40;
+  }
+
+  .cm-gear-builder-select-btn {
+    @apply mt-2 inline-flex items-center gap-1.5 text-sm;
+  }
+
+  .cm-gear-builder-summary {
+    @apply h-fit rounded-2xl border border-stone/60 bg-white p-4 md:p-5;
+  }
+
+  .cm-gear-builder-summary-row {
+    @apply flex items-center justify-between text-sm;
+  }
+
+  .cm-gear-builder-discount {
+    @apply mt-1 text-xs font-semibold text-moss;
+  }
+
+  .cm-gear-builder-summary-list {
+    @apply my-4 space-y-1 border-y border-stone/50 py-3 text-sm text-charcoal/85;
+  }
+
+  .cm-gear-builder-account-card {
+    @apply rounded-2xl border border-stone/60 bg-white p-5 md:p-6;
+  }
+
+  .cm-gear-builder-pdp-actions {
+    @apply mt-4 space-y-2 border-t border-stone/50 pt-4;
+  }
+
+  .cm-gear-builder-pdp-link {
+    @apply block text-center text-sm font-semibold text-moss hover:text-forest;
   }
 }

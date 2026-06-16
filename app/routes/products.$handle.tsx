@@ -21,6 +21,7 @@ import {
   ProductPriceBlock,
   ProductTrustBar,
 } from '~/components/trailrent/ProductPageSections';
+import {AddToGearBuilderButton} from '~/components/trailrent/AddToGearBuilderButton';
 import {useLocale} from '~/providers/LocaleProvider';
 import {loadCustomerRentalContext} from '~/lib/trailrent/customer-rental-context';
 import {buildRentToOwnOffer} from '~/lib/trailrent/rent-to-own';
@@ -31,6 +32,12 @@ import {
   metafieldValueByKeys,
   resolveFulfillmentVariants,
 } from '~/lib/trailrent/product-variants';
+import {
+  capacityFromVariantTitle,
+  parseGearBuilderMetafields,
+  type GearBuilderProduct,
+} from '~/lib/trailrent/gear-builder';
+import {isGearBuilderEnabled} from '~/lib/trailrent/feature-flags';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [
@@ -48,7 +55,11 @@ export async function loader(args: Route.LoaderArgs) {
     loadCustomerRentalContext(args.context),
   ]);
 
-  return {...criticalData, customerRentalContext};
+  return {
+    ...criticalData,
+    customerRentalContext,
+    gearBuilderEnabled: isGearBuilderEnabled(args.context.env),
+  };
 }
 
 async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
@@ -91,7 +102,8 @@ function parseIncludedItems(metafield?: {value: string; type: string} | null): s
 }
 
 export default function Product() {
-  const {product, customerRentalContext} = useLoaderData<typeof loader>();
+  const {product, customerRentalContext, gearBuilderEnabled} =
+    useLoaderData<typeof loader>();
   const {locale, translations: tr} = useLocale();
   const [fulfillmentMode, setFulfillmentMode] =
     useState<FulfillmentMode>('rent');
@@ -189,6 +201,48 @@ export default function Product() {
       }
     : null;
 
+  const builderProduct = useMemo((): GearBuilderProduct | null => {
+    if (!gearBuilderEnabled || isPackage) return null;
+    const variants = (product.variants?.nodes ?? []).map(
+      (entry: NonNullable<typeof product.variants>['nodes'][number]) => ({
+      id: entry.id,
+      title: entry.title ?? '',
+      availableForSale: entry.availableForSale !== false,
+      price: Number(entry.price.amount),
+      capacityLiters: capacityFromVariantTitle(entry.title ?? ''),
+      }),
+    );
+    const metafields = parseGearBuilderMetafields({
+      itemType: product.gearItemType?.value,
+      builderEnabled: product.gearBuilderEnabled?.value,
+      capacityLiters: product.gearCapacityLiters?.value,
+      capacityClass: product.gearCapacityClass?.value,
+      durationFit: product.gearDurationFit?.value,
+      thumbnailPriority: product.gearThumbnailPriority?.value,
+    });
+    const category = tags.find((t: string) => t.startsWith('gear-'))?.slice(5);
+    if (!product.gearBuilderEnabled?.value && !product.gearItemType?.value && category) {
+      metafields.itemType =
+        category === 'sleeping'
+          ? 'sleeping_bag'
+          : category === 'electronics'
+            ? 'lighting'
+            : (category as GearBuilderProduct['metafields']['itemType']);
+      metafields.builderEnabled = true;
+    }
+    return {
+      id: product.id,
+      handle: product.handle,
+      title,
+      imageUrl: selectedVariant?.image?.url ?? rentVariant?.image?.url,
+      dailyRate,
+      variantId: rentVariant?.id,
+      availableForSale: rentVariant?.availableForSale !== false,
+      metafields,
+      variants,
+    };
+  }, [gearBuilderEnabled, isPackage, product, tags, title, dailyRate, rentVariant, selectedVariant]);
+
   return (
     <article className="cm-product-page">
       <div
@@ -249,6 +303,12 @@ export default function Product() {
             ) : bookingFormProps ? (
               <div className="cm-product-booking">
                 <RentalProductForm {...bookingFormProps} layout="wide" />
+                {builderProduct ? (
+                  <AddToGearBuilderButton
+                    product={builderProduct}
+                    variantId={rentVariant?.id}
+                  />
+                ) : null}
               </div>
             ) : (
               <p className="cm-product-unavailable">
@@ -392,6 +452,24 @@ const PRODUCT_FRAGMENT = `#graphql
       key
       value
       type
+    }
+    gearItemType: metafield(namespace: "gear_builder", key: "item_type") {
+      value
+    }
+    gearBuilderEnabled: metafield(namespace: "gear_builder", key: "builder_enabled") {
+      value
+    }
+    gearCapacityLiters: metafield(namespace: "gear_builder", key: "capacity_liters") {
+      value
+    }
+    gearCapacityClass: metafield(namespace: "gear_builder", key: "capacity_class") {
+      value
+    }
+    gearDurationFit: metafield(namespace: "gear_builder", key: "duration_fit") {
+      value
+    }
+    gearThumbnailPriority: metafield(namespace: "gear_builder", key: "thumbnail_priority") {
+      value
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}

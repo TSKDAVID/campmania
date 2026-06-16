@@ -79,6 +79,27 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
     purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
       value
     }
+    gearItemType: metafield(namespace: "gear_builder", key: "item_type") {
+      value
+    }
+    gearBuilderEnabled: metafield(namespace: "gear_builder", key: "builder_enabled") {
+      value
+    }
+    gearCapacityLiters: metafield(namespace: "gear_builder", key: "capacity_liters") {
+      value
+    }
+    gearCapacityClass: metafield(namespace: "gear_builder", key: "capacity_class") {
+      value
+    }
+    gearDurationFit: metafield(namespace: "gear_builder", key: "duration_fit") {
+      value
+    }
+    gearThumbnailPriority: metafield(namespace: "gear_builder", key: "thumbnail_priority") {
+      value
+    }
+    includedProductHandles: metafield(namespace: "custom", key: "included_product_handles") {
+      value
+    }
   }
 ` as const;
 

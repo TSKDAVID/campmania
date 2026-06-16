@@ -11,6 +11,10 @@ import type {
   ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
 import {formatGel} from '~/lib/trailrent/pricing';
+import {
+  resolvePackageComposition,
+  type PackageDuration,
+} from '~/lib/trailrent/gear-builder';
 import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
 import {
   buildPackageFilterGroups,
@@ -24,55 +28,6 @@ const DIFFICULTY_STYLES: Record<string, string> = {
   moderate: 'bg-amber/15 text-forest border-amber/30',
   hard: 'bg-pine/10 text-pine border-pine/20',
 };
-
-const DURATION_DAYS: Record<string, number> = {
-  '1-day': 1,
-  '2-day': 2,
-  weekend: 3,
-};
-
-const DURATION_ITEM_EXTRAS: Record<string, string[]> = {
-  '1-day': [],
-  '2-day': ['40L Backpack', 'Headlamp Pro'],
-  weekend: ['60L Backpack', 'Headlamp Pro', 'GPS Navigator'],
-};
-
-function normalize(input: string): string {
-  return input.trim().toLowerCase();
-}
-
-function uniqueItems(items: string[]): string[] {
-  return [...new Set(items)];
-}
-
-function findGearForItem(item: string, gear: ShopifyGearItem[]): ShopifyGearItem | undefined {
-  const value = normalize(item);
-  const keywordToHandle: Array<{key: string; handle: string}> = [
-    {key: 'headlamp', handle: 'headlamp-pro'},
-    {key: 'ფანარი', handle: 'headlamp-pro'},
-    {key: 'gps', handle: 'gps-navigator'},
-    {key: 'ნავიგ', handle: 'gps-navigator'},
-    {key: 'backpack', handle: '40l-backpack'},
-    {key: 'რუქსაკ', handle: '40l-backpack'},
-    {key: 'stove', handle: 'camping-stove-kit'},
-    {key: 'ღუმელ', handle: 'camping-stove-kit'},
-    {key: 'sleeping', handle: 'sleeping-bag-minus-5'},
-    {key: 'საძილ', handle: 'sleeping-bag-minus-5'},
-    {key: 'tent', handle: '2-person-tent'},
-    {key: 'ანსამბლ', handle: '2-person-tent'},
-  ];
-
-  const byHandle = keywordToHandle.find((rule) => value.includes(rule.key));
-  if (byHandle) {
-    const hit = gear.find((g) => g.productHandle === byHandle.handle);
-    if (hit) return hit;
-  }
-
-  return gear.find((g) => {
-    const title = normalize(g.title);
-    return value.includes(title) || title.includes(value);
-  });
-}
 
 function PackageCard({
   pkg,
@@ -95,30 +50,42 @@ function PackageCard({
 }) {
   const diffStyle = DIFFICULTY_STYLES[pkg.difficulty] ?? 'bg-stone text-muted';
   const productUrl = pkg.productHandle ? `/products/${pkg.productHandle}` : null;
-  const [selectedDuration, setSelectedDuration] = useState(pkg.duration);
-  const selectedDays = DURATION_DAYS[selectedDuration] ?? DURATION_DAYS[pkg.duration] ?? 1;
-  const perDayWord = locale === 'ka' ? 'დღე' : 'day';
+  const [selectedDuration, setSelectedDuration] = useState<PackageDuration>(
+    pkg.defaultDuration ?? (pkg.duration as PackageDuration),
+  );
+  const gearCatalog = useMemo(
+    () => gear.map((item) => item.builderProduct),
+    [gear],
+  );
 
-  const displayedItems = useMemo(() => {
-    const extras = DURATION_ITEM_EXTRAS[selectedDuration] ?? [];
-    return uniqueItems([...pkg.items, ...extras]);
-  }, [pkg.items, selectedDuration]);
+  const composition = useMemo(
+    () =>
+      resolvePackageComposition({
+        trek: pkg.trek,
+        duration: selectedDuration,
+        baseProductHandles: pkg.includedProductHandles ?? [],
+        fallbackItemLabels: pkg.items,
+        gearCatalog,
+      }),
+    [pkg, selectedDuration, gearCatalog],
+  );
+
+  const selectedDays = composition.days;
+  const perDayWord = locale === 'ka' ? 'დღე' : 'day';
 
   const includedThumbs = useMemo(
     () =>
-      displayedItems.slice(0, 5).map((item) => {
-        const matched = findGearForItem(item, gear);
-        return {
-          label: item,
-          imageUrl: matched?.imageUrl,
-          href: matched?.productHandle ? `/products/${matched.productHandle}` : '/individual-gear',
-        };
-      }),
-    [displayedItems, gear],
+      composition.items.slice(0, 5).map((item) => ({
+        label: item.title,
+        imageUrl: item.imageUrl,
+        href: `/products/${item.handle}`,
+      })),
+    [composition.items],
   );
 
-  const totalPrice = pkg.dailyRate * selectedDays;
-  const dynamicPriceLabel = `${formatGel(pkg.dailyRate)} / ${perDayWord}`;
+  const displayedItems = composition.items.map((item) => item.title);
+  const dynamicPriceLabel = `${formatGel(composition.bundleDaily)} / ${perDayWord}`;
+  const totalPrice = composition.bundleTotal;
 
   const inner = (
     <>
@@ -143,9 +110,9 @@ function PackageCard({
         >
           {pkg.difficultyLabel}
         </span>
-        {pkg.savingsPercent ? (
+        {pkg.savingsPercent || composition.discountPercent ? (
           <span className="cm-kit-card-badge absolute left-2 top-2 rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-pine">
-            -{pkg.savingsPercent}%
+            -{pkg.savingsPercent ?? composition.discountPercent}%
           </span>
         ) : null}
       </div>
@@ -196,7 +163,7 @@ function PackageCard({
               className={`cm-kit-card-duration-btn ${
                 selectedDuration === option.value ? 'cm-kit-card-duration-btn--active' : ''
               }`}
-              onClick={() => setSelectedDuration(option.value)}
+              onClick={() => setSelectedDuration(option.value as PackageDuration)}
             >
               {option.label}
             </button>

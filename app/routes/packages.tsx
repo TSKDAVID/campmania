@@ -9,6 +9,34 @@ import {
   type ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
 import {getLocaleFromRequest} from '~/providers/LocaleProvider';
+import {parseItemType, type GearBuilderProduct} from '~/lib/trailrent/gear-builder';
+
+function mapDemoGearItem(item: (typeof INDIVIDUAL_GEAR)[number]): ShopifyGearItem {
+  const itemType = parseItemType(
+    item.category === 'sleeping' ? 'sleeping_bag' : item.category,
+  );
+  const builderProduct: GearBuilderProduct = {
+    id: item.id,
+    handle: item.productHandle ?? item.id,
+    title: item.title,
+    dailyRate: item.dailyRate,
+    variantId: undefined,
+    availableForSale: true,
+    metafields: {
+      itemType,
+      builderEnabled: true,
+      durationFit: ['1-day', '2-day', 'weekend'],
+      thumbnailPriority: 0,
+    },
+    variants: [],
+  };
+
+  return {
+    ...item,
+    productId: item.id,
+    builderProduct,
+  };
+}
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Campmania | Trail Packages'},
@@ -36,8 +64,13 @@ export async function loader({context, request}: Route.LoaderArgs) {
   }
 
   return {
-    packages: TRAIL_PACKAGES as ShopifyPackageItem[],
-    gear: INDIVIDUAL_GEAR as ShopifyGearItem[],
+    packages: TRAIL_PACKAGES.map((pkg) => ({
+      ...pkg,
+      productId: pkg.id,
+      includedProductHandles: [],
+      defaultDuration: (pkg.duration as ShopifyPackageItem['defaultDuration']) ?? '2-day',
+    })) as ShopifyPackageItem[],
+    gear: INDIVIDUAL_GEAR.map(mapDemoGearItem),
     shopifyConnected: false,
   };
 }

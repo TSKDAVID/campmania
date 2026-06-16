@@ -34,6 +34,7 @@ function useCampmaniaNav(): NavItem[] {
     {id: 'home', to: '/', label: tr.nav.home, end: true},
     {id: 'packages', to: '/packages', label: tr.nav.packages},
     {id: 'gear', to: '/individual-gear', label: tr.nav.gear},
+    {id: 'builder', to: '/gear-builder', label: tr.nav.gearBuilder},
     {id: 'how', to: '/pages/how-it-works', label: tr.nav.howItWorks},
     {id: 'faq', to: '/pages/faq', label: tr.nav.faq},
   ];

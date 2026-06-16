@@ -22,6 +22,7 @@ import {
   LocaleProvider,
   getLocaleFromRequest,
 } from './providers/LocaleProvider';
+import {GearBuilderProvider} from './providers/GearBuilderProvider';
 
 export type RootLoader = typeof loader;
 
@@ -192,9 +193,11 @@ export default function App() {
       consent={data.consent}
     >
       <LocaleProvider initialLocale={data.locale}>
-        <PageLayout {...data}>
-          <Outlet />
-        </PageLayout>
+        <GearBuilderProvider>
+          <PageLayout {...data}>
+            <Outlet />
+          </PageLayout>
+        </GearBuilderProvider>
       </LocaleProvider>
     </Analytics.Provider>
   );

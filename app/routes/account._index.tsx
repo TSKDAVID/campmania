@@ -1,4 +1,4 @@
-import {Link, useOutletContext} from 'react-router';
+import {Link, useLoaderData, useOutletContext} from 'react-router';
 import type {Route} from './+types/account._index';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
@@ -14,9 +14,20 @@ import {
   parseCustomerTags,
 } from '~/lib/trailrent/loyalty';
 import type {CustomerDetailsQuery} from 'customer-accountapi.generated';
+import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
+import {
+  readGearBuilderFromSession,
+} from '~/lib/trailrent/gear-builder/storage';
+import type {GearBuilderState} from '~/lib/trailrent/gear-builder';
+import {gearTypeLabel} from '~/components/trailrent/GearBuilderPanel';
 
-export async function loader(_args: Route.LoaderArgs) {
-  return {};
+export async function loader({context}: Route.LoaderArgs) {
+  const {data} = await context.customerAccount.query(CUSTOMER_DETAILS_QUERY, {
+    variables: {language: context.customerAccount.i18n.language},
+  });
+  const customerId = data?.customer?.id ?? null;
+  const savedBuild = readGearBuilderFromSession(context.session, customerId);
+  return {savedBuild};
 }
 
 export const meta: Route.MetaFunction = () => [
@@ -29,6 +40,7 @@ type AccountContext = {
 
 export default function AccountDashboard() {
   const {customer} = useOutletContext<AccountContext>();
+  const {savedBuild} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
 
   const email = customer.emailAddress?.emailAddress ?? null;
@@ -41,8 +53,9 @@ export default function AccountDashboard() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
+      <div className="space-y-6 lg:col-span-2">
         <LoyaltyCard status={loyalty} benefits={benefits} />
+        <SavedGearBuilderCard savedBuild={savedBuild} locale={locale} />
       </div>
 
       <aside className="space-y-3">
@@ -52,7 +65,54 @@ export default function AccountDashboard() {
         <QuickLink to="/account/orders" icon={IconBag} label={tr.account.viewOrders} />
         <QuickLink to="/packages" icon={IconPackage} label={tr.account.bookKit} />
         <QuickLink to="/individual-gear" icon={IconMetro} label={tr.account.browseGear} />
+        <QuickLink to="/gear-builder" icon={IconPackage} label={tr.account.editGearBuilder} />
       </aside>
+    </div>
+  );
+}
+
+function SavedGearBuilderCard({
+  savedBuild,
+  locale,
+}: {
+  savedBuild: GearBuilderState | null;
+  locale: 'ka' | 'en';
+}) {
+  const {translations: tr} = useLocale();
+  const slots = savedBuild?.slots ?? [];
+
+  return (
+    <div className="cm-gear-builder-account-card">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-moss">
+            {tr.gearBuilder.eyebrow}
+          </p>
+          <h2 className="mt-1 font-display text-lg font-bold text-pine">
+            {tr.gearBuilder.accountTitle}
+          </h2>
+        </div>
+        <Link to="/gear-builder" className="tr-btn-secondary text-sm">
+          {tr.gearBuilder.accountEdit}
+          <IconArrowRight size={14} />
+        </Link>
+      </div>
+      {slots.length ? (
+        <div className="mt-4">
+          <p className="text-sm text-muted">
+            {slots.length} {tr.gearBuilder.itemsSelected}
+          </p>
+          <ul className="mt-2 space-y-1 text-sm text-charcoal/85">
+            {slots.map((slot) => (
+              <li key={slot.itemType}>
+                {slot.title ?? gearTypeLabel(slot.itemType, locale)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p className="mt-4 text-sm text-muted">{tr.gearBuilder.accountEmpty}</p>
+      )}
     </div>
   );
 }

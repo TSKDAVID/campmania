@@ -123,6 +123,7 @@ export function HomeQuickNav() {
   const links = [
     {to: '/packages', label: tr.nav.packages, Icon: IconMountain},
     {to: '/individual-gear', label: tr.nav.gear, Icon: IconTent},
+    {to: '/gear-builder', label: tr.nav.gearBuilder, Icon: IconCompass},
     {to: '/collections/all', label: tr.home.allProducts, Icon: IconPackage},
     {to: '/pages/how-it-works', label: tr.home.howItWorksLink, Icon: IconMetro},
   ];
@@ -174,6 +175,9 @@ export function HomeCategories() {
   );
 }
 
+const BUILDER_TILE_IMAGE =
+  'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=800&q=75';
+
 export function HomeShopTiles() {
   const {translations: tr} = useLocale();
 
@@ -191,6 +195,13 @@ export function HomeShopTiles() {
       title: tr.home.shopGearTitle,
       desc: tr.home.shopGearDesc,
       accent: 'cm-home-tile--gear',
+    },
+    {
+      to: '/gear-builder',
+      image: BUILDER_TILE_IMAGE,
+      title: tr.home.shopBuilderTitle,
+      desc: tr.home.shopBuilderDesc,
+      accent: 'cm-home-tile--builder',
     },
   ];
 

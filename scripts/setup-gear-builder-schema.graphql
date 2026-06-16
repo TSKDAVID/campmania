@@ -1,0 +1,93 @@
+# Run via Shopify Admin GraphQL (Settings > Custom data > or CLI):
+# shopify graphql admin --mutation "$(cat scripts/setup-gear-builder-schema.graphql)"
+#
+# Enable Storefront API access on each definition after creation.
+
+mutation CreateGearBuilderMetafieldDefinitions {
+  itemType: metafieldDefinitionCreate(
+    definition: {
+      namespace: "gear_builder"
+      key: "item_type"
+      name: "Gear item type"
+      description: "backpack, tent, sleeping_bag, shoes, kitchen, lighting, navigation"
+      type: "single_line_text_field"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+
+  builderEnabled: metafieldDefinitionCreate(
+    definition: {
+      namespace: "gear_builder"
+      key: "builder_enabled"
+      name: "Gear Builder enabled"
+      type: "boolean"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+
+  capacityLiters: metafieldDefinitionCreate(
+    definition: {
+      namespace: "gear_builder"
+      key: "capacity_liters"
+      name: "Capacity liters"
+      type: "number_integer"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+
+  capacityClass: metafieldDefinitionCreate(
+    definition: {
+      namespace: "gear_builder"
+      key: "capacity_class"
+      name: "Capacity class"
+      description: "e.g. 20-30, 30-45, 45-60"
+      type: "single_line_text_field"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+
+  durationFit: metafieldDefinitionCreate(
+    definition: {
+      namespace: "gear_builder"
+      key: "duration_fit"
+      name: "Duration fit"
+      description: "Comma-separated: 1-day, 2-day, weekend"
+      type: "single_line_text_field"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+
+  thumbnailPriority: metafieldDefinitionCreate(
+    definition: {
+      namespace: "gear_builder"
+      key: "thumbnail_priority"
+      name: "Thumbnail priority"
+      type: "number_integer"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+}
