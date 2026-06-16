@@ -590,6 +590,7 @@
 
   .cm-kit-card--package .cm-kit-card-body {
     @apply flex min-w-0 flex-col gap-1 px-3 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5;
+    position: relative;
   }
 
   .cm-kit-card-link {
@@ -644,9 +645,7 @@
   }
 
   .cm-kit-card-reveal {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.35s ease;
+    display: none;
   }
 
   .cm-kit-card-reveal-inner {
@@ -663,12 +662,36 @@
   }
 
   @media (hover: hover) and (min-width: 1024px) {
+    .cm-kit-card--package {
+      overflow: visible;
+      transform-origin: top left;
+    }
+
     .cm-kit-card--package:hover {
-      @apply z-10 -translate-y-1 shadow-lg;
+      @apply z-10 shadow-lg;
+      transform: scale(1.035);
+    }
+
+    .cm-kit-card--package .cm-kit-card-reveal {
+      display: block;
+      position: absolute;
+      top: calc(100% + 0.45rem);
+      left: -0.45rem;
+      right: -0.45rem;
+      z-index: 12;
+      opacity: 0;
+      transform: translateY(-0.4rem);
+      pointer-events: none;
+      transition: opacity 0.24s ease, transform 0.24s ease;
+    }
+
+    .cm-kit-card--package .cm-kit-card-reveal-inner {
+      @apply rounded-xl border border-stone/70 bg-white p-3 shadow-xl shadow-pine/10;
     }
 
     .cm-kit-card--package:hover .cm-kit-card-reveal {
-      grid-template-rows: 1fr;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .cm-kit-card--product:hover {
