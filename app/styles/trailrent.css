@@ -64,17 +64,17 @@
   }
 
   .tr-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline bg-pine text-mist hover:bg-forest;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide shadow-md shadow-pine/25 transition no-underline hover:no-underline bg-pine text-mist hover:bg-forest;
     font-family: var(--font-label);
   }
 
   .tr-btn-secondary {
-    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-pine bg-transparent text-pine hover:bg-pine hover:text-mist;
+    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-pine/70 bg-white text-forest hover:bg-pine hover:text-mist;
     font-family: var(--font-label);
   }
 
   .tr-btn-ghost {
-    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-white/30 bg-white/5 text-mist hover:border-white/50 hover:bg-white/15;
+    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-white/40 bg-white/15 text-mist hover:border-white/70 hover:bg-white/25;
     font-family: var(--font-label);
   }
 
