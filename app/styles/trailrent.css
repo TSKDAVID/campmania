@@ -664,34 +664,49 @@
   @media (hover: hover) and (min-width: 1024px) {
     .cm-kit-card--package {
       overflow: visible;
-      transform-origin: top left;
     }
 
     .cm-kit-card--package:hover {
-      @apply z-10 shadow-lg;
-      transform: scale(1.035);
+      @apply z-10 border-moss/40 shadow-lg;
     }
 
+    /* Reveal panel floats to the right of the card */
     .cm-kit-card--package .cm-kit-card-reveal {
       display: block;
       position: absolute;
-      top: calc(100% + 0.45rem);
-      left: -0.45rem;
-      right: -0.45rem;
+      top: 0;
+      left: calc(100% + 0.6rem);
+      width: 220px;
       z-index: 12;
       opacity: 0;
-      transform: translateY(-0.4rem);
+      transform: translateX(-0.5rem);
       pointer-events: none;
-      transition: opacity 0.24s ease, transform 0.24s ease;
+      transition: opacity 0.22s ease, transform 0.22s ease;
     }
 
     .cm-kit-card--package .cm-kit-card-reveal-inner {
-      @apply rounded-xl border border-stone/70 bg-white p-3 shadow-xl shadow-pine/10;
+      @apply rounded-xl border border-stone/70 bg-white p-3.5 shadow-xl;
+      box-shadow: 0 8px 30px -4px rgb(30 50 30 / 0.15);
     }
 
     .cm-kit-card--package:hover .cm-kit-card-reveal {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    /* Cards in even/last positions flip the reveal to the left
+       so it doesn't overflow the grid edge */
+    .cm-kit-card--package:nth-child(2n) .cm-kit-card-reveal,
+    .cm-kit-card--package:last-child .cm-kit-card-reveal {
+      left: auto;
+      right: calc(100% + 0.6rem);
+      transform: translateX(0.5rem);
+    }
+
+    .cm-kit-card--package:nth-child(2n):hover .cm-kit-card-reveal,
+    .cm-kit-card--package:last-child:hover .cm-kit-card-reveal {
+      transform: translateX(0);
     }
 
     .cm-kit-card--product:hover {
