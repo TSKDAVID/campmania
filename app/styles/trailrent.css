@@ -1992,20 +1992,89 @@
     @apply text-red-700;
   }
 
-  .cm-gear-builder-save-panel {
-    @apply space-y-4 rounded-2xl border border-moss/25 bg-white p-4 shadow-sm md:p-5;
+  .cm-gear-builder-dialog {
+    @apply fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-4;
   }
 
-  .cm-gear-builder-save-panel-head {
-    @apply flex items-start gap-3;
+  .cm-gear-builder-dialog-backdrop {
+    @apply absolute inset-0 border-0 bg-pine/45 p-0;
   }
 
-  .cm-gear-builder-save-title {
+  .cm-gear-builder-dialog-panel {
+    @apply relative z-[1] flex max-h-[92vh] w-full max-w-md flex-col rounded-t-2xl border border-stone/80 bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-2xl;
+    animation: cm-gear-builder-dialog-in 0.24s ease-out;
+  }
+
+  @keyframes cm-gear-builder-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .cm-gear-builder-dialog-header {
+    @apply flex items-start justify-between gap-3 border-b border-stone/70 px-4 py-4 sm:px-5;
+  }
+
+  .cm-gear-builder-dialog-icon {
+    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-moss/12 text-moss;
+  }
+
+  .cm-gear-builder-dialog-title {
     @apply font-display text-lg font-bold text-pine;
   }
 
-  .cm-gear-builder-save-desc {
-    @apply mt-1 text-sm text-muted;
+  .cm-gear-builder-dialog-desc {
+    @apply mt-1 text-sm leading-snug text-muted;
+  }
+
+  .cm-gear-builder-dialog-close {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-0 bg-mist text-pine transition hover:bg-stone;
+  }
+
+  .cm-gear-builder-dialog-body {
+    @apply space-y-4 overflow-y-auto px-4 py-4 sm:px-5;
+  }
+
+  .cm-gear-builder-dialog-summary {
+    @apply rounded-xl border border-stone/60 bg-mist/30 p-3.5;
+  }
+
+  .cm-gear-builder-dialog-summary-metrics {
+    @apply space-y-1.5;
+  }
+
+  .cm-gear-builder-dialog-summary-row {
+    @apply flex items-center justify-between text-sm text-charcoal/85;
+  }
+
+  .cm-gear-builder-dialog-summary-price {
+    @apply font-bold text-pine;
+  }
+
+  .cm-gear-builder-dialog-discount {
+    @apply mt-2 inline-flex rounded-full bg-moss/10 px-2.5 py-1 text-xs font-semibold text-moss;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-dialog-items {
+    @apply mt-3 space-y-1.5 border-t border-stone/50 pt-3 text-sm text-charcoal/85;
+  }
+
+  .cm-gear-builder-dialog-items li {
+    @apply flex items-center gap-2;
+  }
+
+  .cm-gear-builder-dialog-footer {
+    @apply flex flex-row-reverse items-center justify-start gap-2 border-t border-stone/70 px-4 py-3.5 sm:px-5;
+  }
+
+  .cm-gear-builder-dialog-save {
+    @apply inline-flex items-center gap-2;
   }
 
   .cm-gear-builder-field {
@@ -2032,10 +2101,6 @@
 
   .cm-gear-builder-trek-chip--active {
     @apply border-moss bg-moss/15 text-forest;
-  }
-
-  .cm-gear-builder-save-actions {
-    @apply flex flex-wrap gap-2 pt-1;
   }
 
   .cm-gear-builder-layout {

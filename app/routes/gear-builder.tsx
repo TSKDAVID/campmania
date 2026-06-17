@@ -18,6 +18,7 @@ import {
   GearTypeIcon,
   gearTypeLabel,
 } from '~/components/trailrent/GearBuilderPanel';
+import {GearBuilderSaveDialog} from '~/components/trailrent/GearBuilderSaveDialog';
 import {loadShopifyGear} from '~/lib/trailrent/shopify-catalog';
 import {getLocaleFromRequest} from '~/providers/LocaleProvider';
 import {TREK_FILTERS} from '~/lib/trailrent/catalog';
@@ -33,7 +34,6 @@ import {
   IconCart,
   IconCheck,
   IconLayers,
-  IconMountain,
   IconSave,
   IconTrash,
 } from '~/components/trailrent/Icons';
@@ -283,11 +283,8 @@ export default function GearBuilderPage() {
   };
 
   const handleOpenSave = () => {
-    setSaveOpen((open) => {
-      const next = !open;
-      if (next) setSaveNotice(false);
-      return next;
-    });
+    setSaveNotice(false);
+    setSaveOpen(true);
   };
 
   const handleTrekPick = (trekValue: string) => {
@@ -440,88 +437,43 @@ export default function GearBuilderPage() {
           ) : null}
         </div>
 
-        {saveOpen ? (
-          <div className="cm-gear-builder-save-panel">
-            <div className="cm-gear-builder-save-panel-head">
-              <IconMountain size={18} className="text-moss" />
-              <div>
-                <h2 className="cm-gear-builder-save-title">{tr.gearBuilder.savePanelTitle}</h2>
-                <p className="cm-gear-builder-save-desc">{tr.gearBuilder.savePanelDesc}</p>
-              </div>
-            </div>
-
-            <label className="cm-gear-builder-field">
-              <span>{tr.gearBuilder.buildName}</span>
-              <input
-                type="text"
-                value={buildName}
-                maxLength={48}
-                placeholder={tr.gearBuilder.buildNamePlaceholder}
-                onChange={(event) => setBuildName(event.target.value)}
-              />
-            </label>
-
-            <div className="cm-gear-builder-field">
-              <span>{tr.gearBuilder.trekLabel}</span>
-              <div className="cm-gear-builder-trek-chips">
-                {trekOptions.map((trek) => (
-                  <button
-                    key={trek.value}
-                    type="button"
-                    className={`cm-gear-builder-trek-chip${
-                      buildTrek === trek.value ? ' cm-gear-builder-trek-chip--active' : ''
-                    }`}
-                    onClick={() => handleTrekPick(trek.value)}
-                  >
-                    {trek.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="cm-gear-builder-save-actions">
-              <button
-                type="button"
-                className="tr-btn-primary"
-                disabled={
-                  !buildName.trim() ||
-                  !hasSaveableBuild ||
-                  fetcher.state !== 'idle'
-                }
-                onClick={handleSave}
-              >
-                <IconSave size={16} />
-                {tr.gearBuilder.confirmSave}
-              </button>
-              <button
-                type="button"
-                className="tr-btn-secondary"
-                onClick={() => setSaveOpen(false)}
-              >
-                {tr.gearBuilder.cancelSave}
-              </button>
-            </div>
-
-            {saveError === 'name_required' ? (
-              <p className="cm-gear-builder-status cm-gear-builder-status--error">
-                {tr.gearBuilder.nameRequired}
-              </p>
-            ) : null}
-            {saveError === 'max_builds' ? (
-              <p className="cm-gear-builder-status cm-gear-builder-status--error">
-                {tr.gearBuilder.maxBuilds.replace(
-                  '{count}',
-                  String(GEAR_BUILDER_MAX_SAVED_BUILDS),
-                )}
-              </p>
-            ) : null}
-            {saveError === 'save_failed' || saveError === 'invalid_state' ? (
-              <p className="cm-gear-builder-status cm-gear-builder-status--error">
-                {tr.gearBuilder.saveFailed}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
+        <GearBuilderSaveDialog
+          open={saveOpen}
+          onClose={() => setSaveOpen(false)}
+          locale={locale}
+          slots={slots}
+          filledCount={filledSlots}
+          bundleDailyLabel={pricing.bundleDailyLabel}
+          discountPercent={pricing.discountPercent}
+          buildName={buildName}
+          buildTrek={buildTrek}
+          trekOptions={trekOptions}
+          saveError={saveError}
+          isSaving={fetcher.state !== 'idle'}
+          canSave={hasSaveableBuild}
+          labels={{
+            title: tr.gearBuilder.savePanelTitle,
+            desc: tr.gearBuilder.savePanelDesc,
+            close: tr.booking.close,
+            buildName: tr.gearBuilder.buildName,
+            buildNamePlaceholder: tr.gearBuilder.buildNamePlaceholder,
+            trekLabel: tr.gearBuilder.trekLabel,
+            confirmSave: tr.gearBuilder.confirmSave,
+            cancelSave: tr.gearBuilder.cancelSave,
+            itemsSelected: tr.gearBuilder.itemsSelected,
+            dailyRate: tr.booking.dailyRate,
+            bundleDiscount: tr.gearBuilder.bundleDiscount,
+            nameRequired: tr.gearBuilder.nameRequired,
+            maxBuilds: tr.gearBuilder.maxBuilds.replace(
+              '{count}',
+              String(GEAR_BUILDER_MAX_SAVED_BUILDS),
+            ),
+            saveFailed: tr.gearBuilder.saveFailed,
+          }}
+          onBuildNameChange={setBuildName}
+          onTrekPick={handleTrekPick}
+          onSave={handleSave}
+        />
 
         <div className="cm-gear-builder-layout">
           <div className="cm-gear-builder-main">
