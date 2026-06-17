@@ -127,7 +127,12 @@
   }
 
   .cm-site-header-inner {
-    @apply mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:gap-4 sm:px-5 sm:py-3 md:px-8 md:py-4;
+    @apply mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 sm:py-3 md:px-8 lg:gap-4 lg:py-3;
+  }
+
+  .cm-site-nav {
+    @apply min-w-0 flex-1 items-center justify-center gap-2 px-1 xl:gap-4;
+    flex-wrap: nowrap;
   }
 
   .cm-icon-btn {
@@ -154,7 +159,7 @@
   }
 
   .cm-nav-link {
-    @apply relative text-sm font-medium text-sage/90 transition hover:text-mist no-underline hover:no-underline;
+    @apply relative shrink-0 whitespace-nowrap text-[11px] font-medium text-sage/90 transition hover:text-mist no-underline hover:no-underline xl:text-sm;
     font-family: var(--font-label);
   }
 

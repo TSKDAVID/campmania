@@ -52,17 +52,17 @@ export function Header({
       <div className="cm-site-header-inner">
         {/* Logo */}
         <NavLink prefetch="intent" to="/" className="group min-w-0 shrink-0" end>
-          <span className="font-display text-xl tracking-tight text-mist transition group-hover:text-amber sm:text-2xl">
+          <span className="font-display text-lg tracking-tight text-mist transition group-hover:text-amber sm:text-xl xl:text-2xl">
             {tr.brand}
           </span>
-          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.2em] text-sage">
+          <span className="mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-sage xl:block">
             Tbilisi · Georgia
           </span>
         </NavLink>
 
         {/* Desktop nav */}
         <nav
-          className="hidden items-center gap-8 lg:flex"
+          className="cm-site-nav hidden lg:flex"
           role="navigation"
           aria-label="Main"
         >
