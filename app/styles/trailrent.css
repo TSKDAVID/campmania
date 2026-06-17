@@ -2229,4 +2229,116 @@
   .cm-gear-builder-pdp-link {
     @apply block text-center text-sm font-semibold text-moss hover:text-forest;
   }
+
+  /* Search page */
+  .cm-search-page {
+    @apply pb-6 pt-2 sm:pb-10 sm:pt-3 md:pb-12 md:pt-4;
+  }
+
+  .cm-search-page-intro {
+    @apply space-y-4 pb-4 pt-2 sm:pb-5 sm:pt-3 md:pb-6 md:pt-4;
+  }
+
+  .cm-search-page-body {
+    @apply pb-8 sm:pb-10 md:pb-12;
+  }
+
+  .cm-search-form {
+    @apply max-w-3xl;
+  }
+
+  .cm-search-form-inner {
+    @apply flex items-center gap-2 rounded-xl border border-stone/70 bg-mist/40 p-2 shadow-sm focus-within:border-moss/40 focus-within:ring-2 focus-within:ring-moss/15 sm:gap-3 sm:p-2.5;
+  }
+
+  .cm-search-form-icon {
+    @apply ml-1 flex h-9 w-9 shrink-0 items-center justify-center text-moss;
+  }
+
+  .cm-search-input {
+    @apply min-w-0 flex-1 border-0 bg-transparent px-1 py-2 text-sm text-charcoal outline-none placeholder:text-muted sm:text-base;
+  }
+
+  .cm-search-submit {
+    @apply shrink-0 px-4 py-2.5 text-sm sm:px-5;
+  }
+
+  .cm-search-meta {
+    @apply flex flex-wrap items-center justify-between gap-2 border-b border-stone/60 pb-3;
+  }
+
+  .cm-search-meta-term {
+    @apply text-sm font-semibold text-pine;
+  }
+
+  .cm-search-meta-count {
+    @apply text-xs font-medium text-muted;
+    font-family: var(--font-label);
+  }
+
+  .cm-search-error {
+    @apply mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800;
+  }
+
+  .cm-search-results {
+    @apply space-y-8;
+  }
+
+  .cm-search-section {
+    @apply space-y-4;
+  }
+
+  .cm-search-section-title {
+    @apply m-0 font-display text-lg font-bold text-pine sm:text-xl;
+  }
+
+  .cm-search-product-grid {
+    @apply mt-2;
+  }
+
+  .cm-search-price-suffix {
+    @apply text-xs font-medium text-muted;
+  }
+
+  .cm-search-pagination {
+    @apply flex flex-wrap items-center justify-between gap-3;
+  }
+
+  .cm-search-pagination--bottom {
+    @apply mt-4 border-t border-stone/60 pt-4;
+  }
+
+  .cm-search-pagination-btn {
+    @apply inline-flex items-center rounded-lg border border-stone/70 bg-white px-4 py-2 text-sm font-semibold text-pine transition hover:border-moss/40 hover:bg-mist disabled:cursor-not-allowed disabled:opacity-50;
+    font-family: var(--font-label);
+    text-decoration: none;
+  }
+
+  .cm-search-link-list {
+    @apply divide-y divide-stone/60 overflow-hidden rounded-xl border border-stone/60 bg-mist/20;
+  }
+
+  .cm-search-link-item {
+    @apply flex items-center justify-between gap-3 px-4 py-3.5 text-sm font-medium text-charcoal no-underline transition hover:bg-white hover:text-forest;
+  }
+
+  .cm-search-empty {
+    @apply flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone/70 bg-mist/30 px-6 py-14 text-center;
+  }
+
+  .cm-search-empty-icon {
+    @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-pine/8 text-moss;
+  }
+
+  .cm-search-empty-title {
+    @apply font-display text-xl font-bold text-pine;
+  }
+
+  .cm-search-empty-term {
+    @apply mt-2 text-sm font-semibold text-charcoal/80;
+  }
+
+  .cm-search-empty-hint {
+    @apply mt-2 max-w-md text-sm leading-relaxed text-muted;
+  }
 }

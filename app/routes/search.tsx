@@ -3,6 +3,9 @@ import type {Route} from './+types/search';
 import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
 import {SearchForm} from '~/components/SearchForm';
 import {SearchResults} from '~/components/SearchResults';
+import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
+import {IconSearch} from '~/components/trailrent/Icons';
+import {useLocale} from '~/providers/LocaleProvider';
 import {
   type RegularSearchReturn,
   type PredictiveSearchReturn,
@@ -14,7 +17,7 @@ import type {
 } from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Campmania | Search`}];
+  return [{title: 'Campmania | Search'}];
 };
 
 export async function loader({request, context}: Route.LoaderArgs) {
@@ -33,47 +36,83 @@ export async function loader({request, context}: Route.LoaderArgs) {
   return await searchPromise;
 }
 
-/**
- * Renders the /search route
- */
 export default function SearchPage() {
   const {type, term, result, error} = useLoaderData<typeof loader>();
+  const {translations: tr} = useLocale();
+
   if (type === 'predictive') return null;
 
+  const hasTerm = Boolean(term?.trim());
+  const hasResults = Boolean(result?.total);
+
   return (
-    <div className="search">
-      <h1>Search</h1>
-      <SearchForm>
-        {({inputRef}) => (
-          <>
-            <input
-              defaultValue={term}
-              name="q"
-              placeholder="Search…"
-              ref={inputRef}
-              type="search"
-            />
-            &nbsp;
-            <button type="submit">Search</button>
-          </>
-        )}
-      </SearchForm>
-      {error && <p style={{color: 'red'}}>{error}</p>}
-      {!term || !result?.total ? (
-        <SearchResults.Empty />
-      ) : (
-        <SearchResults result={result} term={term}>
-          {({articles, pages, products, term}) => (
-            <div>
-              <SearchResults.Products products={products} term={term} />
-              <SearchResults.Pages pages={pages} term={term} />
-              <SearchResults.Articles articles={articles} term={term} />
+    <section className="cm-search-page bg-white">
+      <div className="tr-page-width cm-search-page-intro">
+        <CatalogPageHeading title={tr.searchPage.title} />
+
+        <SearchForm className="cm-search-form">
+          {({inputRef}) => (
+            <div className="cm-search-form-inner">
+              <span className="cm-search-form-icon" aria-hidden>
+                <IconSearch size={20} />
+              </span>
+              <input
+                ref={inputRef}
+                className="cm-search-input"
+                defaultValue={term}
+                name="q"
+                placeholder={tr.home.searchPlaceholder}
+                type="search"
+                autoComplete="off"
+              />
+              <button type="submit" className="tr-btn-primary cm-search-submit">
+                {tr.searchPage.submit}
+              </button>
             </div>
           )}
-        </SearchResults>
-      )}
+        </SearchForm>
+
+        {hasTerm && hasResults ? (
+          <div className="cm-search-meta">
+            <p className="cm-search-meta-term">
+              {tr.searchPage.resultsFor.replace('{term}', term)}
+            </p>
+            <p className="cm-search-meta-count">
+              {tr.searchPage.resultCount.replace(
+                '{count}',
+                String(result?.total ?? 0),
+              )}
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="tr-page-width cm-search-page-body">
+        {error ? (
+          <p className="cm-search-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+
+        {!hasTerm ? (
+          <SearchResults.Prompt />
+        ) : !hasResults ? (
+          <SearchResults.Empty term={term} />
+        ) : (
+          <SearchResults result={result!} term={term}>
+            {({articles, pages, products, term: searchTerm}) => (
+              <div className="cm-search-results">
+                <SearchResults.Products products={products} term={searchTerm} />
+                <SearchResults.Pages pages={pages} term={searchTerm} />
+                <SearchResults.Articles articles={articles} term={searchTerm} />
+              </div>
+            )}
+          </SearchResults>
+        )}
+      </div>
+
       <Analytics.SearchView data={{searchTerm: term, searchResults: result}} />
-    </div>
+    </section>
   );
 }
 
@@ -222,10 +261,9 @@ async function regularSearch({
 >): Promise<RegularSearchReturn> {
   const {storefront} = context;
   const url = new URL(request.url);
-  const variables = getPaginationVariables(request, {pageBy: 8});
+  const variables = getPaginationVariables(request, {pageBy: 12});
   const term = String(url.searchParams.get('q') || '');
 
-  // Search articles, pages, and products for the `q` term
   const {
     errors,
     ...items
@@ -393,14 +431,12 @@ async function predictiveSearch({
 
   if (!term) return {type, term, result: getEmptyPredictiveSearchResult()};
 
-  // Predictively search articles, collections, pages, products, and queries (suggestions)
   const {
     predictiveSearch: items,
     errors,
   }: PredictiveSearchQuery & {errors?: Array<{message: string}>} =
     await storefront.query(PREDICTIVE_SEARCH_QUERY, {
       variables: {
-        // customize search options as needed
         limit,
         limitScope: 'EACH',
         term,

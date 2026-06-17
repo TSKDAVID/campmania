@@ -1,5 +1,9 @@
 import {Link} from 'react-router';
-import {Image, Money, Pagination} from '@shopify/hydrogen';
+import {Pagination} from '@shopify/hydrogen';
+import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
+import {IconArrowRight, IconSearch} from '~/components/trailrent/Icons';
+import {useLocale} from '~/providers/LocaleProvider';
+import {formatGel} from '~/lib/trailrent/pricing';
 import {urlWithTrackingParams, type RegularSearchReturn} from '~/lib/search';
 
 type SearchItems = RegularSearchReturn['result']['items'];
@@ -29,20 +33,37 @@ SearchResults.Articles = SearchResultsArticles;
 SearchResults.Pages = SearchResultsPages;
 SearchResults.Products = SearchResultsProducts;
 SearchResults.Empty = SearchResultsEmpty;
+SearchResults.Prompt = SearchResultsPrompt;
+
+function SearchResultsPrompt() {
+  const {translations: tr} = useLocale();
+
+  return (
+    <div className="cm-search-empty">
+      <span className="cm-search-empty-icon" aria-hidden>
+        <IconSearch size={28} />
+      </span>
+      <h2 className="cm-search-empty-title">{tr.searchPage.promptTitle}</h2>
+      <p className="cm-search-empty-hint">{tr.searchPage.promptHint}</p>
+    </div>
+  );
+}
 
 function SearchResultsArticles({
   term,
   articles,
 }: PartialSearchResult<'articles'>) {
+  const {translations: tr} = useLocale();
+
   if (!articles?.nodes.length) {
     return null;
   }
 
   return (
-    <div className="search-result">
-      <h2>Articles</h2>
-      <div>
-        {articles?.nodes?.map((article) => {
+    <section className="cm-search-section">
+      <h2 className="cm-search-section-title">{tr.searchPage.articles}</h2>
+      <ul className="cm-search-link-list">
+        {articles.nodes.map((article) => {
           const articleUrl = urlWithTrackingParams({
             baseUrl: `/blogs/${article.handle}`,
             trackingParams: article.trackingParameters,
@@ -50,29 +71,31 @@ function SearchResultsArticles({
           });
 
           return (
-            <div className="search-results-item" key={article.id}>
-              <Link prefetch="intent" to={articleUrl}>
-                {article.title}
+            <li key={article.id}>
+              <Link prefetch="intent" to={articleUrl} className="cm-search-link-item">
+                <span>{article.title}</span>
+                <IconArrowRight size={16} />
               </Link>
-            </div>
+            </li>
           );
         })}
-      </div>
-      <br />
-    </div>
+      </ul>
+    </section>
   );
 }
 
 function SearchResultsPages({term, pages}: PartialSearchResult<'pages'>) {
+  const {translations: tr} = useLocale();
+
   if (!pages?.nodes.length) {
     return null;
   }
 
   return (
-    <div className="search-result">
-      <h2>Pages</h2>
-      <div>
-        {pages?.nodes?.map((page) => {
+    <section className="cm-search-section">
+      <h2 className="cm-search-section-title">{tr.searchPage.pages}</h2>
+      <ul className="cm-search-link-list">
+        {pages.nodes.map((page) => {
           const pageUrl = urlWithTrackingParams({
             baseUrl: `/pages/${page.handle}`,
             trackingParams: page.trackingParameters,
@@ -80,16 +103,16 @@ function SearchResultsPages({term, pages}: PartialSearchResult<'pages'>) {
           });
 
           return (
-            <div className="search-results-item" key={page.id}>
-              <Link prefetch="intent" to={pageUrl}>
-                {page.title}
+            <li key={page.id}>
+              <Link prefetch="intent" to={pageUrl} className="cm-search-link-item">
+                <span>{page.title}</span>
+                <IconArrowRight size={16} />
               </Link>
-            </div>
+            </li>
           );
         })}
-      </div>
-      <br />
-    </div>
+      </ul>
+    </section>
   );
 }
 
@@ -97,65 +120,85 @@ function SearchResultsProducts({
   term,
   products,
 }: PartialSearchResult<'products'>) {
+  const {translations: tr} = useLocale();
+
   if (!products?.nodes.length) {
     return null;
   }
 
   return (
-    <div className="search-result">
-      <h2>Products</h2>
+    <section className="cm-search-section">
+      <h2 className="cm-search-section-title">{tr.searchPage.products}</h2>
       <Pagination connection={products}>
-        {({nodes, isLoading, NextLink, PreviousLink}) => {
-          const ItemsMarkup = nodes.map((product) => {
-            const productUrl = urlWithTrackingParams({
-              baseUrl: `/products/${product.handle}`,
-              trackingParams: product.trackingParameters,
-              term,
-            });
+        {({nodes, isLoading, NextLink, PreviousLink}) => (
+          <>
+            <div className="cm-catalog-grid cm-catalog-grid--gear cm-search-product-grid">
+              {nodes.map((product, index) => {
+                const productUrl = urlWithTrackingParams({
+                  baseUrl: `/products/${product.handle}`,
+                  trackingParams: product.trackingParameters,
+                  term,
+                });
 
-            const price = product?.selectedOrFirstAvailableVariant?.price;
-            const image = product?.selectedOrFirstAvailableVariant?.image;
+                const price = product.selectedOrFirstAvailableVariant?.price;
+                const image = product.selectedOrFirstAvailableVariant?.image;
+                const amount = price ? Number(price.amount) : 0;
+                const priceLabel = price ? (
+                  <>
+                    {formatGel(amount)}
+                    <span className="cm-search-price-suffix">
+                      {' '}
+                      {tr.searchPage.perDay}
+                    </span>
+                  </>
+                ) : (
+                  '—'
+                );
 
-            return (
-              <div className="search-results-item" key={product.id}>
-                <Link prefetch="intent" to={productUrl}>
-                  {image && (
-                    <Image data={image} alt={product.title} width={50} />
-                  )}
-                  <div>
-                    <p>{product.title}</p>
-                    <small>{price && <Money data={price} />}</small>
-                  </div>
-                </Link>
-              </div>
-            );
-          });
-
-          return (
-            <div>
-              <div>
-                <PreviousLink>
-                  {isLoading ? 'Loading...' : <span>↑ Load previous</span>}
-                </PreviousLink>
-              </div>
-              <div>
-                {ItemsMarkup}
-                <br />
-              </div>
-              <div>
-                <NextLink>
-                  {isLoading ? 'Loading...' : <span>Load more ↓</span>}
-                </NextLink>
-              </div>
+                return (
+                  <CatalogProductCard
+                    key={product.id}
+                    to={productUrl}
+                    title={product.title}
+                    imageUrl={image?.url}
+                    imageAlt={image?.altText ?? product.title}
+                    price={priceLabel}
+                    loading={index < 4 ? 'eager' : 'lazy'}
+                  />
+                );
+              })}
             </div>
-          );
-        }}
+
+            <div className="cm-search-pagination cm-search-pagination--bottom">
+              <PreviousLink className="cm-search-pagination-btn">
+                {isLoading ? tr.searchPage.loading : tr.searchPage.loadPrevious}
+              </PreviousLink>
+              <NextLink className="cm-search-pagination-btn">
+                {isLoading ? tr.searchPage.loading : tr.searchPage.loadMore}
+              </NextLink>
+            </div>
+          </>
+        )}
       </Pagination>
-      <br />
-    </div>
+    </section>
   );
 }
 
-function SearchResultsEmpty() {
-  return <p>No results, try a different search.</p>;
+function SearchResultsEmpty({term}: {term?: string}) {
+  const {translations: tr} = useLocale();
+
+  return (
+    <div className="cm-search-empty">
+      <span className="cm-search-empty-icon" aria-hidden>
+        <IconSearch size={28} />
+      </span>
+      <h2 className="cm-search-empty-title">{tr.searchPage.emptyTitle}</h2>
+      {term ? (
+        <p className="cm-search-empty-term">
+          {tr.searchPage.resultsFor.replace('{term}', term)}
+        </p>
+      ) : null}
+      <p className="cm-search-empty-hint">{tr.searchPage.emptyHint}</p>
+    </div>
+  );
 }
