@@ -1,4 +1,4 @@
-import {data, redirect, useFetcher, useLoaderData} from 'react-router';
+import {data, redirect, useFetcher, useLoaderData, useSearchParams} from 'react-router';
 import type {Route} from './+types/gear-builder';
 import {useEffect, useMemo, useState} from 'react';
 import {CartForm} from '@shopify/hydrogen';
@@ -13,18 +13,31 @@ import {
 import {
   GearBuilderStrip,
   GearOptionGrid,
+  GearTypeIcon,
   gearTypeLabel,
 } from '~/components/trailrent/GearBuilderPanel';
 import {loadShopifyGear} from '~/lib/trailrent/shopify-catalog';
 import {getLocaleFromRequest} from '~/providers/LocaleProvider';
+import {TREK_FILTERS} from '~/lib/trailrent/catalog';
 import {
+  createBuildId,
+  findSavedBuild,
   parseGearBuilderState,
-  readGearBuilderFromSession,
-  writeGearBuilderToSession,
+  readGearBuilderLibrary,
+  upsertSavedBuild,
+  writeGearBuilderLibrary,
 } from '~/lib/trailrent/gear-builder/storage';
-import {IconCart} from '~/components/trailrent/Icons';
+import {
+  IconCart,
+  IconCheck,
+  IconLayers,
+  IconMountain,
+  IconSave,
+  IconTrash,
+} from '~/components/trailrent/Icons';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 import {isGearBuilderEnabled} from '~/lib/trailrent/feature-flags';
+import {GEAR_BUILDER_MAX_SAVED_BUILDS} from '~/lib/trailrent/gear-builder/types';
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Campmania | Gear Builder'},
@@ -50,11 +63,15 @@ export async function loader({context, request}: Route.LoaderArgs) {
     customerId = customerData?.customer?.id ?? null;
   }
 
-  const sessionState = readGearBuilderFromSession(context.session, customerId);
+  const library = readGearBuilderLibrary(context.session, customerId);
+  const url = new URL(request.url);
+  const buildId = url.searchParams.get('build');
+  const loadedBuild = buildId ? findSavedBuild(library, buildId) : null;
 
   return {
     gear,
-    sessionState,
+    library,
+    loadedBuild,
     isLoggedIn,
     customerId,
   };
@@ -84,61 +101,113 @@ export async function action({request, context}: Route.ActionArgs) {
   const formData = await request.formData();
   const intent = String(formData.get('intent') ?? '');
 
-  if (intent === 'clear') {
-    const customerId = await resolveGearBuilderCustomerId(context);
-    writeGearBuilderToSession(context.session, null, customerId);
-    return data({ok: true, cleared: true});
-  }
-
   if (intent === 'save') {
     const customerId = await resolveGearBuilderCustomerId(context);
     const raw = String(formData.get('state') ?? '');
+    const name = String(formData.get('name') ?? '').trim();
+    const trek = String(formData.get('trek') ?? '').trim() || undefined;
+    const buildId = String(formData.get('buildId') ?? '').trim() || undefined;
 
     let parsed;
     try {
       parsed = parseGearBuilderState(JSON.parse(raw));
     } catch (error) {
       console.error('gear-builder: invalid save payload', error);
-      return data({ok: false, error: 'Invalid builder state'}, {status: 400});
+      return data({ok: false, error: 'invalid_state'}, {status: 400});
     }
 
     if (!parsed) {
-      return data({ok: false, error: 'Invalid builder state'}, {status: 400});
+      return data({ok: false, error: 'invalid_state'}, {status: 400});
     }
     if (!parsed.slots.some((slot) => slot.productId)) {
-      return data({ok: false, error: 'Empty builder state'}, {status: 400});
+      return data({ok: false, error: 'empty_state'}, {status: 400});
+    }
+    if (!name) {
+      return data({ok: false, error: 'name_required'}, {status: 400});
+    }
+
+    const library = readGearBuilderLibrary(context.session, customerId);
+    const id = buildId ?? createBuildId();
+    const {library: nextLibrary, error} = upsertSavedBuild(library, {
+      id,
+      name,
+      trek,
+      slots: parsed.slots,
+      updatedAt: new Date().toISOString(),
+    });
+
+    if (error === 'max_builds') {
+      return data({ok: false, error: 'max_builds'}, {status: 400});
     }
 
     try {
-      writeGearBuilderToSession(context.session, parsed, customerId);
+      writeGearBuilderLibrary(context.session, nextLibrary, customerId);
     } catch (error) {
       console.error('gear-builder: session write failed', error);
-      return data({ok: false, error: 'Save failed'}, {status: 500});
+      return data({ok: false, error: 'save_failed'}, {status: 500});
     }
 
-    return data({ok: true, saved: true});
+    return data({ok: true, saved: true, buildId: id});
   }
 
   return redirect('/gear-builder');
 }
 
 export default function GearBuilderPage() {
-  const {gear, sessionState, isLoggedIn} = useLoaderData<typeof loader>();
+  const {gear, loadedBuild, isLoggedIn} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
   const fetcher = useFetcher<typeof action>();
   const builder = useGearBuilder();
+  const [searchParams] = useSearchParams();
   const [activeType, setActiveType] = useState<GearItemType | null>(null);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [buildName, setBuildName] = useState('');
+  const [buildTrek, setBuildTrek] = useState('');
+  const [hydratedBuildId, setHydratedBuildId] = useState<string | null>(null);
+
+  const trekOptions = TREK_FILTERS.map((trek) => ({
+    value: trek.value,
+    label: locale === 'ka' ? trek.labelKa : trek.labelEn,
+  }));
 
   useEffect(() => {
-    if (builder.state.slots.length || !sessionState?.slots.length) return;
-    builder.replaceState(sessionState);
-  }, [builder, sessionState]);
+    const currentBuildId = searchParams.get('build');
+    if (!currentBuildId || !loadedBuild || hydratedBuildId === currentBuildId) return;
+
+    builder.replaceState({
+      version: 1,
+      slots: loadedBuild.slots,
+      updatedAt: loadedBuild.updatedAt,
+      buildId: loadedBuild.id,
+      name: loadedBuild.name,
+      trek: loadedBuild.trek,
+    });
+    setBuildName(loadedBuild.name);
+    setBuildTrek(loadedBuild.trek ?? '');
+    setHydratedBuildId(currentBuildId);
+  }, [loadedBuild, builder, searchParams, hydratedBuildId]);
 
   useEffect(() => {
-    if (fetcher.data && 'cleared' in fetcher.data && fetcher.data.cleared) {
-      builder.clearAll();
+    if (builder.state.name && !buildName) {
+      setBuildName(builder.state.name);
     }
-  }, [fetcher.data, builder]);
+    if (builder.state.trek && !buildTrek) {
+      setBuildTrek(builder.state.trek);
+    }
+  }, [builder.state.name, builder.state.trek, buildName, buildTrek]);
+
+  useEffect(() => {
+    if (fetcher.data && 'saved' in fetcher.data && fetcher.data.saved) {
+      setSaveOpen(false);
+      if (fetcher.data.buildId) {
+        builder.setBuildMeta({
+          buildId: fetcher.data.buildId,
+          name: buildName.trim(),
+          trek: buildTrek || undefined,
+        });
+      }
+    }
+  }, [fetcher.data, builder, buildName, buildTrek]);
 
   const grouped = useMemo(
     () => groupGearByType(gear.map((item) => item.builderProduct)),
@@ -146,6 +215,7 @@ export default function GearBuilderPage() {
   );
 
   const slots = builder.state.slots;
+  const filledSlots = slots.filter((slot) => slot.productId).length;
 
   const hasSaveableBuild = slots.some((slot) => slot.productId);
   const subtotalDaily = slots.reduce((sum, slot) => sum + (slot.dailyRate ?? 0), 0);
@@ -154,18 +224,83 @@ export default function GearBuilderPage() {
 
   const activeProducts = activeType ? grouped[activeType] ?? [] : [];
 
+  const handleClearDraft = () => {
+    builder.clearAll();
+    setActiveType(null);
+    setBuildName('');
+    setBuildTrek('');
+    setSaveOpen(false);
+  };
+
+  const handleTrekPick = (trekValue: string) => {
+    setBuildTrek(trekValue);
+    const trek = trekOptions.find((entry) => entry.value === trekValue);
+    if (trek && !buildName.trim()) {
+      setBuildName(
+        locale === 'ka' ? `${trek.label} — კომპლექტი` : `${trek.label} kit`,
+      );
+    }
+  };
+
+  const handleSave = () => {
+    const name = buildName.trim();
+    if (!name) return;
+
+    builder.setBuildMeta({
+      name,
+      trek: buildTrek || undefined,
+      buildId: builder.state.buildId,
+    });
+
+    fetcher.submit(
+      {
+        intent: 'save',
+        state: JSON.stringify({
+          ...builder.state,
+          name,
+          trek: buildTrek || undefined,
+        }),
+        name,
+        trek: buildTrek,
+        buildId: builder.state.buildId ?? '',
+      },
+      {method: 'post'},
+    );
+  };
+
+  const saveError =
+    fetcher.data && 'error' in fetcher.data ? fetcher.data.error : null;
+
   return (
     <section className="cm-gear-builder-page bg-mist">
       <div className="tr-page-width cm-gear-builder-page-inner">
         <header className="cm-gear-builder-header">
-          <p className="tr-eyebrow">{tr.gearBuilder.eyebrow}</p>
-          <h1 className="cm-gear-builder-title">{tr.gearBuilder.title}</h1>
-          <p className="cm-gear-builder-subtitle">{tr.gearBuilder.subtitle}</p>
+          <div className="cm-gear-builder-header-icon" aria-hidden>
+            <IconLayers size={24} />
+          </div>
+          <div>
+            <p className="tr-eyebrow">{tr.gearBuilder.eyebrow}</p>
+            <h1 className="cm-gear-builder-title">{tr.gearBuilder.title}</h1>
+            <p className="cm-gear-builder-subtitle">{tr.gearBuilder.subtitle}</p>
+          </div>
         </header>
+
+        <div className="cm-gear-builder-steps" aria-label={tr.gearBuilder.stepsLabel}>
+          <span className="cm-gear-builder-step cm-gear-builder-step--active">
+            1. {tr.gearBuilder.stepPick}
+          </span>
+          <span className="cm-gear-builder-step">
+            2. {tr.gearBuilder.stepConfigure}
+          </span>
+          <span className="cm-gear-builder-step">
+            3. {tr.gearBuilder.stepSave}
+          </span>
+        </div>
 
         <GearBuilderStrip
           slots={slots}
           locale={locale}
+          maxSlots={builder.maxSlots}
           activeType={activeType}
           onSelectType={setActiveType}
           onAddType={(type) => {
@@ -179,43 +314,131 @@ export default function GearBuilderPage() {
           onClearSlotProduct={builder.clearSlotProduct}
           removeSlotLabel={tr.gearBuilder.removeSlot}
           clearItemLabel={tr.gearBuilder.clearSlotItem}
+          slotLimitLabel={tr.gearBuilder.slotLimit}
         />
 
         <div className="cm-gear-builder-toolbar">
-          <fetcher.Form method="post">
-            <input type="hidden" name="intent" value="clear" />
-            <button type="submit" className="tr-btn-secondary" disabled={!slots.length}>
-              {tr.gearBuilder.clearAll}
-            </button>
-          </fetcher.Form>
           <button
             type="button"
-            className="tr-btn-secondary"
-            disabled={!hasSaveableBuild || fetcher.state !== 'idle'}
-            onClick={() => {
-              fetcher.submit(
-                {intent: 'save', state: JSON.stringify(builder.state)},
-                {method: 'post'},
-              );
-            }}
+            className="tr-btn-secondary cm-gear-builder-toolbar-btn"
+            disabled={!slots.length}
+            onClick={handleClearDraft}
           >
+            <IconTrash size={16} />
+            {tr.gearBuilder.clearDraft}
+          </button>
+
+          <button
+            type="button"
+            className="tr-btn-secondary cm-gear-builder-toolbar-btn"
+            disabled={!hasSaveableBuild}
+            onClick={() => setSaveOpen((open) => !open)}
+          >
+            <IconSave size={16} />
             {isLoggedIn ? tr.gearBuilder.saveGear : tr.gearBuilder.saveSession}
           </button>
-          {fetcher.data && 'saved' in fetcher.data && fetcher.data.saved && hasSaveableBuild ? (
-            <p className="text-sm font-medium text-moss">{tr.gearBuilder.saved}</p>
-          ) : null}
-          {fetcher.data && 'error' in fetcher.data && fetcher.data.error ? (
-            <p className="text-sm font-medium text-red-700">{tr.gearBuilder.saveFailed}</p>
+
+          {fetcher.data && 'saved' in fetcher.data && fetcher.data.saved ? (
+            <p className="cm-gear-builder-status cm-gear-builder-status--success">
+              <IconCheck size={16} />
+              {tr.gearBuilder.saved}
+            </p>
           ) : null}
         </div>
+
+        {saveOpen ? (
+          <div className="cm-gear-builder-save-panel">
+            <div className="cm-gear-builder-save-panel-head">
+              <IconMountain size={18} className="text-moss" />
+              <div>
+                <h2 className="cm-gear-builder-save-title">{tr.gearBuilder.savePanelTitle}</h2>
+                <p className="cm-gear-builder-save-desc">{tr.gearBuilder.savePanelDesc}</p>
+              </div>
+            </div>
+
+            <label className="cm-gear-builder-field">
+              <span>{tr.gearBuilder.buildName}</span>
+              <input
+                type="text"
+                value={buildName}
+                maxLength={48}
+                placeholder={tr.gearBuilder.buildNamePlaceholder}
+                onChange={(event) => setBuildName(event.target.value)}
+              />
+            </label>
+
+            <div className="cm-gear-builder-field">
+              <span>{tr.gearBuilder.trekLabel}</span>
+              <div className="cm-gear-builder-trek-chips">
+                {trekOptions.map((trek) => (
+                  <button
+                    key={trek.value}
+                    type="button"
+                    className={`cm-gear-builder-trek-chip${
+                      buildTrek === trek.value ? ' cm-gear-builder-trek-chip--active' : ''
+                    }`}
+                    onClick={() => handleTrekPick(trek.value)}
+                  >
+                    {trek.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="cm-gear-builder-save-actions">
+              <button
+                type="button"
+                className="tr-btn-primary"
+                disabled={
+                  !buildName.trim() ||
+                  !hasSaveableBuild ||
+                  fetcher.state !== 'idle'
+                }
+                onClick={handleSave}
+              >
+                <IconSave size={16} />
+                {tr.gearBuilder.confirmSave}
+              </button>
+              <button
+                type="button"
+                className="tr-btn-secondary"
+                onClick={() => setSaveOpen(false)}
+              >
+                {tr.gearBuilder.cancelSave}
+              </button>
+            </div>
+
+            {saveError === 'name_required' ? (
+              <p className="cm-gear-builder-status cm-gear-builder-status--error">
+                {tr.gearBuilder.nameRequired}
+              </p>
+            ) : null}
+            {saveError === 'max_builds' ? (
+              <p className="cm-gear-builder-status cm-gear-builder-status--error">
+                {tr.gearBuilder.maxBuilds.replace(
+                  '{count}',
+                  String(GEAR_BUILDER_MAX_SAVED_BUILDS),
+                )}
+              </p>
+            ) : null}
+            {saveError === 'save_failed' || saveError === 'invalid_state' ? (
+              <p className="cm-gear-builder-status cm-gear-builder-status--error">
+                {tr.gearBuilder.saveFailed}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="cm-gear-builder-layout">
           <div className="cm-gear-builder-main">
             {activeType ? (
               <>
-                <h2 className="cm-gear-builder-section-title">
-                  {gearTypeLabel(activeType, locale)}
-                </h2>
+                <div className="cm-gear-builder-main-head">
+                  <GearTypeIcon type={activeType} size={22} className="text-forest" />
+                  <h2 className="cm-gear-builder-section-title">
+                    {gearTypeLabel(activeType, locale)}
+                  </h2>
+                </div>
                 <GearOptionGrid
                   products={activeProducts}
                   locale={locale}
@@ -227,25 +450,41 @@ export default function GearBuilderPage() {
                 />
               </>
             ) : (
-              <p className="cm-gear-builder-hint">{tr.gearBuilder.pickSlotHint}</p>
+              <div className="cm-gear-builder-hint-card">
+                <IconLayers size={28} className="text-moss" />
+                <p className="cm-gear-builder-hint">{tr.gearBuilder.pickSlotHint}</p>
+              </div>
             )}
           </div>
 
           <aside className="cm-gear-builder-summary">
-            <h2 className="cm-gear-builder-section-title">{tr.booking.total}</h2>
-            <div className="cm-gear-builder-summary-row">
-              <span>{tr.booking.dailyRate}</span>
-              <span>{pricing.bundleDailyLabel}</span>
+            <h2 className="cm-gear-builder-summary-title">{tr.booking.total}</h2>
+            <div className="cm-gear-builder-summary-metrics">
+              <div className="cm-gear-builder-summary-row">
+                <span>{tr.gearBuilder.itemsSelected}</span>
+                <span>{filledSlots}</span>
+              </div>
+              <div className="cm-gear-builder-summary-row">
+                <span>{tr.booking.dailyRate}</span>
+                <span className="cm-gear-builder-summary-price">
+                  {pricing.bundleDailyLabel}
+                </span>
+              </div>
             </div>
             <p className="cm-gear-builder-discount">
               -{pricing.discountPercent}% {tr.gearBuilder.bundleDiscount}
             </p>
             <ul className="cm-gear-builder-summary-list">
-              {slots.map((slot) => (
-                <li key={slot.itemType}>
-                  {slot.title ?? gearTypeLabel(slot.itemType, locale)}
-                </li>
-              ))}
+              {slots.length ? (
+                slots.map((slot) => (
+                  <li key={slot.itemType}>
+                    <GearTypeIcon type={slot.itemType} size={16} className="text-moss" />
+                    <span>{slot.title ?? gearTypeLabel(slot.itemType, locale)}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="cm-gear-builder-summary-empty">{tr.gearBuilder.summaryEmpty}</li>
+              )}
             </ul>
             <CartForm
               route="/cart"
@@ -255,7 +494,7 @@ export default function GearBuilderPage() {
               {(cartFetcher) => (
                 <button
                   type="submit"
-                  className="tr-btn-primary w-full"
+                  className="tr-btn-primary cm-gear-builder-cart-btn w-full"
                   disabled={!cartLines.length || cartFetcher.state !== 'idle'}
                 >
                   <IconCart size={18} />

@@ -212,3 +212,83 @@ export function IconCart(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconBackpack(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 8V7a4 4 0 018 0v1" {...stroke} />
+      <path d="M6 8h12l-1 11H7L6 8z" {...stroke} />
+      <path d="M10 12h4" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconBoot(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 14h8l2 4H4l2-4z" {...stroke} />
+      <path d="M8 14V9a2 2 0 014 0v5" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconSleepingBag(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 18c2-8 4-10 7-10s5 2 7 10H5z" {...stroke} />
+      <path d="M9 12h6" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconKitchen(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 10h12v8H6z" {...stroke} />
+      <path d="M9 7v3M12 6v4M15 7v3" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconFlashlight(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 4h4l1 4-3 12-3-12 1-4z" {...stroke} />
+      <path d="M11 8h2" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconPlus(props: IconProps) {
+  return (
+    <Icon {...props} size={props.size ?? 16}>
+      <path d="M12 5v14M5 12h14" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconTrash(props: IconProps) {
+  return (
+    <Icon {...props} size={props.size ?? 16}>
+      <path d="M5 7h14M9 7V5h6v2M8 7l1 12h6l1-12" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconSave(props: IconProps) {
+  return (
+    <Icon {...props} size={props.size ?? 16}>
+      <path d="M6 4h10l2 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" {...stroke} />
+      <path d="M8 4v5h8V4M8 18h8" {...stroke} />
+    </Icon>
+  );
+}
+
+export function IconLayers(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4l8 4-8 4-8-4 8-4z" {...stroke} />
+      <path d="M4 12l8 4 8-4M4 16l8 4 8-4" {...stroke} />
+    </Icon>
+  );
+}

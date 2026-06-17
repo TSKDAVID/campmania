@@ -13,6 +13,7 @@ import type {
   GearBuilderState,
   GearItemType,
 } from '~/lib/trailrent/gear-builder';
+import {GEAR_BUILDER_MAX_SLOTS} from '~/lib/trailrent/gear-builder';
 import {
   emptyGearBuilderState,
   GEAR_BUILDER_LOCAL_KEY,
@@ -36,6 +37,8 @@ type GearBuilderContextValue = {
   clearSlotProduct: (itemType: GearItemType) => void;
   clearAll: () => void;
   replaceState: (state: GearBuilderState) => void;
+  setBuildMeta: (meta: {name?: string; trek?: string; buildId?: string}) => void;
+  maxSlots: number;
 };
 
 const GearBuilderContext = createContext<GearBuilderContextValue | null>(null);
@@ -105,10 +108,12 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
 
   const addItemType = useCallback((itemType: GearItemType) => {
     setState((current) => {
+      if (current.slots.length >= GEAR_BUILDER_MAX_SLOTS) return current;
       if (current.slots.some((slot) => slot.itemType === itemType)) {
         return current;
       }
       return {
+        ...current,
         version: 1,
         slots: [...current.slots, {itemType}],
         updatedAt: new Date().toISOString(),
@@ -146,6 +151,17 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
     setState(emptyGearBuilderState());
   }, []);
 
+  const setBuildMeta = useCallback(
+    (meta: {name?: string; trek?: string; buildId?: string}) => {
+      setState((current) => ({
+        ...current,
+        ...meta,
+        updatedAt: new Date().toISOString(),
+      }));
+    },
+    [],
+  );
+
   const replaceState = useCallback((next: GearBuilderState) => {
     setState(next);
   }, []);
@@ -160,6 +176,8 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
       clearSlotProduct,
       clearAll,
       replaceState,
+      setBuildMeta,
+      maxSlots: GEAR_BUILDER_MAX_SLOTS,
     }),
     [
       state,
@@ -170,6 +188,7 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
       clearSlotProduct,
       clearAll,
       replaceState,
+      setBuildMeta,
     ],
   );
 

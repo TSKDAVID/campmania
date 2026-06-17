@@ -1806,31 +1806,70 @@
 
   /* Gear Builder */
   .cm-gear-builder-page {
-    @apply py-6 md:py-10;
+    @apply py-8 md:py-12;
   }
 
   .cm-gear-builder-page-inner {
-    @apply space-y-6;
+    @apply space-y-5 md:space-y-6;
   }
 
   .cm-gear-builder-header {
-    @apply max-w-3xl;
+    @apply flex items-start gap-4 max-w-3xl;
+  }
+
+  .cm-gear-builder-header-icon {
+    @apply mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-pine text-mist shadow-sm;
   }
 
   .cm-gear-builder-title {
-    @apply font-display text-3xl font-bold text-pine md:text-4xl;
+    @apply font-display text-3xl font-bold tracking-tight text-pine md:text-[2.35rem];
   }
 
   .cm-gear-builder-subtitle {
-    @apply mt-2 text-sm text-muted md:text-base;
+    @apply mt-2 max-w-2xl text-sm leading-relaxed text-muted md:text-base;
+  }
+
+  .cm-gear-builder-steps {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .cm-gear-builder-step {
+    @apply rounded-full border border-stone/70 bg-white px-3 py-1.5 text-xs font-semibold text-muted;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-step--active {
+    @apply border-moss/40 bg-moss/10 text-forest;
   }
 
   .cm-gear-builder-strip {
-    @apply flex flex-wrap items-center gap-2 rounded-2xl border border-stone/60 bg-white p-3 md:p-4;
+    @apply rounded-2xl border border-stone/60 bg-white p-4 shadow-sm md:p-5;
+  }
+
+  .cm-gear-builder-strip-head {
+    @apply mb-3 flex items-center justify-between gap-3;
+  }
+
+  .cm-gear-builder-strip-title {
+    @apply text-xs font-bold uppercase tracking-[0.14em] text-moss;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-slot-count {
+    @apply rounded-full bg-mist px-2.5 py-1 text-xs font-bold text-forest;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-strip-track {
+    @apply flex flex-wrap items-start gap-2;
   }
 
   .cm-gear-builder-strip-item {
     @apply flex items-center;
+  }
+
+  .cm-gear-builder-connector {
+    @apply mx-1 hidden h-px w-4 bg-stone sm:block;
   }
 
   .cm-gear-builder-slot-wrap {
@@ -1842,40 +1881,54 @@
   }
 
   .cm-gear-builder-slot-clear {
-    @apply mt-0.5 text-[10px] font-semibold text-moss transition hover:text-forest;
+    @apply mt-1 text-[10px] font-semibold text-moss transition hover:text-forest;
     font-family: var(--font-label);
   }
 
-  .cm-gear-builder-plus {
-    @apply mx-1 text-lg font-bold text-moss;
-  }
-
   .cm-gear-builder-slot {
-    @apply flex min-w-[5.5rem] flex-col items-center gap-1 rounded-xl border border-stone/70 bg-mist/40 px-2 py-2 text-center transition hover:border-moss/40 hover:bg-moss/5;
+    @apply flex min-w-[6.5rem] flex-col items-center gap-1.5 rounded-xl border border-stone/70 bg-mist/30 px-3 py-2.5 text-center transition hover:border-moss/35 hover:bg-moss/5;
   }
 
   .cm-gear-builder-slot--active {
-    @apply border-moss bg-moss/10 ring-2 ring-moss/25;
+    @apply border-moss bg-moss/10 ring-2 ring-moss/20;
+  }
+
+  .cm-gear-builder-slot--filled {
+    @apply border-moss/30 bg-white;
   }
 
   .cm-gear-builder-slot--add {
-    @apply cursor-pointer border-dashed;
+    @apply cursor-pointer border-dashed bg-transparent;
+  }
+
+  .cm-gear-builder-slot-media {
+    @apply flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-pine/8;
+  }
+
+  .cm-gear-builder-slot-media--add {
+    @apply border border-dashed border-stone text-moss;
   }
 
   .cm-gear-builder-slot-image {
-    @apply h-12 w-12 rounded-lg object-cover;
-  }
-
-  .cm-gear-builder-slot-icon {
-    @apply flex h-12 w-12 items-center justify-center rounded-lg bg-pine/10 text-xl;
+    @apply h-full w-full object-cover;
   }
 
   .cm-gear-builder-slot-label {
-    @apply max-w-[6.5rem] truncate text-[11px] font-semibold text-charcoal;
+    @apply max-w-[7rem] truncate text-[11px] font-semibold leading-tight text-charcoal;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-slot-rate {
+    @apply text-[10px] font-bold text-moss;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-limit-note {
+    @apply text-xs text-muted;
   }
 
   .cm-gear-builder-add-menu {
-    @apply absolute z-20 mt-2 flex min-w-[10rem] flex-col rounded-xl border border-stone/70 bg-white p-1 shadow-lg;
+    @apply absolute left-0 top-full z-20 mt-2 flex min-w-[11rem] flex-col rounded-xl border border-stone/70 bg-white p-1.5 shadow-xl;
   }
 
   .cm-gear-builder-add {
@@ -1883,32 +1936,106 @@
   }
 
   .cm-gear-builder-add-menu button {
-    @apply flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-mist;
+    @apply flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-charcoal hover:bg-mist;
   }
 
   .cm-gear-builder-toolbar {
-    @apply flex flex-wrap items-center gap-3;
+    @apply flex flex-wrap items-center gap-3 rounded-2xl border border-stone/50 bg-white/70 p-3;
+  }
+
+  .cm-gear-builder-toolbar-btn {
+    @apply inline-flex items-center gap-2;
   }
 
   .cm-gear-builder-toolbar .tr-btn-secondary:disabled {
     @apply cursor-not-allowed opacity-45;
   }
 
+  .cm-gear-builder-status {
+    @apply inline-flex items-center gap-1.5 text-sm font-semibold;
+  }
+
+  .cm-gear-builder-status--success {
+    @apply text-moss;
+  }
+
+  .cm-gear-builder-status--error {
+    @apply text-red-700;
+  }
+
+  .cm-gear-builder-save-panel {
+    @apply space-y-4 rounded-2xl border border-moss/25 bg-white p-4 shadow-sm md:p-5;
+  }
+
+  .cm-gear-builder-save-panel-head {
+    @apply flex items-start gap-3;
+  }
+
+  .cm-gear-builder-save-title {
+    @apply font-display text-lg font-bold text-pine;
+  }
+
+  .cm-gear-builder-save-desc {
+    @apply mt-1 text-sm text-muted;
+  }
+
+  .cm-gear-builder-field {
+    @apply block space-y-2;
+  }
+
+  .cm-gear-builder-field > span {
+    @apply text-xs font-bold uppercase tracking-[0.12em] text-muted;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-field input {
+    @apply w-full rounded-xl border border-stone/70 bg-mist/30 px-3 py-2.5 text-sm text-charcoal outline-none transition focus:border-moss focus:bg-white focus:ring-2 focus:ring-moss/15;
+  }
+
+  .cm-gear-builder-trek-chips {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .cm-gear-builder-trek-chip {
+    @apply rounded-full border border-stone/70 bg-mist/40 px-3 py-1.5 text-xs font-semibold text-charcoal transition hover:border-moss/40;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-trek-chip--active {
+    @apply border-moss bg-moss/15 text-forest;
+  }
+
+  .cm-gear-builder-save-actions {
+    @apply flex flex-wrap gap-2 pt-1;
+  }
+
   .cm-gear-builder-layout {
-    @apply grid gap-6 lg:grid-cols-[1fr_18rem];
+    @apply grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem];
   }
 
   .cm-gear-builder-main {
-    @apply rounded-2xl border border-stone/60 bg-white p-4 md:p-6;
+    @apply rounded-2xl border border-stone/60 bg-white p-4 shadow-sm md:p-6;
+  }
+
+  .cm-gear-builder-main-head {
+    @apply mb-4 flex items-center gap-2.5;
   }
 
   .cm-gear-builder-section-title {
-    @apply mb-4 font-display text-xl font-bold text-pine;
+    @apply font-display text-xl font-bold text-pine;
+  }
+
+  .cm-gear-builder-hint-card {
+    @apply flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-stone/70 bg-mist/30 px-6 py-14 text-center;
   }
 
   .cm-gear-builder-hint,
   .cm-gear-builder-empty {
-    @apply text-sm text-muted;
+    @apply text-sm leading-relaxed text-muted;
+  }
+
+  .cm-gear-builder-empty-state {
+    @apply flex flex-col items-center gap-3 rounded-xl border border-dashed border-stone/70 bg-mist/30 px-6 py-10 text-center text-sm text-muted;
   }
 
   .cm-gear-builder-options {
@@ -1916,23 +2043,23 @@
   }
 
   .cm-gear-builder-option {
-    @apply flex gap-3 rounded-xl border border-stone/60 p-3;
+    @apply flex gap-3 rounded-xl border border-stone/60 bg-mist/20 p-3 transition hover:border-moss/30 hover:bg-white;
   }
 
   .cm-gear-builder-option-media img {
-    @apply h-20 w-20 rounded-lg object-cover;
+    @apply h-20 w-20 rounded-lg object-contain bg-white;
   }
 
   .cm-gear-builder-option-fallback {
-    @apply flex h-20 w-20 items-center justify-center rounded-lg bg-mist text-moss;
+    @apply flex h-20 w-20 items-center justify-center rounded-lg bg-white text-moss;
   }
 
   .cm-gear-builder-option-title {
-    @apply text-sm font-bold text-pine;
+    @apply text-sm font-bold leading-snug text-pine;
   }
 
   .cm-gear-builder-option-price {
-    @apply mt-1 text-sm text-muted;
+    @apply mt-1 text-sm font-medium text-muted;
   }
 
   .cm-gear-builder-option-note {
@@ -1944,7 +2071,8 @@
   }
 
   .cm-gear-builder-variant-btn {
-    @apply rounded-full border border-stone px-2.5 py-1 text-xs font-semibold hover:border-moss disabled:opacity-40;
+    @apply rounded-full border border-stone bg-white px-2.5 py-1 text-xs font-semibold hover:border-moss disabled:opacity-40;
+    font-family: var(--font-label);
   }
 
   .cm-gear-builder-select-btn {
@@ -1952,23 +2080,52 @@
   }
 
   .cm-gear-builder-summary {
-    @apply h-fit rounded-2xl border border-stone/60 bg-white p-4 md:p-5;
+    @apply sticky top-24 h-fit rounded-2xl border border-stone/60 bg-white p-4 shadow-sm md:p-5;
+  }
+
+  .cm-gear-builder-summary-title {
+    @apply font-display text-lg font-bold text-pine;
+  }
+
+  .cm-gear-builder-summary-metrics {
+    @apply mt-3 space-y-2;
   }
 
   .cm-gear-builder-summary-row {
-    @apply flex items-center justify-between text-sm;
+    @apply flex items-center justify-between text-sm text-charcoal/85;
+  }
+
+  .cm-gear-builder-summary-price {
+    @apply font-bold text-pine;
   }
 
   .cm-gear-builder-discount {
-    @apply mt-1 text-xs font-semibold text-moss;
+    @apply mt-2 inline-flex rounded-full bg-moss/10 px-2.5 py-1 text-xs font-semibold text-moss;
+    font-family: var(--font-label);
   }
 
   .cm-gear-builder-summary-list {
-    @apply my-4 space-y-1 border-y border-stone/50 py-3 text-sm text-charcoal/85;
+    @apply my-4 space-y-2 border-y border-stone/50 py-3 text-sm text-charcoal/85;
+  }
+
+  .cm-gear-builder-summary-list li {
+    @apply flex items-center gap-2;
+  }
+
+  .cm-gear-builder-summary-empty {
+    @apply text-muted;
+  }
+
+  .cm-gear-builder-cart-btn {
+    @apply inline-flex items-center justify-center gap-2;
   }
 
   .cm-gear-builder-account-card {
     @apply rounded-2xl border border-stone/60 bg-white p-5 md:p-6;
+  }
+
+  .cm-gear-builder-account-build {
+    @apply rounded-xl border border-stone/60 bg-mist/25 p-4;
   }
 
   .cm-gear-builder-pdp-actions {

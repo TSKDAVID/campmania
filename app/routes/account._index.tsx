@@ -4,7 +4,9 @@ import {useLocale} from '~/providers/LocaleProvider';
 import {
   IconArrowRight,
   IconBag,
+  IconLayers,
   IconMetro,
+  IconMountain,
   IconPackage,
   IconShield,
   IconStar,
@@ -15,19 +17,18 @@ import {
 } from '~/lib/trailrent/loyalty';
 import type {CustomerDetailsQuery} from 'customer-accountapi.generated';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
-import {
-  readGearBuilderFromSession,
-} from '~/lib/trailrent/gear-builder/storage';
-import type {GearBuilderState} from '~/lib/trailrent/gear-builder';
-import {gearTypeLabel} from '~/components/trailrent/GearBuilderPanel';
+import {readGearBuilderLibrary} from '~/lib/trailrent/gear-builder/storage';
+import type {SavedGearBuild} from '~/lib/trailrent/gear-builder';
+import {TREK_FILTERS} from '~/lib/trailrent/catalog';
+import {GearTypeIcon, gearTypeLabel} from '~/components/trailrent/GearBuilderPanel';
 
 export async function loader({context}: Route.LoaderArgs) {
   const {data} = await context.customerAccount.query(CUSTOMER_DETAILS_QUERY, {
     variables: {language: context.customerAccount.i18n.language},
   });
   const customerId = data?.customer?.id ?? null;
-  const savedBuild = readGearBuilderFromSession(context.session, customerId);
-  return {savedBuild};
+  const library = readGearBuilderLibrary(context.session, customerId);
+  return {savedBuilds: library.builds};
 }
 
 export const meta: Route.MetaFunction = () => [
@@ -40,7 +41,7 @@ type AccountContext = {
 
 export default function AccountDashboard() {
   const {customer} = useOutletContext<AccountContext>();
-  const {savedBuild} = useLoaderData<typeof loader>();
+  const {savedBuilds} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
 
   const email = customer.emailAddress?.emailAddress ?? null;
@@ -55,7 +56,7 @@ export default function AccountDashboard() {
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <LoyaltyCard status={loyalty} benefits={benefits} />
-        <SavedGearBuilderCard savedBuild={savedBuild} locale={locale} />
+        <SavedGearBuilderCard savedBuilds={savedBuilds} locale={locale} />
       </div>
 
       <aside className="space-y-3">
@@ -65,21 +66,27 @@ export default function AccountDashboard() {
         <QuickLink to="/account/orders" icon={IconBag} label={tr.account.viewOrders} />
         <QuickLink to="/packages" icon={IconPackage} label={tr.account.bookKit} />
         <QuickLink to="/individual-gear" icon={IconMetro} label={tr.account.browseGear} />
-        <QuickLink to="/gear-builder" icon={IconPackage} label={tr.account.editGearBuilder} />
+        <QuickLink to="/gear-builder" icon={IconLayers} label={tr.account.editGearBuilder} />
       </aside>
     </div>
   );
 }
 
+function trekLabelFor(value: string | undefined, locale: 'ka' | 'en') {
+  if (!value) return null;
+  const trek = TREK_FILTERS.find((entry) => entry.value === value);
+  if (!trek) return value;
+  return locale === 'ka' ? trek.labelKa : trek.labelEn;
+}
+
 function SavedGearBuilderCard({
-  savedBuild,
+  savedBuilds,
   locale,
 }: {
-  savedBuild: GearBuilderState | null;
+  savedBuilds: SavedGearBuild[];
   locale: 'ka' | 'en';
 }) {
   const {translations: tr} = useLocale();
-  const slots = savedBuild?.slots ?? [];
 
   return (
     <div className="cm-gear-builder-account-card">
@@ -89,26 +96,59 @@ function SavedGearBuilderCard({
             {tr.gearBuilder.eyebrow}
           </p>
           <h2 className="mt-1 font-display text-lg font-bold text-pine">
-            {tr.gearBuilder.accountTitle}
+            {tr.gearBuilder.accountBuildsTitle}
           </h2>
         </div>
         <Link to="/gear-builder" className="tr-btn-secondary text-sm">
-          {tr.gearBuilder.accountEdit}
+          {tr.gearBuilder.accountNewBuild}
           <IconArrowRight size={14} />
         </Link>
       </div>
-      {slots.length ? (
-        <div className="mt-4">
-          <p className="text-sm text-muted">
-            {slots.length} {tr.gearBuilder.itemsSelected}
-          </p>
-          <ul className="mt-2 space-y-1 text-sm text-charcoal/85">
-            {slots.map((slot) => (
-              <li key={slot.itemType}>
-                {slot.title ?? gearTypeLabel(slot.itemType, locale)}
-              </li>
-            ))}
-          </ul>
+
+      {savedBuilds.length ? (
+        <div className="mt-4 space-y-3">
+          {savedBuilds.map((build) => {
+            const filled = build.slots.filter((slot) => slot.productId);
+            const trekLabel = trekLabelFor(build.trek, locale);
+            const title =
+              build.name.trim() || tr.gearBuilder.accountUntitled;
+
+            return (
+              <article key={build.id} className="cm-gear-builder-account-build">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-display text-base font-bold text-pine">{title}</h3>
+                    {trekLabel ? (
+                      <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-moss">
+                        <IconMountain size={14} />
+                        {trekLabel}
+                      </p>
+                    ) : null}
+                    <p className="mt-1 text-sm text-muted">
+                      {filled.length} {tr.gearBuilder.itemsSelected}
+                    </p>
+                  </div>
+                  <Link
+                    to={`/gear-builder?build=${build.id}`}
+                    className="tr-btn-secondary text-sm"
+                  >
+                    {tr.gearBuilder.accountEdit}
+                    <IconArrowRight size={14} />
+                  </Link>
+                </div>
+                {filled.length ? (
+                  <ul className="mt-3 space-y-1.5 text-sm text-charcoal/85">
+                    {filled.map((slot) => (
+                      <li key={slot.itemType} className="flex items-center gap-2">
+                        <GearTypeIcon type={slot.itemType} size={15} className="text-moss" />
+                        {slot.title ?? gearTypeLabel(slot.itemType, locale)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </article>
+            );
+          })}
         </div>
       ) : (
         <p className="mt-4 text-sm text-muted">{tr.gearBuilder.accountEmpty}</p>

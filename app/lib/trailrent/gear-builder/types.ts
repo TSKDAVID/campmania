@@ -52,7 +52,29 @@ export type GearBuilderState = {
   version: 1;
   slots: GearBuilderSlot[];
   updatedAt: string;
+  buildId?: string;
+  name?: string;
+  trek?: string;
 };
+
+export type SavedGearBuild = {
+  id: string;
+  name: string;
+  trek?: string;
+  slots: GearBuilderSlot[];
+  updatedAt: string;
+};
+
+export type GearBuilderLibrary = {
+  version: 2;
+  builds: SavedGearBuild[];
+};
+
+/** Max item slots in one working build. */
+export const GEAR_BUILDER_MAX_SLOTS = 6;
+
+/** Max named builds stored per account/session. */
+export const GEAR_BUILDER_MAX_SAVED_BUILDS = 5;
 
 export type ResolvedPackageItem = {
   productId: string;

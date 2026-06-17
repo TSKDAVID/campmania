@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState, type ComponentType} from 'react';
 import {Link} from 'react-router';
 import type {GearBuilderProduct, GearBuilderSlot, GearItemType} from '~/lib/trailrent/gear-builder';
 import {
@@ -7,95 +7,155 @@ import {
   resolveBuilderRentVariant,
 } from '~/lib/trailrent/gear-builder/variants';
 import {formatGel} from '~/lib/trailrent/pricing';
-import {IconArrowRight, IconPackage, IconX} from '~/components/trailrent/Icons';
+import {
+  IconArrowRight,
+  IconBackpack,
+  IconBoot,
+  IconCompass,
+  IconFlashlight,
+  IconKitchen,
+  IconPackage,
+  IconPlus,
+  IconSleepingBag,
+  IconTent,
+  IconX,
+  type IconProps,
+} from '~/components/trailrent/Icons';
 
-const TYPE_LABELS: Record<GearItemType, {ka: string; en: string; icon: string}> = {
-  backpack: {ka: 'რუქსაკი', en: 'Backpack', icon: '🎒'},
-  tent: {ka: 'ანსამბლი', en: 'Tent', icon: '⛺'},
-  sleeping_bag: {ka: 'საძილებელი', en: 'Sleeping bag', icon: '🛏️'},
-  shoes: {ka: 'ფეხსაცმელი', en: 'Shoes', icon: '👟'},
-  kitchen: {ka: 'სამზარეულო', en: 'Kitchen', icon: '🍳'},
-  lighting: {ka: 'განათება', en: 'Lighting', icon: '🔦'},
-  navigation: {ka: 'ნავიგაცია', en: 'Navigation', icon: '🧭'},
-  other: {ka: 'სხვა', en: 'Other', icon: '📦'},
+const TYPE_LABELS: Record<
+  GearItemType,
+  {ka: string; en: string; icon: ComponentType<IconProps>}
+> = {
+  backpack: {ka: 'რუქსაკი', en: 'Backpack', icon: IconBackpack},
+  tent: {ka: 'ანსამბლი', en: 'Tent', icon: IconTent},
+  sleeping_bag: {ka: 'საძილებელი', en: 'Sleeping bag', icon: IconSleepingBag},
+  shoes: {ka: 'ფეხსაცმელი', en: 'Shoes', icon: IconBoot},
+  kitchen: {ka: 'სამზარეულო', en: 'Kitchen', icon: IconKitchen},
+  lighting: {ka: 'განათება', en: 'Lighting', icon: IconFlashlight},
+  navigation: {ka: 'ნავიგაცია', en: 'Navigation', icon: IconCompass},
+  other: {ka: 'სხვა', en: 'Other', icon: IconPackage},
 };
 
 export function gearTypeLabel(type: GearItemType, locale: 'ka' | 'en') {
   return locale === 'ka' ? TYPE_LABELS[type].ka : TYPE_LABELS[type].en;
 }
 
-export function gearTypeIcon(type: GearItemType) {
-  return TYPE_LABELS[type].icon;
+export function GearTypeIcon({
+  type,
+  size = 22,
+  className = '',
+}: {
+  type: GearItemType;
+  size?: number;
+  className?: string;
+}) {
+  const Icon = TYPE_LABELS[type].icon;
+  return <Icon size={size} className={className} />;
 }
 
 export function GearBuilderStrip({
   slots,
   locale,
   activeType,
+  maxSlots,
   onSelectType,
   onAddType,
   onRemoveSlot,
   onClearSlotProduct,
   removeSlotLabel,
   clearItemLabel,
+  slotLimitLabel,
 }: {
   slots: GearBuilderSlot[];
   locale: 'ka' | 'en';
   activeType?: GearItemType | null;
+  maxSlots: number;
   onSelectType: (type: GearItemType) => void;
   onAddType: (type: GearItemType) => void;
   onRemoveSlot: (type: GearItemType) => void;
   onClearSlotProduct: (type: GearItemType) => void;
   removeSlotLabel: string;
   clearItemLabel: string;
+  slotLimitLabel: string;
 }) {
+  const atLimit = slots.length >= maxSlots;
+
   return (
-    <div className="cm-gear-builder-strip" role="list">
-      {slots.map((slot, index) => (
-        <div key={slot.itemType} className="cm-gear-builder-strip-item" role="listitem">
-          {index > 0 ? <span className="cm-gear-builder-plus" aria-hidden>+</span> : null}
-          <div className="cm-gear-builder-slot-wrap">
-            <button
-              type="button"
-              className={`cm-gear-builder-slot${
-                activeType === slot.itemType ? ' cm-gear-builder-slot--active' : ''
-              }`}
-              onClick={() => onSelectType(slot.itemType)}
-            >
-              {slot.imageUrl ? (
-                <img src={slot.imageUrl} alt="" className="cm-gear-builder-slot-image" />
-              ) : (
-                <span className="cm-gear-builder-slot-icon" aria-hidden>
-                  {gearTypeIcon(slot.itemType)}
-                </span>
-              )}
-              <span className="cm-gear-builder-slot-label">
-                {slot.title ?? gearTypeLabel(slot.itemType, locale)}
-              </span>
-            </button>
-            <button
-              type="button"
-              className="cm-gear-builder-slot-remove"
-              aria-label={removeSlotLabel}
-              onClick={() => onRemoveSlot(slot.itemType)}
-            >
-              <IconX size={12} />
-            </button>
-            {slot.productId ? (
+    <div className="cm-gear-builder-strip">
+      <div className="cm-gear-builder-strip-head">
+        <p className="cm-gear-builder-strip-title">
+          {locale === 'ka' ? 'თქვენი კომპლექტი' : 'Your kit'}
+        </p>
+        <span className="cm-gear-builder-slot-count">
+          {slots.length}/{maxSlots}
+        </span>
+      </div>
+
+      <div className="cm-gear-builder-strip-track" role="list">
+        {slots.map((slot, index) => (
+          <div key={slot.itemType} className="cm-gear-builder-strip-item" role="listitem">
+            {index > 0 ? (
+              <span className="cm-gear-builder-connector" aria-hidden />
+            ) : null}
+            <div className="cm-gear-builder-slot-wrap">
               <button
                 type="button"
-                className="cm-gear-builder-slot-clear"
-                onClick={() => onClearSlotProduct(slot.itemType)}
+                className={`cm-gear-builder-slot${
+                  activeType === slot.itemType ? ' cm-gear-builder-slot--active' : ''
+                }${slot.productId ? ' cm-gear-builder-slot--filled' : ''}`}
+                onClick={() => onSelectType(slot.itemType)}
               >
-                {clearItemLabel}
+                <span className="cm-gear-builder-slot-media">
+                  {slot.imageUrl ? (
+                    <img src={slot.imageUrl} alt="" className="cm-gear-builder-slot-image" />
+                  ) : (
+                    <GearTypeIcon type={slot.itemType} size={20} className="text-forest" />
+                  )}
+                </span>
+                <span className="cm-gear-builder-slot-label">
+                  {slot.title ?? gearTypeLabel(slot.itemType, locale)}
+                </span>
+                {slot.dailyRate ? (
+                  <span className="cm-gear-builder-slot-rate">
+                    {formatGel(slot.dailyRate)}
+                  </span>
+                ) : null}
               </button>
-            ) : null}
+              <button
+                type="button"
+                className="cm-gear-builder-slot-remove"
+                aria-label={removeSlotLabel}
+                onClick={() => onRemoveSlot(slot.itemType)}
+              >
+                <IconX size={11} />
+              </button>
+              {slot.productId ? (
+                <button
+                  type="button"
+                  className="cm-gear-builder-slot-clear"
+                  onClick={() => onClearSlotProduct(slot.itemType)}
+                >
+                  {clearItemLabel}
+                </button>
+              ) : null}
+            </div>
           </div>
-        </div>
-      ))}
-      <div className="cm-gear-builder-strip-item">
-        {slots.length > 0 ? <span className="cm-gear-builder-plus" aria-hidden>+</span> : null}
-        <AddTypeMenu locale={locale} onAddType={onAddType} existing={slots.map((s) => s.itemType)} />
+        ))}
+
+        {!atLimit ? (
+          <div className="cm-gear-builder-strip-item">
+            {slots.length > 0 ? (
+              <span className="cm-gear-builder-connector" aria-hidden />
+            ) : null}
+            <AddTypeMenu
+              locale={locale}
+              onAddType={onAddType}
+              existing={slots.map((s) => s.itemType)}
+            />
+          </div>
+        ) : (
+          <p className="cm-gear-builder-limit-note">{slotLimitLabel}</p>
+        )}
       </div>
     </div>
   );
@@ -155,9 +215,11 @@ function AddTypeMenu({
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="cm-gear-builder-slot-icon" aria-hidden>+</span>
+        <span className="cm-gear-builder-slot-media cm-gear-builder-slot-media--add">
+          <IconPlus size={18} />
+        </span>
         <span className="cm-gear-builder-slot-label">
-          {locale === 'ka' ? 'დამატება' : 'Add type'}
+          {locale === 'ka' ? 'დამატება' : 'Add item'}
         </span>
       </button>
       {open && options.length > 0 ? (
@@ -169,7 +231,7 @@ function AddTypeMenu({
               role="menuitem"
               onClick={() => handleAdd(type)}
             >
-              <span aria-hidden>{gearTypeIcon(type)}</span>
+              <GearTypeIcon type={type} size={18} />
               {gearTypeLabel(type, locale)}
             </button>
           ))}
@@ -192,11 +254,14 @@ export function GearOptionGrid({
 }) {
   if (!products.length) {
     return (
-      <p className="cm-gear-builder-empty">
-        {locale === 'ka'
-          ? 'ამ ტიპის ხელმისაწვდომი ნივთი ვერ მოიძებნა.'
-          : 'No available items for this type.'}
-      </p>
+      <div className="cm-gear-builder-empty-state">
+        <IconPackage size={28} className="text-moss" />
+        <p>
+          {locale === 'ka'
+            ? 'ამ ტიპის ხელმისაწვდომი ნივთი ვერ მოიძებნა.'
+            : 'No available items for this type.'}
+        </p>
+      </div>
     );
   }
 
