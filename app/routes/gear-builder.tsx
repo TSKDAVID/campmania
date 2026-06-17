@@ -7,7 +7,9 @@ import {useGearBuilder} from '~/providers/GearBuilderProvider';
 import {
   buildGearBuilderCartLines,
   calculateBundlePricing,
+  enrichGearBuilderSlots,
   groupGearByType,
+  slotsNeedCatalogEnrichment,
   type GearItemType,
 } from '~/lib/trailrent/gear-builder';
 import {
@@ -66,7 +68,14 @@ export async function loader({context, request}: Route.LoaderArgs) {
   const library = readGearBuilderLibrary(context.session, customerId);
   const url = new URL(request.url);
   const buildId = url.searchParams.get('build');
-  const loadedBuild = buildId ? findSavedBuild(library, buildId) : null;
+  const loadedBuildRaw = buildId ? findSavedBuild(library, buildId) : null;
+  const catalogProducts = gear.map((item) => item.builderProduct);
+  const loadedBuild = loadedBuildRaw
+    ? {
+        ...loadedBuildRaw,
+        slots: enrichGearBuilderSlots(loadedBuildRaw.slots, catalogProducts),
+      }
+    : null;
 
   return {
     gear,
@@ -193,6 +202,30 @@ export default function GearBuilderPage() {
     setBuildTrek(loadedBuild.trek ?? '');
     setHydratedBuildId(currentBuildId);
   }, [loadedBuild, builder, searchParams, hydratedBuildId]);
+
+  const catalogProducts = useMemo(
+    () => gear.map((item) => item.builderProduct),
+    [gear],
+  );
+
+  useEffect(() => {
+    if (!catalogProducts.length) return;
+    if (!slotsNeedCatalogEnrichment(builder.state.slots)) return;
+
+    const enriched = enrichGearBuilderSlots(
+      builder.state.slots,
+      catalogProducts,
+    );
+    const changed = enriched.some(
+      (slot, index) => slot.imageUrl !== builder.state.slots[index]?.imageUrl,
+    );
+    if (!changed) return;
+
+    builder.replaceState({
+      ...builder.state,
+      slots: enriched,
+    });
+  }, [catalogProducts, builder]);
 
   useEffect(() => {
     if (builder.state.name && !buildName) {
