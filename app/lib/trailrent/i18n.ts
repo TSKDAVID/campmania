@@ -131,6 +131,7 @@ const translations = {
       title: 'კომპლექტის აწყობა',
       subtitle:
         'აირჩიეთ ნივთის ტიპი, დაამატეთ აღჭურვილობა და შეინახეთ თქვენი კომპლექტი — 30% ფასდაკლება ბანდლზე.',
+      hintNote: '30% ფასდაკლება ბანდლზე, როცა 2+ ნივთს დაამატებთ.',
       clearAll: 'გასუფთავება',
       clearDraft: 'მონახაზის გასუფთავება',
       saveGear: 'შენახვა ანგარიშში',
@@ -422,6 +423,7 @@ const translations = {
       title: 'Gear Builder',
       subtitle:
         'Pick item types, add gear, and save your build — 30% bundle discount applied.',
+      hintNote: '30% bundle discount when you add 2+ items.',
       clearAll: 'Clear all',
       clearDraft: 'Clear draft',
       saveGear: 'Save to account',

@@ -1806,44 +1806,73 @@
 
   /* Gear Builder */
   .cm-gear-builder-page {
-    @apply py-8 md:py-12;
+    @apply py-5 md:py-8;
   }
 
   .cm-gear-builder-page-inner {
-    @apply space-y-5 md:space-y-6;
+    @apply space-y-4 md:space-y-5;
   }
 
   .cm-gear-builder-header {
-    @apply flex items-start gap-4 max-w-3xl;
+    @apply flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between;
   }
 
-  .cm-gear-builder-header-icon {
-    @apply mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-pine text-mist shadow-sm;
+  .cm-gear-builder-header-main {
+    @apply min-w-0;
   }
 
   .cm-gear-builder-title {
-    @apply font-display text-3xl font-bold tracking-tight text-pine md:text-[2.35rem];
+    @apply font-display text-2xl font-bold tracking-tight text-pine md:text-[1.75rem];
   }
 
-  .cm-gear-builder-subtitle {
-    @apply mt-2 max-w-2xl text-sm leading-relaxed text-muted md:text-base;
+  .cm-gear-builder-hint-note {
+    @apply mt-1 text-xs leading-snug text-muted;
   }
 
-  .cm-gear-builder-steps {
-    @apply flex flex-wrap gap-2;
+  .cm-gear-builder-progress {
+    @apply flex flex-wrap items-center gap-y-1;
   }
 
-  .cm-gear-builder-step {
-    @apply rounded-full border border-stone/70 bg-white px-3 py-1.5 text-xs font-semibold text-muted;
+  .cm-gear-builder-progress-item {
+    @apply flex items-center;
+  }
+
+  .cm-gear-builder-progress-sep {
+    @apply mx-2 hidden h-px w-3 bg-stone sm:block;
+  }
+
+  .cm-gear-builder-progress-dot {
+    @apply flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold;
     font-family: var(--font-label);
   }
 
-  .cm-gear-builder-step--active {
-    @apply border-moss/40 bg-moss/10 text-forest;
+  .cm-gear-builder-progress-dot--current {
+    @apply bg-moss text-mist;
+  }
+
+  .cm-gear-builder-progress-dot--done {
+    @apply bg-moss/15 text-moss;
+  }
+
+  .cm-gear-builder-progress-dot--pending {
+    @apply bg-stone/50 text-muted;
+  }
+
+  .cm-gear-builder-progress-label {
+    @apply ml-1.5 hidden text-[11px] font-medium text-muted sm:inline;
+    font-family: var(--font-label);
+  }
+
+  .cm-gear-builder-progress-label--current {
+    @apply inline font-semibold text-forest;
+  }
+
+  .cm-gear-builder-progress-label--done {
+    @apply text-moss;
   }
 
   .cm-gear-builder-strip {
-    @apply rounded-2xl border border-stone/60 bg-white p-4 shadow-sm md:p-5;
+    @apply rounded-2xl border border-stone/60 bg-white p-3 shadow-sm md:p-4;
   }
 
   .cm-gear-builder-strip-head {

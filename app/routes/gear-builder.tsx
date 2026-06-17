@@ -271,31 +271,65 @@ export default function GearBuilderPage() {
   const saveError =
     fetcher.data && 'error' in fetcher.data ? fetcher.data.error : null;
 
+  const hasTypes = slots.length > 0;
+  const justSaved =
+    Boolean(fetcher.data && 'saved' in fetcher.data && fetcher.data.saved);
+  const progressSteps = [
+    {id: 1, label: tr.gearBuilder.stepPick, done: hasTypes},
+    {id: 2, label: tr.gearBuilder.stepConfigure, done: hasSaveableBuild},
+    {id: 3, label: tr.gearBuilder.stepSave, done: justSaved},
+  ] as const;
+  const currentStep = !hasTypes ? 1 : !hasSaveableBuild ? 2 : 3;
+
   return (
     <section className="cm-gear-builder-page bg-mist">
       <div className="tr-page-width cm-gear-builder-page-inner">
         <header className="cm-gear-builder-header">
-          <div className="cm-gear-builder-header-icon" aria-hidden>
-            <IconLayers size={24} />
-          </div>
-          <div>
-            <p className="tr-eyebrow">{tr.gearBuilder.eyebrow}</p>
+          <div className="cm-gear-builder-header-main">
             <h1 className="cm-gear-builder-title">{tr.gearBuilder.title}</h1>
-            <p className="cm-gear-builder-subtitle">{tr.gearBuilder.subtitle}</p>
+            <p className="cm-gear-builder-hint-note">{tr.gearBuilder.hintNote}</p>
           </div>
-        </header>
 
-        <div className="cm-gear-builder-steps" aria-label={tr.gearBuilder.stepsLabel}>
-          <span className="cm-gear-builder-step cm-gear-builder-step--active">
-            1. {tr.gearBuilder.stepPick}
-          </span>
-          <span className="cm-gear-builder-step">
-            2. {tr.gearBuilder.stepConfigure}
-          </span>
-          <span className="cm-gear-builder-step">
-            3. {tr.gearBuilder.stepSave}
-          </span>
-        </div>
+          <ol
+            className="cm-gear-builder-progress"
+            aria-label={tr.gearBuilder.stepsLabel}
+          >
+            {progressSteps.map((step, index) => {
+              const isCurrent = step.id === currentStep && !step.done;
+              const isDone = step.done;
+              return (
+                <li key={step.id} className="cm-gear-builder-progress-item">
+                  {index > 0 ? (
+                    <span className="cm-gear-builder-progress-sep" aria-hidden />
+                  ) : null}
+                  <span
+                    className={`cm-gear-builder-progress-dot${
+                      isDone
+                        ? ' cm-gear-builder-progress-dot--done'
+                        : isCurrent
+                          ? ' cm-gear-builder-progress-dot--current'
+                          : ' cm-gear-builder-progress-dot--pending'
+                    }`}
+                    aria-hidden
+                  >
+                    {isDone ? <IconCheck size={11} /> : step.id}
+                  </span>
+                  <span
+                    className={`cm-gear-builder-progress-label${
+                      isCurrent
+                        ? ' cm-gear-builder-progress-label--current'
+                        : isDone
+                          ? ' cm-gear-builder-progress-label--done'
+                          : ''
+                    }`}
+                  >
+                    {step.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </header>
 
         <GearBuilderStrip
           slots={slots}
