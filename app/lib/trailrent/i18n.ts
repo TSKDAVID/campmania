@@ -99,6 +99,9 @@ const translations = {
       howItWorksLink: 'როგორ მუშაობს',
       allProducts: 'ყველა პროდუქტი',
       stepsLink: 'ვრცლად',
+      quickSearch: 'სწრაფი ძიება',
+      viewAllResults: 'ყველა შედეგის ნახვა',
+      searching: 'იძებნება…',
     },
     searchPage: {
       title: 'ძიება',
@@ -409,6 +412,9 @@ const translations = {
       howItWorksLink: 'How it works',
       allProducts: 'All products',
       stepsLink: 'Learn more',
+      quickSearch: 'Quick search',
+      viewAllResults: 'View all results',
+      searching: 'Searching…',
     },
     searchPage: {
       title: 'Search',
