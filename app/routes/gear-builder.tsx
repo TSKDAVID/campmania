@@ -60,37 +60,62 @@ export async function loader({context, request}: Route.LoaderArgs) {
   };
 }
 
-export async function action({request, context}: Route.ActionArgs) {
-  const formData = await request.formData();
-  const intent = String(formData.get('intent') ?? '');
-  const isLoggedIn = await context.customerAccount.isLoggedIn();
-  let customerId: string | null = null;
+async function resolveGearBuilderCustomerId(
+  context: Route.ActionArgs['context'],
+): Promise<string | null> {
+  try {
+    const isLoggedIn = await context.customerAccount.isLoggedIn();
+    if (!isLoggedIn) return null;
 
-  if (isLoggedIn) {
     const {data: customerData} = await context.customerAccount.query(
       CUSTOMER_DETAILS_QUERY,
       {
         variables: {language: context.customerAccount.i18n.language},
       },
     );
-    customerId = customerData?.customer?.id ?? null;
+    return customerData?.customer?.id ?? null;
+  } catch (error) {
+    console.error('gear-builder: customer lookup failed', error);
+    return null;
   }
+}
+
+export async function action({request, context}: Route.ActionArgs) {
+  const formData = await request.formData();
+  const intent = String(formData.get('intent') ?? '');
 
   if (intent === 'clear') {
+    const customerId = await resolveGearBuilderCustomerId(context);
     writeGearBuilderToSession(context.session, null, customerId);
     return data({ok: true, cleared: true});
   }
 
   if (intent === 'save') {
+    const customerId = await resolveGearBuilderCustomerId(context);
     const raw = String(formData.get('state') ?? '');
-    const parsed = parseGearBuilderState(JSON.parse(raw));
+
+    let parsed;
+    try {
+      parsed = parseGearBuilderState(JSON.parse(raw));
+    } catch (error) {
+      console.error('gear-builder: invalid save payload', error);
+      return data({ok: false, error: 'Invalid builder state'}, {status: 400});
+    }
+
     if (!parsed) {
       return data({ok: false, error: 'Invalid builder state'}, {status: 400});
     }
     if (!parsed.slots.some((slot) => slot.productId)) {
       return data({ok: false, error: 'Empty builder state'}, {status: 400});
     }
-    writeGearBuilderToSession(context.session, parsed, customerId);
+
+    try {
+      writeGearBuilderToSession(context.session, parsed, customerId);
+    } catch (error) {
+      console.error('gear-builder: session write failed', error);
+      return data({ok: false, error: 'Save failed'}, {status: 500});
+    }
+
     return data({ok: true, saved: true});
   }
 
@@ -163,23 +188,24 @@ export default function GearBuilderPage() {
               {tr.gearBuilder.clearAll}
             </button>
           </fetcher.Form>
-          <fetcher.Form method="post">
-            <input type="hidden" name="intent" value="save" />
-            <input
-              type="hidden"
-              name="state"
-              value={JSON.stringify(builder.state)}
-            />
-            <button
-              type="submit"
-              className="tr-btn-secondary"
-              disabled={!hasSaveableBuild || fetcher.state !== 'idle'}
-            >
-              {isLoggedIn ? tr.gearBuilder.saveGear : tr.gearBuilder.saveSession}
-            </button>
-          </fetcher.Form>
+          <button
+            type="button"
+            className="tr-btn-secondary"
+            disabled={!hasSaveableBuild || fetcher.state !== 'idle'}
+            onClick={() => {
+              fetcher.submit(
+                {intent: 'save', state: JSON.stringify(builder.state)},
+                {method: 'post'},
+              );
+            }}
+          >
+            {isLoggedIn ? tr.gearBuilder.saveGear : tr.gearBuilder.saveSession}
+          </button>
           {fetcher.data && 'saved' in fetcher.data && fetcher.data.saved && hasSaveableBuild ? (
             <p className="text-sm font-medium text-moss">{tr.gearBuilder.saved}</p>
+          ) : null}
+          {fetcher.data && 'error' in fetcher.data && fetcher.data.error ? (
+            <p className="text-sm font-medium text-red-700">{tr.gearBuilder.saveFailed}</p>
           ) : null}
         </div>
 

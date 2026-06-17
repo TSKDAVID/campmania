@@ -28,6 +28,17 @@ export function serializeGearBuilderState(state: GearBuilderState): string {
   return JSON.stringify(state);
 }
 
+/** Strip bulky fields so the cookie session stays under browser size limits. */
+export function compactGearBuilderStateForSession(
+  state: GearBuilderState,
+): GearBuilderState {
+  return {
+    version: 1,
+    updatedAt: state.updatedAt,
+    slots: state.slots.map(({imageUrl: _imageUrl, ...slot}) => slot),
+  };
+}
+
 export function gearBuilderSessionKey(customerId?: string | null) {
   return customerId
     ? `${GEAR_BUILDER_SESSION_KEY}:${customerId}`
@@ -59,8 +70,5 @@ export function writeGearBuilderToSession(
     if (customerId) session.unset(GEAR_BUILDER_SESSION_KEY);
     return;
   }
-  session.set(key, state);
-  if (customerId) {
-    session.set(GEAR_BUILDER_SESSION_KEY, state);
-  }
+  session.set(key, compactGearBuilderStateForSession(state));
 }

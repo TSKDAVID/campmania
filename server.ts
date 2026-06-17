@@ -31,10 +31,14 @@ export default {
       const response = await handleRequest(request);
 
       if (hydrogenContext.session.isPending) {
-        response.headers.set(
-          'Set-Cookie',
-          await hydrogenContext.session.commit(),
-        );
+        try {
+          response.headers.set(
+            'Set-Cookie',
+            await hydrogenContext.session.commit(),
+          );
+        } catch (error) {
+          console.error('Session commit failed', error);
+        }
       }
 
       if (response.status === 404) {
