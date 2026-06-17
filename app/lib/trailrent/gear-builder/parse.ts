@@ -14,7 +14,20 @@ const VALID_ITEM_TYPES = new Set<GearItemType>([
 const VALID_DURATIONS = new Set<PackageDuration>(['1-day', '2-day', 'weekend']);
 
 export function parseItemType(value?: string | null): GearItemType {
-  const normalized = (value ?? '').trim().toLowerCase().replace(/\s+/g, '_');
+  const raw = (value ?? '').trim();
+  const normalized = raw.toLowerCase().replace(/\s+/g, '_');
+
+  const aliases: Record<string, GearItemType> = {
+    ensemble: 'tent',
+    ანსამბლი: 'tent',
+    sleeping: 'sleeping_bag',
+    electronics: 'lighting',
+  };
+
+  if (aliases[normalized] || aliases[raw]) {
+    return aliases[normalized] ?? aliases[raw]!;
+  }
+
   if (VALID_ITEM_TYPES.has(normalized as GearItemType)) {
     return normalized as GearItemType;
   }

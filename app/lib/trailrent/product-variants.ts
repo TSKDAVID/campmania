@@ -15,8 +15,8 @@ export type FulfillmentVariantNode = {
   } | null;
 };
 
-const RENT_PATTERN = /\b(rent|rental|ქირა)\b/i;
-const BUY_PATTERN = /\b(buy|purchase|ყიდვა)\b/i;
+const RENT_PATTERN = /\b(rent|rental)\b|ქირა(ით)?/i;
+const BUY_PATTERN = /\b(buy|purchase)\b|ყიდვა/i;
 
 function variantLabel(variant: FulfillmentVariantNode): string {
   const optionText =

@@ -149,6 +149,7 @@ const translations = {
       removeSlot: 'სლოტის ამოშლა',
       clearSlotItem: 'ნივთის მოხსნა',
       saveEmptyHint: 'შესანახად დაამატეთ მინიმუმ ერთი ნივთი.',
+      rentUnavailable: 'ქირა დროებით მიუწვდომელია — მაინც შეგიძლიათ დაამატოთ',
     },
     booking: {
       title: 'ქირის დაჯავშნა',
@@ -419,6 +420,7 @@ const translations = {
       removeSlot: 'Remove slot',
       clearSlotItem: 'Clear item',
       saveEmptyHint: 'Add at least one item before saving.',
+      rentUnavailable: 'Rent temporarily unavailable — you can still add it',
     },
     booking: {
       title: 'Book rental',

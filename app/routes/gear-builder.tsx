@@ -120,9 +120,7 @@ export default function GearBuilderPage() {
     [gear],
   );
 
-  const slots = builder.state.slots.length
-    ? builder.state.slots
-    : (sessionState?.slots ?? []);
+  const slots = builder.state.slots;
 
   const hasSaveableBuild = slots.some((slot) => slot.productId);
   const subtotalDaily = slots.reduce((sum, slot) => sum + (slot.dailyRate ?? 0), 0);
@@ -195,7 +193,9 @@ export default function GearBuilderPage() {
                 <GearOptionGrid
                   products={activeProducts}
                   locale={locale}
+                  rentUnavailableLabel={tr.gearBuilder.rentUnavailable}
                   onSelect={(product, variantId) => {
+                    if (!activeType) return;
                     builder.setSlotProduct(activeType, product, variantId);
                   }}
                 />

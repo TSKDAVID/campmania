@@ -19,6 +19,7 @@ import {
   type PackageDuration,
 } from '~/lib/trailrent/gear-builder';
 import {
+  filterRentVariants,
   pickRentVariant,
   collectProductVariants,
   type FulfillmentVariantNode,
@@ -145,14 +146,20 @@ function catalogRentVariant(product: CatalogProductNode) {
 }
 
 function mapGearBuilderProduct(product: CatalogProductNode): GearBuilderProduct {
-  const variant = catalogRentVariant(product);
-  const variants = (product.variants?.nodes ?? []).map((entry) => ({
-    id: entry.id,
-    title: entry.title ?? '',
-    availableForSale: entry.availableForSale !== false,
-    price: Number(entry.price.amount),
-    capacityLiters: capacityFromVariantTitle(entry.title ?? ''),
-  }));
+  const allVariantNodes = product.variants?.nodes ?? [];
+  const rentVariantNodes = filterRentVariants(allVariantNodes);
+  const variant = pickRentVariant(
+    rentVariantNodes.length ? rentVariantNodes : allVariantNodes,
+  );
+  const variants = (rentVariantNodes.length ? rentVariantNodes : allVariantNodes).map(
+    (entry) => ({
+      id: entry.id,
+      title: entry.title ?? '',
+      availableForSale: entry.availableForSale !== false,
+      price: Number(entry.price.amount),
+      capacityLiters: capacityFromVariantTitle(entry.title ?? ''),
+    }),
+  );
 
   const metafields = parseGearBuilderMetafields({
     itemType: product.gearItemType?.value,

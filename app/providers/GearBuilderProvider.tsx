@@ -18,6 +18,10 @@ import {
   GEAR_BUILDER_LOCAL_KEY,
   parseGearBuilderState,
 } from '~/lib/trailrent/gear-builder/storage';
+import {
+  builderRentVariantPrice,
+  resolveBuilderRentVariant,
+} from '~/lib/trailrent/gear-builder/variants';
 
 type GearBuilderContextValue = {
   state: GearBuilderState;
@@ -38,21 +42,22 @@ const GearBuilderContext = createContext<GearBuilderContextValue | null>(null);
 
 function productToSlot(
   product: GearBuilderProduct,
+  itemType: GearItemType,
   variantId?: string,
-): GearBuilderSlot {
-  const variant =
-    product.variants.find((entry) => entry.id === variantId) ??
-    product.variants.find((entry) => entry.availableForSale) ??
-    product.variants[0];
+): GearBuilderSlot | null {
+  const rentVariant = resolveBuilderRentVariant(product, variantId);
+  if (!rentVariant?.id) return null;
+
+  const price = builderRentVariantPrice(product, rentVariant);
 
   return {
-    itemType: product.metafields.itemType,
+    itemType,
     productId: product.id,
-    variantId: variant?.id ?? product.variantId,
+    variantId: rentVariant.id,
     handle: product.handle,
     title: product.title,
     imageUrl: product.imageUrl,
-    dailyRate: variant?.price ?? product.dailyRate,
+    dailyRate: price,
   };
 }
 
@@ -92,7 +97,8 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
 
   const addProduct = useCallback(
     (product: GearBuilderProduct, variantId?: string) => {
-      upsertSlot(productToSlot(product, variantId));
+      const slot = productToSlot(product, product.metafields.itemType, variantId);
+      if (slot) upsertSlot(slot);
     },
     [upsertSlot],
   );
@@ -112,7 +118,8 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
 
   const setSlotProduct = useCallback(
     (itemType: GearItemType, product: GearBuilderProduct, variantId?: string) => {
-      upsertSlot({...productToSlot(product, variantId), itemType});
+      const slot = productToSlot(product, itemType, variantId);
+      if (slot) upsertSlot(slot);
     },
     [upsertSlot],
   );

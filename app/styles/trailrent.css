@@ -1935,6 +1935,10 @@
     @apply mt-1 text-sm text-muted;
   }
 
+  .cm-gear-builder-option-note {
+    @apply mt-1 text-[11px] font-medium text-amber;
+  }
+
   .cm-gear-builder-variant-row {
     @apply mt-2 flex flex-wrap gap-1.5;
   }

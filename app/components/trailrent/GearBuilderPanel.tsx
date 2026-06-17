@@ -1,7 +1,11 @@
 import {useEffect, useRef, useState} from 'react';
 import {Link} from 'react-router';
 import type {GearBuilderProduct, GearBuilderSlot, GearItemType} from '~/lib/trailrent/gear-builder';
-import {filterRentVariants} from '~/lib/trailrent/product-variants';
+import {
+  builderRentVariantPrice,
+  builderRentVariants,
+  resolveBuilderRentVariant,
+} from '~/lib/trailrent/gear-builder/variants';
 import {formatGel} from '~/lib/trailrent/pricing';
 import {IconArrowRight, IconPackage, IconX} from '~/components/trailrent/Icons';
 
@@ -22,22 +26,6 @@ export function gearTypeLabel(type: GearItemType, locale: 'ka' | 'en') {
 
 export function gearTypeIcon(type: GearItemType) {
   return TYPE_LABELS[type].icon;
-}
-
-function rentVariantsForProduct(product: GearBuilderProduct) {
-  const asNodes = product.variants.map((variant) => ({
-    id: variant.id,
-    title: variant.title,
-    availableForSale: variant.availableForSale,
-    price: {amount: String(variant.price), currencyCode: 'GEL'},
-  }));
-  const rentOnly = filterRentVariants(asNodes);
-  return rentOnly.map((variant) => ({
-    id: variant.id,
-    title: variant.title ?? '',
-    availableForSale: variant.availableForSale !== false,
-    price: Number(variant.price.amount),
-  }));
 }
 
 export function GearBuilderStrip({
@@ -195,10 +183,12 @@ export function GearOptionGrid({
   products,
   locale,
   onSelect,
+  rentUnavailableLabel,
 }: {
   products: GearBuilderProduct[];
   locale: 'ka' | 'en';
   onSelect: (product: GearBuilderProduct, variantId?: string) => void;
+  rentUnavailableLabel: string;
 }) {
   if (!products.length) {
     return (
@@ -213,10 +203,10 @@ export function GearOptionGrid({
   return (
     <div className="cm-gear-builder-options">
       {products.map((product) => {
-        const rentVariants = rentVariantsForProduct(product);
-        const defaultRent =
-          rentVariants.find((variant) => variant.availableForSale) ?? rentVariants[0];
-        const canSelect = Boolean(defaultRent?.availableForSale);
+        const rentVariants = builderRentVariants(product);
+        const defaultRent = resolveBuilderRentVariant(product);
+        const canSelect = Boolean(defaultRent?.id);
+        const rentInStock = defaultRent?.availableForSale !== false;
 
         return (
           <article key={product.id} className="cm-gear-builder-option">
@@ -236,16 +226,19 @@ export function GearOptionGrid({
             <div className="cm-gear-builder-option-body">
               <h3 className="cm-gear-builder-option-title">{product.title}</h3>
               <p className="cm-gear-builder-option-price">
-                {formatGel(defaultRent?.price ?? product.dailyRate)} /{' '}
+                {formatGel(builderRentVariantPrice(product, defaultRent))} /{' '}
                 {locale === 'ka' ? 'დღე' : 'day'}
               </p>
+              {!rentInStock && canSelect ? (
+                <p className="cm-gear-builder-option-note">{rentUnavailableLabel}</p>
+              ) : null}
               {rentVariants.length > 1 ? (
                 <div className="cm-gear-builder-variant-row">
                   {rentVariants.map((variant) => (
                     <button
                       key={variant.id}
                       type="button"
-                      disabled={!variant.availableForSale}
+                      disabled={!variant.id}
                       className="cm-gear-builder-variant-btn"
                       onClick={() => onSelect(product, variant.id)}
                     >
@@ -258,7 +251,7 @@ export function GearOptionGrid({
                   type="button"
                   className="tr-btn-primary cm-gear-builder-select-btn"
                   disabled={!canSelect}
-                  onClick={() => onSelect(product, defaultRent?.id ?? product.variantId)}
+                  onClick={() => onSelect(product, defaultRent?.id)}
                 >
                   {locale === 'ka' ? 'არჩევა' : 'Select'}
                   <IconArrowRight size={16} />
