@@ -87,6 +87,9 @@ export async function action({request, context}: Route.ActionArgs) {
     if (!parsed) {
       return data({ok: false, error: 'Invalid builder state'}, {status: 400});
     }
+    if (!parsed.slots.some((slot) => slot.productId)) {
+      return data({ok: false, error: 'Empty builder state'}, {status: 400});
+    }
     writeGearBuilderToSession(context.session, parsed, customerId);
     return data({ok: true, saved: true});
   }
@@ -121,6 +124,7 @@ export default function GearBuilderPage() {
     ? builder.state.slots
     : (sessionState?.slots ?? []);
 
+  const hasSaveableBuild = slots.some((slot) => slot.productId);
   const subtotalDaily = slots.reduce((sum, slot) => sum + (slot.dailyRate ?? 0), 0);
   const pricing = calculateBundlePricing(subtotalDaily, 1);
   const cartLines = buildGearBuilderCartLines(slots);
@@ -145,12 +149,19 @@ export default function GearBuilderPage() {
             builder.addItemType(type);
             setActiveType(type);
           }}
+          onRemoveSlot={(type) => {
+            builder.removeSlot(type);
+            if (activeType === type) setActiveType(null);
+          }}
+          onClearSlotProduct={builder.clearSlotProduct}
+          removeSlotLabel={tr.gearBuilder.removeSlot}
+          clearItemLabel={tr.gearBuilder.clearSlotItem}
         />
 
         <div className="cm-gear-builder-toolbar">
           <fetcher.Form method="post">
             <input type="hidden" name="intent" value="clear" />
-            <button type="submit" className="tr-btn-secondary">
+            <button type="submit" className="tr-btn-secondary" disabled={!slots.length}>
               {tr.gearBuilder.clearAll}
             </button>
           </fetcher.Form>
@@ -161,11 +172,15 @@ export default function GearBuilderPage() {
               name="state"
               value={JSON.stringify(builder.state)}
             />
-            <button type="submit" className="tr-btn-secondary">
+            <button
+              type="submit"
+              className="tr-btn-secondary"
+              disabled={!hasSaveableBuild || fetcher.state !== 'idle'}
+            >
               {isLoggedIn ? tr.gearBuilder.saveGear : tr.gearBuilder.saveSession}
             </button>
           </fetcher.Form>
-          {fetcher.data && 'saved' in fetcher.data && fetcher.data.saved ? (
+          {fetcher.data && 'saved' in fetcher.data && fetcher.data.saved && hasSaveableBuild ? (
             <p className="text-sm font-medium text-moss">{tr.gearBuilder.saved}</p>
           ) : null}
         </div>

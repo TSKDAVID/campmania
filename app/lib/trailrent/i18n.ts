@@ -146,6 +146,9 @@ const translations = {
       accountEmpty: 'ჯერ არ გაქვთ შენახული კომპლექტი.',
       accountEdit: 'რედაქტირება',
       itemsSelected: 'არჩეული ნივთი',
+      removeSlot: 'სლოტის ამოშლა',
+      clearSlotItem: 'ნივთის მოხსნა',
+      saveEmptyHint: 'შესანახად დაამატეთ მინიმუმ ერთი ნივთი.',
     },
     booking: {
       title: 'ქირის დაჯავშნა',
@@ -413,6 +416,9 @@ const translations = {
       accountEmpty: 'You have not saved a gear build yet.',
       accountEdit: 'Edit build',
       itemsSelected: 'items selected',
+      removeSlot: 'Remove slot',
+      clearSlotItem: 'Clear item',
+      saveEmptyHint: 'Add at least one item before saving.',
     },
     booking: {
       title: 'Book rental',

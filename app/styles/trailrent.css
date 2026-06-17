@@ -1833,6 +1833,19 @@
     @apply flex items-center;
   }
 
+  .cm-gear-builder-slot-wrap {
+    @apply relative flex flex-col items-center;
+  }
+
+  .cm-gear-builder-slot-remove {
+    @apply absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-stone/80 bg-white text-charcoal shadow-sm transition hover:border-pine hover:bg-pine hover:text-mist;
+  }
+
+  .cm-gear-builder-slot-clear {
+    @apply mt-0.5 text-[10px] font-semibold text-moss transition hover:text-forest;
+    font-family: var(--font-label);
+  }
+
   .cm-gear-builder-plus {
     @apply mx-1 text-lg font-bold text-moss;
   }
@@ -1846,7 +1859,7 @@
   }
 
   .cm-gear-builder-slot--add {
-    @apply cursor-pointer list-none border-dashed;
+    @apply cursor-pointer border-dashed;
   }
 
   .cm-gear-builder-slot-image {
@@ -1875,6 +1888,10 @@
 
   .cm-gear-builder-toolbar {
     @apply flex flex-wrap items-center gap-3;
+  }
+
+  .cm-gear-builder-toolbar .tr-btn-secondary:disabled {
+    @apply cursor-not-allowed opacity-45;
   }
 
   .cm-gear-builder-layout {

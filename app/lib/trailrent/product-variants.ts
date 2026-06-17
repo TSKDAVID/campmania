@@ -137,6 +137,24 @@ export function pickRentVariant(
   return [...variants].sort(byPriceAsc)[0];
 }
 
+/** Variants suitable for rental selection (excludes explicit Buy variants). */
+export function filterRentVariants(
+  variants: FulfillmentVariantNode[],
+): FulfillmentVariantNode[] {
+  if (!variants.length) return [];
+
+  const explicitRent = variants.filter(isRentVariant);
+  if (explicitRent.length) return explicitRent;
+
+  const buy = variants.find(isBuyVariant);
+  if (buy) {
+    const nonBuy = variants.filter((variant) => variant.id !== buy.id);
+    if (nonBuy.length) return nonBuy;
+  }
+
+  return variants;
+}
+
 export function pickBuyVariant(
   variants: FulfillmentVariantNode[],
   rentVariant?: FulfillmentVariantNode,

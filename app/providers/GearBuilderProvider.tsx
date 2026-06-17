@@ -29,6 +29,7 @@ type GearBuilderContextValue = {
     variantId?: string,
   ) => void;
   removeSlot: (itemType: GearItemType) => void;
+  clearSlotProduct: (itemType: GearItemType) => void;
   clearAll: () => void;
   replaceState: (state: GearBuilderState) => void;
 };
@@ -124,6 +125,16 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
     }));
   }, []);
 
+  const clearSlotProduct = useCallback((itemType: GearItemType) => {
+    setState((current) => ({
+      version: 1,
+      slots: current.slots.map((slot) =>
+        slot.itemType === itemType ? {itemType: slot.itemType} : slot,
+      ),
+      updatedAt: new Date().toISOString(),
+    }));
+  }, []);
+
   const clearAll = useCallback(() => {
     setState(emptyGearBuilderState());
   }, []);
@@ -139,6 +150,7 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
       addItemType,
       setSlotProduct,
       removeSlot,
+      clearSlotProduct,
       clearAll,
       replaceState,
     }),
@@ -148,6 +160,7 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
       addItemType,
       setSlotProduct,
       removeSlot,
+      clearSlotProduct,
       clearAll,
       replaceState,
     ],
