@@ -91,6 +91,7 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
       );
       nextSlots.push(slot);
       return {
+        ...current,
         version: 1,
         slots: nextSlots,
         updatedAt: new Date().toISOString(),
@@ -131,6 +132,7 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
 
   const removeSlot = useCallback((itemType: GearItemType) => {
     setState((current) => ({
+      ...current,
       version: 1,
       slots: current.slots.filter((slot) => slot.itemType !== itemType),
       updatedAt: new Date().toISOString(),
@@ -139,6 +141,7 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
 
   const clearSlotProduct = useCallback((itemType: GearItemType) => {
     setState((current) => ({
+      ...current,
       version: 1,
       slots: current.slots.map((slot) =>
         slot.itemType === itemType ? {itemType: slot.itemType} : slot,
@@ -149,6 +152,9 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
 
   const clearAll = useCallback(() => {
     setState(emptyGearBuilderState());
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(GEAR_BUILDER_LOCAL_KEY);
+    }
   }, []);
 
   const setBuildMeta = useCallback(

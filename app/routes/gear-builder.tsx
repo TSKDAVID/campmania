@@ -1,6 +1,6 @@
-import {data, redirect, useFetcher, useLoaderData, useSearchParams} from 'react-router';
+import {data, redirect, useFetcher, useLoaderData, useNavigate, useSearchParams} from 'react-router';
 import type {Route} from './+types/gear-builder';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {CartForm} from '@shopify/hydrogen';
 import {useLocale} from '~/providers/LocaleProvider';
 import {useGearBuilder} from '~/providers/GearBuilderProvider';
@@ -158,12 +158,19 @@ export default function GearBuilderPage() {
   const {translations: tr, locale} = useLocale();
   const fetcher = useFetcher<typeof action>();
   const builder = useGearBuilder();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeType, setActiveType] = useState<GearItemType | null>(null);
   const [saveOpen, setSaveOpen] = useState(false);
   const [buildName, setBuildName] = useState('');
   const [buildTrek, setBuildTrek] = useState('');
   const [hydratedBuildId, setHydratedBuildId] = useState<string | null>(null);
+  const [saveNotice, setSaveNotice] = useState(false);
+  const lastHandledSave = useRef<unknown>(null);
+  const buildNameRef = useRef(buildName);
+  const buildTrekRef = useRef(buildTrek);
+  buildNameRef.current = buildName;
+  buildTrekRef.current = buildTrek;
 
   const trekOptions = TREK_FILTERS.map((trek) => ({
     value: trek.value,
@@ -197,17 +204,21 @@ export default function GearBuilderPage() {
   }, [builder.state.name, builder.state.trek, buildName, buildTrek]);
 
   useEffect(() => {
-    if (fetcher.data && 'saved' in fetcher.data && fetcher.data.saved) {
-      setSaveOpen(false);
-      if (fetcher.data.buildId) {
-        builder.setBuildMeta({
-          buildId: fetcher.data.buildId,
-          name: buildName.trim(),
-          trek: buildTrek || undefined,
-        });
-      }
+    if (fetcher.state !== 'idle') return;
+    if (!fetcher.data || !('saved' in fetcher.data) || !fetcher.data.saved) return;
+    if (lastHandledSave.current === fetcher.data) return;
+    lastHandledSave.current = fetcher.data;
+
+    setSaveNotice(true);
+    setSaveOpen(false);
+    if (fetcher.data.buildId) {
+      builder.setBuildMeta({
+        buildId: fetcher.data.buildId,
+        name: buildNameRef.current.trim(),
+        trek: buildTrekRef.current || undefined,
+      });
     }
-  }, [fetcher.data, builder, buildName, buildTrek]);
+  }, [fetcher.data, fetcher.state, builder]);
 
   const grouped = useMemo(
     () => groupGearByType(gear.map((item) => item.builderProduct)),
@@ -230,6 +241,20 @@ export default function GearBuilderPage() {
     setBuildName('');
     setBuildTrek('');
     setSaveOpen(false);
+    setSaveNotice(false);
+
+    if (searchParams.get('build')) {
+      setHydratedBuildId(null);
+      navigate('/gear-builder', {replace: true});
+    }
+  };
+
+  const handleOpenSave = () => {
+    setSaveOpen((open) => {
+      const next = !open;
+      if (next) setSaveNotice(false);
+      return next;
+    });
   };
 
   const handleTrekPick = (trekValue: string) => {
@@ -252,6 +277,8 @@ export default function GearBuilderPage() {
       buildId: builder.state.buildId,
     });
 
+    const isNewBuild = !builder.state.buildId;
+
     fetcher.submit(
       {
         intent: 'save',
@@ -259,10 +286,11 @@ export default function GearBuilderPage() {
           ...builder.state,
           name,
           trek: buildTrek || undefined,
+          buildId: isNewBuild ? undefined : builder.state.buildId,
         }),
         name,
         trek: buildTrek,
-        buildId: builder.state.buildId ?? '',
+        buildId: isNewBuild ? '' : (builder.state.buildId ?? ''),
       },
       {method: 'post'},
     );
@@ -272,8 +300,7 @@ export default function GearBuilderPage() {
     fetcher.data && 'error' in fetcher.data ? fetcher.data.error : null;
 
   const hasTypes = slots.length > 0;
-  const justSaved =
-    Boolean(fetcher.data && 'saved' in fetcher.data && fetcher.data.saved);
+  const justSaved = saveNotice;
   const progressSteps = [
     {id: 1, label: tr.gearBuilder.stepPick, done: hasTypes},
     {id: 2, label: tr.gearBuilder.stepConfigure, done: hasSaveableBuild},
@@ -366,13 +393,13 @@ export default function GearBuilderPage() {
             type="button"
             className="tr-btn-secondary cm-gear-builder-toolbar-btn"
             disabled={!hasSaveableBuild}
-            onClick={() => setSaveOpen((open) => !open)}
+            onClick={handleOpenSave}
           >
             <IconSave size={16} />
             {isLoggedIn ? tr.gearBuilder.saveGear : tr.gearBuilder.saveSession}
           </button>
 
-          {fetcher.data && 'saved' in fetcher.data && fetcher.data.saved ? (
+          {saveNotice ? (
             <p className="cm-gear-builder-status cm-gear-builder-status--success">
               <IconCheck size={16} />
               {tr.gearBuilder.saved}
