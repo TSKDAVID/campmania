@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
 import type {GearBuilderSlot} from '~/lib/trailrent/gear-builder';
+import {formatGel} from '~/lib/trailrent/pricing';
 import {GearTypeIcon, gearTypeLabel} from '~/components/trailrent/GearBuilderPanel';
 import {IconMountain, IconSave, IconX} from '~/components/trailrent/Icons';
 
@@ -12,6 +13,7 @@ type GearBuilderSaveDialogProps = {
   slots: GearBuilderSlot[];
   filledCount: number;
   bundleDailyLabel: string;
+  subtotalDailyLabel: string;
   discountPercent: number;
   buildName: string;
   buildTrek: string;
@@ -32,11 +34,15 @@ type GearBuilderSaveDialogProps = {
     dailyRate: string;
     bundleDiscount: string;
     nameRequired: string;
+    minItemsRequired: string;
     maxBuilds: string;
     saveFailed: string;
+    removeItem: string;
+    summaryEmpty: string;
   };
   onBuildNameChange: (value: string) => void;
   onTrekPick: (trekValue: string) => void;
+  onRemoveItem: (itemType: GearBuilderSlot['itemType']) => void;
   onSave: () => void;
 };
 
@@ -47,6 +53,7 @@ export function GearBuilderSaveDialog({
   slots,
   filledCount,
   bundleDailyLabel,
+  subtotalDailyLabel,
   discountPercent,
   buildName,
   buildTrek,
@@ -57,6 +64,7 @@ export function GearBuilderSaveDialog({
   labels,
   onBuildNameChange,
   onTrekPick,
+  onRemoveItem,
   onSave,
 }: GearBuilderSaveDialogProps) {
   useEffect(() => {
@@ -79,6 +87,7 @@ export function GearBuilderSaveDialog({
   if (!open) return null;
 
   const filledSlots = slots.filter((slot) => slot.productId);
+  const showDiscount = discountPercent > 0;
 
   return (
     <div className="cm-gear-builder-dialog" role="dialog" aria-modal="true">
@@ -112,30 +121,79 @@ export function GearBuilderSaveDialog({
         <div className="cm-gear-builder-dialog-body">
           <section className="cm-gear-builder-dialog-summary">
             <div className="cm-gear-builder-dialog-summary-metrics">
-              <div className="cm-gear-builder-dialog-summary-row">
-                <span>{labels.itemsSelected}</span>
-                <span>{filledCount}</span>
+              <div className="cm-gear-builder-dialog-metric">
+                <span className="cm-gear-builder-dialog-metric-label">
+                  {labels.itemsSelected}
+                </span>
+                <span className="cm-gear-builder-dialog-metric-value">{filledCount}</span>
               </div>
-              <div className="cm-gear-builder-dialog-summary-row">
-                <span>{labels.dailyRate}</span>
+              <div className="cm-gear-builder-dialog-metric">
+                <span className="cm-gear-builder-dialog-metric-label">
+                  {labels.dailyRate}
+                </span>
                 <span className="cm-gear-builder-dialog-summary-price">
-                  {bundleDailyLabel}
+                  {showDiscount ? (
+                    <>
+                      <span className="cm-gear-builder-dialog-price-was">
+                        {subtotalDailyLabel}
+                      </span>
+                      {bundleDailyLabel}
+                    </>
+                  ) : (
+                    bundleDailyLabel
+                  )}
                 </span>
               </div>
             </div>
-            {discountPercent > 0 ? (
+
+            {showDiscount ? (
               <p className="cm-gear-builder-dialog-discount">
                 -{discountPercent}% {labels.bundleDiscount}
               </p>
             ) : null}
-            <ul className="cm-gear-builder-dialog-items">
-              {filledSlots.map((slot) => (
-                <li key={slot.itemType}>
-                  <GearTypeIcon type={slot.itemType} size={16} className="text-moss" />
-                  <span>{slot.title ?? gearTypeLabel(slot.itemType, locale)}</span>
-                </li>
-              ))}
-            </ul>
+
+            {filledSlots.length ? (
+              <ul className="cm-gear-builder-dialog-items">
+                {filledSlots.map((slot) => (
+                  <li key={slot.itemType} className="cm-gear-builder-dialog-item">
+                    <div className="cm-gear-builder-dialog-item-media">
+                      {slot.imageUrl ? (
+                        <img src={slot.imageUrl} alt="" loading="lazy" />
+                      ) : (
+                        <GearTypeIcon
+                          type={slot.itemType}
+                          size={18}
+                          className="text-moss"
+                        />
+                      )}
+                    </div>
+                    <div className="cm-gear-builder-dialog-item-body">
+                      <span className="cm-gear-builder-dialog-item-type">
+                        {gearTypeLabel(slot.itemType, locale)}
+                      </span>
+                      <span className="cm-gear-builder-dialog-item-title">
+                        {slot.title ?? gearTypeLabel(slot.itemType, locale)}
+                      </span>
+                      {slot.dailyRate ? (
+                        <span className="cm-gear-builder-dialog-item-rate">
+                          {formatGel(slot.dailyRate)}
+                        </span>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      className="cm-gear-builder-dialog-item-remove"
+                      aria-label={labels.removeItem}
+                      onClick={() => onRemoveItem(slot.itemType)}
+                    >
+                      <IconX size={14} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="cm-gear-builder-dialog-items-empty">{labels.summaryEmpty}</p>
+            )}
           </section>
 
           <label className="cm-gear-builder-field">
@@ -168,9 +226,19 @@ export function GearBuilderSaveDialog({
             </div>
           </div>
 
+          {!canSave ? (
+            <p className="cm-gear-builder-status cm-gear-builder-status--muted">
+              {labels.minItemsRequired}
+            </p>
+          ) : null}
           {saveError === 'name_required' ? (
             <p className="cm-gear-builder-status cm-gear-builder-status--error">
               {labels.nameRequired}
+            </p>
+          ) : null}
+          {saveError === 'min_items' ? (
+            <p className="cm-gear-builder-status cm-gear-builder-status--error">
+              {labels.minItemsRequired}
             </p>
           ) : null}
           {saveError === 'max_builds' ? (

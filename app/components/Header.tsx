@@ -82,7 +82,7 @@ export function Header({
         </nav>
 
         {/* Actions */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
           <LanguageSwitcher />
           <AccountLink isLoggedIn={isLoggedIn} />
           <SearchToggle />
@@ -201,17 +201,16 @@ function HeaderMenuMobileToggle() {
 }
 
 function SearchToggle() {
-  const {open} = useAside();
   const {translations: tr} = useLocale();
   return (
-    <button
-      type="button"
+    <NavLink
+      to="/search"
+      prefetch="intent"
       className="cm-icon-btn"
-      onClick={() => open('search')}
       aria-label={tr.nav.search}
     >
       <IconSearch size={18} />
-    </button>
+    </NavLink>
   );
 }
 

@@ -1,5 +1,5 @@
 import {Link} from 'react-router';
-import {useAside} from '~/components/Aside';
+import {SearchForm} from '~/components/SearchForm';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
   IconArrowRight,
@@ -76,19 +76,27 @@ const HOW_STEPS = [
 ];
 
 export function HomeSearchBar() {
-  const {open} = useAside();
   const {translations: tr} = useLocale();
 
   return (
-    <button
-      type="button"
-      className="cm-home-search"
-      onClick={() => open('search')}
-      aria-label={tr.nav.search}
-    >
-      <IconSearch size={18} className="text-muted" />
-      <span className="truncate">{tr.home.searchPlaceholder}</span>
-    </button>
+    <SearchForm action="/search" className="cm-home-search-form">
+      {({inputRef}) => (
+        <div className="cm-home-search">
+          <IconSearch size={18} className="shrink-0 text-muted" aria-hidden />
+          <input
+            ref={inputRef}
+            className="cm-home-search-input"
+            name="q"
+            type="search"
+            placeholder={tr.home.searchPlaceholder}
+            autoComplete="off"
+          />
+          <button type="submit" className="cm-home-search-submit">
+            {tr.searchPage.submit}
+          </button>
+        </div>
+      )}
+    </SearchForm>
   );
 }
 

@@ -107,4 +107,7 @@ export const GEAR_ITEM_TYPES: GearItemType[] = [
   'navigation',
 ];
 
-export const PACKAGE_BUNDLE_DISCOUNT = 0.3;
+export const PACKAGE_BUNDLE_DISCOUNT = 0.2;
+
+/** Minimum filled gear slots required to save a build or apply bundle pricing. */
+export const GEAR_BUILDER_MIN_SAVE_ITEMS = 2;

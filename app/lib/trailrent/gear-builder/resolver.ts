@@ -171,7 +171,7 @@ export function resolvePackageComposition(options: {
   }
 
   const subtotalDaily = baseItems.reduce((sum, item) => sum + item.dailyRate, 0);
-  const pricing = calculateBundlePricing(subtotalDaily, days);
+  const pricing = calculateBundlePricing(subtotalDaily, days, baseItems.length);
 
   return {
     trek,

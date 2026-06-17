@@ -39,7 +39,7 @@ import {
 } from '~/components/trailrent/Icons';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 import {isGearBuilderEnabled} from '~/lib/trailrent/feature-flags';
-import {GEAR_BUILDER_MAX_SAVED_BUILDS} from '~/lib/trailrent/gear-builder/types';
+import {GEAR_BUILDER_MAX_SAVED_BUILDS, GEAR_BUILDER_MIN_SAVE_ITEMS} from '~/lib/trailrent/gear-builder/types';
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Campmania | Gear Builder'},
@@ -130,6 +130,10 @@ export async function action({request, context}: Route.ActionArgs) {
     }
     if (!parsed.slots.some((slot) => slot.productId)) {
       return data({ok: false, error: 'empty_state'}, {status: 400});
+    }
+    const filledCount = parsed.slots.filter((slot) => slot.productId).length;
+    if (filledCount < GEAR_BUILDER_MIN_SAVE_ITEMS) {
+      return data({ok: false, error: 'min_items'}, {status: 400});
     }
     if (!name) {
       return data({ok: false, error: 'name_required'}, {status: 400});
@@ -261,9 +265,10 @@ export default function GearBuilderPage() {
   const slots = builder.state.slots;
   const filledSlots = slots.filter((slot) => slot.productId).length;
 
-  const hasSaveableBuild = slots.some((slot) => slot.productId);
+  const hasAnyGear = filledSlots > 0;
+  const canSaveBuild = filledSlots >= GEAR_BUILDER_MIN_SAVE_ITEMS;
   const subtotalDaily = slots.reduce((sum, slot) => sum + (slot.dailyRate ?? 0), 0);
-  const pricing = calculateBundlePricing(subtotalDaily, 1);
+  const pricing = calculateBundlePricing(subtotalDaily, 1, filledSlots);
   const cartLines = buildGearBuilderCartLines(slots);
 
   const activeProducts = activeType ? grouped[activeType] ?? [] : [];
@@ -333,10 +338,10 @@ export default function GearBuilderPage() {
   const justSaved = saveNotice;
   const progressSteps = [
     {id: 1, label: tr.gearBuilder.stepPick, done: hasTypes},
-    {id: 2, label: tr.gearBuilder.stepConfigure, done: hasSaveableBuild},
+    {id: 2, label: tr.gearBuilder.stepConfigure, done: hasAnyGear},
     {id: 3, label: tr.gearBuilder.stepSave, done: justSaved},
   ] as const;
-  const currentStep = !hasTypes ? 1 : !hasSaveableBuild ? 2 : 3;
+  const currentStep = !hasTypes ? 1 : !hasAnyGear ? 2 : 3;
 
   return (
     <section className="cm-gear-builder-page bg-mist">
@@ -422,7 +427,7 @@ export default function GearBuilderPage() {
           <button
             type="button"
             className="tr-btn-secondary cm-gear-builder-toolbar-btn"
-            disabled={!hasSaveableBuild}
+            disabled={!canSaveBuild}
             onClick={handleOpenSave}
           >
             <IconSave size={16} />
@@ -444,13 +449,14 @@ export default function GearBuilderPage() {
           slots={slots}
           filledCount={filledSlots}
           bundleDailyLabel={pricing.bundleDailyLabel}
+          subtotalDailyLabel={pricing.subtotalDailyLabel}
           discountPercent={pricing.discountPercent}
           buildName={buildName}
           buildTrek={buildTrek}
           trekOptions={trekOptions}
           saveError={saveError}
           isSaving={fetcher.state !== 'idle'}
-          canSave={hasSaveableBuild}
+          canSave={canSaveBuild}
           labels={{
             title: tr.gearBuilder.savePanelTitle,
             desc: tr.gearBuilder.savePanelDesc,
@@ -464,14 +470,18 @@ export default function GearBuilderPage() {
             dailyRate: tr.booking.dailyRate,
             bundleDiscount: tr.gearBuilder.bundleDiscount,
             nameRequired: tr.gearBuilder.nameRequired,
+            minItemsRequired: tr.gearBuilder.minItemsRequired,
             maxBuilds: tr.gearBuilder.maxBuilds.replace(
               '{count}',
               String(GEAR_BUILDER_MAX_SAVED_BUILDS),
             ),
             saveFailed: tr.gearBuilder.saveFailed,
+            removeItem: tr.gearBuilder.clearSlotItem,
+            summaryEmpty: tr.gearBuilder.summaryEmpty,
           }}
           onBuildNameChange={setBuildName}
           onTrekPick={handleTrekPick}
+          onRemoveItem={builder.clearSlotProduct}
           onSave={handleSave}
         />
 
@@ -517,9 +527,11 @@ export default function GearBuilderPage() {
                 </span>
               </div>
             </div>
-            <p className="cm-gear-builder-discount">
-              -{pricing.discountPercent}% {tr.gearBuilder.bundleDiscount}
-            </p>
+            {pricing.discountPercent > 0 ? (
+              <p className="cm-gear-builder-discount">
+                -{pricing.discountPercent}% {tr.gearBuilder.bundleDiscount}
+              </p>
+            ) : null}
             <ul className="cm-gear-builder-summary-list">
               {slots.length ? (
                 slots.map((slot) => (
