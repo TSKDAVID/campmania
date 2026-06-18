@@ -105,6 +105,8 @@ export type ShopifyGearItem = GearItem & {
   variantId?: string;
   imageUrl?: string;
   imageAlt?: string;
+  compareAtPrice?: number;
+  savingsPercent?: number;
   builderProduct: GearBuilderProduct;
 };
 
@@ -419,6 +421,19 @@ function mapGearProduct(
   const category = inferGearCategory(product);
   const variant = catalogRentVariant(product);
   const dailyRate = Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount);
+  const variantCompareAt = Number(
+    variant?.compareAtPrice?.amount ??
+      product.compareAtPriceRange?.minVariantPrice.amount ??
+      0,
+  );
+  const compareAt =
+    variantCompareAt > 0 && variantCompareAt > dailyRate
+      ? variantCompareAt
+      : undefined;
+  const savingsPercent =
+    compareAt != null && compareAt > dailyRate
+      ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
+      : undefined;
   const builderProduct = mapGearBuilderProduct(product);
 
   return {
@@ -435,6 +450,8 @@ function mapGearProduct(
     variantId: variant?.id,
     imageUrl: product.featuredImage?.url,
     imageAlt: product.featuredImage?.altText ?? product.title,
+    compareAtPrice: compareAt,
+    savingsPercent,
     builderProduct,
   };
 }

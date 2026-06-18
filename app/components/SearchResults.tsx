@@ -3,7 +3,7 @@ import {Pagination} from '@shopify/hydrogen';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {IconArrowRight, IconSearch} from '~/components/trailrent/Icons';
 import {useLocale} from '~/providers/LocaleProvider';
-import {formatGel} from '~/lib/trailrent/pricing';
+import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {urlWithTrackingParams, type RegularSearchReturn} from '~/lib/search';
 
 type SearchItems = RegularSearchReturn['result']['items'];
@@ -141,19 +141,28 @@ function SearchResultsProducts({
                 });
 
                 const price = product.selectedOrFirstAvailableVariant?.price;
+                const compareAtPrice =
+                  product.selectedOrFirstAvailableVariant?.compareAtPrice;
                 const image = product.selectedOrFirstAvailableVariant?.image;
                 const amount = price ? Number(price.amount) : 0;
-                const priceLabel = price ? (
-                  <>
-                    {formatGel(amount)}
-                    <span className="cm-search-price-suffix">
-                      {' '}
-                      {tr.searchPage.perDay}
-                    </span>
-                  </>
-                ) : (
-                  '—'
-                );
+                const compareAt = compareAtPrice
+                  ? Number(compareAtPrice.amount)
+                  : undefined;
+                const priceLabel =
+                  amount > 0 ? (
+                    <PriceWithCompare
+                      amount={amount}
+                      compareAtAmount={compareAt}
+                      suffix={
+                        <>
+                          {' '}
+                          {tr.searchPage.perDay}
+                        </>
+                      }
+                    />
+                  ) : (
+                    '—'
+                  );
 
                 return (
                   <CatalogProductCard

@@ -1123,6 +1123,79 @@
     height: auto;
   }
 
+  .cm-product-gallery-stage {
+    @apply relative h-full w-full;
+  }
+
+  .cm-product-gallery-slide {
+    @apply absolute inset-0 z-0 flex items-center justify-center opacity-0 transition-opacity duration-300 ease-out;
+  }
+
+  .cm-product-gallery-slide--active {
+    @apply z-[1] opacity-100;
+  }
+
+  .cm-product-gallery--multi .cm-product-gallery-frame {
+    @apply px-10 sm:px-12;
+  }
+
+  .cm-product-gallery-nav {
+    @apply absolute top-1/2 z-[2] flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-stone/70 bg-white/95 text-forest shadow-md transition hover:border-moss/40 hover:bg-white hover:text-pine;
+  }
+
+  .cm-product-gallery-nav--prev {
+    @apply left-2 sm:left-3;
+  }
+
+  .cm-product-gallery-nav--next {
+    @apply right-2 sm:right-3;
+  }
+
+  .cm-product-gallery-nav-icon--prev {
+    transform: rotate(180deg);
+  }
+
+  .cm-product-gallery-counter {
+    @apply absolute bottom-2 right-3 rounded-full bg-pine/75 px-2.5 py-0.5 text-[11px] font-semibold text-mist;
+  }
+
+  .cm-product-gallery-thumbs {
+    @apply flex gap-2 overflow-x-auto pb-0.5 pt-1;
+    scrollbar-width: thin;
+  }
+
+  .cm-product-gallery-thumb {
+    @apply h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 border-transparent bg-white p-0.5 transition;
+  }
+
+  .cm-product-gallery-thumb img {
+    @apply h-full w-full rounded-md object-cover object-center;
+  }
+
+  .cm-product-gallery-thumb--active {
+    @apply border-moss shadow-sm;
+  }
+
+  .cm-product-gallery-thumb:focus-visible {
+    @apply outline-none ring-2 ring-moss/40 ring-offset-2;
+  }
+
+  .cm-price-with-compare--compact {
+    @apply inline-flex flex-wrap items-baseline gap-x-1.5;
+  }
+
+  .cm-price-with-compare--compact .cm-price-compare {
+    @apply text-sm text-muted line-through;
+  }
+
+  .cm-price-with-compare--compact .cm-price-amount {
+    @apply text-sm font-semibold text-forest;
+  }
+
+  .cm-price-with-compare--compact .cm-price-suffix {
+    @apply text-xs font-normal text-muted;
+  }
+
   .cm-product-header {
     @apply space-y-2 border-b border-stone/80 pb-5 md:space-y-3;
   }

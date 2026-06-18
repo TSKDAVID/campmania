@@ -360,6 +360,10 @@ const PREDICTIVE_SEARCH_PRODUCT_FRAGMENT = `#graphql
         amount
         currencyCode
       }
+      compareAtPrice {
+        amount
+        currencyCode
+      }
     }
   }
 ` as const;

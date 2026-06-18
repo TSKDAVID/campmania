@@ -6,6 +6,7 @@ import type {ShopifyGearItem} from '~/lib/trailrent/shopify-catalog';
 import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {GearFiltersBar} from '~/components/trailrent/CatalogFilters';
+import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 
 export function GearCatalogGrid({
   gear,
@@ -14,7 +15,7 @@ export function GearCatalogGrid({
   gear: ShopifyGearItem[];
   shopifyConnected?: boolean;
 }) {
-  const {translations: tr} = useLocale();
+  const {translations: tr, locale} = useLocale();
   const [params] = useSearchParams();
   const category = params.get('gear') ?? '';
 
@@ -53,7 +54,13 @@ export function GearCatalogGrid({
               title={item.title}
               imageUrl={item.imageUrl}
               imageAlt={item.imageAlt}
-              price={item.priceLabel}
+              price={
+                <PriceWithCompare
+                  amount={item.dailyRate}
+                  compareAtAmount={item.compareAtPrice}
+                  suffix={` / ${locale === 'ka' ? 'დღე' : 'day'}`}
+                />
+              }
               loading={index < 4 ? 'eager' : 'lazy'}
             />
           ))}

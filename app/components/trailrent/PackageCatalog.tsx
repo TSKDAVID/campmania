@@ -10,7 +10,6 @@ import type {
   ShopifyGearItem,
   ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
-import {formatGel} from '~/lib/trailrent/pricing';
 import {
   resolvePackageComposition,
   type GearBuilderProduct,
@@ -21,6 +20,10 @@ import {
   PackageFiltersPanel,
 } from '~/components/trailrent/CatalogFilters';
 import {CatalogCardImage} from '~/components/trailrent/CatalogCardImage';
+import {
+  PriceWithCompare,
+  TotalWithCompare,
+} from '~/components/trailrent/PriceWithCompare';
 import {IconArrowRight, IconMountain} from '~/components/trailrent/Icons';
 
 const DIFFICULTY_STYLES: Record<string, string> = {
@@ -225,33 +228,22 @@ function PackageCard({
 
         <div className="cm-kit-card-footer">
           <div className="cm-kit-card-pricing min-w-0">
-            <div className="cm-kit-card-price-row">
-              {showCompare ? (
-                <span className="cm-kit-card-compare">
-                  <span className="sr-only">{savingsLabel}</span>
-                  {formatGel(subtotalDaily!)}
-                </span>
-              ) : null}
-              <p className="cm-kit-card-price">
-                {formatGel(bundleDaily)} / {perDayWord}
-              </p>
-            </div>
-            <p className="cm-kit-card-total-line">
-              <span>
-                {totalLabel}: <strong>{formatGel(bundleTotal)}</strong>
-              </span>
-              {showCompare && subtotalTotal != null ? (
-                <span className="cm-kit-card-compare-inline">
-                  {formatGel(subtotalTotal)}
-                </span>
-              ) : null}
-              {displayedItems.length > 0 ? (
-                <span className="cm-kit-card-total-meta">
-                  {' '}
-                  · {displayedItems.length} {itemsCountLabel}
-                </span>
-              ) : null}
-            </p>
+            <PriceWithCompare
+              amount={bundleDaily}
+              compareAtAmount={showCompare ? subtotalDaily : undefined}
+              suffix={` / ${perDayWord}`}
+              compareLabel={savingsLabel}
+            />
+            <TotalWithCompare
+              label={totalLabel}
+              amount={bundleTotal}
+              compareAtAmount={showCompare ? subtotalTotal ?? undefined : undefined}
+              meta={
+                displayedItems.length > 0
+                  ? ` · ${displayedItems.length} ${itemsCountLabel}`
+                  : undefined
+              }
+            />
           </div>
           <span className="cm-kit-card-arrow" aria-hidden>
             <IconArrowRight size={18} />

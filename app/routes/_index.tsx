@@ -136,6 +136,12 @@ const FEATURED_PRODUCT_FRAGMENT = `#graphql
         currencyCode
       }
     }
+    compareAtPriceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
   }
 ` as const;
 

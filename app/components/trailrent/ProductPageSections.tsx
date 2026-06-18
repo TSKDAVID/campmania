@@ -2,6 +2,7 @@ import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {useLocale} from '~/providers/LocaleProvider';
 import {formatGel} from '~/lib/trailrent/pricing';
 import type {FulfillmentMode} from '~/components/RentalProductForm';
+import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {
   IconCheck,
   IconMetro,
@@ -38,28 +39,18 @@ export function ProductInlinePrice({
   const showBuy =
     buyAvailable && buyAmount != null && buyAmount > 0 && isPurchase;
   const amount = showBuy ? buyAmount : rentAmount;
-  const showCompare =
-    !showBuy &&
-    !buyAvailable &&
-    compareAt != null &&
-    compareAt > 0 &&
-    rentAmount != null &&
-    compareAt > rentAmount;
-
   if (amount == null) return null;
 
+  const compareAtForDisplay =
+    !showBuy && !buyAvailable ? compareAt : undefined;
+
   return (
-    <div className="cm-product-inline-price" aria-label="Price">
-      {showCompare ? (
-        <span className="cm-price-compare" aria-hidden>
-          {formatGel(compareAt!)}
-        </span>
-      ) : null}
-      <span className="cm-price-amount">{formatGel(amount)}</span>
-      {!showBuy ? (
-        <span className="cm-price-suffix">{tr.product.perDay}</span>
-      ) : null}
-    </div>
+    <PriceWithCompare
+      amount={amount}
+      compareAtAmount={compareAtForDisplay}
+      suffix={!showBuy ? tr.product.perDay : undefined}
+      size="pdp"
+    />
   );
 }
 
@@ -113,7 +104,7 @@ export function ProductPriceBlock({
   rentPrice,
   buyPrice,
   buyAvailable = false,
-  compareAtPrice,
+  compareAtPrice: _compareAtPrice,
   savingsPercent,
 }: {
   fulfillmentMode?: FulfillmentMode;
@@ -126,16 +117,9 @@ export function ProductPriceBlock({
   const {translations: tr} = useLocale();
   const rentAmount = moneyAmount(rentPrice);
   const buyAmount = moneyAmount(buyPrice);
-  const compareAt = moneyAmount(compareAtPrice ?? undefined);
   const isPurchase = fulfillmentMode === 'purchase';
   const showBuyChip =
     buyAvailable && buyAmount != null && buyAmount > 0 && rentAmount != null;
-  const showKitCompare =
-    compareAt != null &&
-    compareAt > 0 &&
-    !buyAvailable &&
-    rentAmount != null &&
-    compareAt > rentAmount;
   const isRentActive = !isPurchase || !showBuyChip;
   const isBuyActive = isPurchase && showBuyChip;
 
@@ -166,22 +150,12 @@ export function ProductPriceBlock({
           </div>
         ) : null}
       </div>
-      {showKitCompare ? (
-        <p className="mt-3 text-lg text-muted line-through">
-          {formatGel(compareAt!)}
-        </p>
-      ) : null}
       {savingsPercent && !isPurchase ? (
         <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber/20 px-3.5 py-1.5 text-sm font-semibold text-pine">
           <span className="rounded-full bg-amber px-2 py-0.5 text-xs font-bold text-pine">
             −{savingsPercent}%
           </span>
           {tr.product.kitSavings}
-          {compareAt ? (
-            <span className="font-normal text-muted">
-              · {tr.product.wasPrice} {formatGel(compareAt)}
-            </span>
-          ) : null}
         </p>
       ) : null}
     </div>

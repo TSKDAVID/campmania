@@ -2,7 +2,7 @@ import {Link, useFetcher} from 'react-router';
 import {useCallback, useEffect, useId, useRef, useState} from 'react';
 import {SearchForm} from '~/components/SearchForm';
 import {useLocale} from '~/providers/LocaleProvider';
-import {formatGel} from '~/lib/trailrent/pricing';
+import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {
   getEmptyPredictiveSearchResult,
   urlWithTrackingParams,
@@ -334,9 +334,19 @@ export function HomeSearchBar() {
                         });
                         const variant = product.selectedOrFirstAvailableVariant;
                         const image = variant?.image;
-                        const price = variant?.price?.amount
-                          ? formatGel(Number(variant.price.amount))
-                          : null;
+                        const amount = variant?.price?.amount
+                          ? Number(variant.price.amount)
+                          : 0;
+                        const compareAt = (
+                          variant as {compareAtPrice?: {amount?: string} | null}
+                        ).compareAtPrice?.amount
+                          ? Number(
+                              (
+                                variant as {compareAtPrice?: {amount?: string}}
+                              ).compareAtPrice!.amount,
+                            )
+                          : undefined;
+                        const perDay = locale === 'ka' ? 'დღე' : 'day';
 
                         return (
                           <li key={product.id}>
@@ -356,13 +366,19 @@ export function HomeSearchBar() {
                                 <span className="cm-home-search-product-title">
                                   {product.title}
                                 </span>
-                                {price ? (
+                                {amount > 0 ? (
                                   <span className="cm-home-search-product-price">
-                                    {price}
-                                    <span className="cm-home-search-product-price-suffix">
-                                      {' '}
-                                      / {locale === 'ka' ? 'დღე' : 'day'}
-                                    </span>
+                                    <PriceWithCompare
+                                      amount={amount}
+                                      compareAtAmount={compareAt}
+                                      suffix={
+                                        <>
+                                          {' '}
+                                          / {perDay}
+                                        </>
+                                      }
+                                      size="compact"
+                                    />
                                   </span>
                                 ) : null}
                               </span>

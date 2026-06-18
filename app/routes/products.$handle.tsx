@@ -9,7 +9,7 @@ import {
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
-import {ProductImage} from '~/components/ProductImage';
+import {ProductImage, type GalleryImage} from '~/components/ProductImage';
 import {
   RentalProductForm,
   type FulfillmentMode,
@@ -380,6 +380,45 @@ export default function Product() {
     };
   }, [gearBuilderEnabled, isPackage, product, tags, title, dailyRate, rentVariant, selectedVariant]);
 
+  const galleryImages = useMemo((): GalleryImage[] => {
+    const fromMedia = (product.media?.nodes ?? [])
+      .map((node: {
+        id: string;
+        image?: {
+          id: string;
+          url: string;
+          altText?: string | null;
+          width?: number | null;
+          height?: number | null;
+        } | null;
+      }) => {
+        if (!node.image?.url) return null;
+        return {
+          id: node.id,
+          url: node.image.url,
+          altText: node.image.altText,
+          width: node.image.width,
+          height: node.image.height,
+        };
+      })
+      .filter((entry: GalleryImage | null): entry is GalleryImage => entry != null);
+
+    if (fromMedia.length) return fromMedia;
+
+    const fallback = selectedVariant?.image ?? rentVariant?.image;
+    if (!fallback) return [];
+
+    return [
+      {
+        id: fallback.id ?? fallback.url,
+        url: fallback.url,
+        altText: fallback.altText,
+        width: fallback.width,
+        height: fallback.height,
+      },
+    ];
+  }, [product.media?.nodes, rentVariant?.image, selectedVariant?.image]);
+
   return (
     <article className="cm-product-page">
       <div
@@ -418,6 +457,7 @@ export default function Product() {
 
           <aside className="cm-product-layout-media" aria-label={title}>
             <ProductImage
+              images={galleryImages}
               image={selectedVariant?.image ?? rentVariant?.image}
               title={title}
               variant={isSoloProduct ? 'solo' : 'kit'}
@@ -630,6 +670,20 @@ const PRODUCT_FRAGMENT = `#graphql
     }
     gearThumbnailPriority: metafield(namespace: "gear_builder", key: "thumbnail_priority") {
       value
+    }
+    media(first: 20) {
+      nodes {
+        ... on MediaImage {
+          id
+          image {
+            id
+            url
+            altText
+            width
+            height
+          }
+        }
+      }
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}
