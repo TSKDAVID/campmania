@@ -216,6 +216,7 @@ export default function Product() {
       : undefined;
 
   const kitSummary = product.kitSummary?.value?.trim();
+  const productSubtitle = kitSummary || product.description?.trim();
   const isPackage =
     includedItems.length > 0 || tags.some((t: string) => t.startsWith('trek-'));
   const savingsPercent =
@@ -306,19 +307,18 @@ export default function Product() {
               title={title}
               variant={isSoloProduct ? 'solo' : 'kit'}
             />
-          </aside>
-
-          <div className="cm-product-buybox">
-            <header className="cm-product-header cm-product-header--compact">
+            <header className="cm-product-header cm-product-header--media">
               <p className="cm-product-eyebrow">
                 {isPackage ? tr.packages.eyebrow : tr.product.rental}
               </p>
               <h1 className="cm-product-title">{title}</h1>
-              {kitSummary ? (
-                <p className="cm-product-subtitle">{kitSummary}</p>
+              {productSubtitle ? (
+                <p className="cm-product-subtitle">{productSubtitle}</p>
               ) : null}
             </header>
+          </aside>
 
+          <div className="cm-product-buybox">
             <div className="cm-product-buybox-pricing">
               <ProductPriceBlock
                 fulfillmentMode={fulfillmentMode}

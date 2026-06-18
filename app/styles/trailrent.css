@@ -1023,7 +1023,11 @@
   }
 
   .cm-product-layout-media {
-    @apply min-w-0;
+    @apply flex min-w-0 flex-col gap-2.5 sm:gap-3;
+  }
+
+  .cm-product-header--media {
+    @apply space-y-0.5 border-0 pb-0 pt-0.5;
   }
 
   @media (min-width: 1024px) {
