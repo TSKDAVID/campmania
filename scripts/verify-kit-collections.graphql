@@ -1,0 +1,28 @@
+query VerifyKitCollections {
+  birtvisi: collection(id: "gid://shopify/Collection/655392768292") {
+    handle
+    productsCount {
+      count
+    }
+    products(first: 10) {
+      nodes {
+        id
+        handle
+        title
+      }
+    }
+  }
+  tobavarchkhili: collection(id: "gid://shopify/Collection/655392801060") {
+    handle
+    productsCount {
+      count
+    }
+    products(first: 10) {
+      nodes {
+        id
+        handle
+        title
+      }
+    }
+  }
+}

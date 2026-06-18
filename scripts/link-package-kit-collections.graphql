@@ -1,0 +1,93 @@
+mutation LinkPackageKitCollections {
+  birtvisiProducts: collectionAddProducts(
+    id: "gid://shopify/Collection/655392768292"
+    productIds: [
+      "gid://shopify/Product/10507124637988"
+      "gid://shopify/Product/10507144724772"
+      "gid://shopify/Product/10507361419556"
+    ]
+  ) {
+    collection {
+      id
+      productsCount {
+        count
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  tobavarchkhiliProducts: collectionAddProducts(
+    id: "gid://shopify/Collection/655392801060"
+    productIds: [
+      "gid://shopify/Product/10507124637988"
+      "gid://shopify/Product/10507144724772"
+      "gid://shopify/Product/10507361419556"
+    ]
+  ) {
+    collection {
+      id
+      productsCount {
+        count
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  birtvisiPackage: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10510093517092"
+      metafields: [
+        {
+          namespace: "custom"
+          key: "included_collection"
+          value: "gid://shopify/Collection/655392768292"
+          type: "collection_reference"
+        }
+      ]
+    }
+  ) {
+    product {
+      id
+      handle
+      metafield(namespace: "custom", key: "included_collection") {
+        value
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  tobavarchkhiliPackage: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10507362042148"
+      metafields: [
+        {
+          namespace: "custom"
+          key: "included_collection"
+          value: "gid://shopify/Collection/655392801060"
+          type: "collection_reference"
+        }
+      ]
+    }
+  ) {
+    product {
+      id
+      handle
+      metafield(namespace: "custom", key: "included_collection") {
+        value
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

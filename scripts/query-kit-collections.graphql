@@ -1,0 +1,16 @@
+query KitCollections {
+  birtvisi: collectionByHandle(handle: "birtvisi-package-includes") {
+    id
+    handle
+    productsCount {
+      count
+    }
+  }
+  tobavarchkhili: collectionByHandle(handle: "tobavarchkhili-includes") {
+    id
+    handle
+    productsCount {
+      count
+    }
+  }
+}

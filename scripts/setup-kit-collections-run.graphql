@@ -1,0 +1,56 @@
+mutation SetupPackageKitCollections {
+  includedCollectionDef: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "included_collection"
+      name: "Included collection"
+      description: "Collection of gear products included in this trail package"
+      type: "collection_reference"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition {
+      id
+      key
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  birtvisiKit: collectionCreate(
+    input: {
+      title: "Birtvisi kit contents"
+      handle: "birtvisi-package-includes"
+      descriptionHtml: "Gear included in the Birtvisi trail package"
+    }
+  ) {
+    collection {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  tobavarchkhiliKit: collectionCreate(
+    input: {
+      title: "Tobavarchkhili kit contents"
+      handle: "tobavarchkhili-includes"
+      descriptionHtml: "Gear included in the Tobavarchkhili trail package"
+    }
+  ) {
+    collection {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
