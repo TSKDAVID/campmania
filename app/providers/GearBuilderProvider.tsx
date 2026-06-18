@@ -26,7 +26,7 @@ import {
 
 type GearBuilderContextValue = {
   state: GearBuilderState;
-  addProduct: (product: GearBuilderProduct, variantId?: string) => void;
+  addProduct: (product: GearBuilderProduct, variantId?: string) => boolean;
   addItemType: (itemType: GearItemType) => void;
   setSlotProduct: (
     itemType: GearItemType,
@@ -102,7 +102,9 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
   const addProduct = useCallback(
     (product: GearBuilderProduct, variantId?: string) => {
       const slot = productToSlot(product, product.metafields.itemType, variantId);
-      if (slot) upsertSlot(slot);
+      if (!slot) return false;
+      upsertSlot(slot);
+      return true;
     },
     [upsertSlot],
   );

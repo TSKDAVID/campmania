@@ -396,12 +396,22 @@ export default function Product() {
             </p>
             <div className="cm-product-title-row">
               <h1 className="cm-product-title">{title}</h1>
-              <ProductInlinePrice
-                fulfillmentMode={fulfillmentMode}
-                rentPrice={displayRentPrice}
-                buyPrice={buyPriceMoney}
-                buyAvailable={buyAvailable}
-              />
+              <div className="cm-product-title-price">
+                <ProductInlinePrice
+                  fulfillmentMode={fulfillmentMode}
+                  rentPrice={displayRentPrice}
+                  buyPrice={buyPriceMoney}
+                  buyAvailable={buyAvailable}
+                />
+                <ProductPricingExtras
+                  fulfillmentMode={fulfillmentMode}
+                  rentPrice={displayRentPrice}
+                  compareAtPrice={displayCompareAtPrice}
+                  savingsPercent={savingsPercent}
+                  buyAvailable={buyAvailable}
+                  variant="inline"
+                />
+              </div>
             </div>
           </header>
 
@@ -420,13 +430,6 @@ export default function Product() {
 
           <div className="cm-product-buybox">
             <div className="cm-product-buybox-head">
-              <ProductPricingExtras
-                fulfillmentMode={fulfillmentMode}
-                rentPrice={displayRentPrice}
-                compareAtPrice={displayCompareAtPrice}
-                savingsPercent={savingsPercent}
-                buyAvailable={buyAvailable}
-              />
               <ProductTrustBar isTrustedTier={trustedTier} />
             </div>
 

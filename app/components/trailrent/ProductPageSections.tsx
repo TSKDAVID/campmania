@@ -48,19 +48,21 @@ export function ProductInlinePrice({
   );
 }
 
-/** Discount banner and compare-at — shown in the buy box, not above the image. */
+/** Discount banner and compare-at — under the inline price (left column). */
 export function ProductPricingExtras({
   fulfillmentMode = 'rent',
   rentPrice,
   compareAtPrice,
   savingsPercent,
   buyAvailable = false,
+  variant = 'default',
 }: {
   fulfillmentMode?: FulfillmentMode;
   rentPrice?: MoneyV2;
   compareAtPrice?: MoneyV2 | null;
   savingsPercent?: number;
   buyAvailable?: boolean;
+  variant?: 'default' | 'inline';
 }) {
   const {translations: tr} = useLocale();
   const rentAmount = moneyAmount(rentPrice);
@@ -76,8 +78,10 @@ export function ProductPricingExtras({
   if (!showKitCompare && !(savingsPercent && !isPurchase)) return null;
 
   return (
-    <div className="cm-product-pricing-extras">
-      {showKitCompare ? (
+    <div
+      className={`cm-product-pricing-extras${variant === 'inline' ? ' cm-product-pricing-extras--inline' : ''}`}
+    >
+      {showKitCompare && variant !== 'inline' ? (
         <p className="cm-product-pricing-compare">
           {formatGel(compareAt!)}
         </p>
