@@ -1,0 +1,12 @@
+query CollectionProducts {
+  packages: collectionByHandle(handle: "trail-packages") {
+    products(first: 10) {
+      nodes { id handle title tags }
+    }
+  }
+  gear: collectionByHandle(handle: "individual-gear") {
+    products(first: 10) {
+      nodes { id handle title tags }
+    }
+  }
+}

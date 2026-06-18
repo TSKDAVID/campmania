@@ -1,0 +1,16 @@
+mutation AddPackageTags {
+  tob: tagsAdd(
+    id: "gid://shopify/Product/10507362042148"
+    tags: ["trek-tobavarchkhili", "duration-2-day", "difficulty-moderate"]
+  ) {
+    node { id }
+    userErrors { field message }
+  }
+  bir: tagsAdd(
+    id: "gid://shopify/Product/10510093517092"
+    tags: ["trek-birtvisi", "duration-2-day", "difficulty-easy"]
+  ) {
+    node { id }
+    userErrors { field message }
+  }
+}

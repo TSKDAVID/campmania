@@ -1,0 +1,111 @@
+mutation SeedCampmaniaGearBuilder {
+  tent: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10507124637988"
+      tags: ["gear-tent"]
+      metafields: [
+        {namespace: "gear_builder", key: "item_type", value: "tent", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "builder_enabled", value: "true", type: "boolean"}
+        {namespace: "gear_builder", key: "duration_fit", value: "1-day,2-day,weekend", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "thumbnail_priority", value: "10", type: "number_integer"}
+      ]
+    }
+  ) {
+    product { id handle }
+    userErrors { field message }
+  }
+
+  backpack: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10507144724772"
+      tags: ["gear-backpack"]
+      metafields: [
+        {namespace: "gear_builder", key: "item_type", value: "backpack", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "builder_enabled", value: "true", type: "boolean"}
+        {namespace: "gear_builder", key: "capacity_liters", value: "60", type: "number_integer"}
+        {namespace: "gear_builder", key: "duration_fit", value: "2-day,weekend", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "thumbnail_priority", value: "10", type: "number_integer"}
+      ]
+    }
+  ) {
+    product { id handle }
+    userErrors { field message }
+  }
+
+  sleepingBag: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10507361419556"
+      tags: ["gear-sleeping"]
+      metafields: [
+        {namespace: "gear_builder", key: "item_type", value: "sleeping_bag", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "builder_enabled", value: "true", type: "boolean"}
+        {namespace: "gear_builder", key: "duration_fit", value: "2-day,weekend", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "thumbnail_priority", value: "8", type: "number_integer"}
+      ]
+    }
+  ) {
+    product { id handle }
+    userErrors { field message }
+  }
+
+  shoes: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10507361354020"
+      tags: ["gear-shoes"]
+      metafields: [
+        {namespace: "gear_builder", key: "item_type", value: "shoes", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "builder_enabled", value: "true", type: "boolean"}
+        {namespace: "gear_builder", key: "duration_fit", value: "1-day,2-day,weekend", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "thumbnail_priority", value: "5", type: "number_integer"}
+      ]
+    }
+  ) {
+    product { id handle }
+    userErrors { field message }
+  }
+
+  pillow: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10507361288484"
+      tags: ["gear-sleeping"]
+      metafields: [
+        {namespace: "gear_builder", key: "item_type", value: "other", type: "single_line_text_field"}
+        {namespace: "gear_builder", key: "builder_enabled", value: "false", type: "boolean"}
+        {namespace: "gear_builder", key: "thumbnail_priority", value: "1", type: "number_integer"}
+      ]
+    }
+  ) {
+    product { id handle }
+    userErrors { field message }
+  }
+
+  tobavarchkhili: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10507362042148"
+      tags: ["trek-tobavarchkhili", "duration-2-day", "difficulty-moderate"]
+      metafields: [
+        {namespace: "custom", key: "included_items", value: "[\"3 კაციანი კარავი\",\"60L რუქსაკი\",\"საძილებელი ტომარა\"]", type: "multi_line_text_field"}
+        {namespace: "custom", key: "included_product_handles", value: "[\"3-კაციანი-კარავი-ქირით\",\"ჩანთა-the-north-face-electron-60l\",\"naturehike-საძილე-ტომარა\"]", type: "single_line_text_field"}
+        {namespace: "custom", key: "kit_summary", value: "სრული კომპლექტი ტობავარჩხილის 2-დღიან ბილიკისთვის", type: "single_line_text_field"}
+      ]
+    }
+  ) {
+    product { id handle }
+    userErrors { field message }
+  }
+
+  birtvisi: productUpdate(
+    input: {
+      id: "gid://shopify/Product/10510093517092"
+      tags: ["trek-birtvisi", "duration-2-day", "difficulty-easy"]
+      metafields: [
+        {namespace: "custom", key: "included_items", value: "[\"3 კაციანი კარავი\",\"60L რუქსაკი\",\"საძილებელი ტომარა\"]", type: "multi_line_text_field"}
+        {namespace: "custom", key: "included_product_handles", value: "[\"3-კაციანი-კარავი-ქირით\",\"ჩანთა-the-north-face-electron-60l\",\"naturehike-საძილე-ტომარა\"]", type: "single_line_text_field"}
+        {namespace: "custom", key: "kit_summary", value: "სრული კომპლექტი ბირთვისის ბილიკისთვის", type: "single_line_text_field"}
+      ]
+    }
+  ) {
+    product { id handle }
+    userErrors { field message }
+  }
+}

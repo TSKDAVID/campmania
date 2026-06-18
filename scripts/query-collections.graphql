@@ -1,0 +1,12 @@
+query CheckCollections {
+  packages: collectionByHandle(handle: "trail-packages") {
+    id
+    title
+    productsCount { count }
+  }
+  gear: collectionByHandle(handle: "individual-gear") {
+    id
+    title
+    productsCount { count }
+  }
+}

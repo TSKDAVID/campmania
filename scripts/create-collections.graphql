@@ -1,0 +1,23 @@
+mutation CreateCampmaniaCollections {
+  packages: collectionCreate(
+    input: {
+      title: "Trail packages"
+      handle: "trail-packages"
+      descriptionHtml: "Complete trail kits for Campmania"
+    }
+  ) {
+    collection { id handle }
+    userErrors { field message }
+  }
+
+  gear: collectionCreate(
+    input: {
+      title: "Individual gear"
+      handle: "individual-gear"
+      descriptionHtml: "Individual rental gear for Campmania"
+    }
+  ) {
+    collection { id handle }
+    userErrors { field message }
+  }
+}

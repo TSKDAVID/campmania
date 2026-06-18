@@ -48,7 +48,7 @@ export const DIFFICULTY_FILTERS = [
 ] as const;
 
 export const GEAR_FILTERS = [
-  {value: 'tent', labelKa: 'ანსამბლი', labelEn: 'Tent'},
+  {value: 'tent', labelKa: 'კარავი', labelEn: 'Tent'},
   {value: 'sleeping', labelKa: 'საძილებელი', labelEn: 'Sleeping'},
   {value: 'backpack', labelKa: 'რუქსაკი', labelEn: 'Backpack'},
   {value: 'kitchen', labelKa: 'სამზარეულო', labelEn: 'Kitchen'},
@@ -72,7 +72,7 @@ export const TRAIL_PACKAGES: PackageItem[] = [
     difficultyLabel: 'საშუალო',
     productHandle: 'tobavarchkhili-weekend-kit',
     items: [
-      '2 ადამიანის ანსამბლი',
+      '2 ადამიანის კარავი',
       'საძილებელი ჩანთა -5°C',
       'მომზადების ღუმელი',
       'HEAD ფანარი',
@@ -116,7 +116,7 @@ export const TRAIL_PACKAGES: PackageItem[] = [
     difficultyLabel: 'რთული',
     productHandle: 'kazbegi-alpine-kit',
     items: [
-      '3 ადამიანის 4-სეზონიანი ანსამბლი',
+      '3 ადამიანის 4-სეზონიანი კარავი',
       'საძილებელი -10°C',
       '60L რუქსაკი',
       'გაზის ღუმელი',
@@ -135,7 +135,7 @@ export const INDIVIDUAL_GEAR: GearItem[] = [
     dailyRate: 45,
     currency: 'GEL',
     category: 'tent',
-    categoryLabel: 'ანსამბლი',
+    categoryLabel: 'კარავი',
     productHandle: '2-person-tent',
   },
   {

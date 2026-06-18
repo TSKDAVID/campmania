@@ -19,6 +19,7 @@ export function parseItemType(value?: string | null): GearItemType {
 
   const aliases: Record<string, GearItemType> = {
     ensemble: 'tent',
+    კარავი: 'tent',
     ანსამბლი: 'tent',
     sleeping: 'sleeping_bag',
     electronics: 'lighting',

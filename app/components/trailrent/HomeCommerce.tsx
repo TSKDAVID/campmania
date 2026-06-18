@@ -33,7 +33,7 @@ const GEAR_TILE_IMAGE =
 const HOME_CATEGORIES = [
   {
     href: '/individual-gear?gear=tent',
-    titleKa: 'ანსამბლები',
+    titleKa: 'კარავები',
     titleEn: 'Tents',
     tone: 'cm-home-cat--moss',
     Icon: IconTent,
@@ -77,9 +77,9 @@ const HOME_CATEGORIES = [
 
 const HOME_QUICK_SEARCH = [
   {
-    labelKa: 'ანსამბლები',
+    labelKa: 'კარავები',
     labelEn: 'Tents',
-    queryKa: 'ანსამბლი',
+    queryKa: 'კარავი',
     queryEn: 'tent',
     Icon: IconTent,
   },

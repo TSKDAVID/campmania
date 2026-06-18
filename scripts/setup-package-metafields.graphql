@@ -1,0 +1,30 @@
+mutation CreatePackageMetafieldDefinitions {
+  includedHandles: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "included_product_handles"
+      name: "Included product handles"
+      description: "JSON array of product handles for package composition"
+      type: "single_line_text_field"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+
+  kitSummary: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "kit_summary"
+      name: "Kit summary"
+      type: "single_line_text_field"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+}

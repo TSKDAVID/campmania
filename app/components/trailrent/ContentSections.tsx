@@ -54,7 +54,7 @@ export function HowItWorksSection() {
 export function CategoryGridSection() {
   const {locale} = useLocale();
   const cats = [
-    {titleKa: 'ანსამბლები', titleEn: 'Tents', href: '/individual-gear?gear=tent', Icon: IconTent},
+    {titleKa: 'კარავები', titleEn: 'Tents', href: '/individual-gear?gear=tent', Icon: IconTent},
     {titleKa: 'რუქსაკები', titleEn: 'Backpacks', href: '/individual-gear?gear=backpack', Icon: IconCompass},
     {titleKa: 'საძილებელი', titleEn: 'Sleeping', href: '/individual-gear?gear=sleeping', Icon: IconStar},
     {titleKa: 'სამზარეულო', titleEn: 'Kitchen', href: '/individual-gear?gear=kitchen', Icon: IconShield},

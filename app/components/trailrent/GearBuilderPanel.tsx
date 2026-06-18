@@ -27,7 +27,7 @@ const TYPE_LABELS: Record<
   {ka: string; en: string; icon: ComponentType<IconProps>}
 > = {
   backpack: {ka: 'რუქსაკი', en: 'Backpack', icon: IconBackpack},
-  tent: {ka: 'ანსამბლი', en: 'Tent', icon: IconTent},
+  tent: {ka: 'კარავი', en: 'Tent', icon: IconTent},
   sleeping_bag: {ka: 'საძილებელი', en: 'Sleeping bag', icon: IconSleepingBag},
   shoes: {ka: 'ფეხსაცმელი', en: 'Shoes', icon: IconBoot},
   kitchen: {ka: 'სამზარეულო', en: 'Kitchen', icon: IconKitchen},
