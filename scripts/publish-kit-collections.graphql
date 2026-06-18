@@ -1,0 +1,39 @@
+mutation PublishKitCollections {
+  birtvisi: publishablePublish(
+    id: "gid://shopify/Collection/655392768292"
+    input: [{publicationId: "gid://shopify/Publication/313167315236"}]
+  ) {
+    publishable {
+      ... on Collection {
+        id
+        handle
+      }
+    }
+    shop {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  tobavarchkhili: publishablePublish(
+    id: "gid://shopify/Collection/655392801060"
+    input: [{publicationId: "gid://shopify/Publication/313167315236"}]
+  ) {
+    publishable {
+      ... on Collection {
+        id
+        handle
+      }
+    }
+    shop {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
