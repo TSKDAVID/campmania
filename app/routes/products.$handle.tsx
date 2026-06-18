@@ -253,30 +253,6 @@ export default function Product() {
             isSoloProduct ? ' cm-product-layout--solo' : ''
           }`}
         >
-          <div className="cm-product-buybox-title">
-            <header className="cm-product-header cm-product-header--title-only">
-              <p className="tr-eyebrow">
-                {isPackage ? tr.packages.eyebrow : tr.product.rental}
-              </p>
-              <h1 className="cm-product-title">{title}</h1>
-              {kitSummary ? (
-                <p className="cm-product-subtitle">{kitSummary}</p>
-              ) : null}
-            </header>
-          </div>
-
-          <div className="cm-product-buybox-pricing">
-            <ProductPriceBlock
-              fulfillmentMode={fulfillmentMode}
-              rentPrice={rentVariant?.price as MoneyV2 | undefined}
-              buyPrice={buyPriceMoney}
-              buyAvailable={buyAvailable}
-              compareAtPrice={rentVariant?.compareAtPrice as MoneyV2 | null | undefined}
-              savingsPercent={savingsPercent}
-            />
-            <ProductTrustBar isTrustedTier={trustedTier} />
-          </div>
-
           <aside className="cm-product-layout-media" aria-label={title}>
             <ProductImage
               image={selectedVariant?.image ?? rentVariant?.image}
@@ -285,7 +261,30 @@ export default function Product() {
             />
           </aside>
 
-          <div className="cm-product-buybox-actions">
+          <div className="cm-product-buybox">
+            <header className="cm-product-header cm-product-header--compact">
+              <p className="cm-product-eyebrow">
+                {isPackage ? tr.packages.eyebrow : tr.product.rental}
+              </p>
+              <h1 className="cm-product-title">{title}</h1>
+              {kitSummary ? (
+                <p className="cm-product-subtitle">{kitSummary}</p>
+              ) : null}
+            </header>
+
+            <div className="cm-product-buybox-pricing">
+              <ProductPriceBlock
+                fulfillmentMode={fulfillmentMode}
+                rentPrice={rentVariant?.price as MoneyV2 | undefined}
+                buyPrice={buyPriceMoney}
+                buyAvailable={buyAvailable}
+                compareAtPrice={rentVariant?.compareAtPrice as MoneyV2 | null | undefined}
+                savingsPercent={savingsPercent}
+              />
+              <ProductTrustBar isTrustedTier={trustedTier} />
+            </div>
+
+            <div className="cm-product-buybox-actions">
             {includedItems.length > 0 ? (
               <div className="cm-product-buybox-panels">
                 <ProductIncludedPanel items={includedItems} />
@@ -317,6 +316,7 @@ export default function Product() {
                   : 'This variant is currently unavailable.'}
               </p>
             )}
+            </div>
           </div>
         </div>
 
