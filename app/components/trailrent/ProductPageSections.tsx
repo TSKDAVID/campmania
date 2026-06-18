@@ -16,6 +16,89 @@ function moneyAmount(price?: MoneyV2): number | undefined {
   return Number.isFinite(amount) ? amount : undefined;
 }
 
+/** Compact price beside the product title (left column). */
+export function ProductInlinePrice({
+  fulfillmentMode = 'rent',
+  rentPrice,
+  buyPrice,
+  buyAvailable = false,
+}: {
+  fulfillmentMode?: FulfillmentMode;
+  rentPrice?: MoneyV2;
+  buyPrice?: MoneyV2;
+  buyAvailable?: boolean;
+}) {
+  const {translations: tr} = useLocale();
+  const rentAmount = moneyAmount(rentPrice);
+  const buyAmount = moneyAmount(buyPrice);
+  const isPurchase = fulfillmentMode === 'purchase';
+  const showBuy =
+    buyAvailable && buyAmount != null && buyAmount > 0 && isPurchase;
+  const amount = showBuy ? buyAmount : rentAmount;
+
+  if (amount == null) return null;
+
+  return (
+    <div className="cm-product-inline-price" aria-label="Price">
+      <span className="cm-price-amount">{formatGel(amount)}</span>
+      {!showBuy ? (
+        <span className="cm-price-suffix">{tr.product.perDay}</span>
+      ) : null}
+    </div>
+  );
+}
+
+/** Discount banner and compare-at — shown in the buy box, not above the image. */
+export function ProductPricingExtras({
+  fulfillmentMode = 'rent',
+  rentPrice,
+  compareAtPrice,
+  savingsPercent,
+  buyAvailable = false,
+}: {
+  fulfillmentMode?: FulfillmentMode;
+  rentPrice?: MoneyV2;
+  compareAtPrice?: MoneyV2 | null;
+  savingsPercent?: number;
+  buyAvailable?: boolean;
+}) {
+  const {translations: tr} = useLocale();
+  const rentAmount = moneyAmount(rentPrice);
+  const compareAt = moneyAmount(compareAtPrice ?? undefined);
+  const isPurchase = fulfillmentMode === 'purchase';
+  const showKitCompare =
+    compareAt != null &&
+    compareAt > 0 &&
+    !buyAvailable &&
+    rentAmount != null &&
+    compareAt > rentAmount;
+
+  if (!showKitCompare && !(savingsPercent && !isPurchase)) return null;
+
+  return (
+    <div className="cm-product-pricing-extras">
+      {showKitCompare ? (
+        <p className="cm-product-pricing-compare">
+          {formatGel(compareAt!)}
+        </p>
+      ) : null}
+      {savingsPercent && !isPurchase ? (
+        <p className="cm-product-pricing-savings">
+          <span className="cm-product-pricing-savings-badge">
+            −{savingsPercent}%
+          </span>
+          {tr.product.kitSavings}
+          {compareAt ? (
+            <span className="cm-product-pricing-savings-was">
+              · {tr.product.wasPrice} {formatGel(compareAt)}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProductPriceBlock({
   fulfillmentMode = 'rent',
   rentPrice,

@@ -997,19 +997,19 @@
     @apply grid items-start gap-4 sm:gap-5;
   }
 
-  .cm-product-media-pricing {
-    @apply flex min-w-0 flex-col gap-3;
+  .cm-product-buybox {
+    @apply flex min-w-0 w-full flex-col gap-3 sm:gap-4;
   }
 
-  .cm-product-buybox {
-    @apply min-w-0 w-full;
+  .cm-product-buybox-head {
+    @apply flex min-w-0 flex-col gap-3;
   }
 
   @media (min-width: 1024px) {
     .cm-product-layout {
-      grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
-      grid-template-rows: auto auto auto;
-      column-gap: 1.5rem;
+      grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
+      grid-template-rows: auto auto;
+      column-gap: 1.75rem;
       row-gap: 0.75rem;
     }
 
@@ -1018,26 +1018,21 @@
       grid-row: 1;
     }
 
-    .cm-product-media-pricing {
+    .cm-product-layout-media {
       grid-column: 1;
       grid-row: 2;
     }
 
-    .cm-product-layout-media {
-      grid-column: 1;
-      grid-row: 3;
-    }
-
     .cm-product-buybox {
       grid-column: 2;
-      grid-row: 3;
+      grid-row: 2;
       align-self: start;
     }
   }
 
   @media (min-width: 1280px) {
     .cm-product-layout {
-      grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+      grid-template-columns: minmax(0, 38fr) minmax(0, 62fr);
       column-gap: 2rem;
       row-gap: 1rem;
     }
@@ -1149,6 +1144,48 @@
     @apply tracking-tight;
   }
 
+  .cm-product-title-row {
+    @apply flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1;
+  }
+
+  .cm-product-title-row .cm-product-title {
+    @apply min-w-0 flex-1;
+  }
+
+  .cm-product-inline-price {
+    @apply shrink-0 text-right leading-none;
+  }
+
+  .cm-product-inline-price .cm-price-amount {
+    @apply text-2xl md:text-[2rem];
+  }
+
+  .cm-product-inline-price .cm-price-suffix {
+    @apply text-sm md:text-base;
+  }
+
+  .cm-product-pricing-extras {
+    @apply flex min-w-0 flex-col gap-2;
+  }
+
+  .cm-product-pricing-compare {
+    @apply text-lg text-muted line-through;
+    font-family: var(--font-body);
+  }
+
+  .cm-product-pricing-savings {
+    @apply inline-flex flex-wrap items-center gap-2 rounded-full bg-amber/20 px-3.5 py-1.5 text-sm font-semibold text-pine;
+    font-family: var(--font-body);
+  }
+
+  .cm-product-pricing-savings-badge {
+    @apply rounded-full bg-amber px-2 py-0.5 text-xs font-bold text-pine;
+  }
+
+  .cm-product-pricing-savings-was {
+    @apply font-normal text-muted;
+  }
+
   .cm-product-subtitle {
     @apply line-clamp-2 text-sm leading-snug text-muted;
   }
@@ -1208,37 +1245,40 @@
   }
 
   /*
-   * Package PDP: included list + booking in one card (solo-style buy box).
-   * Vertical stack — booking uses full card width for better proportions.
+   * Package PDP: included list + booking side by side in one card.
    */
   .cm-product-buybox-card {
     @apply w-full min-w-0 overflow-hidden rounded-2xl border border-stone/70 bg-white shadow-md shadow-pine/5;
   }
 
-  .cm-product-buybox-card .cm-product-included {
-    @apply rounded-none border-0 border-b border-stone/70 shadow-none;
+  .cm-product-buybox-card--split {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
-  .cm-product-buybox-card .cm-rental-form {
+  @media (min-width: 768px) {
+    .cm-product-buybox-card--split {
+      grid-template-columns: minmax(220px, 1fr) minmax(280px, 1.2fr);
+      align-items: stretch;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .cm-product-buybox-card--split {
+      grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.25fr);
+    }
+  }
+
+  .cm-product-buybox-card--split .cm-product-included {
+    @apply rounded-none border-0 border-b border-stone/70 shadow-none md:border-b-0 md:border-r;
+  }
+
+  .cm-product-buybox-card--split .cm-rental-form {
     @apply rounded-none border-0 shadow-none;
   }
 
   .cm-product-buybox-card .cm-product-unavailable--in-card {
     @apply m-5 border-0 bg-mist/30;
-  }
-
-  @media (min-width: 768px) {
-    .cm-product-buybox-card .cm-rental-form--wide .cm-rental-form-body {
-      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 420px);
-      gap: 1.75rem 2rem;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .cm-product-buybox-card .cm-rental-form--wide .cm-rental-form-body {
-      grid-template-columns: minmax(0, 1.2fr) minmax(360px, 440px);
-      gap: 2rem 2.25rem;
-    }
   }
 
   /* Solo gear: full-width booking card under header + trust */

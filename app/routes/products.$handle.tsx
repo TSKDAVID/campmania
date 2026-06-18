@@ -26,7 +26,8 @@ import type {PackageDuration} from '~/lib/trailrent/gear-builder';
 import {
   ProductDescription,
   ProductIncludedPanel,
-  ProductPriceBlock,
+  ProductInlinePrice,
+  ProductPricingExtras,
   ProductTrustBar,
 } from '~/components/trailrent/ProductPageSections';
 import {AddToGearBuilderButton} from '~/components/trailrent/AddToGearBuilderButton';
@@ -378,20 +379,16 @@ export default function Product() {
             <p className="cm-product-eyebrow">
               {isPackage ? tr.packages.eyebrow : tr.product.rental}
             </p>
-            <h1 className="cm-product-title">{title}</h1>
+            <div className="cm-product-title-row">
+              <h1 className="cm-product-title">{title}</h1>
+              <ProductInlinePrice
+                fulfillmentMode={fulfillmentMode}
+                rentPrice={displayRentPrice}
+                buyPrice={buyPriceMoney}
+                buyAvailable={buyAvailable}
+              />
+            </div>
           </header>
-
-          <div className="cm-product-media-pricing">
-            <ProductPriceBlock
-              fulfillmentMode={fulfillmentMode}
-              rentPrice={displayRentPrice}
-              buyPrice={buyPriceMoney}
-              buyAvailable={buyAvailable}
-              compareAtPrice={displayCompareAtPrice}
-              savingsPercent={savingsPercent}
-            />
-            <ProductTrustBar isTrustedTier={trustedTier} />
-          </div>
 
           <aside className="cm-product-layout-media" aria-label={title}>
             <ProductImage
@@ -407,12 +404,23 @@ export default function Product() {
           </aside>
 
           <div className="cm-product-buybox">
+            <div className="cm-product-buybox-head">
+              <ProductPricingExtras
+                fulfillmentMode={fulfillmentMode}
+                rentPrice={displayRentPrice}
+                compareAtPrice={displayCompareAtPrice}
+                savingsPercent={savingsPercent}
+                buyAvailable={buyAvailable}
+              />
+              <ProductTrustBar isTrustedTier={trustedTier} />
+            </div>
+
             {includedItems.length > 0 ? (
-              <div className="cm-product-buybox-card">
+              <div className="cm-product-buybox-card cm-product-buybox-card--split">
                 <ProductIncludedPanel items={includedItems} />
 
                 {bookingFormProps ? (
-                  <RentalProductForm {...bookingFormProps} layout="wide" compact />
+                  <RentalProductForm {...bookingFormProps} layout="stacked" compact />
                 ) : (
                   <p className="cm-product-unavailable cm-product-unavailable--in-card">
                     {locale === 'ka'
