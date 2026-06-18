@@ -317,7 +317,6 @@ export default function Product() {
         rentToOwnOffer,
         isTrustedTier: trustedTier,
         onModeChange: setFulfillmentMode,
-        compact: true as const,
       }
     : null;
 
@@ -370,16 +369,29 @@ export default function Product() {
       >
         <div
           className={`cm-product-layout${
-            isSoloProduct ? ' cm-product-layout--solo' : ''
+            isSoloProduct ? ' cm-product-layout--solo' : ' cm-product-layout--package'
           }`}
         >
+          <header className="cm-product-header cm-product-header--media-top cm-product-layout-title">
+            <p className="cm-product-eyebrow">
+              {isPackage ? tr.packages.eyebrow : tr.product.rental}
+            </p>
+            <h1 className="cm-product-title">{title}</h1>
+          </header>
+
+          <div className="cm-product-media-pricing">
+            <ProductPriceBlock
+              fulfillmentMode={fulfillmentMode}
+              rentPrice={displayRentPrice}
+              buyPrice={buyPriceMoney}
+              buyAvailable={buyAvailable}
+              compareAtPrice={displayCompareAtPrice}
+              savingsPercent={savingsPercent}
+            />
+            <ProductTrustBar isTrustedTier={trustedTier} />
+          </div>
+
           <aside className="cm-product-layout-media" aria-label={title}>
-            <header className="cm-product-header cm-product-header--media-top">
-              <p className="cm-product-eyebrow">
-                {isPackage ? tr.packages.eyebrow : tr.product.rental}
-              </p>
-              <h1 className="cm-product-title">{title}</h1>
-            </header>
             <ProductImage
               image={selectedVariant?.image ?? rentVariant?.image}
               title={title}
@@ -393,27 +405,14 @@ export default function Product() {
           </aside>
 
           <div className="cm-product-buybox">
-            <div className="cm-product-buybox-pricing">
-              <ProductPriceBlock
-                fulfillmentMode={fulfillmentMode}
-                rentPrice={displayRentPrice}
-                buyPrice={buyPriceMoney}
-                buyAvailable={buyAvailable}
-                compareAtPrice={displayCompareAtPrice}
-                savingsPercent={savingsPercent}
-              />
-              <ProductTrustBar isTrustedTier={trustedTier} />
-            </div>
-
-            <div className="cm-product-buybox-actions">
             {includedItems.length > 0 ? (
-              <div className="cm-product-buybox-panels">
+              <div className="cm-product-buybox-card">
                 <ProductIncludedPanel items={includedItems} />
 
                 {bookingFormProps ? (
-                  <RentalProductForm {...bookingFormProps} />
+                  <RentalProductForm {...bookingFormProps} layout="wide" compact />
                 ) : (
-                  <p className="cm-product-unavailable">
+                  <p className="cm-product-unavailable cm-product-unavailable--in-card">
                     {locale === 'ka'
                       ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
                       : 'This variant is currently unavailable.'}
@@ -422,7 +421,7 @@ export default function Product() {
               </div>
             ) : bookingFormProps ? (
               <div className="cm-product-booking">
-                <RentalProductForm {...bookingFormProps} layout="wide" />
+                <RentalProductForm {...bookingFormProps} layout="wide" compact />
                 {builderProduct ? (
                   <AddToGearBuilderButton
                     product={builderProduct}
@@ -437,7 +436,6 @@ export default function Product() {
                   : 'This variant is currently unavailable.'}
               </p>
             )}
-            </div>
           </div>
         </div>
 

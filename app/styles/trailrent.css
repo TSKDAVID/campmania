@@ -992,38 +992,46 @@
     }
   }
 
-  /* Image first on mobile; two-column buy box on desktop */
+  /* Image first on mobile; aligned two-column grid on desktop */
   .cm-product-layout {
     @apply grid items-start gap-4 sm:gap-5;
   }
 
+  .cm-product-media-pricing {
+    @apply flex min-w-0 flex-col gap-3;
+  }
+
   .cm-product-buybox {
-    @apply flex min-w-0 flex-col gap-3 sm:gap-3.5;
-  }
-
-  .cm-product-buybox-pricing {
-    @apply flex flex-col gap-3;
-  }
-
-  .cm-product-buybox-actions {
-    @apply min-w-0;
+    @apply min-w-0 w-full;
   }
 
   @media (min-width: 1024px) {
     .cm-product-layout {
       grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+      grid-template-rows: auto auto auto;
       column-gap: 1.5rem;
-      row-gap: 0;
+      row-gap: 0.75rem;
     }
 
-    .cm-product-layout-media {
+    .cm-product-layout-title {
       grid-column: 1;
       grid-row: 1;
     }
 
+    .cm-product-media-pricing {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .cm-product-layout-media {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
     .cm-product-buybox {
       grid-column: 2;
-      grid-row: 1;
+      grid-row: 3;
+      align-self: start;
     }
   }
 
@@ -1031,6 +1039,7 @@
     .cm-product-layout {
       grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
       column-gap: 2rem;
+      row-gap: 1rem;
     }
   }
 
@@ -1199,42 +1208,37 @@
   }
 
   /*
-   * Mobile / tablet: booking first (conversion), kit list second, full width.
-   * XL+: kit list | booking side-by-side — booking gets 3/5 of buy-box width.
+   * Package PDP: included list + booking in one card (solo-style buy box).
+   * Vertical stack — booking uses full card width for better proportions.
    */
-  .cm-product-buybox-panels {
-    @apply flex flex-col gap-5;
+  .cm-product-buybox-card {
+    @apply w-full min-w-0 overflow-hidden rounded-2xl border border-stone/70 bg-white shadow-md shadow-pine/5;
   }
 
-  .cm-product-buybox-panels .cm-rental-form {
-    order: 1;
+  .cm-product-buybox-card .cm-product-included {
+    @apply rounded-none border-0 border-b border-stone/70 shadow-none;
   }
 
-  .cm-product-buybox-panels .cm-product-included {
-    order: 2;
+  .cm-product-buybox-card .cm-rental-form {
+    @apply rounded-none border-0 shadow-none;
+  }
+
+  .cm-product-buybox-card .cm-product-unavailable--in-card {
+    @apply m-5 border-0 bg-mist/30;
+  }
+
+  @media (min-width: 768px) {
+    .cm-product-buybox-card .cm-rental-form--wide .cm-rental-form-body {
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 420px);
+      gap: 1.75rem 2rem;
+    }
   }
 
   @media (min-width: 1280px) {
-    .cm-product-buybox-panels {
-      display: grid;
-      grid-template-columns: minmax(260px, 1fr) minmax(400px, 1.35fr);
-      gap: 1.5rem;
-      align-items: start;
+    .cm-product-buybox-card .cm-rental-form--wide .cm-rental-form-body {
+      grid-template-columns: minmax(0, 1.2fr) minmax(360px, 440px);
+      gap: 2rem 2.25rem;
     }
-
-    .cm-product-buybox-panels .cm-rental-form,
-    .cm-product-buybox-panels .cm-product-included {
-      order: unset;
-    }
-  }
-
-  .cm-product-buybox-panels .cm-product-included-body {
-    @apply px-5 py-4;
-    padding-left: 1.25rem;
-  }
-
-  .cm-product-buybox-panels .cm-product-included-list {
-    @apply md:grid-cols-1;
   }
 
   /* Solo gear: full-width booking card under header + trust */
