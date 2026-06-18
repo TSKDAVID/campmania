@@ -150,7 +150,7 @@ export function HomeSearchBar() {
         target?.isContentEditable;
       if (isTyping) return;
 
-      if (event.key === '/' || (event.key === 'k' && event.metaKey)) {
+      if (event.key === 'k' && event.metaKey) {
         event.preventDefault();
         setOpen(true);
         inputRef.current?.focus();
@@ -209,10 +209,7 @@ export function HomeSearchBar() {
 
   return (
     <div className="cm-home-search-slot">
-      <div
-        ref={containerRef}
-        className={`cm-home-search${open ? ' cm-home-search--open' : ''}`}
-      >
+      <div ref={containerRef} className="cm-home-search">
         <SearchForm action="/search" className="cm-home-search-form">
           {() => (
             <div
@@ -248,11 +245,7 @@ export function HomeSearchBar() {
                 >
                   ×
                 </button>
-              ) : (
-                <kbd className="cm-home-search-kbd" aria-hidden>
-                  /
-                </kbd>
-              )}
+              ) : null}
             </div>
           )}
         </SearchForm>
