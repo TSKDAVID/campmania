@@ -1557,104 +1557,117 @@
     @apply space-y-8 pt-2 md:space-y-10;
   }
 
-  .cm-home-search-wrap {
-    @apply relative z-40 w-full;
+  .cm-home-search-slot {
+    @apply flex w-full justify-center;
   }
 
-  .cm-home-search-wrap--open {
-    @apply z-50;
-  }
-
-  .cm-home-search-backdrop {
-    @apply fixed inset-0 z-30 border-0 bg-pine/25 backdrop-blur-[2px];
-    animation: cm-search-fade-in 0.18s ease-out;
+  .cm-home-search {
+    @apply relative w-full max-w-5xl;
   }
 
   .cm-home-search-form {
     @apply w-full;
   }
 
-  .cm-home-search-shell {
-    @apply relative flex w-full items-center gap-3 rounded-2xl border border-white/20 bg-white/95 px-3 py-2.5 text-left shadow-[0_8px_32px_rgba(13,40,24,0.12)] backdrop-blur-md transition duration-200 focus-within:border-moss/50 focus-within:shadow-[0_12px_40px_rgba(13,40,24,0.16)] focus-within:ring-2 focus-within:ring-moss/20 sm:px-4 sm:py-3;
+  .cm-home-search-field {
+    @apply flex h-11 w-full items-center gap-2.5 rounded-full border border-stone/50 bg-white px-3.5 text-left shadow-[0_1px_2px_rgba(13,40,24,0.05)] transition-[border-color,box-shadow] duration-150;
     font-family: var(--font-body);
   }
 
-  .cm-home-search-wrap--open .cm-home-search-shell {
-    @apply border-moss/40 ring-2 ring-moss/15;
+  .cm-home-search-field:focus-within {
+    @apply border-moss/30 shadow-[0_2px_8px_rgba(13,40,24,0.07)];
+    outline: none;
   }
 
-  .cm-home-search-icon-wrap {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pine/8 text-forest;
+  .cm-home-search--open {
+    @apply overflow-hidden rounded-xl border border-stone/50 bg-white shadow-[0_8px_24px_rgba(13,40,24,0.08)];
+  }
+
+  .cm-home-search--open .cm-home-search-field {
+    @apply rounded-none border-0 border-b border-stone/40 shadow-none;
+  }
+
+  .cm-home-search--open .cm-home-search-field:focus-within {
+    @apply border-b-moss/25 shadow-none;
+  }
+
+  .cm-home-search-icon {
+    @apply shrink-0 text-muted;
   }
 
   .cm-home-search-input {
-    @apply min-w-0 flex-1 border-0 bg-transparent py-1 text-base text-charcoal outline-none placeholder:text-muted/80 sm:text-[1.05rem];
+    @apply min-w-0 flex-1 border-0 bg-transparent py-0 text-[0.9375rem] leading-snug text-charcoal outline-none ring-0 placeholder:text-muted/70 focus:outline-none focus:ring-0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .cm-home-search-input::-webkit-search-cancel-button {
+    display: none;
   }
 
   .cm-home-search-clear {
-    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-stone/80 text-lg leading-none text-charcoal/70 transition hover:bg-stone hover:text-charcoal;
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-0 bg-transparent text-base leading-none text-muted transition hover:bg-stone/80 hover:text-charcoal;
   }
 
   .cm-home-search-kbd {
-    @apply hidden shrink-0 rounded-md border border-stone/80 bg-mist/80 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted sm:inline-block;
+    @apply hidden shrink-0 rounded border border-stone/60 bg-mist/60 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted/80 sm:inline-block;
     font-family: var(--font-label);
   }
 
-  .cm-home-search-panel {
-    @apply absolute left-0 right-0 top-[calc(100%+0.65rem)] z-50 overflow-hidden rounded-2xl border border-stone/70 bg-white shadow-[0_20px_50px_rgba(13,40,24,0.14)];
-    animation: cm-search-panel-in 0.2s ease-out;
+  .cm-home-search-dropdown {
+    @apply max-h-[min(24rem,62vh)] overflow-y-auto;
   }
 
   .cm-home-search-panel-body {
-    @apply max-h-[min(28rem,70vh)] overflow-y-auto;
+    @apply max-h-[min(22rem,58vh)] overflow-y-auto;
   }
 
   .cm-home-search-panel-section {
-    @apply px-3 py-3 sm:px-4 sm:py-3.5;
+    @apply px-3 py-2.5 sm:px-3.5 sm:py-3;
   }
 
   .cm-home-search-panel-section + .cm-home-search-panel-section {
-    @apply border-t border-stone/50 pt-3;
+    @apply border-t border-stone/40 pt-2.5;
   }
 
   .cm-home-search-panel-label {
-    @apply mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted;
+    @apply mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-muted;
     font-family: var(--font-label);
   }
 
   .cm-home-search-chips {
-    @apply flex flex-wrap gap-2;
+    @apply flex flex-wrap gap-1.5;
   }
 
   .cm-home-search-chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-stone/70 bg-mist/40 px-3 py-2 text-sm font-semibold text-charcoal no-underline transition hover:border-moss/40 hover:bg-moss/10 hover:text-forest hover:no-underline;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-stone/55 bg-mist/30 px-2.5 py-1.5 text-xs font-semibold text-charcoal no-underline transition hover:border-moss/35 hover:bg-moss/8 hover:text-forest hover:no-underline;
     font-family: var(--font-label);
   }
 
   .cm-home-search-loading {
-    @apply flex items-center gap-2.5 px-4 py-3 text-sm text-muted;
+    @apply flex items-center gap-2 px-3.5 py-2.5 text-sm text-muted;
   }
 
   .cm-home-search-spinner {
-    @apply h-4 w-4 animate-spin rounded-full border-2 border-stone border-t-moss;
+    @apply h-3.5 w-3.5 animate-spin rounded-full border-2 border-stone border-t-moss;
   }
 
   .cm-home-search-suggestions,
   .cm-home-search-products {
-    @apply m-0 list-none space-y-0.5 p-0;
+    @apply m-0 list-none space-y-0 p-0;
   }
 
   .cm-home-search-suggestion {
-    @apply flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm text-charcoal no-underline transition hover:bg-mist/80 hover:no-underline;
+    @apply flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-charcoal no-underline transition hover:bg-mist/70 hover:no-underline;
   }
 
   .cm-home-search-product {
-    @apply flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left no-underline transition hover:bg-mist/80 hover:no-underline;
+    @apply flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left no-underline transition hover:bg-mist/70 hover:no-underline;
   }
 
   .cm-home-search-product img,
   .cm-home-search-product-fallback {
-    @apply h-12 w-12 shrink-0 rounded-xl bg-mist object-cover;
+    @apply h-10 w-10 shrink-0 rounded-lg bg-mist object-cover;
   }
 
   .cm-home-search-product-fallback {
@@ -1666,53 +1679,37 @@
   }
 
   .cm-home-search-product-title {
-    @apply block truncate text-sm font-semibold text-pine;
+    @apply block truncate text-sm font-medium text-pine;
   }
 
   .cm-home-search-product-price {
-    @apply mt-0.5 block text-xs font-bold text-forest;
+    @apply mt-0.5 block text-xs font-semibold text-forest;
     font-family: var(--font-label);
   }
 
   .cm-home-search-product-price-suffix {
-    @apply font-medium text-muted;
+    @apply font-normal text-muted;
   }
 
   .cm-home-search-product-arrow {
-    @apply shrink-0 text-muted opacity-0 transition group-hover:opacity-100;
+    @apply shrink-0 text-muted opacity-0 transition;
   }
 
   .cm-home-search-product:hover .cm-home-search-product-arrow {
-    @apply opacity-60;
+    @apply opacity-50;
   }
 
   .cm-home-search-empty {
-    @apply px-4 py-6 text-center text-sm text-muted;
+    @apply px-3.5 py-5 text-center text-sm text-muted;
   }
 
   .cm-home-search-panel-footer {
-    @apply sticky bottom-0 border-t border-stone/60 bg-white/95 px-4 py-3 backdrop-blur-sm;
+    @apply border-t border-stone/40 px-3 py-2;
   }
 
   .cm-home-search-view-all {
-    @apply inline-flex w-full items-center justify-center gap-2 rounded-xl bg-pine px-4 py-2.5 text-sm font-bold text-mist no-underline transition hover:bg-forest hover:no-underline;
+    @apply inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-pine/90 px-3 py-2 text-sm font-semibold text-mist no-underline transition hover:bg-pine hover:no-underline;
     font-family: var(--font-label);
-  }
-
-  @keyframes cm-search-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes cm-search-panel-in {
-    from {
-      opacity: 0;
-      transform: translateY(-6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
   }
 
   .cm-home-promo {
@@ -2455,19 +2452,21 @@
   }
 
   .cm-search-form-inner {
-    @apply flex items-center gap-3 rounded-2xl border border-stone/70 bg-white px-3 py-2.5 shadow-[0_8px_28px_rgba(13,40,24,0.08)] transition focus-within:border-moss/40 focus-within:ring-2 focus-within:ring-moss/15 sm:gap-3 sm:px-4 sm:py-3;
+    @apply flex h-11 items-center gap-2.5 rounded-full border border-stone/50 bg-white px-3.5 shadow-[0_1px_2px_rgba(13,40,24,0.05)] transition-[border-color,box-shadow] duration-150 focus-within:border-moss/30 focus-within:shadow-[0_2px_8px_rgba(13,40,24,0.07)];
   }
 
   .cm-search-form-icon {
-    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pine/8 text-forest;
+    @apply shrink-0 text-muted;
   }
 
   .cm-search-input {
-    @apply min-w-0 flex-1 border-0 bg-transparent py-1 text-base text-charcoal outline-none placeholder:text-muted sm:text-[1.05rem];
+    @apply min-w-0 flex-1 border-0 bg-transparent py-0 text-[0.9375rem] text-charcoal outline-none ring-0 placeholder:text-muted/70 focus:outline-none focus:ring-0;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   .cm-search-submit {
-    @apply shrink-0 rounded-xl px-5 py-2.5 text-sm font-bold;
+    @apply shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold;
   }
 
   .cm-search-meta {

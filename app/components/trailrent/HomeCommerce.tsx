@@ -162,6 +162,7 @@ export function HomeSearchBar() {
   }, []);
 
   useEffect(() => {
+    if (!term.trim()) return;
     const timer = window.setTimeout(() => fetchResults(term), 220);
     return () => window.clearTimeout(timer);
   }, [term, fetchResults]);
@@ -182,10 +183,10 @@ export function HomeSearchBar() {
       }
     }
 
-    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('mousedown', handlePointerDown, true);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('mousedown', handlePointerDown, true);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [open]);
@@ -207,32 +208,21 @@ export function HomeSearchBar() {
   };
 
   return (
-    <>
-      {open ? (
-        <button
-          type="button"
-          className="cm-home-search-backdrop"
-          aria-label={tr.home.searchClear}
-          onClick={() => setOpen(false)}
-        />
-      ) : null}
-
+    <div className="cm-home-search-slot">
       <div
-        className={`cm-home-search-wrap${open ? ' cm-home-search-wrap--open' : ''}`}
         ref={containerRef}
+        className={`cm-home-search${open ? ' cm-home-search--open' : ''}`}
       >
         <SearchForm action="/search" className="cm-home-search-form">
           {() => (
             <div
-              className="cm-home-search-shell"
+              className="cm-home-search-field"
               role="combobox"
               aria-expanded={open}
               aria-controls={listboxId}
               aria-haspopup="listbox"
             >
-              <span className="cm-home-search-icon-wrap" aria-hidden>
-                <IconSearch size={20} />
-              </span>
+              <IconSearch size={17} className="cm-home-search-icon" aria-hidden />
               <input
                 ref={inputRef}
                 className="cm-home-search-input"
@@ -268,7 +258,7 @@ export function HomeSearchBar() {
         </SearchForm>
 
         {open ? (
-          <div className="cm-home-search-panel" id={listboxId} role="listbox">
+          <div className="cm-home-search-dropdown" id={listboxId} role="listbox">
             {!hasTerm ? (
               <div className="cm-home-search-panel-section">
                 <p className="cm-home-search-panel-label">{tr.home.searchPopular}</p>
@@ -417,7 +407,7 @@ export function HomeSearchBar() {
           </div>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
 
