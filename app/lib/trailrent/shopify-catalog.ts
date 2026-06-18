@@ -31,6 +31,11 @@ export const SHOPIFY_COLLECTION_HANDLES = {
   gear: 'individual-gear',
 } as const;
 
+/** Handle for the Shopify collection that lists this package's included gear. */
+export function packageIncludesCollectionHandle(packageHandle: string): string {
+  return `${packageHandle}-includes`;
+}
+
 type CatalogProductNode = {
   id: string;
   handle: string;
@@ -68,6 +73,14 @@ type CatalogProductNode = {
   gearCapacityClass?: {value: string} | null;
   gearDurationFit?: {value: string} | null;
   gearThumbnailPriority?: {value: string} | null;
+  includedCollection?: {
+    reference?: {
+      handle?: string;
+      products?: {
+        nodes: CatalogProductNode[];
+      };
+    } | null;
+  } | null;
 };
 
 export type ShopifyPackageItem = PackageItem & {
@@ -77,7 +90,10 @@ export type ShopifyPackageItem = PackageItem & {
   imageAlt?: string;
   compareAtPrice?: number;
   savingsPercent?: number;
+  /** @deprecated Prefer includedCollectionProducts — kept for legacy metafield fallback */
   includedProductHandles: string[];
+  includedCollectionHandle?: string;
+  includedCollectionProducts: GearBuilderProduct[];
   defaultDuration: PackageDuration;
 };
 
@@ -197,9 +213,25 @@ function mapGearBuilderProduct(product: CatalogProductNode): GearBuilderProduct 
   };
 }
 
+function extractIncludedCollectionProducts(
+  product: CatalogProductNode,
+): {handle?: string; products: GearBuilderProduct[]} {
+  const reference = product.includedCollection?.reference;
+  const nodes = reference?.products?.nodes ?? [];
+  if (!nodes.length) {
+    return {handle: reference?.handle, products: []};
+  }
+  return {
+    handle: reference?.handle,
+    products: nodes.map((node) => mapGearBuilderProduct(node)),
+  };
+}
+
 function mapPackageProduct(
   product: CatalogProductNode,
   locale: 'ka' | 'en',
+  includedFromCollection?: GearBuilderProduct[],
+  includedCollectionHandle?: string,
 ): ShopifyPackageItem {
   const trek = tagValue(product.tags, 'trek') ?? 'tobavarchkhili';
   const duration = (tagValue(product.tags, 'duration') ?? '2-day') as PackageDuration;
@@ -213,11 +245,27 @@ function mapPackageProduct(
       0,
   );
 
-  const items = parseIncludedItems(product.includedItems);
+  const itemsFromMetafield = parseIncludedItems(product.includedItems);
   const summary = product.kitSummary?.value ?? product.description;
-  const includedProductHandles = parseIncludedProductHandles(
-    product.includedProductHandles,
-  );
+  const embeddedCollection = extractIncludedCollectionProducts(product);
+  const includedCollectionProducts =
+    includedFromCollection?.length
+      ? includedFromCollection
+      : embeddedCollection.products;
+  const resolvedCollectionHandle =
+    includedCollectionHandle ??
+    embeddedCollection.handle ??
+    (includedCollectionProducts.length
+      ? packageIncludesCollectionHandle(product.handle)
+      : undefined);
+  const includedProductHandles =
+    includedCollectionProducts.length > 0
+      ? includedCollectionProducts.map((entry) => entry.handle)
+      : parseIncludedProductHandles(product.includedProductHandles);
+  const items =
+    includedCollectionProducts.length > 0
+      ? includedCollectionProducts.map((entry) => entry.title)
+      : itemsFromMetafield;
 
   const savingsPercent =
     compareAt > dailyRate && compareAt > 0
@@ -246,6 +294,8 @@ function mapPackageProduct(
     compareAtPrice: compareAt > 0 ? compareAt : undefined,
     savingsPercent,
     includedProductHandles,
+    includedCollectionHandle: resolvedCollectionHandle,
+    includedCollectionProducts,
     defaultDuration: duration,
   };
 }
@@ -290,9 +340,37 @@ export async function loadShopifyPackages(
 
   if (!collection?.products?.nodes?.length) return [];
 
-  return (collection.products.nodes as CatalogProductNode[]).map((product) =>
-    mapPackageProduct(product, locale),
+  const nodes = collection.products.nodes as CatalogProductNode[];
+  const preliminary = nodes.map((product) => mapPackageProduct(product, locale));
+
+  const enriched = await Promise.all(
+    preliminary.map(async (pkg, index) => {
+      if (pkg.includedCollectionProducts.length > 0 || !pkg.productHandle) {
+        return pkg;
+      }
+
+      const conventionHandle = packageIncludesCollectionHandle(pkg.productHandle);
+      const {collection: includesCollection} = await storefront
+        .query(COLLECTION_PRODUCTS_QUERY, {
+          variables: {handle: conventionHandle, first: 25},
+        })
+        .catch(() => ({collection: null}));
+
+      const includeNodes = includesCollection?.products?.nodes as
+        | CatalogProductNode[]
+        | undefined;
+      if (!includeNodes?.length) return pkg;
+
+      return mapPackageProduct(
+        nodes[index],
+        locale,
+        includeNodes.map((node) => mapGearBuilderProduct(node)),
+        conventionHandle,
+      );
+    }),
   );
+
+  return enriched;
 }
 
 export async function loadShopifyGear(

@@ -13,6 +13,7 @@ import type {
 import {formatGel} from '~/lib/trailrent/pricing';
 import {
   resolvePackageComposition,
+  type GearBuilderProduct,
   type PackageDuration,
 } from '~/lib/trailrent/gear-builder';
 import {
@@ -52,37 +53,60 @@ function PackageCard({
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration>(
     pkg.defaultDuration ?? (pkg.duration as PackageDuration),
   );
-  const gearCatalog = useMemo(
-    () => gear.map((item) => item.builderProduct),
-    [gear],
-  );
+  const gearCatalog = useMemo(() => {
+    const byHandle = new Map<string, GearBuilderProduct>();
+    for (const item of gear) {
+      byHandle.set(item.builderProduct.handle, item.builderProduct);
+    }
+    for (const product of pkg.includedCollectionProducts ?? []) {
+      byHandle.set(product.handle, product);
+    }
+    return [...byHandle.values()];
+  }, [gear, pkg.includedCollectionProducts]);
+
+  const baseProductHandles = useMemo(() => {
+    if (pkg.includedCollectionProducts?.length) {
+      return pkg.includedCollectionProducts.map((product) => product.handle);
+    }
+    return pkg.includedProductHandles ?? [];
+  }, [pkg.includedCollectionProducts, pkg.includedProductHandles]);
 
   const composition = useMemo(
     () =>
       resolvePackageComposition({
         trek: pkg.trek,
         duration: selectedDuration,
-        baseProductHandles: pkg.includedProductHandles ?? [],
+        baseProductHandles,
         fallbackItemLabels: pkg.items,
         gearCatalog,
       }),
-    [pkg, selectedDuration, gearCatalog],
+    [pkg, selectedDuration, baseProductHandles, gearCatalog],
   );
 
   const selectedDays = composition.days;
   const perDayWord = locale === 'ka' ? 'დღე' : 'day';
 
-  const includedThumbs = useMemo(
-    () =>
-      composition.items.slice(0, 5).map((item) => ({
-        label: item.title,
-        imageUrl: item.imageUrl,
-        href: `/products/${item.handle}`,
-      })),
-    [composition.items],
-  );
+  const includedThumbs = useMemo(() => {
+    const thumbSource =
+      pkg.includedCollectionProducts?.length
+        ? pkg.includedCollectionProducts.map((product) => ({
+            title: product.title,
+            imageUrl: product.imageUrl,
+            handle: product.handle,
+          }))
+        : composition.items;
 
-  const displayedItems = composition.items.map((item) => item.title);
+    return thumbSource.slice(0, 5).map((item) => ({
+      label: item.title,
+      imageUrl: item.imageUrl,
+      href: `/products/${item.handle}`,
+    }));
+  }, [pkg.includedCollectionProducts, composition.items]);
+
+  const displayedItems =
+    pkg.includedCollectionProducts?.length
+      ? pkg.includedCollectionProducts.map((product) => product.title)
+      : composition.items.map((item) => item.title);
   const hasComposition = composition.items.length > 0;
   const bundleDaily = hasComposition ? composition.bundleDaily : pkg.dailyRate;
   const bundleTotal = hasComposition

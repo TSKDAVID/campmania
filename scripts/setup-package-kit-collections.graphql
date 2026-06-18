@@ -1,0 +1,58 @@
+# Package kit contents = Shopify collections linked to each package product.
+#
+# Model:
+# 1. Each package product lives in collection `trail-packages` (the listing).
+# 2. Create a manual collection `{package-handle}-includes` with the gear products in that kit.
+# 3. Set product metafield `custom.included_collection` → that collection (or rely on handle convention).
+#
+# Run metafield definition first (setup-package-metafields.graphql), then create collections,
+# add gear products, and link from each package product.
+
+mutation CreateIncludedCollectionMetafield {
+  includedCollection: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "included_collection"
+      name: "Included collection"
+      description: "Collection of gear products included in this trail package"
+      type: "collection_reference"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+}
+
+# Example: replace PACKAGE_HANDLE and product IDs with your store values.
+# Collection handle must be `{packageProductHandle}-includes` if not using the metafield.
+
+mutation CreateTobavarchkhiliKitCollection {
+  collectionCreate(
+    input: {
+      title: "Tobavarchkhili kit contents"
+      handle: "PACKAGE_HANDLE-includes"
+      descriptionHtml: "Gear included in the Tobavarchkhili trail package"
+    }
+  ) {
+    collection { id handle }
+    userErrors { field message }
+  }
+}
+
+# After collectionCreate, add products:
+# mutation { collectionAddProducts(id: "gid://shopify/Collection/...", productIds: ["gid://shopify/Product/..."]) { ... } }
+#
+# Link package product to collection:
+# mutation {
+#   productUpdate(input: {
+#     id: "gid://shopify/Product/PACKAGE_ID"
+#     metafields: [{
+#       namespace: "custom"
+#       key: "included_collection"
+#       value: "gid://shopify/Collection/COLLECTION_ID"
+#       type: "collection_reference"
+#     }]
+#   }) { product { id } userErrors { message } }
+# }

@@ -1,5 +1,70 @@
 /** Storefront queries for Campmania package & gear collections. */
 
+/** Products inside a package's included-collection (kit contents). */
+export const INCLUSION_PRODUCT_FRAGMENT = `#graphql
+  fragment InclusionProduct on Product {
+    id
+    handle
+    title
+    tags
+    featuredImage {
+      url
+      altText
+    }
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    variants(first: 10) {
+      nodes {
+        id
+        title
+        availableForSale
+        price {
+          amount
+          currencyCode
+        }
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
+    selectedOrFirstAvailableVariant(
+      selectedOptions: []
+      ignoreUnknownOptions: true
+      caseInsensitiveMatch: true
+    ) {
+      id
+      availableForSale
+      price {
+        amount
+        currencyCode
+      }
+    }
+    gearItemType: metafield(namespace: "gear_builder", key: "item_type") {
+      value
+    }
+    gearBuilderEnabled: metafield(namespace: "gear_builder", key: "builder_enabled") {
+      value
+    }
+    gearCapacityLiters: metafield(namespace: "gear_builder", key: "capacity_liters") {
+      value
+    }
+    gearCapacityClass: metafield(namespace: "gear_builder", key: "capacity_class") {
+      value
+    }
+    gearDurationFit: metafield(namespace: "gear_builder", key: "duration_fit") {
+      value
+    }
+    gearThumbnailPriority: metafield(namespace: "gear_builder", key: "thumbnail_priority") {
+      value
+    }
+  }
+` as const;
+
 export const CATALOG_PRODUCT_FRAGMENT = `#graphql
   fragment CatalogProduct on Product {
     id
@@ -100,7 +165,20 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
     includedProductHandles: metafield(namespace: "custom", key: "included_product_handles") {
       value
     }
+    includedCollection: metafield(namespace: "custom", key: "included_collection") {
+      reference {
+        ... on Collection {
+          handle
+          products(first: 25) {
+            nodes {
+              ...InclusionProduct
+            }
+          }
+        }
+      }
+    }
   }
+  ${INCLUSION_PRODUCT_FRAGMENT}
 ` as const;
 
 export const COLLECTION_PRODUCTS_QUERY = `#graphql

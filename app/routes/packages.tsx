@@ -68,6 +68,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
       ...pkg,
       productId: pkg.id,
       includedProductHandles: [],
+      includedCollectionProducts: [] as GearBuilderProduct[],
       defaultDuration: (pkg.duration as ShopifyPackageItem['defaultDuration']) ?? '2-day',
     })) as ShopifyPackageItem[],
     gear: INDIVIDUAL_GEAR.map(mapDemoGearItem),

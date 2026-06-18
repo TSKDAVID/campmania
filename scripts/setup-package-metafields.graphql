@@ -1,4 +1,19 @@
 mutation CreatePackageMetafieldDefinitions {
+  includedCollection: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "included_collection"
+      name: "Included collection"
+      description: "Collection of gear products included in this trail package"
+      type: "collection_reference"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition { id key }
+    userErrors { field message }
+  }
+
   includedHandles: metafieldDefinitionCreate(
     definition: {
       namespace: "custom"

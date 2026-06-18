@@ -14,7 +14,12 @@ import {
   RentalProductForm,
   type FulfillmentMode,
 } from '~/components/RentalProductForm';
+import {INCLUSION_PRODUCT_FRAGMENT} from '~/graphql/storefront/CatalogProductsQuery';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {
+  COLLECTION_PRODUCTS_QUERY,
+  packageIncludesCollectionHandle,
+} from '~/lib/trailrent/shopify-catalog';
 import {
   ProductDescription,
   ProductIncludedPanel,
@@ -82,7 +87,47 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
 
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
-  return {product};
+  const includedItems = await resolveIncludedItemTitles(storefront, product, handle);
+
+  return {product, includedItems};
+}
+
+async function resolveIncludedItemTitles(
+  storefront: Route.LoaderArgs['context']['storefront'],
+  product: {
+    includedItems?: {value: string; type: string} | null;
+    includedCollection?: {
+      reference?: {
+        products?: {nodes?: Array<{title: string}> | null} | null;
+      } | null;
+    } | null;
+    tags?: string[];
+  },
+  handle: string,
+): Promise<string[]> {
+  const fromCollection =
+    product.includedCollection?.reference?.products?.nodes ?? [];
+  if (fromCollection.length > 0) {
+    return fromCollection.map((node) => node.title);
+  }
+
+  const isPackage =
+    (product.tags ?? []).some((tag: string) => tag.startsWith('trek-'));
+  if (isPackage) {
+    const conventionHandle = packageIncludesCollectionHandle(handle);
+    const {collection} = await storefront
+      .query(COLLECTION_PRODUCTS_QUERY, {
+        variables: {handle: conventionHandle, first: 25},
+      })
+      .catch(() => ({collection: null}));
+
+    const nodes = collection?.products?.nodes ?? [];
+    if (nodes.length > 0) {
+      return nodes.map((node: {title: string}) => node.title);
+    }
+  }
+
+  return parseIncludedItems(product.includedItems);
 }
 
 function parseIncludedItems(metafield?: {value: string; type: string} | null): string[] {
@@ -102,7 +147,7 @@ function parseIncludedItems(metafield?: {value: string; type: string} | null): s
 }
 
 export default function Product() {
-  const {product, customerRentalContext, gearBuilderEnabled} =
+  const {product, includedItems, customerRentalContext, gearBuilderEnabled} =
     useLoaderData<typeof loader>();
   const {locale, translations: tr} = useLocale();
   const [fulfillmentMode, setFulfillmentMode] =
@@ -116,7 +161,6 @@ export default function Product() {
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
   const {title, descriptionHtml, id: productId, tags = []} = product;
-  const includedItems = parseIncludedItems(product.includedItems);
   const isSoloProduct = includedItems.length === 0;
 
   const fulfillment = useMemo(() => {
@@ -426,6 +470,18 @@ const PRODUCT_FRAGMENT = `#graphql
       value
       type
     }
+    includedCollection: metafield(namespace: "custom", key: "included_collection") {
+      reference {
+        ... on Collection {
+          handle
+          products(first: 25) {
+            nodes {
+              ...InclusionProduct
+            }
+          }
+        }
+      }
+    }
     kitSummary: metafield(namespace: "custom", key: "kit_summary") {
       value
     }
@@ -473,6 +529,7 @@ const PRODUCT_FRAGMENT = `#graphql
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}
+  ${INCLUSION_PRODUCT_FRAGMENT}
 ` as const;
 
 const PRODUCT_QUERY = `#graphql

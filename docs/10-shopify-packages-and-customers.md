@@ -27,7 +27,21 @@ Each product card links to `/products/{handle}` where shoppers book via the rent
 
 ## 2. Create package products (combo kits)
 
-Each package is **one Shopify product** representing the full kit.
+Each package is **one Shopify product** in the `trail-packages` collection. **Included gear** comes from a **linked kit collection** (not a hand-written metafield list).
+
+### Kit contents collection (recommended)
+
+1. Create a manual collection per package, handle: **`{package-product-handle}-includes`**  
+   Example: product `tobavarchkhili` → collection `tobavarchkhili-includes`
+2. Add the **individual gear products** that belong in that kit (tent, backpack, sleeping bag, etc.).
+3. Optional but recommended: set product metafield **`custom.included_collection`** → that collection (`collection_reference`, Storefront access).
+
+The storefront reads products from that collection for:
+- Small item thumbnails under package cards on `/packages`
+- “What’s included” on the package product page
+- Bundle pricing (sum of item daily rates × 30% package discount)
+
+Legacy fallbacks (if no kit collection exists): `custom.included_product_handles` or `custom.included_items`.
 
 ### Pricing & discount
 
@@ -50,10 +64,18 @@ Create product metafields under **Settings → Custom data → Products**:
 
 | Namespace & key | Type | Purpose |
 |-----------------|------|---------|
-| `custom.included_items` | Multi-line text or JSON list | Bulleted list on card & product page |
+| `custom.included_collection` | Collection reference | **Kit contents** — products in this collection are included items |
 | `custom.kit_summary` | Single line text | Short subtitle (optional; falls back to description) |
+| `custom.included_items` | Multi-line text or JSON list | Legacy text list (fallback only) |
+| `custom.included_product_handles` | Single line text / JSON | Legacy handle list (fallback only) |
 
-**included_items** examples:
+**Kit collection** example:
+
+- Package product handle: `birtvisi-package`
+- Kit collection handle: `birtvisi-package-includes`
+- Products inside kit collection: tent, backpack, sleeping bag (from `individual-gear`)
+
+**included_items** (legacy) examples:
 
 ```
 2-person tent
