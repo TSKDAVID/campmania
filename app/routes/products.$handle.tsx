@@ -302,20 +302,22 @@ export default function Product() {
           }`}
         >
           <aside className="cm-product-layout-media" aria-label={title}>
+            <header className="cm-product-header cm-product-header--media-top">
+              <p className="cm-product-eyebrow">
+                {isPackage ? tr.packages.eyebrow : tr.product.rental}
+              </p>
+              <h1 className="cm-product-title">{title}</h1>
+            </header>
             <ProductImage
               image={selectedVariant?.image ?? rentVariant?.image}
               title={title}
               variant={isSoloProduct ? 'solo' : 'kit'}
             />
-            <header className="cm-product-header cm-product-header--media">
-              <p className="cm-product-eyebrow">
-                {isPackage ? tr.packages.eyebrow : tr.product.rental}
-              </p>
-              <h1 className="cm-product-title">{title}</h1>
-              {productSubtitle ? (
+            {productSubtitle ? (
+              <div className="cm-product-media-caption">
                 <p className="cm-product-subtitle">{productSubtitle}</p>
-              ) : null}
-            </header>
+              </div>
+            ) : null}
           </aside>
 
           <div className="cm-product-buybox">

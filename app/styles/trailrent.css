@@ -643,6 +643,18 @@
     color: inherit;
   }
 
+  .cm-kit-card-stretched-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .cm-kit-card--package .cm-kit-card-duration-btn,
+  .cm-kit-card--package .cm-kit-card-includes-thumb {
+    position: relative;
+    z-index: 2;
+  }
+
   .cm-kit-card-meta {
     @apply flex flex-wrap items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted;
     font-family: var(--font-label);
