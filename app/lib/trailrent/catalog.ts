@@ -35,6 +35,68 @@ export const TREK_FILTERS = [
   {value: 'kazbegi', labelKa: 'კაზბეგი', labelEn: 'Kazbegi'},
 ] as const;
 
+type TrekFilterOption = {
+  value: string;
+  labelKa: string;
+  labelEn: string;
+};
+
+/** Top treks from live packages (Shopify collection order + count), max 3 by default. */
+export function buildTrekFilterOptionsFromPackages(
+  packages: Array<{trek: string; trekLabel: string}>,
+  options?: {limit?: number; activeTrek?: string | null},
+): TrekFilterOption[] {
+  const limit = options?.limit ?? 3;
+  const activeTrek = options?.activeTrek ?? null;
+
+  const byTrek = new Map<
+    string,
+    {count: number; firstIndex: number; labelFromPackages: string}
+  >();
+
+  packages.forEach((pkg, index) => {
+    if (!pkg.trek) return;
+    const current = byTrek.get(pkg.trek);
+    if (current) {
+      current.count += 1;
+      return;
+    }
+    byTrek.set(pkg.trek, {
+      count: 1,
+      firstIndex: index,
+      labelFromPackages: pkg.trekLabel,
+    });
+  });
+
+  const toOption = (
+    value: string,
+    meta: {labelFromPackages: string},
+  ): TrekFilterOption => {
+    const known = TREK_FILTERS.find((entry) => entry.value === value);
+    return {
+      value,
+      labelKa: known?.labelKa ?? meta.labelFromPackages,
+      labelEn: known?.labelEn ?? meta.labelFromPackages,
+    };
+  };
+
+  const sorted = [...byTrek.entries()].sort(
+    (a, b) => b[1].count - a[1].count || a[1].firstIndex - b[1].firstIndex,
+  );
+
+  const selected = sorted.slice(0, limit).map(([value, meta]) => toOption(value, meta));
+
+  if (
+    activeTrek &&
+    !selected.some((entry) => entry.value === activeTrek) &&
+    byTrek.has(activeTrek)
+  ) {
+    selected.push(toOption(activeTrek, byTrek.get(activeTrek)!));
+  }
+
+  return selected;
+}
+
 export const DURATION_FILTERS = [
   {value: '1-day', labelKa: '1 დღე', labelEn: '1 day'},
   {value: '2-day', labelKa: '2 დღე', labelEn: '2 days'},

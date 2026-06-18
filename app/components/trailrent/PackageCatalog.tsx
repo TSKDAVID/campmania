@@ -2,9 +2,9 @@ import {useMemo, useState} from 'react';
 import {Link, useSearchParams} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
+  buildTrekFilterOptionsFromPackages,
   DIFFICULTY_FILTERS,
   DURATION_FILTERS,
-  TREK_FILTERS,
 } from '~/lib/trailrent/catalog';
 import type {
   ShopifyGearItem,
@@ -279,16 +279,31 @@ export function PackageCatalogGrid({
 }) {
   const {translations: tr, locale} = useLocale();
   const [params] = useSearchParams();
+  const activeTrek = params.get('trek');
   const durationOptions = DURATION_FILTERS.map((option) => ({
     value: option.value,
     label: locale === 'ka' ? option.labelKa : option.labelEn,
   }));
 
-  const filterGroups = buildPackageFilterGroups(
-    TREK_FILTERS,
-    DURATION_FILTERS,
-    DIFFICULTY_FILTERS,
+  const trekOptions = useMemo(
+    () =>
+      buildTrekFilterOptionsFromPackages(packages, {
+        limit: 3,
+        activeTrek,
+      }),
+    [packages, activeTrek],
   );
+
+  const filterGroups = useMemo(() => {
+    const groups = buildPackageFilterGroups(
+      trekOptions,
+      DURATION_FILTERS,
+      DIFFICULTY_FILTERS,
+    );
+    return groups.filter(
+      (group) => group.name !== 'trek' || group.options.length > 0,
+    );
+  }, [trekOptions]);
 
   const filtered = packages.filter((pkg) => {
     const trek = params.get('trek');
@@ -310,6 +325,12 @@ export function PackageCatalogGrid({
             </p>
           ) : null}
           <div className="cm-catalog-layout cm-catalog-layout--packages">
+            <div className="cm-catalog-page-title-row">
+              <h1 className="cm-catalog-heading cm-catalog-heading--row">
+                {tr.packages.title}
+              </h1>
+            </div>
+
             <PackageFiltersPanel
               groups={filterGroups}
               resultCount={filtered.length}
@@ -317,9 +338,6 @@ export function PackageCatalogGrid({
             />
 
             <div className="cm-catalog-main min-w-0">
-              <div className="cm-catalog-packages-toolbar">
-                <h1 className="cm-catalog-heading">{tr.packages.title}</h1>
-              </div>
               {filtered.length === 0 ? (
                 <div className="cm-empty-state">
                   <IconMountain size={40} className="text-sage/50" />

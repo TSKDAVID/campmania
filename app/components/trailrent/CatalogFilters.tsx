@@ -220,20 +220,15 @@ export function PackageFiltersPanel({
           role="region"
           aria-label={tr.packages.filters}
         >
-          <div className="cm-filter-panel-header">
-            <div className="flex items-center gap-2.5">
-              <span className="cm-filter-panel-icon" aria-hidden>
-                <IconFilter size={18} />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-pine">{tr.packages.filters}</p>
-                <p className="text-xs text-muted">
-                  {tr.packages.showing} {resultCount} / {totalCount}
-                </p>
-              </div>
+          <div className="cm-filter-panel-header cm-filter-panel-header--catalog">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-pine">{tr.packages.filters}</p>
+              <p className="cm-filter-panel-meta">
+                {tr.packages.showing} {resultCount} / {totalCount}
+              </p>
             </div>
             {hasActive ? (
-              <button type="button" onClick={clearAll} className="cm-filter-clear">
+              <button type="button" onClick={clearAll} className="cm-filter-clear shrink-0">
                 <IconX size={14} />
                 {tr.packages.clearAll}
               </button>

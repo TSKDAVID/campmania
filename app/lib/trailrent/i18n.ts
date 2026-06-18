@@ -127,7 +127,7 @@ const translations = {
     },
     packages: {
       eyebrow: 'ბილიკის კომპლექტები',
-      title: 'Trail კომპლექტები',
+      title: 'საბილიკე კომპლექტები',
       subtitle:
         'აირჩიეთ ბილიკი და ხანგრძლივობა — თითოეული კომპლექტი შეიცავს ყველა საჭირო აღჭურვილობას.',
       filters: 'ფილტრები',
@@ -445,7 +445,7 @@ const translations = {
     },
     packages: {
       eyebrow: 'Trail packages',
-      title: 'Complete kits',
+      title: 'Trail packages',
       subtitle:
         'Filter by trek and duration — each kit includes everything you need.',
       filters: 'Filters',
