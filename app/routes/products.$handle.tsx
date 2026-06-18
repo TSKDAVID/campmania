@@ -19,8 +19,10 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {
   COLLECTION_PRODUCTS_QUERY,
   packageIncludesCollectionHandle,
+  resolvePackagePricingFromCatalog,
 } from '~/lib/trailrent/shopify-catalog';
 import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
+import type {PackageDuration} from '~/lib/trailrent/gear-builder';
 import {
   ProductDescription,
   ProductIncludedPanel,
@@ -90,8 +92,53 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
   const includedItems = await resolveIncludedItemTitles(storefront, product, handle);
+  const packagePricing = await resolvePackagePricingForProduct(
+    storefront,
+    product,
+    handle,
+  );
 
-  return {product, includedItems};
+  return {product, includedItems, packagePricing};
+}
+
+async function resolvePackagePricingForProduct(
+  storefront: Route.LoaderArgs['context']['storefront'],
+  product: {
+    tags?: string[];
+    includedCollection?: {
+      reference?: {
+        products?: {nodes?: Array<Record<string, unknown>> | null} | null;
+      } | null;
+    } | null;
+  },
+  handle: string,
+) {
+  const isPackage = (product.tags ?? []).some((tag: string) =>
+    tag.startsWith('trek-'),
+  );
+  if (!isPackage) return null;
+
+  let nodes = product.includedCollection?.reference?.products?.nodes ?? [];
+  if (!nodes.length) {
+    const conventionHandle = packageIncludesCollectionHandle(handle);
+    const {collection} = await storefront
+      .query(COLLECTION_PRODUCTS_QUERY, {
+        variables: {handle: conventionHandle, first: 25},
+        ...liveStorefrontCache(storefront),
+      })
+      .catch(() => ({collection: null}));
+
+    nodes = collection?.products?.nodes ?? [];
+  }
+  if (!nodes.length) return null;
+
+  const durationTag = (product.tags ?? []).find((tag: string) =>
+    tag.startsWith('duration-'),
+  );
+  const duration = (durationTag?.slice('duration-'.length) ??
+    '2-day') as PackageDuration;
+
+  return resolvePackagePricingFromCatalog(nodes as never, duration);
 }
 
 async function resolveIncludedItemTitles(
@@ -150,8 +197,13 @@ function parseIncludedItems(metafield?: {value: string; type: string} | null): s
 }
 
 export default function Product() {
-  const {product, includedItems, customerRentalContext, gearBuilderEnabled} =
-    useLoaderData<typeof loader>();
+  const {
+    product,
+    includedItems,
+    packagePricing,
+    customerRentalContext,
+    gearBuilderEnabled,
+  } = useLoaderData<typeof loader>();
   const {locale, translations: tr} = useLocale();
   const [fulfillmentMode, setFulfillmentMode] =
     useState<FulfillmentMode>('rent');
@@ -196,8 +248,10 @@ export default function Product() {
   const buyVariant = fulfillment?.buyVariant;
   const buyCheckoutReady = fulfillment?.buyCheckoutReady ?? false;
   const dailyRate = Number(rentVariant?.price?.amount ?? 0);
+  const displayDailyRate = packagePricing?.bundleDaily ?? dailyRate;
   let purchasePrice = fulfillment?.purchasePrice ?? 0;
   const compareAt = Number(rentVariant?.compareAtPrice?.amount ?? 0);
+  const displayCompareAt = packagePricing?.subtotalDaily ?? compareAt;
   if (purchasePrice <= 0 && compareAt > dailyRate) {
     purchasePrice = compareAt;
   }
@@ -221,10 +275,28 @@ export default function Product() {
     includedItems.length > 0 || tags.some((t: string) => t.startsWith('trek-'));
   const savingsPercent =
     !buyAvailable &&
-    compareAt > dailyRate &&
-    compareAt > 0
-      ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
-      : undefined;
+    displayCompareAt > displayDailyRate &&
+    displayCompareAt > 0
+      ? Math.round(((displayCompareAt - displayDailyRate) / displayCompareAt) * 100)
+      : packagePricing?.discountPercent;
+  const displayRentPrice: MoneyV2 | undefined =
+    displayDailyRate > 0
+      ? {
+          amount: String(displayDailyRate),
+          currencyCode:
+            (rentVariant?.price.currencyCode ?? 'GEL') as MoneyV2['currencyCode'],
+        }
+      : (rentVariant?.price as MoneyV2 | undefined);
+  const displayCompareAtPrice: MoneyV2 | null | undefined =
+    displayCompareAt > displayDailyRate
+      ? {
+          amount: String(displayCompareAt),
+          currencyCode:
+            (rentVariant?.compareAtPrice?.currencyCode ??
+              rentVariant?.price.currencyCode ??
+              'GEL') as MoneyV2['currencyCode'],
+        }
+      : (rentVariant?.compareAtPrice as MoneyV2 | null | undefined);
 
   const trustedTier = isTrustedTier(customerRentalContext.tags);
   const rentToOwnOffer = buildRentToOwnOffer({
@@ -240,7 +312,7 @@ export default function Product() {
         buyAvailable,
         buyCheckoutReady,
         productTitle: title,
-        dailyRate,
+        dailyRate: displayDailyRate,
         purchasePrice,
         rentToOwnOffer,
         isTrustedTier: trustedTier,
@@ -324,10 +396,10 @@ export default function Product() {
             <div className="cm-product-buybox-pricing">
               <ProductPriceBlock
                 fulfillmentMode={fulfillmentMode}
-                rentPrice={rentVariant?.price as MoneyV2 | undefined}
+                rentPrice={displayRentPrice}
                 buyPrice={buyPriceMoney}
                 buyAvailable={buyAvailable}
-                compareAtPrice={rentVariant?.compareAtPrice as MoneyV2 | null | undefined}
+                compareAtPrice={displayCompareAtPrice}
                 savingsPercent={savingsPercent}
               />
               <ProductTrustBar isTrustedTier={trustedTier} />

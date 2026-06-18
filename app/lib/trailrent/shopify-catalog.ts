@@ -16,6 +16,8 @@ import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
 import {
   parseGearBuilderMetafields,
   capacityFromVariantTitle,
+  calculatePackagePricing,
+  DURATION_DAYS,
   type GearBuilderProduct,
   type PackageDuration,
 } from '~/lib/trailrent/gear-builder';
@@ -267,6 +269,29 @@ function extractIncludedCollectionProducts(
   };
 }
 
+function packageRentDailyRatesFromProducts(
+  products: GearBuilderProduct[],
+): number[] {
+  return products.map((product) => product.dailyRate).filter((rate) => rate > 0);
+}
+
+export function packageRentDailyRatesFromCatalogNodes(
+  nodes: CatalogProductNode[],
+): number[] {
+  return packageRentDailyRatesFromProducts(
+    nodes.map((node) => mapGearBuilderProduct(node)),
+  );
+}
+
+export function resolvePackagePricingFromCatalog(
+  nodes: CatalogProductNode[],
+  duration: PackageDuration,
+) {
+  const rentDailyRates = packageRentDailyRatesFromCatalogNodes(nodes);
+  if (!rentDailyRates.length) return null;
+  return calculatePackagePricing(rentDailyRates, DURATION_DAYS[duration]);
+}
+
 function mapPackageProduct(
   product: CatalogProductNode,
   locale: 'ka' | 'en',
@@ -278,8 +303,10 @@ function mapPackageProduct(
   const difficulty = tagValue(product.tags, 'difficulty') ?? 'moderate';
 
   const variant = catalogRentVariant(product);
-  const dailyRate = Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount);
-  const compareAt = Number(
+  const variantDailyRate = Number(
+    variant?.price.amount ?? product.priceRange.minVariantPrice.amount,
+  );
+  const variantCompareAt = Number(
     variant?.compareAtPrice?.amount ??
       product.compareAtPriceRange?.minVariantPrice.amount ??
       0,
@@ -307,8 +334,19 @@ function mapPackageProduct(
       ? includedCollectionProducts.map((entry) => entry.title)
       : itemsFromMetafield;
 
+  const packagePricing = includedCollectionProducts.length
+    ? calculatePackagePricing(
+        packageRentDailyRatesFromProducts(includedCollectionProducts),
+        DURATION_DAYS[duration],
+      )
+    : null;
+  const dailyRate = packagePricing?.bundleDaily ?? variantDailyRate;
+  const compareAt =
+    packagePricing?.subtotalDaily ??
+    (variantCompareAt > 0 ? variantCompareAt : undefined);
+
   const savingsPercent =
-    compareAt > dailyRate && compareAt > 0
+    compareAt != null && compareAt > dailyRate && compareAt > 0
       ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
       : undefined;
 
@@ -331,7 +369,7 @@ function mapPackageProduct(
     variantId: variant?.id,
     imageUrl: product.featuredImage?.url,
     imageAlt: product.featuredImage?.altText ?? product.title,
-    compareAtPrice: compareAt > 0 ? compareAt : undefined,
+    compareAtPrice: compareAt,
     savingsPercent,
     includedProductHandles,
     includedCollectionHandle: resolvedCollectionHandle,

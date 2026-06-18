@@ -181,17 +181,7 @@ function PackageCard({
           <span>{selectedDays} {perDayWord}</span>
         </div>
 
-        {productUrl ? (
-          <Link
-            to={productUrl}
-            className="cm-kit-card-title no-underline hover:no-underline"
-            prefetch="intent"
-          >
-            {pkg.title}
-          </Link>
-        ) : (
-          <h3 className="cm-kit-card-title">{pkg.title}</h3>
-        )}
+        <h3 className="cm-kit-card-title">{pkg.title}</h3>
 
         <div className="cm-kit-card-duration-row" role="group" aria-label="Package duration">
           {durationOptions.map((option) => (
@@ -263,27 +253,24 @@ function PackageCard({
               ) : null}
             </p>
           </div>
-          {productUrl ? (
-            <Link
-              to={productUrl}
-              className="cm-kit-card-arrow no-underline hover:no-underline"
-              aria-label={pkg.title}
-              prefetch="intent"
-            >
-              <IconArrowRight size={18} />
-            </Link>
-          ) : (
-            <span className="cm-kit-card-arrow" aria-hidden>
-              <IconArrowRight size={18} />
-            </span>
-          )}
+          <span className="cm-kit-card-arrow" aria-hidden>
+            <IconArrowRight size={18} />
+          </span>
         </div>
       </div>
     </>
   );
 
   return (
-    <article className="cm-kit-card cm-kit-card--package">
+    <article className="cm-kit-card cm-kit-card--package group">
+      {productUrl ? (
+        <Link
+          to={productUrl}
+          className="cm-kit-card-stretched-link no-underline hover:no-underline"
+          aria-label={pkg.title}
+          prefetch="intent"
+        />
+      ) : null}
       {inner}
       {!productUrl ? (
         <span className="cm-kit-card-pending">Shopify product pending</span>

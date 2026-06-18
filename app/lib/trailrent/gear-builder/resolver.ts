@@ -5,7 +5,7 @@ import type {
   ResolvedPackage,
   ResolvedPackageItem,
 } from './types';
-import {calculateBundlePricing} from './pricing';
+import {calculatePackagePricing} from './pricing';
 
 export const DURATION_DAYS: Record<PackageDuration, number> = {
   '1-day': 1,
@@ -170,15 +170,15 @@ export function resolvePackageComposition(options: {
     }
   }
 
-  const subtotalDaily = baseItems.reduce((sum, item) => sum + item.dailyRate, 0);
-  const pricing = calculateBundlePricing(subtotalDaily, days, baseItems.length);
+  const rentDailyRates = baseItems.map((item) => item.dailyRate);
+  const pricing = calculatePackagePricing(rentDailyRates, days);
 
   return {
     trek,
     duration,
     days,
     items: baseItems,
-    subtotalDaily,
+    subtotalDaily: pricing.subtotalDaily,
     bundleDaily: pricing.bundleDaily,
     bundleTotal: pricing.bundleTotal,
     discountPercent: pricing.discountPercent,
