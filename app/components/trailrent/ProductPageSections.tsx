@@ -22,24 +22,39 @@ export function ProductInlinePrice({
   rentPrice,
   buyPrice,
   buyAvailable = false,
+  compareAtPrice,
 }: {
   fulfillmentMode?: FulfillmentMode;
   rentPrice?: MoneyV2;
   buyPrice?: MoneyV2;
   buyAvailable?: boolean;
+  compareAtPrice?: MoneyV2 | null;
 }) {
   const {translations: tr} = useLocale();
   const rentAmount = moneyAmount(rentPrice);
   const buyAmount = moneyAmount(buyPrice);
+  const compareAt = moneyAmount(compareAtPrice ?? undefined);
   const isPurchase = fulfillmentMode === 'purchase';
   const showBuy =
     buyAvailable && buyAmount != null && buyAmount > 0 && isPurchase;
   const amount = showBuy ? buyAmount : rentAmount;
+  const showCompare =
+    !showBuy &&
+    !buyAvailable &&
+    compareAt != null &&
+    compareAt > 0 &&
+    rentAmount != null &&
+    compareAt > rentAmount;
 
   if (amount == null) return null;
 
   return (
     <div className="cm-product-inline-price" aria-label="Price">
+      {showCompare ? (
+        <span className="cm-price-compare" aria-hidden>
+          {formatGel(compareAt!)}
+        </span>
+      ) : null}
       <span className="cm-price-amount">{formatGel(amount)}</span>
       {!showBuy ? (
         <span className="cm-price-suffix">{tr.product.perDay}</span>
@@ -81,22 +96,12 @@ export function ProductPricingExtras({
     <div
       className={`cm-product-pricing-extras${variant === 'inline' ? ' cm-product-pricing-extras--inline' : ''}`}
     >
-      {showKitCompare && variant !== 'inline' ? (
-        <p className="cm-product-pricing-compare">
-          {formatGel(compareAt!)}
-        </p>
-      ) : null}
       {savingsPercent && !isPurchase ? (
         <p className="cm-product-pricing-savings">
           <span className="cm-product-pricing-savings-badge">
             −{savingsPercent}%
           </span>
           {tr.product.kitSavings}
-          {compareAt ? (
-            <span className="cm-product-pricing-savings-was">
-              · {tr.product.wasPrice} {formatGel(compareAt)}
-            </span>
-          ) : null}
         </p>
       ) : null}
     </div>

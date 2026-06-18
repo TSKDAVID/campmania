@@ -226,15 +226,15 @@ function PackageCard({
         <div className="cm-kit-card-footer">
           <div className="cm-kit-card-pricing min-w-0">
             <div className="cm-kit-card-price-row">
+              {showCompare ? (
+                <span className="cm-kit-card-compare">
+                  <span className="sr-only">{savingsLabel}</span>
+                  {formatGel(subtotalDaily!)}
+                </span>
+              ) : null}
               <p className="cm-kit-card-price">
                 {formatGel(bundleDaily)} / {perDayWord}
               </p>
-              {showCompare ? (
-                <p className="cm-kit-card-compare">
-                  <span className="sr-only">{savingsLabel}</span>
-                  {formatGel(subtotalDaily!)} / {perDayWord}
-                </p>
-              ) : null}
             </div>
             <p className="cm-kit-card-total-line">
               <span>

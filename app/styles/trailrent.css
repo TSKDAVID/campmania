@@ -793,7 +793,7 @@
   }
 
   .cm-kit-card-compare {
-    @apply text-[11px] text-muted line-through;
+    @apply font-display text-base font-bold leading-none text-muted line-through sm:text-lg;
   }
 
   .cm-kit-card-total-line {
@@ -1157,7 +1157,11 @@
   }
 
   .cm-product-inline-price {
-    @apply shrink-0 text-right leading-none;
+    @apply flex shrink-0 items-baseline justify-end gap-2 text-right leading-none;
+  }
+
+  .cm-product-inline-price .cm-price-compare {
+    @apply text-2xl text-muted line-through md:text-[2rem];
   }
 
   .cm-product-inline-price .cm-price-amount {

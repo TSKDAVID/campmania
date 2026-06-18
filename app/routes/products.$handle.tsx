@@ -402,6 +402,7 @@ export default function Product() {
                   rentPrice={displayRentPrice}
                   buyPrice={buyPriceMoney}
                   buyAvailable={buyAvailable}
+                  compareAtPrice={displayCompareAtPrice}
                 />
                 <ProductPricingExtras
                   fulfillmentMode={fulfillmentMode}
