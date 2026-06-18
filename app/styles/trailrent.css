@@ -174,11 +174,16 @@
 
   /* ── Catalog pages (no hero — title inline with content) ─────────────── */
   .cm-catalog-page {
-    @apply pb-6 pt-2 sm:pb-8 sm:pt-3 md:pb-10 md:pt-4;
+    padding: 0;
+    @apply pb-4 sm:pb-6 md:pb-8;
   }
 
   .cm-catalog-page-inner {
-    @apply space-y-2.5 sm:space-y-3 md:space-y-4;
+    @apply space-y-2 pt-2 sm:space-y-2.5 sm:pt-2.5;
+  }
+
+  .cm-catalog-packages-toolbar {
+    @apply mb-1 sm:mb-1.5;
   }
 
   .cm-catalog-page-intro {
@@ -457,8 +462,8 @@
 
   @media (min-width: 1024px) {
     .cm-catalog-layout--packages {
-      grid-template-columns: 260px minmax(0, 1fr);
-      gap: 2rem;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 1.25rem;
     }
 
     .cm-package-filters-desktop {
@@ -740,12 +745,36 @@
     @apply text-[11px] leading-snug;
   }
 
+  .cm-kit-card-pricing {
+    @apply min-w-0;
+  }
+
+  .cm-kit-card-price-row {
+    @apply flex flex-wrap items-baseline gap-x-2 gap-y-0;
+  }
+
   .cm-kit-card-price {
     @apply font-display text-base font-bold leading-none text-forest sm:text-lg;
   }
 
   .cm-kit-card-compare {
-    @apply mt-0.5 text-[11px] text-muted line-through;
+    @apply text-[11px] text-muted line-through;
+  }
+
+  .cm-kit-card-total-line {
+    @apply mt-0.5 text-[11px] leading-snug text-muted;
+  }
+
+  .cm-kit-card-total-line strong {
+    @apply font-semibold text-charcoal;
+  }
+
+  .cm-kit-card-compare-inline {
+    @apply ml-1 line-through;
+  }
+
+  .cm-kit-card-total-meta {
+    @apply text-muted;
   }
 
   .cm-kit-card-count {
@@ -914,12 +943,11 @@
 
   /* ── Product page (PDP) ──────────────────────────────────────────────── */
   .cm-product-page {
-    @apply bg-mist pb-12 pt-5 md:pb-14 md:pt-8;
+    @apply bg-mist pb-12 pt-3 md:pb-14 md:pt-4;
   }
 
-  /* Wider canvas — uses more of the viewport on large screens */
   .cm-product-page-inner {
-    @apply mx-auto w-full max-w-[94rem] space-y-8 px-4 sm:space-y-10 sm:px-5 md:space-y-12 md:px-8;
+    @apply mx-auto w-full max-w-[94rem] space-y-6 px-4 sm:space-y-7 sm:px-5 md:space-y-8 md:px-8;
   }
 
   @media (min-width: 1536px) {
@@ -1067,7 +1095,7 @@
   }
 
   .cm-product-price-dual--rent-only {
-    @apply max-w-md sm:grid-cols-1;
+    @apply w-fit sm:grid-cols-1;
   }
 
   .cm-product-price-chip {

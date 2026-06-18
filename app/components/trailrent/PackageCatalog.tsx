@@ -15,7 +15,6 @@ import {
   resolvePackageComposition,
   type PackageDuration,
 } from '~/lib/trailrent/gear-builder';
-import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
 import {
   buildPackageFilterGroups,
   PackageFiltersPanel,
@@ -84,8 +83,23 @@ function PackageCard({
   );
 
   const displayedItems = composition.items.map((item) => item.title);
-  const dynamicPriceLabel = `${formatGel(composition.bundleDaily)} / ${perDayWord}`;
-  const totalPrice = composition.bundleTotal;
+  const hasComposition = composition.items.length > 0;
+  const bundleDaily = hasComposition ? composition.bundleDaily : pkg.dailyRate;
+  const bundleTotal = hasComposition
+    ? composition.bundleTotal
+    : pkg.dailyRate * selectedDays;
+  const subtotalDaily = hasComposition
+    ? composition.subtotalDaily
+    : pkg.compareAtPrice ?? null;
+  const subtotalTotal =
+    subtotalDaily != null && subtotalDaily > bundleDaily
+      ? subtotalDaily * selectedDays
+      : null;
+  const showCompare =
+    subtotalDaily != null && subtotalDaily > bundleDaily;
+  const discountPercent = hasComposition
+    ? composition.discountPercent
+    : pkg.savingsPercent;
 
   const inner = (
     <>
@@ -110,9 +124,9 @@ function PackageCard({
         >
           {pkg.difficultyLabel}
         </span>
-        {pkg.savingsPercent || composition.discountPercent ? (
+        {discountPercent ? (
           <span className="cm-kit-card-badge absolute left-2 top-2 rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-pine">
-            -{pkg.savingsPercent ?? composition.discountPercent}%
+            -{discountPercent}%
           </span>
         ) : null}
       </div>
@@ -196,22 +210,34 @@ function PackageCard({
         </div>
 
         <div className="cm-kit-card-footer">
-          <div className="min-w-0">
-            <p className="cm-kit-card-price">{dynamicPriceLabel}</p>
-            <p className="cm-kit-card-count">
-              {totalLabel}: {formatGel(totalPrice)}
+          <div className="cm-kit-card-pricing min-w-0">
+            <div className="cm-kit-card-price-row">
+              <p className="cm-kit-card-price">
+                {formatGel(bundleDaily)} / {perDayWord}
+              </p>
+              {showCompare ? (
+                <p className="cm-kit-card-compare">
+                  <span className="sr-only">{savingsLabel}</span>
+                  {formatGel(subtotalDaily!)} / {perDayWord}
+                </p>
+              ) : null}
+            </div>
+            <p className="cm-kit-card-total-line">
+              <span>
+                {totalLabel}: <strong>{formatGel(bundleTotal)}</strong>
+              </span>
+              {showCompare && subtotalTotal != null ? (
+                <span className="cm-kit-card-compare-inline">
+                  {formatGel(subtotalTotal)}
+                </span>
+              ) : null}
+              {displayedItems.length > 0 ? (
+                <span className="cm-kit-card-total-meta">
+                  {' '}
+                  · {displayedItems.length} {itemsCountLabel}
+                </span>
+              ) : null}
             </p>
-            {pkg.compareAtPrice ? (
-              <p className="cm-kit-card-compare">
-                <span className="sr-only">{savingsLabel}</span>
-                ₾{pkg.compareAtPrice}
-              </p>
-            ) : null}
-            {displayedItems.length > 0 ? (
-              <p className="cm-kit-card-count">
-                {displayedItems.length} {itemsCountLabel}
-              </p>
-            ) : null}
           </div>
           {productUrl ? (
             <Link
@@ -278,9 +304,8 @@ export function PackageCatalogGrid({
     <>
       <section className="cm-catalog-page bg-mist">
         <div className="tr-page-width cm-catalog-page-inner">
-          <CatalogPageHeading title={tr.packages.title} />
           {!shopifyConnected ? (
-            <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
+            <p className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
               {tr.packages.shopifySetupHint}
             </p>
           ) : null}
@@ -292,6 +317,9 @@ export function PackageCatalogGrid({
             />
 
             <div className="cm-catalog-main min-w-0">
+              <div className="cm-catalog-packages-toolbar">
+                <h1 className="cm-catalog-heading">{tr.packages.title}</h1>
+              </div>
               {filtered.length === 0 ? (
                 <div className="cm-empty-state">
                   <IconMountain size={40} className="text-sage/50" />
