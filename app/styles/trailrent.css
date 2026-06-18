@@ -1642,7 +1642,9 @@
   }
 
   .cm-home-search-input {
-    @apply min-w-0 flex-1 border-0 bg-transparent py-0 text-[0.9375rem] leading-snug text-charcoal shadow-none outline-none ring-0 placeholder:text-muted/70 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0;
+    @apply min-w-0 flex-1 border-0 bg-transparent p-0 text-[0.9375rem] leading-snug text-charcoal shadow-none outline-none ring-0 placeholder:text-muted/70 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0;
+    margin: 0;
+    border-radius: 0;
     -webkit-appearance: none;
     appearance: none;
   }
