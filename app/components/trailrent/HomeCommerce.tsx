@@ -2,6 +2,7 @@ import {Link, useFetcher} from 'react-router';
 import {useCallback, useEffect, useId, useRef, useState} from 'react';
 import {SearchForm} from '~/components/SearchForm';
 import {useLocale} from '~/providers/LocaleProvider';
+import {formatGel} from '~/lib/trailrent/pricing';
 import {
   getEmptyPredictiveSearchResult,
   urlWithTrackingParams,
@@ -80,29 +81,34 @@ const HOME_QUICK_SEARCH = [
     labelEn: 'Tents',
     queryKa: 'ანსამბლი',
     queryEn: 'tent',
+    Icon: IconTent,
   },
   {
     labelKa: 'რუქსაკები',
     labelEn: 'Backpacks',
     queryKa: 'რუქსაკი',
     queryEn: 'backpack',
+    Icon: IconCompass,
   },
   {
     labelKa: 'საძილებელი',
     labelEn: 'Sleeping bags',
     queryKa: 'საძილებელი',
     queryEn: 'sleeping bag',
+    Icon: IconStar,
   },
   {
     labelKa: 'კომპლექტები',
     labelEn: 'Trail kits',
     queryKa: 'კომპლექტი',
     queryEn: 'kit',
+    Icon: IconMountain,
   },
   {
     labelKa: 'აწყობა',
     labelEn: 'Gear builder',
     href: '/gear-builder',
+    Icon: IconPackage,
   },
 ] as const;
 
@@ -117,6 +123,7 @@ export function HomeSearchBar() {
   const {translations: tr, locale} = useLocale();
   const fetcher = useFetcher<PredictiveSearchReturn>({key: 'home-search'});
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState('');
   const listboxId = useId();
@@ -135,6 +142,31 @@ export function HomeSearchBar() {
   );
 
   useEffect(() => {
+    function handleSlashFocus(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const isTyping =
+        target?.tagName === 'INPUT' ||
+        target?.tagName === 'TEXTAREA' ||
+        target?.isContentEditable;
+      if (isTyping) return;
+
+      if (event.key === '/' || (event.key === 'k' && event.metaKey)) {
+        event.preventDefault();
+        setOpen(true);
+        inputRef.current?.focus();
+      }
+    }
+
+    document.addEventListener('keydown', handleSlashFocus);
+    return () => document.removeEventListener('keydown', handleSlashFocus);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => fetchResults(term), 220);
+    return () => window.clearTimeout(timer);
+  }, [term, fetchResults]);
+
+  useEffect(() => {
     if (!open) return;
 
     function handlePointerDown(event: MouseEvent) {
@@ -143,8 +175,19 @@ export function HomeSearchBar() {
       }
     }
 
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        inputRef.current?.blur();
+      }
+    }
+
     document.addEventListener('mousedown', handlePointerDown);
-    return () => document.removeEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [open]);
 
   const predictive =
@@ -152,161 +195,229 @@ export function HomeSearchBar() {
       ? fetcher.data.result
       : getEmptyPredictiveSearchResult();
   const {products, queries} = predictive.items;
-  const hasTerm = Boolean(term.trim());
+  const trimmedTerm = term.trim();
+  const hasTerm = Boolean(trimmedTerm);
   const isLoading = fetcher.state === 'loading' && hasTerm;
-  const showQuickLinks = !hasTerm;
-  const showPredictive = hasTerm;
+  const hasPredictiveResults = queries.length > 0 || products.length > 0;
+  const showEmptyState = hasTerm && !isLoading && !hasPredictiveResults;
+
+  const clearSearch = () => {
+    setTerm('');
+    inputRef.current?.focus();
+  };
 
   return (
-    <div className="cm-home-search-wrap" ref={containerRef}>
-      <SearchForm action="/search" className="cm-home-search-form">
-        {({inputRef}) => (
-          <div
-            className="cm-home-search"
-            role="combobox"
-            aria-expanded={open}
-            aria-controls={listboxId}
-            aria-haspopup="listbox"
-          >
-            <IconSearch size={18} className="shrink-0 text-muted" aria-hidden />
-            <input
-              ref={inputRef}
-              className="cm-home-search-input"
-              name="q"
-              type="search"
-              value={term}
-              placeholder={tr.home.searchPlaceholder}
-              autoComplete="off"
-              aria-autocomplete="list"
-              aria-controls={listboxId}
-              onChange={(event) => {
-                const value = event.target.value;
-                setTerm(value);
-                setOpen(true);
-                fetchResults(value);
-              }}
-              onFocus={() => setOpen(true)}
-            />
-          </div>
-        )}
-      </SearchForm>
-
+    <>
       {open ? (
-        <div className="cm-home-search-dropdown" id={listboxId} role="listbox">
-          {showQuickLinks ? (
-            <div className="cm-home-search-dropdown-section">
-              <p className="cm-home-search-dropdown-label">{tr.home.quickSearch}</p>
-              <ul className="cm-home-search-dropdown-list">
-                {HOME_QUICK_SEARCH.map((item) => {
-                  const label = locale === 'ka' ? item.labelKa : item.labelEn;
-                  const to =
-                    'href' in item
-                      ? item.href
-                      : `/search?q=${encodeURIComponent(
-                          locale === 'ka' ? item.queryKa : item.queryEn,
-                        )}`;
+        <button
+          type="button"
+          className="cm-home-search-backdrop"
+          aria-label={tr.home.searchClear}
+          onClick={() => setOpen(false)}
+        />
+      ) : null}
 
-                  return (
-                    <li key={label} className="cm-home-search-dropdown-item">
+      <div
+        className={`cm-home-search-wrap${open ? ' cm-home-search-wrap--open' : ''}`}
+        ref={containerRef}
+      >
+        <SearchForm action="/search" className="cm-home-search-form">
+          {() => (
+            <div
+              className="cm-home-search-shell"
+              role="combobox"
+              aria-expanded={open}
+              aria-controls={listboxId}
+              aria-haspopup="listbox"
+            >
+              <span className="cm-home-search-icon-wrap" aria-hidden>
+                <IconSearch size={20} />
+              </span>
+              <input
+                ref={inputRef}
+                className="cm-home-search-input"
+                name="q"
+                type="search"
+                value={term}
+                placeholder={tr.home.searchPlaceholder}
+                autoComplete="off"
+                aria-autocomplete="list"
+                aria-controls={listboxId}
+                onChange={(event) => {
+                  setTerm(event.target.value);
+                  setOpen(true);
+                }}
+                onFocus={() => setOpen(true)}
+              />
+              {hasTerm ? (
+                <button
+                  type="button"
+                  className="cm-home-search-clear"
+                  onClick={clearSearch}
+                  aria-label={tr.home.searchClear}
+                >
+                  ×
+                </button>
+              ) : (
+                <kbd className="cm-home-search-kbd" aria-hidden>
+                  /
+                </kbd>
+              )}
+            </div>
+          )}
+        </SearchForm>
+
+        {open ? (
+          <div className="cm-home-search-panel" id={listboxId} role="listbox">
+            {!hasTerm ? (
+              <div className="cm-home-search-panel-section">
+                <p className="cm-home-search-panel-label">{tr.home.searchPopular}</p>
+                <div className="cm-home-search-chips">
+                  {HOME_QUICK_SEARCH.map((item) => {
+                    const label = locale === 'ka' ? item.labelKa : item.labelEn;
+                    const to =
+                      'href' in item
+                        ? item.href
+                        : `/search?q=${encodeURIComponent(
+                            locale === 'ka' ? item.queryKa : item.queryEn,
+                          )}`;
+
+                    return (
                       <Link
+                        key={label}
                         to={to}
-                        className="cm-home-search-dropdown-link"
+                        className="cm-home-search-chip"
                         onClick={() => setOpen(false)}
                       >
-                        <IconSearch size={14} className="text-muted" aria-hidden />
+                        <item.Icon size={15} aria-hidden />
                         <span>{label}</span>
                       </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ) : null}
-
-          {showPredictive ? (
-            <div className="cm-home-search-dropdown-section">
-              {isLoading ? (
-                <p className="cm-home-search-dropdown-status">{tr.home.searching}</p>
-              ) : null}
-
-              {queries.length ? (
-                <ul className="cm-home-search-dropdown-list">
-                  {queries.map((suggestion) => {
-                    if (!suggestion?.text) return null;
-                    const searchUrl = `/search?q=${encodeURIComponent(suggestion.text)}`;
-
-                    return (
-                      <li
-                        key={suggestion.text}
-                        className="cm-home-search-dropdown-item"
-                      >
-                        <Link
-                          to={searchUrl}
-                          className="cm-home-search-dropdown-link"
-                          onClick={() => setOpen(false)}
-                        >
-                          <IconSearch size={14} className="text-muted" aria-hidden />
-                          <span>{suggestion.text}</span>
-                        </Link>
-                      </li>
                     );
                   })}
-                </ul>
-              ) : null}
-
-              {products.length ? (
-                <ul className="cm-home-search-dropdown-list">
-                  {products.map((product) => {
-                    const productUrl = urlWithTrackingParams({
-                      baseUrl: `/products/${product.handle}`,
-                      trackingParams: product.trackingParameters,
-                      term: term.trim(),
-                    });
-                    const image =
-                      product.selectedOrFirstAvailableVariant?.image;
-
-                    return (
-                      <li key={product.id} className="cm-home-search-dropdown-item">
-                        <Link
-                          to={productUrl}
-                          className="cm-home-search-dropdown-link"
-                          onClick={() => setOpen(false)}
-                        >
-                          {image?.url ? (
-                            <img src={image.url} alt="" loading="lazy" />
-                          ) : (
-                            <span
-                              className="cm-home-search-dropdown-thumb-fallback"
-                              aria-hidden
-                            >
-                              <IconPackage size={16} />
-                            </span>
-                          )}
-                          <span>{product.title}</span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : null}
-
-              {!isLoading && hasTerm ? (
-                <div className="cm-home-search-dropdown-footer">
-                  <Link
-                    to={`/search?q=${encodeURIComponent(term.trim())}`}
-                    className="cm-home-search-dropdown-view-all"
-                    onClick={() => setOpen(false)}
-                  >
-                    {tr.home.viewAllResults}
-                    <IconArrowRight size={14} />
-                  </Link>
                 </div>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
+              </div>
+            ) : null}
+
+            {hasTerm ? (
+              <div className="cm-home-search-panel-body">
+                {isLoading ? (
+                  <div className="cm-home-search-loading" aria-live="polite">
+                    <span className="cm-home-search-spinner" aria-hidden />
+                    <span>{tr.home.searching}</span>
+                  </div>
+                ) : null}
+
+                {queries.length ? (
+                  <div className="cm-home-search-panel-section">
+                    <p className="cm-home-search-panel-label">
+                      {tr.home.searchSuggestions}
+                    </p>
+                    <ul className="cm-home-search-suggestions">
+                      {queries.map((suggestion) => {
+                        if (!suggestion?.text) return null;
+                        const searchUrl = `/search?q=${encodeURIComponent(
+                          suggestion.text,
+                        )}`;
+
+                        return (
+                          <li key={suggestion.text}>
+                            <Link
+                              to={searchUrl}
+                              className="cm-home-search-suggestion"
+                              onClick={() => setOpen(false)}
+                            >
+                              <IconSearch size={16} className="text-muted" aria-hidden />
+                              <span>{suggestion.text}</span>
+                              <IconArrowRight size={14} className="ml-auto opacity-40" aria-hidden />
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {products.length ? (
+                  <div className="cm-home-search-panel-section">
+                    <p className="cm-home-search-panel-label">
+                      {tr.home.searchProducts}
+                    </p>
+                    <ul className="cm-home-search-products">
+                      {products.map((product) => {
+                        const productUrl = urlWithTrackingParams({
+                          baseUrl: `/products/${product.handle}`,
+                          trackingParams: product.trackingParameters,
+                          term: trimmedTerm,
+                        });
+                        const variant = product.selectedOrFirstAvailableVariant;
+                        const image = variant?.image;
+                        const price = variant?.price?.amount
+                          ? formatGel(Number(variant.price.amount))
+                          : null;
+
+                        return (
+                          <li key={product.id}>
+                            <Link
+                              to={productUrl}
+                              className="cm-home-search-product group"
+                              onClick={() => setOpen(false)}
+                            >
+                              {image?.url ? (
+                                <img src={image.url} alt="" loading="lazy" />
+                              ) : (
+                                <span className="cm-home-search-product-fallback" aria-hidden>
+                                  <IconPackage size={18} />
+                                </span>
+                              )}
+                              <span className="cm-home-search-product-copy">
+                                <span className="cm-home-search-product-title">
+                                  {product.title}
+                                </span>
+                                {price ? (
+                                  <span className="cm-home-search-product-price">
+                                    {price}
+                                    <span className="cm-home-search-product-price-suffix">
+                                      {' '}
+                                      / {locale === 'ka' ? 'დღე' : 'day'}
+                                    </span>
+                                  </span>
+                                ) : null}
+                              </span>
+                              <IconArrowRight
+                                size={16}
+                                className="cm-home-search-product-arrow"
+                                aria-hidden
+                              />
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {showEmptyState ? (
+                  <p className="cm-home-search-empty">{tr.home.searchNoResults}</p>
+                ) : null}
+
+                {!isLoading && hasTerm ? (
+                  <div className="cm-home-search-panel-footer">
+                    <Link
+                      to={`/search?q=${encodeURIComponent(trimmedTerm)}`}
+                      className="cm-home-search-view-all"
+                      onClick={() => setOpen(false)}
+                    >
+                      {tr.home.viewAllResults}
+                      <IconArrowRight size={16} />
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </>
   );
 }
 
