@@ -217,6 +217,8 @@ export default function Product() {
 
   const {title, descriptionHtml, id: productId, tags = []} = product;
   const isSoloProduct = includedItems.length === 0;
+  const isPackage =
+    includedItems.length > 0 || tags.some((t: string) => t.startsWith('trek-'));
 
   const fulfillment = useMemo(() => {
     const variants = collectProductVariants(product);
@@ -255,9 +257,11 @@ export default function Product() {
   if (purchasePrice <= 0 && compareAt > dailyRate) {
     purchasePrice = compareAt;
   }
-  const buyAvailable =
+  const buyAvailableRaw =
     (fulfillment?.buyAvailable ?? false) ||
     (purchasePrice > dailyRate && compareAt > dailyRate);
+  /** Trail packages are rental bundles only — compare-at is kit savings, not a buy price. */
+  const buyAvailable = isPackage ? false : buyAvailableRaw;
   const buyPriceMoney: MoneyV2 | undefined =
     purchasePrice > 0
       ? {
@@ -271,8 +275,6 @@ export default function Product() {
 
   const kitSummary = product.kitSummary?.value?.trim();
   const productSubtitle = kitSummary || product.description?.trim();
-  const isPackage =
-    includedItems.length > 0 || tags.some((t: string) => t.startsWith('trek-'));
   const savingsPercent =
     !buyAvailable &&
     displayCompareAt > displayDailyRate &&
