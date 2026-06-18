@@ -26,6 +26,10 @@ export const INCLUSION_PRODUCT_FRAGMENT = `#graphql
           amount
           currencyCode
         }
+        compareAtPrice {
+          amount
+          currencyCode
+        }
         selectedOptions {
           name
           value
@@ -61,6 +65,30 @@ export const INCLUSION_PRODUCT_FRAGMENT = `#graphql
     }
     gearThumbnailPriority: metafield(namespace: "gear_builder", key: "thumbnail_priority") {
       value
+    }
+    availableForPurchase: metafield(namespace: "custom", key: "available-to-purchase") {
+      value
+    }
+    availableForPurchaseAlt: metafield(namespace: "custom", key: "available_for_purchase") {
+      value
+    }
+    purchasePriceMeta: metafield(namespace: "custom", key: "purchase-price") {
+      value
+    }
+    purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
+      value
+    }
+    fulfillmentMetafields: metafields(
+      identifiers: [
+        {namespace: "custom", key: "available-to-purchase"},
+        {namespace: "custom", key: "available_for_purchase"},
+        {namespace: "custom", key: "purchase-price"},
+        {namespace: "custom", key: "purchase_price"},
+      ]
+    ) {
+      key
+      value
+      type
     }
   }
 ` as const;

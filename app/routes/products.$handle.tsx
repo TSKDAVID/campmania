@@ -19,6 +19,7 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {
   COLLECTION_PRODUCTS_QUERY,
   packageIncludesCollectionHandle,
+  resolveIncludedKitNodes,
   resolvePackagePricingFromCatalog,
 } from '~/lib/trailrent/shopify-catalog';
 import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
@@ -39,7 +40,9 @@ import {
   collectProductVariants,
   coalesceMetafieldValue,
   metafieldValueByKeys,
+  packageBuyAvailable,
   resolveFulfillmentVariants,
+  sumPackagePurchasePrice,
 } from '~/lib/trailrent/product-variants';
 import {
   capacityFromVariantTitle,
@@ -92,14 +95,22 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
 
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
-  const includedItems = await resolveIncludedItemTitles(storefront, product, handle);
-  const packagePricing = await resolvePackagePricingForProduct(
+  const includedKitProducts = await resolveIncludedKitNodes(
     storefront,
     product,
     handle,
   );
+  const includedItems = includedKitProducts.length
+    ? includedKitProducts.map((node) => node.title)
+    : await resolveIncludedItemTitles(storefront, product, handle);
+  const packagePricing = await resolvePackagePricingForProduct(
+    storefront,
+    product,
+    handle,
+    includedKitProducts,
+  );
 
-  return {product, includedItems, packagePricing};
+  return {product, includedItems, includedKitProducts, packagePricing};
 }
 
 async function resolvePackagePricingForProduct(
@@ -113,23 +124,20 @@ async function resolvePackagePricingForProduct(
     } | null;
   },
   handle: string,
+  includedKitProducts?: Array<Record<string, unknown>>,
 ) {
   const isPackage = (product.tags ?? []).some((tag: string) =>
     tag.startsWith('trek-'),
   );
   if (!isPackage) return null;
 
-  let nodes = product.includedCollection?.reference?.products?.nodes ?? [];
+  let nodes = includedKitProducts ?? [];
   if (!nodes.length) {
-    const conventionHandle = packageIncludesCollectionHandle(handle);
-    const {collection} = await storefront
-      .query(COLLECTION_PRODUCTS_QUERY, {
-        variables: {handle: conventionHandle, first: 25},
-        ...liveStorefrontCache(storefront),
-      })
-      .catch(() => ({collection: null}));
-
-    nodes = collection?.products?.nodes ?? [];
+    nodes = (await resolveIncludedKitNodes(
+      storefront,
+      product as never,
+      handle,
+    )) as never;
   }
   if (!nodes.length) return null;
 
@@ -201,6 +209,7 @@ export default function Product() {
   const {
     product,
     includedItems,
+    includedKitProducts,
     packagePricing,
     customerRentalContext,
     gearBuilderEnabled,
@@ -255,14 +264,20 @@ export default function Product() {
   let purchasePrice = fulfillment?.purchasePrice ?? 0;
   const compareAt = Number(rentVariant?.compareAtPrice?.amount ?? 0);
   const displayCompareAt = packagePricing?.subtotalDaily ?? compareAt;
-  if (purchasePrice <= 0 && compareAt > dailyRate) {
+  if (!isPackage && purchasePrice <= 0 && compareAt > dailyRate) {
     purchasePrice = compareAt;
   }
   const buyAvailableRaw =
     (fulfillment?.buyAvailable ?? false) ||
     (purchasePrice > dailyRate && compareAt > dailyRate);
-  /** Trail packages are rental bundles only — compare-at is kit savings, not a buy price. */
-  const buyAvailable = isPackage ? false : buyAvailableRaw;
+  const kitBuyAvailable =
+    isPackage && includedKitProducts.length > 0
+      ? packageBuyAvailable(includedKitProducts)
+      : false;
+  const buyAvailable = isPackage ? kitBuyAvailable : buyAvailableRaw;
+  if (isPackage && kitBuyAvailable) {
+    purchasePrice = sumPackagePurchasePrice(includedKitProducts);
+  }
   const buyPriceMoney: MoneyV2 | undefined =
     purchasePrice > 0
       ? {

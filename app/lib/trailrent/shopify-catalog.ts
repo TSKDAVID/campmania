@@ -292,6 +292,40 @@ export function resolvePackagePricingFromCatalog(
   return calculatePackagePricing(rentDailyRates, DURATION_DAYS[duration]);
 }
 
+export async function resolveIncludedKitNodes(
+  storefront: Storefront,
+  product: {
+    tags?: string[];
+    includedCollection?: {
+      reference?: {
+        products?: {nodes?: CatalogProductNode[] | null} | null;
+      } | null;
+    } | null;
+  },
+  handle: string,
+): Promise<CatalogProductNode[]> {
+  const isPackage = (product.tags ?? []).some((tag: string) =>
+    tag.startsWith('trek-'),
+  );
+  if (!isPackage) return [];
+
+  let nodes = (product.includedCollection?.reference?.products?.nodes ??
+    []) as CatalogProductNode[];
+  if (!nodes.length) {
+    const conventionHandle = packageIncludesCollectionHandle(handle);
+    const {collection} = await storefront
+      .query(COLLECTION_PRODUCTS_QUERY, {
+        variables: {handle: conventionHandle, first: 25},
+        ...liveStorefrontCache(storefront),
+      })
+      .catch(() => ({collection: null}));
+
+    nodes = (collection?.products?.nodes ?? []) as CatalogProductNode[];
+  }
+
+  return nodes;
+}
+
 function mapPackageProduct(
   product: CatalogProductNode,
   locale: 'ka' | 'en',

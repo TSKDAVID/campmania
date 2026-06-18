@@ -229,6 +229,67 @@ export function resolveFulfillmentVariants(options: {
   };
 }
 
+/** Kit gear product node (included collection / catalog) with buy fulfillment fields. */
+export type IncludedKitProduct = {
+  variants?: {nodes: FulfillmentVariantNode[]} | null;
+  selectedOrFirstAvailableVariant?: FulfillmentVariantNode | null;
+  adjacentVariants?: FulfillmentVariantNode[] | null;
+  availableForPurchase?: {value?: string | null} | null;
+  availableForPurchaseAlt?: {value?: string | null} | null;
+  purchasePriceMeta?: {value?: string | null} | null;
+  purchasePriceMetaAlt?: {value?: string | null} | null;
+  fulfillmentMetafields?: Array<{key: string; value?: string | null} | null> | null;
+};
+
+export function resolveIncludedProductFulfillment(
+  product: IncludedKitProduct,
+): ResolvedFulfillmentVariants | null {
+  const variants = collectProductVariants(product);
+  const availableMeta = coalesceMetafieldValue(
+    metafieldValueByKeys(product.fulfillmentMetafields, [
+      'available-to-purchase',
+      'available_for_purchase',
+    ]),
+    product.availableForPurchase?.value,
+    product.availableForPurchaseAlt?.value,
+  );
+  const purchaseMeta = coalesceMetafieldValue(
+    metafieldValueByKeys(product.fulfillmentMetafields, [
+      'purchase-price',
+      'purchase_price',
+    ]),
+    product.purchasePriceMeta?.value,
+    product.purchasePriceMetaAlt?.value,
+  );
+
+  return resolveFulfillmentVariants({
+    variants,
+    availableForPurchaseMeta: availableMeta,
+    purchasePriceMeta: purchaseMeta,
+  });
+}
+
+/** True when this gear item has a buy variant or purchase price and is not rent-only. */
+export function isIncludedProductBuyable(product: IncludedKitProduct): boolean {
+  const fulfillment = resolveIncludedProductFulfillment(product);
+  if (!fulfillment) return false;
+  return fulfillment.buyAvailable && fulfillment.purchasePrice > 0;
+}
+
+/** Package buy tab only when every included kit item can be purchased. */
+export function packageBuyAvailable(includedProducts: IncludedKitProduct[]): boolean {
+  if (!includedProducts.length) return false;
+  return includedProducts.every(isIncludedProductBuyable);
+}
+
+/** Sum of individual purchase prices when the full kit is buyable. */
+export function sumPackagePurchasePrice(includedProducts: IncludedKitProduct[]): number {
+  return includedProducts.reduce((sum, product) => {
+    const fulfillment = resolveIncludedProductFulfillment(product);
+    return sum + (fulfillment?.purchasePrice ?? 0);
+  }, 0);
+}
+
 export function collectProductVariants(product: {
   variants?: {nodes: FulfillmentVariantNode[]} | null;
   selectedOrFirstAvailableVariant?: FulfillmentVariantNode | null;
