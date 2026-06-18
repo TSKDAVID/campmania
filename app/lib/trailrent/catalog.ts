@@ -113,10 +113,39 @@ export const GEAR_FILTERS = [
   {value: 'tent', labelKa: 'კარავი', labelEn: 'Tent'},
   {value: 'sleeping', labelKa: 'საძილებელი', labelEn: 'Sleeping'},
   {value: 'backpack', labelKa: 'რუქსაკი', labelEn: 'Backpack'},
+  {value: 'poles', labelKa: 'ჯოხები', labelEn: 'Poles'},
+  {value: 'shoes', labelKa: 'ფეხსაცმელი', labelEn: 'Footwear'},
   {value: 'kitchen', labelKa: 'სამზარეულო', labelEn: 'Kitchen'},
   {value: 'navigation', labelKa: 'ნავიგაცია', labelEn: 'Navigation'},
   {value: 'electronics', labelKa: 'ელექტრონიკა', labelEn: 'Electronics'},
 ] as const;
+
+/** Gear filter pills from live catalog — only categories that exist in Shopify. */
+export function buildGearFilterOptionsFromCatalog(
+  gear: Array<{category: string; categoryLabel: string}>,
+) {
+  const seen = new Map<string, string>();
+  for (const item of gear) {
+    if (!item.category || item.category === 'other' || seen.has(item.category)) {
+      continue;
+    }
+    const known = GEAR_FILTERS.find((entry) => entry.value === item.category);
+    seen.set(
+      item.category,
+      known
+        ? item.categoryLabel
+        : item.categoryLabel || item.category,
+    );
+  }
+  return [...seen.entries()].map(([value, label]) => {
+    const known = GEAR_FILTERS.find((entry) => entry.value === value);
+    return {
+      value,
+      labelKa: known?.labelKa ?? label,
+      labelEn: known?.labelEn ?? label,
+    };
+  });
+}
 
 export const TRAIL_PACKAGES: PackageItem[] = [
   {

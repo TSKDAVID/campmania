@@ -1,0 +1,8 @@
+query IndividualGearCollection {
+  gear: collectionByHandle(handle: "individual-gear") {
+    id
+    productsCount {
+      count
+    }
+  }
+}

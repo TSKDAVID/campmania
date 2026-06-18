@@ -20,6 +20,7 @@ import {
   COLLECTION_PRODUCTS_QUERY,
   packageIncludesCollectionHandle,
 } from '~/lib/trailrent/shopify-catalog';
+import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
 import {
   ProductDescription,
   ProductIncludedPanel,
@@ -78,6 +79,7 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   const [{product}] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
+      ...liveStorefrontCache(storefront),
     }),
   ]);
 
@@ -118,6 +120,7 @@ async function resolveIncludedItemTitles(
     const {collection} = await storefront
       .query(COLLECTION_PRODUCTS_QUERY, {
         variables: {handle: conventionHandle, first: 25},
+        ...liveStorefrontCache(storefront),
       })
       .catch(() => ({collection: null}));
 

@@ -1,0 +1,35 @@
+query IndividualGearCollection {
+  gear: collectionByHandle(handle: "individual-gear") {
+    id
+  }
+}
+
+mutation AddHikingPoleToGearCatalog {
+  addToGear: collectionAddProducts(
+    id: "gid://shopify/Collection/PLACEHOLDER_GEAR_COLLECTION_ID"
+    productIds: ["gid://shopify/Product/10512436789540"]
+  ) {
+    collection {
+      productsCount {
+        count
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  tagPole: tagsAdd(
+    id: "gid://shopify/Product/10512436789540"
+    tags: ["gear-poles"]
+  ) {
+    node {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

@@ -9,6 +9,7 @@ import {
   type ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
 import {getLocaleFromRequest} from '~/providers/LocaleProvider';
+import {CATALOG_PAGE_HEADERS} from '~/lib/trailrent/storefront-live';
 import {parseItemType, type GearBuilderProduct} from '~/lib/trailrent/gear-builder';
 
 function mapDemoGearItem(item: (typeof INDIVIDUAL_GEAR)[number]): ShopifyGearItem {
@@ -41,6 +42,14 @@ function mapDemoGearItem(item: (typeof INDIVIDUAL_GEAR)[number]): ShopifyGearIte
 export const meta: Route.MetaFunction = () => [
   {title: 'Campmania | Trail Packages'},
 ];
+
+export function shouldRevalidate() {
+  return true;
+}
+
+export function headers() {
+  return CATALOG_PAGE_HEADERS;
+}
 
 export async function loader({context, request}: Route.LoaderArgs) {
   const locale = getLocaleFromRequest(request);

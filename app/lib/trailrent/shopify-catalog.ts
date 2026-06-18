@@ -12,6 +12,7 @@ import {
   type PackageItem,
 } from '~/lib/trailrent/catalog';
 import {formatGel} from '~/lib/trailrent/pricing';
+import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
 import {
   parseGearBuilderMetafields,
   capacityFromVariantTitle,
@@ -161,6 +162,43 @@ function catalogRentVariant(product: CatalogProductNode) {
   return pickRentVariant(variants) ?? product.selectedOrFirstAvailableVariant;
 }
 
+function inferGearCategory(product: CatalogProductNode): string {
+  const tagged = tagValue(product.tags, 'gear');
+  if (tagged) return tagged;
+
+  const haystack = `${product.title} ${product.handle}`.toLowerCase();
+  if (haystack.includes('ჯოხ') || haystack.includes('pole')) return 'poles';
+  if (
+    haystack.includes('ფეხსაცმ') ||
+    haystack.includes('shoe') ||
+    haystack.includes('boot')
+  ) {
+    return 'shoes';
+  }
+  if (haystack.includes('კარავ') || haystack.includes('tent')) return 'tent';
+  if (haystack.includes('ჩანთ') || haystack.includes('backpack')) {
+    return 'backpack';
+  }
+  if (haystack.includes('საძილ') || haystack.includes('sleeping')) {
+    return 'sleeping';
+  }
+
+  return 'other';
+}
+
+async function loadKitCollectionProducts(
+  storefront: Storefront,
+  handle: string,
+): Promise<GearBuilderProduct[]> {
+  const {collection} = await storefront.query(COLLECTION_PRODUCTS_QUERY, {
+    variables: {handle, first: 50},
+    ...liveStorefrontCache(storefront),
+  });
+
+  const nodes = (collection?.products?.nodes ?? []) as CatalogProductNode[];
+  return nodes.map((node) => mapGearBuilderProduct(node));
+}
+
 function mapGearBuilderProduct(product: CatalogProductNode): GearBuilderProduct {
   const allVariantNodes = product.variants?.nodes ?? [];
   const rentVariantNodes = filterRentVariants(allVariantNodes);
@@ -187,15 +225,17 @@ function mapGearBuilderProduct(product: CatalogProductNode): GearBuilderProduct 
   });
 
   if (!product.gearBuilderEnabled?.value && !product.gearItemType?.value) {
-    const category = tagValue(product.tags, 'gear');
-    if (category) {
+    const category = inferGearCategory(product);
+    if (category && category !== 'other') {
       metafields.itemType =
         category === 'sleeping'
           ? 'sleeping_bag'
           : category === 'electronics'
             ? 'lighting'
-            : (category as GearBuilderProduct['metafields']['itemType']);
-      metafields.builderEnabled = true;
+            : category === 'poles'
+              ? 'other'
+              : (category as GearBuilderProduct['metafields']['itemType']);
+      metafields.builderEnabled = category !== 'poles';
     }
   }
 
@@ -304,7 +344,7 @@ function mapGearProduct(
   product: CatalogProductNode,
   locale: 'ka' | 'en',
 ): ShopifyGearItem {
-  const category = tagValue(product.tags, 'gear') ?? 'tent';
+  const category = inferGearCategory(product);
   const variant = catalogRentVariant(product);
   const dailyRate = Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount);
   const builderProduct = mapGearBuilderProduct(product);
@@ -336,41 +376,31 @@ export async function loadShopifyPackages(
       handle: SHOPIFY_COLLECTION_HANDLES.packages,
       first: 50,
     },
+    ...liveStorefrontCache(storefront),
   });
 
   if (!collection?.products?.nodes?.length) return [];
 
   const nodes = collection.products.nodes as CatalogProductNode[];
-  const preliminary = nodes.map((product) => mapPackageProduct(product, locale));
 
-  const enriched = await Promise.all(
-    preliminary.map(async (pkg, index) => {
-      if (pkg.includedCollectionProducts.length > 0 || !pkg.productHandle) {
-        return pkg;
-      }
-
-      const conventionHandle = packageIncludesCollectionHandle(pkg.productHandle);
-      const {collection: includesCollection} = await storefront
-        .query(COLLECTION_PRODUCTS_QUERY, {
-          variables: {handle: conventionHandle, first: 25},
-        })
-        .catch(() => ({collection: null}));
-
-      const includeNodes = includesCollection?.products?.nodes as
-        | CatalogProductNode[]
-        | undefined;
-      if (!includeNodes?.length) return pkg;
+  return Promise.all(
+    nodes.map(async (product) => {
+      const kitHandle =
+        product.includedCollection?.reference?.handle ??
+        packageIncludesCollectionHandle(product.handle);
+      const includedCollectionProducts = await loadKitCollectionProducts(
+        storefront,
+        kitHandle,
+      );
 
       return mapPackageProduct(
-        nodes[index],
+        product,
         locale,
-        includeNodes.map((node) => mapGearBuilderProduct(node)),
-        conventionHandle,
+        includedCollectionProducts,
+        kitHandle,
       );
     }),
   );
-
-  return enriched;
 }
 
 export async function loadShopifyGear(
@@ -382,6 +412,7 @@ export async function loadShopifyGear(
       handle: SHOPIFY_COLLECTION_HANDLES.gear,
       first: 50,
     },
+    ...liveStorefrontCache(storefront),
   });
 
   if (!collection?.products?.nodes?.length) return [];

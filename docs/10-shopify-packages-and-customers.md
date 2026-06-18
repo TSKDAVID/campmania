@@ -93,11 +93,13 @@ Enable **Storefront API access** for both metafield definitions.
 
 Same flow, but add to `individual-gear` collection.
 
+**Important:** A product only appears on `/individual-gear` if it is in the **`individual-gear` collection** in Shopify Admin (Products → Collections). Creating a product alone is not enough.
+
 ### Tags (for filters on `/individual-gear`)
 
 | Tag prefix | Example |
 |------------|---------|
-| `gear-` | `gear-tent`, `gear-backpack`, `gear-sleeping`, `gear-cooking`, `gear-clothing` |
+| `gear-` | `gear-tent`, `gear-backpack`, `gear-sleeping`, `gear-poles`, `gear-shoes`, `gear-cooking`, `gear-clothing` |
 
 ---
 

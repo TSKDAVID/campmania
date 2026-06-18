@@ -1,0 +1,18 @@
+query FindHikingPole {
+  products(first: 20, query: "hiking pole") {
+    nodes {
+      id
+      handle
+      title
+      tags
+    }
+  }
+  poleKa: products(first: 5, query: "ჯოხი") {
+    nodes {
+      id
+      handle
+      title
+      tags
+    }
+  }
+}

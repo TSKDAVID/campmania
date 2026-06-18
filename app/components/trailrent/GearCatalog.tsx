@@ -1,6 +1,7 @@
+import {useMemo} from 'react';
 import {useSearchParams} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
-import {GEAR_FILTERS} from '~/lib/trailrent/catalog';
+import {buildGearFilterOptionsFromCatalog} from '~/lib/trailrent/catalog';
 import type {ShopifyGearItem} from '~/lib/trailrent/shopify-catalog';
 import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
@@ -17,6 +18,11 @@ export function GearCatalogGrid({
   const [params] = useSearchParams();
   const category = params.get('gear') ?? '';
 
+  const filterOptions = useMemo(
+    () => buildGearFilterOptionsFromCatalog(gear),
+    [gear],
+  );
+
   const filtered = category ? gear.filter((g) => g.category === category) : gear;
 
   return (
@@ -32,7 +38,7 @@ export function GearCatalogGrid({
 
       <div className="cm-catalog-filters-sticky">
         <div className="tr-page-width">
-          <GearFiltersBar options={GEAR_FILTERS} />
+          <GearFiltersBar options={filterOptions} />
         </div>
       </div>
 
