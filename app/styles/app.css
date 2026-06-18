@@ -135,6 +135,21 @@ img {
   margin: 1rem;
 }
 
+.overlay--cart aside {
+  display: flex;
+  flex-direction: column;
+}
+
+.overlay--cart aside main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
 .overlay aside p {
   margin: 0 0 0.25rem;
 }
@@ -275,13 +290,39 @@ button.reset:hover:not(:has(> *)) {
 */
 .cart-main {
   height: 100%;
-  max-height: calc(100vh - var(--cart-aside-summary-height));
-  overflow-y: auto;
   width: auto;
 }
 
-.cart-main.with-discount {
-  max-height: calc(100vh - var(--cart-aside-summary-height-with-discount));
+.cart-main--aside {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cart-details--aside {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cart-aside-body {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.75rem 1.25rem 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cart-aside-footer {
+  background: var(--color-light);
+  border-top: 1px solid var(--color-stone, #e4eae6);
+  flex-shrink: 0;
+  padding: 0 1.25rem 1rem;
 }
 
 .cart-line {
@@ -303,19 +344,14 @@ button.reset:hover:not(:has(> *)) {
 }
 
 .cart-summary-aside {
-  background: white;
-  border-top: 1px solid var(--color-dark);
-  bottom: 0;
-  padding-top: 0.75rem;
-  position: absolute;
-  width: calc(var(--aside-width) - 40px);
+  position: relative;
+  width: auto;
 }
 
 .cart-line-quantity {
   display: flex;
 }
 
-/* Child line components (warranties, gift wrapping, etc.) */
 .cart-line-children {
   padding-left: 2rem;
 }

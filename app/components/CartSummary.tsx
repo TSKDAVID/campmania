@@ -1,9 +1,11 @@
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import type {CartLayout} from '~/components/CartMain';
-import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
+import {CartForm, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
+import {formatCartMoney, moneyAmount} from '~/lib/trailrent/cart-display';
+import {formatGel} from '~/lib/trailrent/pricing';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -13,42 +15,50 @@ type CartSummaryProps = {
 export function CartSummary({cart, layout}: CartSummaryProps) {
   const {translations: tr} = useLocale();
   const className =
-    layout === 'page' ? 'cart-summary-page' : 'cart-summary-aside';
+    layout === 'page' ? 'cart-summary-page cm-cart-summary' : 'cart-summary-aside cm-cart-summary';
   const summaryId = useId();
   const discountsHeadingId = useId();
   const discountCodeInputId = useId();
   const giftCardHeadingId = useId();
   const giftCardInputId = useId();
+  const subtotalAmount = moneyAmount(cart?.cost?.subtotalAmount);
 
   return (
     <div aria-labelledby={summaryId} className={className}>
-      <h4 id={summaryId}>{tr.cart.totals}</h4>
-      <dl role="group" className="cart-subtotal">
+      <h4 id={summaryId} className="cm-cart-summary-heading">
+        {tr.cart.totals}
+      </h4>
+
+      <dl className="cm-cart-subtotal">
         <dt>{tr.cart.subtotal}</dt>
-        <dd>
-          {cart?.cost?.subtotalAmount?.amount ? (
-            <Money data={cart?.cost?.subtotalAmount} />
-          ) : (
-            '-'
-          )}
-        </dd>
+        <dd>{subtotalAmount > 0 ? formatGel(subtotalAmount) : '—'}</dd>
       </dl>
-      <CartDiscounts
-        discountCodes={cart?.discountCodes}
-        discountsHeadingId={discountsHeadingId}
-        discountCodeInputId={discountCodeInputId}
-        labels={tr.cart}
-      />
-      <CartGiftCard
-        giftCardCodes={cart?.appliedGiftCards}
-        giftCardHeadingId={giftCardHeadingId}
-        giftCardInputId={giftCardInputId}
-        labels={tr.cart}
-      />
+
+      {layout === 'page' ? (
+        <>
+          <CartDiscounts
+            discountCodes={cart?.discountCodes}
+            discountsHeadingId={discountsHeadingId}
+            discountCodeInputId={discountCodeInputId}
+            labels={tr.cart}
+          />
+          <CartGiftCard
+            giftCardCodes={cart?.appliedGiftCards}
+            giftCardHeadingId={giftCardHeadingId}
+            giftCardInputId={giftCardInputId}
+            labels={tr.cart}
+          />
+        </>
+      ) : null}
+
       <CartCheckoutActions
         checkoutUrl={cart?.checkoutUrl}
         label={tr.cart.checkout}
       />
+
+      {layout === 'aside' ? (
+        <p className="cm-cart-aside-note">{tr.cart.deliveryNote}</p>
+      ) : null}
     </div>
   );
 }
@@ -63,12 +73,9 @@ function CartCheckoutActions({
   if (!checkoutUrl) return null;
 
   return (
-    <div>
-      <a href={checkoutUrl} target="_self">
-        <p>{label}</p>
-      </a>
-      <br />
-    </div>
+    <a href={checkoutUrl} target="_self" className="tr-btn-primary cm-cart-checkout">
+      {label}
+    </a>
   );
 }
 
@@ -93,8 +100,7 @@ function CartDiscounts({
       ?.map(({code}) => code) || [];
 
   return (
-    <section aria-label={labels.discounts}>
-      {/* Have existing discount, display it with a remove option */}
+    <section aria-label={labels.discounts} className="cm-cart-discounts">
       <dl hidden={!codes.length}>
         <div>
           <dt id={discountsHeadingId}>{labels.discounts}</dt>
@@ -114,9 +120,8 @@ function CartDiscounts({
         </div>
       </dl>
 
-      {/* Show an input to apply a discount */}
       <UpdateDiscountForm discountCodes={codes}>
-        <div>
+        <div className="cm-cart-discount-form">
           <label htmlFor={discountCodeInputId} className="sr-only">
             {labels.discountCode}
           </label>
@@ -126,7 +131,6 @@ function CartDiscounts({
             name="discountCode"
             placeholder={labels.discountCode}
           />
-          &nbsp;
           <button type="submit" aria-label={labels.apply}>
             {labels.apply}
           </button>
@@ -214,7 +218,7 @@ function CartGiftCard({
   };
 
   return (
-    <section aria-label={labels.giftCards}>
+    <section aria-label={labels.giftCards} className="cm-cart-gift-cards">
       {giftCardCodes && giftCardCodes.length > 0 && (
         <dl>
           <dt id={giftCardHeadingId}>{labels.giftCards}</dt>
@@ -235,7 +239,7 @@ function CartGiftCard({
               >
                 <code>***{giftCard.lastCharacters}</code>
                 &nbsp;
-                <Money data={giftCard.amountUsed} />
+                {formatCartMoney(giftCard.amountUsed)}
               </RemoveGiftCardForm>
             </dd>
           ))}
@@ -243,7 +247,7 @@ function CartGiftCard({
       )}
 
       <AddGiftCardForm fetcherKey="gift-card-add">
-        <div>
+        <div className="cm-cart-discount-form">
           <label htmlFor={giftCardInputId} className="sr-only">
             {labels.giftCardCode}
           </label>
@@ -254,7 +258,6 @@ function CartGiftCard({
             placeholder={labels.giftCardCode}
             ref={giftCardCodeInput}
           />
-          &nbsp;
           <button
             type="submit"
             disabled={giftCardAddFetcher.state !== 'idle'}
