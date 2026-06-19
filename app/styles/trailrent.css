@@ -659,9 +659,11 @@
   }
 
   .cm-pkg-card__thumbs {
-    @apply flex min-w-0 flex-nowrap gap-1.5 overflow-x-auto;
+    @apply flex min-w-0 flex-nowrap gap-1.5 overflow-x-auto overflow-y-visible;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    padding-top: 0.25rem;
+    margin-top: -0.25rem;
   }
 
   .cm-pkg-card__thumbs::-webkit-scrollbar {
@@ -706,10 +708,15 @@
   }
 
   .cm-kit-card--package .cm-kit-card-duration-btn,
-  .cm-kit-card--package .cm-kit-card-includes-thumb {
+  .cm-kit-card--package .cm-kit-card-includes-thumb,
+  .cm-kit-card--package .cm-product-included-thumb-wrap {
     position: relative;
     z-index: 2;
     flex-shrink: 0;
+  }
+
+  .cm-kit-card--package .cm-product-included-thumb-wrap:hover {
+    z-index: 30;
   }
 
   .cm-kit-card--package .cm-kit-card-duration-btn {
@@ -1515,6 +1522,10 @@
 
   .cm-product-included-thumb {
     @apply flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-stone/70 bg-white text-[10px] font-semibold text-forest shadow-sm;
+  }
+
+  a.cm-product-included-thumb {
+    @apply no-underline hover:no-underline;
   }
 
   .cm-product-included-thumb img {

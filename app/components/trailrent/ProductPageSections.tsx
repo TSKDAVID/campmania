@@ -1,6 +1,7 @@
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {useLocale} from '~/providers/LocaleProvider';
 import {formatGel} from '~/lib/trailrent/pricing';
+import {IncludedGearThumb} from '~/components/trailrent/IncludedGearThumb';
 import type {FulfillmentMode} from '~/components/RentalProductForm';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {
@@ -203,13 +204,11 @@ export function ProductIncludedPanel({
   items: string[];
   includedProducts?: ProductIncludedItem[];
 }) {
-  const {translations: tr, locale} = useLocale();
+  const {translations: tr} = useLocale();
   const entries: ProductIncludedItem[] = includedProducts?.length
     ? includedProducts
     : items.map((title) => ({title}));
   if (!entries.length) return null;
-
-  const perDay = locale === 'ka' ? 'დღე' : 'day';
 
   return (
     <section
@@ -234,29 +233,13 @@ export function ProductIncludedPanel({
         {entries.some((entry) => entry.imageUrl) ? (
           <div className="cm-product-included-thumbs" role="list">
             {entries.map((entry) => (
-              <div
+              <IncludedGearThumb
                 key={entry.handle ?? entry.title}
-                className="cm-product-included-thumb-wrap"
-                role="listitem"
-              >
-                <span className="cm-product-included-thumb" tabIndex={0}>
-                  {entry.imageUrl ? (
-                    <img src={entry.imageUrl} alt="" loading="lazy" />
-                  ) : (
-                    <span>{entry.title.slice(0, 2).toUpperCase()}</span>
-                  )}
-                </span>
-                <span className="cm-product-included-tooltip" role="tooltip">
-                  <span className="cm-product-included-tooltip-title">
-                    {entry.title}
-                  </span>
-                  {entry.dailyRate != null && entry.dailyRate > 0 ? (
-                    <span className="cm-product-included-tooltip-price">
-                      {formatGel(entry.dailyRate)} / {perDay}
-                    </span>
-                  ) : null}
-                </span>
-              </div>
+                item={entry}
+                thumbClassName="cm-product-included-thumb no-underline hover:no-underline"
+                href={entry.handle ? `/products/${entry.handle}` : undefined}
+                listItem
+              />
             ))}
           </div>
         ) : null}

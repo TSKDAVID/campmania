@@ -27,6 +27,7 @@ import {
   TotalWithCompare,
 } from '~/components/trailrent/PriceWithCompare';
 import {IconArrowRight, IconMountain} from '~/components/trailrent/Icons';
+import {IncludedGearThumb} from '~/components/trailrent/IncludedGearThumb';
 
 const DIFFICULTY_STYLES: Record<string, string> = {
   easy: 'bg-moss/15 text-moss border-moss/25',
@@ -109,12 +110,15 @@ function PackageCard({
             title: product.title,
             imageUrl: product.imageUrl,
             handle: product.handle,
+            dailyRate: product.dailyRate,
           }))
         : composition.items;
 
     return thumbSource.slice(0, 5).map((item) => ({
-      label: item.title,
+      title: item.title,
       imageUrl: item.imageUrl,
+      handle: item.handle,
+      dailyRate: item.dailyRate,
       href: `/products/${item.handle}`,
     }));
   }, [pkg.includedCollectionProducts, composition.items]);
@@ -184,20 +188,13 @@ function PackageCard({
           {includedThumbs.length > 0 ? (
             <div className="cm-pkg-card__thumbs">
               {includedThumbs.map((thumb) => (
-                <Link
-                  key={`${pkg.id}-${thumb.label}`}
-                  to={thumb.href}
-                  className="cm-kit-card-includes-thumb no-underline hover:no-underline"
-                  title={thumb.label}
-                  aria-label={thumb.label}
-                  prefetch="intent"
-                >
-                  {thumb.imageUrl ? (
-                    <img src={thumb.imageUrl} alt={thumb.label} loading="lazy" />
-                  ) : (
-                    <span>{thumb.label.slice(0, 2).toUpperCase()}</span>
-                  )}
-                </Link>
+                <IncludedGearThumb
+                  key={`${pkg.id}-${thumb.handle}`}
+                  item={thumb}
+                  thumbClassName="cm-kit-card-includes-thumb no-underline hover:no-underline"
+                  href={thumb.href}
+                  stopLinkPropagation
+                />
               ))}
             </div>
           ) : null}
