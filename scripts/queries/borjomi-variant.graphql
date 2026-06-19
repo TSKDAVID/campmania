@@ -1,0 +1,6 @@
+query BorjomiVariant {
+  product(id: "gid://shopify/Product/10513638261028") {
+    id handle title
+    variants(first: 1) { nodes { id price } }
+  }
+}

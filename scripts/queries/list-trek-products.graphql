@@ -1,0 +1,20 @@
+query TrekProducts {
+  products(first: 20, query: "tag:trek-") {
+    nodes {
+      id
+      handle
+      title
+      tags
+      includedCollection: metafield(namespace: "custom", key: "included_collection") {
+        value
+        reference {
+          ... on Collection {
+            id
+            handle
+            title
+          }
+        }
+      }
+    }
+  }
+}

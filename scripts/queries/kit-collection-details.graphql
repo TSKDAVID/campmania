@@ -1,0 +1,23 @@
+query KitCollectionDetails {
+  birtvisi: collection(id: "gid://shopify/Collection/655392768292") {
+    id handle title
+    products(first: 10) { nodes { id handle title } }
+    resourcePublicationsV2(first: 10) {
+      nodes { publication { id name } isPublished }
+    }
+  }
+  tobavarchkhili: collection(id: "gid://shopify/Collection/655392801060") {
+    id handle title
+    products(first: 10) { nodes { id handle title } }
+    resourcePublicationsV2(first: 10) {
+      nodes { publication { id name } isPublished }
+    }
+  }
+  borjomi: collection(id: "gid://shopify/Collection/655429009700") {
+    id handle title
+    products(first: 10) { nodes { id handle title } }
+    resourcePublicationsV2(first: 10) {
+      nodes { publication { id name } isPublished }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+query PackageProductDetails {
+  birtvisi: productByHandle(handle: "birtvisi-package") {
+    id handle title descriptionHtml status
+    tags
+    productType
+    vendor
+    priceRangeV2 { minVariantPrice { amount currencyCode } }
+    variants(first: 1) { nodes { id price } }
+  }
+}

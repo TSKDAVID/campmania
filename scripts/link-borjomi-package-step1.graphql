@@ -1,0 +1,21 @@
+mutation LinkBorjomiPackage {
+  borjomiPackage: productCreate(
+    product: {
+      title: "Borjomi Package"
+      handle: "borjomi-package"
+      productType: "hiking package"
+      vendor: "CampMania"
+      status: ACTIVE
+      tags: ["trek-borjomi", "duration-2-day", "difficulty-moderate"]
+    }
+  ) {
+    product {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

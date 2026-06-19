@@ -1,0 +1,3 @@
+{
+  "query": "query { birtvisi: collection(handle: \"birtvisi-package-includes\") { handle products(first: 5) { nodes { handle title } } } trailPackages: collection(handle: \"trail-packages\") { products(first: 2) { nodes { handle includedCollection: metafield(namespace: \"custom\", key: \"included_collection\") { reference { ... on Collection { handle products(first: 5) { nodes { handle title } } } } } includedItems: metafield(namespace: \"custom\", key: \"included_items\") { value } } } } }"
+}

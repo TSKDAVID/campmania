@@ -1,0 +1,11 @@
+query SearchPackages {
+  borjomiProducts: products(first: 10, query: "title:borjomi") {
+    nodes { id handle title tags }
+  }
+  kazbegiProducts: products(first: 10, query: "title:kazbegi") {
+    nodes { id handle title tags }
+  }
+  borjomiHandle: products(first: 5, query: "handle:borjomi") {
+    nodes { id handle title }
+  }
+}

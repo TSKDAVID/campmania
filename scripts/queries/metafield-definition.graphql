@@ -1,0 +1,14 @@
+query MetafieldDefinition {
+  metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "custom", key: "included_collection") {
+    nodes {
+      id
+      name
+      key
+      namespace
+      type { name }
+      access {
+        storefront
+      }
+    }
+  }
+}

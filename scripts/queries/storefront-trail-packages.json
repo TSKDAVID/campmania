@@ -1,0 +1,3 @@
+{
+  "query": "query { trailPackages: collection(handle: \"trail-packages\") { handle products(first: 5) { nodes { handle title } } } individualGear: collection(handle: \"individual-gear\") { handle products(first: 3) { nodes { handle } } } }"
+}

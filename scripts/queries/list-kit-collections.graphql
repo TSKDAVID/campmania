@@ -1,0 +1,12 @@
+query ListKitCollections {
+  collections(first: 50, query: "kit contents") {
+    nodes {
+      id
+      handle
+      title
+      productsCount {
+        count
+      }
+    }
+  }
+}

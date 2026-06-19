@@ -19,9 +19,9 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {
   COLLECTION_PRODUCTS_QUERY,
   mapCatalogNodeToGearBuilderProduct,
-  packageIncludesCollectionHandle,
   resolveIncludedKitNodes,
   resolvePackagePricingFromCatalog,
+  type CatalogProductNode,
 } from '~/lib/trailrent/shopify-catalog';
 import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
 import type {PackageDuration} from '~/lib/trailrent/gear-builder';
@@ -154,38 +154,12 @@ async function resolvePackagePricingForProduct(
 
 async function resolveIncludedItemTitles(
   storefront: Route.LoaderArgs['context']['storefront'],
-  product: {
-    includedItems?: {value: string; type: string} | null;
-    includedCollection?: {
-      reference?: {
-        products?: {nodes?: Array<{title: string}> | null} | null;
-      } | null;
-    } | null;
-    tags?: string[];
-  },
+  product: CatalogProductNode & {tags?: string[]},
   handle: string,
 ): Promise<string[]> {
-  const fromCollection =
-    product.includedCollection?.reference?.products?.nodes ?? [];
-  if (fromCollection.length > 0) {
-    return fromCollection.map((node) => node.title);
-  }
-
-  const isPackage =
-    (product.tags ?? []).some((tag: string) => tag.startsWith('trek-'));
-  if (isPackage) {
-    const conventionHandle = packageIncludesCollectionHandle(handle);
-    const {collection} = await storefront
-      .query(COLLECTION_PRODUCTS_QUERY, {
-        variables: {handle: conventionHandle, first: 25},
-        ...liveStorefrontCache(storefront),
-      })
-      .catch(() => ({collection: null}));
-
-    const nodes = collection?.products?.nodes ?? [];
-    if (nodes.length > 0) {
-      return nodes.map((node: {title: string}) => node.title);
-    }
+  const kitNodes = await resolveIncludedKitNodes(storefront, product, handle);
+  if (kitNodes.length > 0) {
+    return kitNodes.map((node) => node.title);
   }
 
   return parseIncludedItems(product.includedItems);
@@ -637,6 +611,7 @@ const PRODUCT_FRAGMENT = `#graphql
       type
     }
     includedCollection: metafield(namespace: "custom", key: "included_collection") {
+      value
       reference {
         ... on Collection {
           handle

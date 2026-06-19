@@ -1,0 +1,3 @@
+{
+  "query": "query { trailPackages: collection(handle: \"trail-packages\") { products(first: 5) { nodes { handle includedCollection: metafield(namespace: \"custom\", key: \"included_collection\") { reference { ... on Collection { handle products(first: 5) { nodes { handle title } } } } } } } } } borjomiKit: collection(handle: \"ბორჯომის-ეროვნული-პარკის-კომპლექტი\") { handle products(first: 5) { nodes { handle title } } } }"
+}

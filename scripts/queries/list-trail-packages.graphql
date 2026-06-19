@@ -1,0 +1,28 @@
+query ListTrailPackages {
+  collectionByHandle(handle: "trail-packages") {
+    id
+    title
+    products(first: 25) {
+      nodes {
+        id
+        handle
+        title
+        tags
+        includedCollection: metafield(namespace: "custom", key: "included_collection") {
+          value
+          type
+          reference {
+            ... on Collection {
+              id
+              handle
+              title
+            }
+          }
+        }
+        includedItems: metafield(namespace: "custom", key: "included_items") {
+          value
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+query AllProducts {
+  products(first: 50, query: "tag:trek- OR product_type:package") {
+    nodes {
+      id handle title tags
+      collections(first: 5) { nodes { handle title } }
+      includedCollection: metafield(namespace: "custom", key: "included_collection") {
+        reference { ... on Collection { handle title } }
+      }
+    }
+  }
+}

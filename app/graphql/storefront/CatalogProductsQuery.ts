@@ -205,6 +205,7 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
       value
     }
     includedCollection: metafield(namespace: "custom", key: "included_collection") {
+      value
       reference {
         ... on Collection {
           handle

@@ -79,16 +79,18 @@ function PackageCard({
     return pkg.includedProductHandles ?? [];
   }, [pkg.includedCollectionProducts, pkg.includedProductHandles]);
 
+  const hasKitProducts = (pkg.includedCollectionProducts?.length ?? 0) > 0;
+
   const composition = useMemo(
     () =>
       resolvePackageComposition({
         trek: pkg.trek,
         duration: selectedDuration,
         baseProductHandles,
-        fallbackItemLabels: pkg.items,
+        fallbackItemLabels: hasKitProducts ? [] : pkg.items,
         gearCatalog,
       }),
-    [pkg, selectedDuration, baseProductHandles, gearCatalog],
+    [pkg, selectedDuration, baseProductHandles, gearCatalog, hasKitProducts],
   );
 
   const selectedDays = packageDurationDays(selectedDuration);

@@ -1,0 +1,15 @@
+query TrailPackagesPublication {
+  collectionByHandle(handle: "trail-packages") {
+    id handle title
+    productsCount { count }
+    resourcePublicationsV2(first: 10) {
+      nodes { publication { id name } isPublished }
+    }
+  }
+  individualGear: collectionByHandle(handle: "individual-gear") {
+    id handle
+    resourcePublicationsV2(first: 10) {
+      nodes { publication { id name } isPublished }
+    }
+  }
+}

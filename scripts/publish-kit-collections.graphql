@@ -9,9 +9,6 @@ mutation PublishKitCollections {
         handle
       }
     }
-    shop {
-      id
-    }
     userErrors {
       field
       message
@@ -28,8 +25,21 @@ mutation PublishKitCollections {
         handle
       }
     }
-    shop {
-      id
+    userErrors {
+      field
+      message
+    }
+  }
+
+  borjomi: publishablePublish(
+    id: "gid://shopify/Collection/655429009700"
+    input: [{publicationId: "gid://shopify/Publication/313167315236"}]
+  ) {
+    publishable {
+      ... on Collection {
+        id
+        handle
+      }
     }
     userErrors {
       field

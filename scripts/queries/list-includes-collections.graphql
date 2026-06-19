@@ -1,0 +1,18 @@
+query ListIncludesCollections {
+  birtvisi: collection(handle: "birtvisi-package-includes") {
+    id handle title
+    products(first: 10) { nodes { handle title } }
+  }
+  tobavarchkhili: collection(handle: "tobavarchkhili-includes") {
+    id handle title
+    products(first: 10) { nodes { handle title } }
+  }
+  borjomi: collection(handle: "borjomi-package-includes") {
+    id handle title
+    products(first: 10) { nodes { handle title } }
+  }
+  kazbegi: collection(handle: "kazbegi-package-includes") {
+    id handle title
+    products(first: 10) { nodes { handle title } }
+  }
+}

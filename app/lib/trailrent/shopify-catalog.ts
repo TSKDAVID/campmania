@@ -39,7 +39,7 @@ export function packageIncludesCollectionHandle(packageHandle: string): string {
   return `${packageHandle}-includes`;
 }
 
-type CatalogProductNode = {
+export type CatalogProductNode = {
   id: string;
   handle: string;
   title: string;
@@ -86,6 +86,7 @@ type CatalogProductNode = {
   gearDurationFit?: {value: string} | null;
   gearThumbnailPriority?: {value: string} | null;
   includedCollection?: {
+    value?: string;
     reference?: {
       handle?: string;
       products?: {
@@ -204,13 +205,59 @@ async function loadKitCollectionProducts(
   storefront: Storefront,
   handle: string,
 ): Promise<GearBuilderProduct[]> {
-  const {collection} = await storefront.query(COLLECTION_PRODUCTS_QUERY, {
-    variables: {handle, first: 50},
-    ...liveStorefrontCache(storefront),
-  });
+  if (!handle.trim()) return [];
+
+  const {collection} = await storefront
+    .query(COLLECTION_PRODUCTS_QUERY, {
+      variables: {handle, first: 50},
+      ...liveStorefrontCache(storefront),
+    })
+    .catch(() => ({collection: null}));
 
   const nodes = (collection?.products?.nodes ?? []) as CatalogProductNode[];
   return nodes.map((node) => mapGearBuilderProduct(node));
+}
+
+function hasIncludedCollectionMetafield(product: CatalogProductNode): boolean {
+  return Boolean(
+    product.includedCollection?.value?.trim() ||
+      product.includedCollection?.reference?.handle,
+  );
+}
+
+/** Metafield-linked kit collection is source of truth; convention handle is last resort. */
+export async function resolvePackageKitProducts(
+  storefront: Storefront,
+  product: CatalogProductNode,
+): Promise<{handle?: string; products: GearBuilderProduct[]}> {
+  const embedded = extractIncludedCollectionProducts(product);
+  if (embedded.products.length > 0) {
+    return embedded;
+  }
+
+  const metafieldHandle = product.includedCollection?.reference?.handle?.trim();
+  if (metafieldHandle) {
+    const fromMetafield = await loadKitCollectionProducts(
+      storefront,
+      metafieldHandle,
+    );
+    if (fromMetafield.length > 0) {
+      return {handle: metafieldHandle, products: fromMetafield};
+    }
+  }
+
+  if (!hasIncludedCollectionMetafield(product)) {
+    const conventionHandle = packageIncludesCollectionHandle(product.handle);
+    const fromConvention = await loadKitCollectionProducts(
+      storefront,
+      conventionHandle,
+    );
+    if (fromConvention.length > 0) {
+      return {handle: conventionHandle, products: fromConvention};
+    }
+  }
+
+  return {handle: metafieldHandle, products: []};
 }
 
 export function mapCatalogNodeToGearBuilderProduct(
@@ -335,36 +382,45 @@ export function resolvePackagePricingFromCatalog(
 
 export async function resolveIncludedKitNodes(
   storefront: Storefront,
-  product: {
-    tags?: string[];
-    includedCollection?: {
-      reference?: {
-        products?: {nodes?: CatalogProductNode[] | null} | null;
-      } | null;
-    } | null;
-  },
-  handle: string,
+  product: CatalogProductNode & {tags?: string[]},
+  _handle: string,
 ): Promise<CatalogProductNode[]> {
   const isPackage = (product.tags ?? []).some((tag: string) =>
     tag.startsWith('trek-'),
   );
   if (!isPackage) return [];
 
-  let nodes = (product.includedCollection?.reference?.products?.nodes ??
+  const embedded = (product.includedCollection?.reference?.products?.nodes ??
     []) as CatalogProductNode[];
-  if (!nodes.length) {
-    const conventionHandle = packageIncludesCollectionHandle(handle);
+  if (embedded.length > 0) return embedded;
+
+  const metafieldHandle = product.includedCollection?.reference?.handle?.trim();
+  if (metafieldHandle) {
     const {collection} = await storefront
       .query(COLLECTION_PRODUCTS_QUERY, {
-        variables: {handle: conventionHandle, first: 25},
+        variables: {handle: metafieldHandle, first: 50},
         ...liveStorefrontCache(storefront),
       })
       .catch(() => ({collection: null}));
 
-    nodes = (collection?.products?.nodes ?? []) as CatalogProductNode[];
+    const fromMetafield = (collection?.products?.nodes ??
+      []) as CatalogProductNode[];
+    if (fromMetafield.length > 0) return fromMetafield;
   }
 
-  return nodes;
+  if (!hasIncludedCollectionMetafield(product)) {
+    const conventionHandle = packageIncludesCollectionHandle(product.handle);
+    const {collection} = await storefront
+      .query(COLLECTION_PRODUCTS_QUERY, {
+        variables: {handle: conventionHandle, first: 50},
+        ...liveStorefrontCache(storefront),
+      })
+      .catch(() => ({collection: null}));
+
+    return (collection?.products?.nodes ?? []) as CatalogProductNode[];
+  }
+
+  return [];
 }
 
 function mapPackageProduct(
@@ -514,19 +570,13 @@ export async function loadShopifyPackages(
 
   return Promise.all(
     nodes.map(async (product) => {
-      const kitHandle =
-        product.includedCollection?.reference?.handle ??
-        packageIncludesCollectionHandle(product.handle);
-      const includedCollectionProducts = await loadKitCollectionProducts(
-        storefront,
-        kitHandle,
-      );
+      const kit = await resolvePackageKitProducts(storefront, product);
 
       return mapPackageProduct(
         product,
         locale,
-        includedCollectionProducts,
-        kitHandle,
+        kit.products,
+        kit.handle,
       );
     }),
   );
