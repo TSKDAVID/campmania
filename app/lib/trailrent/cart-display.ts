@@ -68,14 +68,11 @@ export function isBundleCartLine(line: CartLine): boolean {
 
 export function resolveCartLineDisplayPrice(line: CartLine): number {
   const attrs = getLineAttributeMap(line);
-  const mode = getLineFulfillmentMode(line);
 
-  if (mode === 'rent') {
-    const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
-    const days = getCartLineRentalDays(line) ?? 0;
-    if (quotedDaily > 0 && days > 0) {
-      return quotedDaily * days;
-    }
+  const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
+  const days = getCartLineRentalDays(line) ?? 0;
+  if (quotedDaily > 0 && days > 0) {
+    return quotedDaily * days;
   }
 
   const totalFromCost = moneyAmount(line.cost?.totalAmount);
@@ -103,10 +100,8 @@ export function resolveCartLineDisplayPrice(line: CartLine): number {
 
 export function resolveCartLineUnitPrice(line: CartLine): number {
   const attrs = getLineAttributeMap(line);
-  if (getLineFulfillmentMode(line) === 'rent') {
-    const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
-    if (quotedDaily > 0) return quotedDaily;
-  }
+  const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
+  if (quotedDaily > 0) return quotedDaily;
 
   const perQty = moneyAmount(line.cost?.amountPerQuantity);
   if (perQty > 0) return perQty;
@@ -123,7 +118,6 @@ export function resolveCartLineUnitPrice(line: CartLine): number {
 
 export function resolveCartLineCompareAtDaily(line: CartLine): number | undefined {
   const attrs = getLineAttributeMap(line);
-  if (getLineFulfillmentMode(line) !== 'rent') return undefined;
 
   const compare = Number(attrs.quoted_compare_at_daily ?? 0);
   const daily = Number(attrs.quoted_daily_rate ?? 0);
