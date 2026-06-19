@@ -9,7 +9,6 @@ import {
   HomeHowItWorksCompact,
   HomePerksStrip,
   HomeQuickNav,
-  HomeSearchBar,
   HomeShopTiles,
 } from '~/components/trailrent/HomeCommerce';
 import {HomePromoCarousel} from '~/components/trailrent/HomePromoCarousel';
@@ -49,9 +48,6 @@ export default function Homepage() {
               {(slides) => <HomePromoCarousel slides={slides} />}
             </Await>
           </Suspense>
-          <div className="cm-home-hero-search">
-            <HomeSearchBar variant="overlay" />
-          </div>
         </div>
         <div className="cm-home-width cm-home-top-bar">
           <HomeQuickNav />
