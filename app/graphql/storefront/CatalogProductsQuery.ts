@@ -209,6 +209,10 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
       reference {
         ... on Collection {
           handle
+          image {
+            url
+            altText
+          }
           products(first: 25) {
             nodes {
               ...InclusionProduct
@@ -232,6 +236,10 @@ export const COLLECTION_PRODUCTS_QUERY = `#graphql
       id
       title
       handle
+      image {
+        url
+        altText
+      }
       products(first: $first) {
         nodes {
           ...CatalogProduct

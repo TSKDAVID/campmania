@@ -100,7 +100,7 @@ export function buildTrekFilterOptionsFromPackages(
 export const DURATION_FILTERS = [
   {value: '1-day', labelKa: '1 დღე', labelEn: '1 day'},
   {value: '2-day', labelKa: '2 დღე', labelEn: '2 days'},
-  {value: 'weekend', labelKa: 'Weekend', labelEn: 'Weekend'},
+  {value: 'weekend', labelKa: '7 დღე', labelEn: '7 days'},
 ] as const;
 
 export const DIFFICULTY_FILTERS = [
@@ -202,7 +202,7 @@ export const TRAIL_PACKAGES: PackageItem[] = [
     trek: 'kazbegi',
     trekLabel: 'კაზბეგი',
     duration: 'weekend',
-    durationLabel: 'Weekend',
+    durationLabel: '7 days',
     difficulty: 'hard',
     difficultyLabel: 'რთული',
     productHandle: 'kazbegi-alpine-kit',

@@ -89,6 +89,10 @@ export type CatalogProductNode = {
     value?: string;
     reference?: {
       handle?: string;
+      image?: {
+        url: string;
+        altText?: string | null;
+      } | null;
       products?: {
         nodes: CatalogProductNode[];
       };
@@ -204,8 +208,8 @@ function inferGearCategory(product: CatalogProductNode): string {
 async function loadKitCollectionProducts(
   storefront: Storefront,
   handle: string,
-): Promise<GearBuilderProduct[]> {
-  if (!handle.trim()) return [];
+): Promise<{products: GearBuilderProduct[]; collectionImageUrl?: string}> {
+  if (!handle.trim()) return {products: []};
 
   const {collection} = await storefront
     .query(COLLECTION_PRODUCTS_QUERY, {
@@ -215,7 +219,16 @@ async function loadKitCollectionProducts(
     .catch(() => ({collection: null}));
 
   const nodes = (collection?.products?.nodes ?? []) as CatalogProductNode[];
-  return nodes.map((node) => mapGearBuilderProduct(node));
+  return {
+    products: nodes.map((node) => mapGearBuilderProduct(node)),
+    collectionImageUrl: collection?.image?.url,
+  };
+}
+
+function includedCollectionImageUrl(
+  product: CatalogProductNode,
+): string | undefined {
+  return product.includedCollection?.reference?.image?.url ?? undefined;
 }
 
 function hasIncludedCollectionMetafield(product: CatalogProductNode): boolean {
@@ -229,10 +242,17 @@ function hasIncludedCollectionMetafield(product: CatalogProductNode): boolean {
 export async function resolvePackageKitProducts(
   storefront: Storefront,
   product: CatalogProductNode,
-): Promise<{handle?: string; products: GearBuilderProduct[]}> {
+): Promise<{
+  handle?: string;
+  products: GearBuilderProduct[];
+  collectionImageUrl?: string;
+}> {
   const embedded = extractIncludedCollectionProducts(product);
   if (embedded.products.length > 0) {
-    return embedded;
+    return {
+      ...embedded,
+      collectionImageUrl: includedCollectionImageUrl(product),
+    };
   }
 
   const metafieldHandle = product.includedCollection?.reference?.handle?.trim();
@@ -241,8 +261,12 @@ export async function resolvePackageKitProducts(
       storefront,
       metafieldHandle,
     );
-    if (fromMetafield.length > 0) {
-      return {handle: metafieldHandle, products: fromMetafield};
+    if (fromMetafield.products.length > 0) {
+      return {
+        handle: metafieldHandle,
+        products: fromMetafield.products,
+        collectionImageUrl: fromMetafield.collectionImageUrl,
+      };
     }
   }
 
@@ -252,8 +276,12 @@ export async function resolvePackageKitProducts(
       storefront,
       conventionHandle,
     );
-    if (fromConvention.length > 0) {
-      return {handle: conventionHandle, products: fromConvention};
+    if (fromConvention.products.length > 0) {
+      return {
+        handle: conventionHandle,
+        products: fromConvention.products,
+        collectionImageUrl: fromConvention.collectionImageUrl,
+      };
     }
   }
 
@@ -269,6 +297,7 @@ export function mapCatalogNodeToGearBuilderProduct(
 function collectPackageCardImages(
   product: CatalogProductNode,
   kitProducts: GearBuilderProduct[],
+  collectionImageUrl?: string,
 ): string[] {
   const seen = new Set<string>();
   const urls: string[] = [];
@@ -282,6 +311,7 @@ function collectPackageCardImages(
   for (const node of product.media?.nodes ?? []) {
     add(node.image?.url);
   }
+  add(collectionImageUrl ?? includedCollectionImageUrl(product));
   for (const kit of kitProducts) {
     add(kit.imageUrl);
   }
@@ -428,6 +458,7 @@ function mapPackageProduct(
   locale: 'ka' | 'en',
   includedFromCollection?: GearBuilderProduct[],
   includedCollectionHandle?: string,
+  kitCollectionImageUrl?: string,
 ): ShopifyPackageItem {
   const trek = tagValue(product.tags, 'trek') ?? 'tobavarchkhili';
   const duration = (tagValue(product.tags, 'duration') ?? '2-day') as PackageDuration;
@@ -481,6 +512,9 @@ function mapPackageProduct(
       ? Math.round(((compareAt - dailyRate) / compareAt) * 100)
       : undefined;
 
+  const collectionImageUrl =
+    kitCollectionImageUrl ?? includedCollectionImageUrl(product);
+
   return {
     id: product.id,
     title: product.title,
@@ -498,9 +532,16 @@ function mapPackageProduct(
     items: items.length ? items : [summary],
     productId: product.id,
     variantId: variant?.id,
-    imageUrl: product.featuredImage?.url,
-    imageAlt: product.featuredImage?.altText ?? product.title,
-    imageUrls: collectPackageCardImages(product, includedCollectionProducts),
+    imageUrl: product.featuredImage?.url ?? collectionImageUrl,
+    imageAlt:
+      product.featuredImage?.altText ??
+      product.includedCollection?.reference?.image?.altText ??
+      product.title,
+    imageUrls: collectPackageCardImages(
+      product,
+      includedCollectionProducts,
+      collectionImageUrl,
+    ),
     compareAtPrice: compareAt,
     savingsPercent,
     includedProductHandles,
@@ -577,6 +618,7 @@ export async function loadShopifyPackages(
         locale,
         kit.products,
         kit.handle,
+        kit.collectionImageUrl,
       );
     }),
   );
