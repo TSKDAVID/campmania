@@ -514,13 +514,7 @@
   @media (min-width: 1024px) {
     .cm-catalog-grid--packages {
       gap: 1rem;
-      grid-template-columns: repeat(2, minmax(18rem, 1fr));
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .cm-catalog-grid--packages {
-      grid-template-columns: repeat(2, minmax(22rem, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -616,17 +610,16 @@
 
   @media (min-width: 640px) {
     .cm-kit-card--package {
-      grid-template-columns: minmax(8rem, 42%) minmax(0, 1fr);
-      grid-template-rows: minmax(9.5rem, auto) auto;
-      min-height: 11.5rem;
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+      grid-template-rows: auto auto;
     }
 
     .cm-kit-card--package .cm-kit-card-media {
       grid-column: 1;
       grid-row: 1;
-      aspect-ratio: auto;
-      align-self: stretch;
-      min-height: 9.5rem;
+      aspect-ratio: 5 / 4;
+      align-self: start;
+      min-height: 0;
     }
 
     .cm-kit-card--package .cm-kit-card-includes-strip {
@@ -644,20 +637,22 @@
 
   @media (min-width: 1024px) {
     .cm-kit-card--package {
-      min-height: 12.5rem;
-    }
-
-    .cm-kit-card--package .cm-kit-card-media {
-      min-height: 10.5rem;
+      grid-template-columns: 10.5rem minmax(0, 1fr);
     }
   }
 
   .cm-kit-card-includes-strip {
-    @apply -mt-2 flex min-h-0 flex-wrap gap-1 px-3 pb-0.5 sm:gap-1.5 sm:px-2.5 sm:pb-1.5;
+    @apply flex min-h-0 gap-1 px-3 pb-0.5 sm:gap-1.5 sm:px-2.5 sm:pb-1.5;
   }
 
   .cm-kit-card--package .cm-kit-card-includes-strip {
-    @apply -mt-1.5 sm:gap-2;
+    @apply flex-nowrap gap-1.5 overflow-x-auto sm:gap-2;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .cm-kit-card--package .cm-kit-card-includes-strip::-webkit-scrollbar {
+    display: none;
   }
 
   .cm-kit-card-includes-thumb {
@@ -687,22 +682,27 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       grid-template-rows: auto auto 1fr auto;
+      grid-template-areas:
+        'meta meta'
+        'title title'
+        '. .'
+        'duration pricing';
       align-content: space-between;
-      gap: 0.375rem 1rem;
-    }
-
-    .cm-kit-card--package .cm-kit-card-meta,
-    .cm-kit-card--package .cm-kit-card-title,
-    .cm-kit-card--package .cm-kit-card-reveal {
-      grid-column: 1 / -1;
+      gap: 0.375rem 0.75rem;
     }
 
     .cm-kit-card--package .cm-kit-card-meta {
-      grid-row: 1;
+      grid-area: meta;
+      align-self: start;
     }
 
     .cm-kit-card--package .cm-kit-card-title {
-      grid-row: 2;
+      grid-area: title;
+      align-self: start;
+    }
+
+    .cm-kit-card--package .cm-kit-card-reveal {
+      display: none;
     }
 
     .cm-kit-card--package .cm-kit-card-meta span[aria-hidden] {
@@ -710,19 +710,17 @@
     }
 
     .cm-kit-card--package .cm-kit-card-duration-row {
-      grid-column: 1;
-      grid-row: 4;
+      grid-area: duration;
       align-self: end;
       justify-self: start;
-      width: 100%;
-      max-width: 100%;
+      min-width: 0;
     }
 
     .cm-kit-card--package .cm-kit-card-footer {
-      grid-column: 2;
-      grid-row: 4;
+      grid-area: pricing;
       align-self: end;
       justify-self: end;
+      flex-shrink: 0;
     }
   }
 
@@ -741,6 +739,7 @@
   .cm-kit-card--package .cm-kit-card-includes-thumb {
     position: relative;
     z-index: 2;
+    flex-shrink: 0;
   }
 
   .cm-kit-card-meta {
@@ -766,7 +765,7 @@
   }
 
   .cm-kit-card--package .cm-kit-card-duration-row {
-    @apply mt-1.5 gap-1.5 sm:mt-0;
+    @apply mt-1.5 flex flex-wrap gap-1.5 sm:mt-0;
   }
 
   .cm-kit-card--package .cm-kit-card-duration-btn {
