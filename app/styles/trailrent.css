@@ -507,25 +507,14 @@
   }
 
   .cm-catalog-grid--packages {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.625rem;
   }
 
   @media (min-width: 640px) {
     .cm-catalog-grid--packages {
-      gap: 0.875rem;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .cm-catalog-layout .cm-catalog-grid--packages {
+      gap: 0.75rem;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 1440px) {
-    .cm-catalog-layout .cm-catalog-grid--packages {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
@@ -609,12 +598,47 @@
     @apply aspect-[4/5] bg-white sm:aspect-[3/4];
   }
 
+  .cm-kit-card--package {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+  }
+
   .cm-kit-card--package .cm-kit-card-media {
-    @apply aspect-[3/4] bg-white;
+    @apply aspect-[16/10] bg-white sm:aspect-[4/3];
+  }
+
+  @media (min-width: 640px) {
+    .cm-kit-card--package {
+      grid-template-columns: minmax(6.5rem, 34%) minmax(0, 1fr);
+      grid-template-rows: auto 1fr;
+    }
+
+    .cm-kit-card--package .cm-kit-card-media {
+      grid-column: 1;
+      grid-row: 1;
+      aspect-ratio: 1 / 1;
+    }
+
+    .cm-kit-card--package .cm-kit-card-includes-strip {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+
+    .cm-kit-card--package .cm-kit-card-body {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      align-self: stretch;
+    }
   }
 
   .cm-kit-card-includes-strip {
-    @apply -mt-2 flex min-h-0 flex-wrap gap-1.5 px-3 pb-1 sm:px-3.5;
+    @apply -mt-2 flex min-h-0 flex-wrap gap-1 px-3 pb-0.5 sm:gap-1.5 sm:px-2 sm:pb-1;
+  }
+
+  .cm-kit-card--package .cm-kit-card-includes-strip {
+    @apply -mt-1.5;
   }
 
   .cm-kit-card-includes-thumb {
@@ -634,7 +658,7 @@
   }
 
   .cm-kit-card--package .cm-kit-card-body {
-    @apply flex min-w-0 flex-col gap-1 px-3 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5;
+    @apply flex min-w-0 flex-col gap-0.5 px-3 pb-2.5 pt-2 sm:gap-1 sm:px-3 sm:pb-2.5 sm:pt-2.5;
     position: relative;
   }
 
@@ -664,6 +688,10 @@
     @apply mt-2 flex items-center justify-between gap-2 border-t border-stone/60 pt-2;
   }
 
+  .cm-kit-card--package .cm-kit-card-footer {
+    @apply mt-auto gap-1.5 pt-1.5 sm:mt-1.5 sm:pt-1.5;
+  }
+
   .cm-kit-card-title {
     @apply line-clamp-2 text-sm font-bold leading-snug text-pine sm:text-base;
     font-family: var(--font-display);
@@ -671,6 +699,22 @@
 
   .cm-kit-card-duration-row {
     @apply mt-2 flex flex-wrap gap-1.5;
+  }
+
+  .cm-kit-card--package .cm-kit-card-duration-row {
+    @apply mt-1 gap-1;
+  }
+
+  .cm-kit-card--package .cm-kit-card-duration-btn {
+    @apply px-2 py-0.5 text-[10px] sm:text-[11px];
+  }
+
+  .cm-kit-card--package .cm-kit-card-includes-thumb {
+    @apply h-7 w-7 sm:h-8 sm:w-8;
+  }
+
+  .cm-kit-card--package .cm-kit-card-title {
+    @apply line-clamp-1 text-sm leading-tight sm:text-[0.9375rem];
   }
 
   .cm-kit-card-duration-btn {

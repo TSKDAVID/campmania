@@ -142,6 +142,12 @@ export function resolveCartDisplaySubtotal(lines: CartLine[]): number {
     .reduce((sum, line) => sum + resolveCartLineDisplayPrice(line), 0);
 }
 
+export function countVisibleCartLines(
+  lines: CartLine[] | undefined | null,
+): number {
+  return (lines ?? []).filter(shouldShowCartLine).length;
+}
+
 export function shouldShowCartLine(line: CartLine): boolean {
   if ('parentRelationship' in line && line.parentRelationship?.parent) {
     return false;

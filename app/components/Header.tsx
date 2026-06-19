@@ -10,6 +10,7 @@ import {useAside} from '~/components/Aside';
 import {LanguageSwitcher} from '~/components/trailrent/HomeSections';
 import {IconBag, IconMenu, IconSearch} from '~/components/trailrent/Icons';
 import {useLocale} from '~/providers/LocaleProvider';
+import {countVisibleCartLines} from '~/lib/trailrent/cart-display';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -258,5 +259,7 @@ function CartToggle({cart}: Pick<HeaderProps, 'cart'>) {
 function CartBanner() {
   const originalCart = useAsyncValue() as CartApiQueryFragment | null;
   const cart = useOptimisticCart(originalCart);
-  return <CartBadge count={cart?.totalQuantity ?? 0} />;
+  return (
+    <CartBadge count={countVisibleCartLines(cart?.lines?.nodes)} />
+  );
 }
