@@ -2946,3 +2946,43 @@
     @apply rounded-lg border border-stone/80 bg-white px-3 py-2 text-sm font-medium text-charcoal transition hover:bg-mist/60;
   }
 }
+
+/*
+ * Unlayered contrast guards — reset.css `a:where(:not([class]))` should not
+ * affect classed controls, but explicit colors here win over inheritance on
+ * links and buttons with dark fills.
+ */
+:is(a, button).tr-btn-primary,
+.tr-btn-primary:is(a, button) {
+  color: var(--color-mist);
+}
+
+:is(a, button).tr-btn-primary:hover,
+.tr-btn-primary:is(a, button):hover {
+  color: var(--color-mist);
+}
+
+:is(a, button).tr-btn-secondary {
+  color: var(--color-forest);
+}
+
+:is(a, button).tr-btn-secondary:hover {
+  color: var(--color-mist);
+}
+
+:is(a, button).tr-btn-ghost,
+:is(a, button).tr-btn-ghost:hover {
+  color: var(--color-mist);
+}
+
+:is(a, button).cm-rental-mode-btn--active,
+:is(a, button).cm-kit-card-duration-btn--active,
+:is(a, button).cm-filter-pill-active,
+:is(a, button).cm-date-range-preset--active,
+:is(a, button).tr-pill-active {
+  color: var(--color-mist);
+}
+
+:is(a, button).cm-rental-mode-btn--buy {
+  color: var(--color-pine);
+}
