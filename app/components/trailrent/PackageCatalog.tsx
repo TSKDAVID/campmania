@@ -10,6 +10,7 @@ import type {
   ShopifyGearItem,
   ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
+import {resolvePackageItemUrl} from '~/lib/trailrent/shopify-catalog';
 import {
   normalizePackageDuration,
   packageDurationDays,
@@ -55,9 +56,7 @@ function PackageCard({
   includedLabel: string;
 }) {
   const diffStyle = DIFFICULTY_STYLES[pkg.difficulty] ?? 'bg-stone text-muted';
-  const productUrl =
-    pkg.catalogUrl ??
-    (pkg.productHandle ? `/products/${pkg.productHandle}` : null);
+  const productUrl = resolvePackageItemUrl(pkg);
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration>(
     normalizePackageDuration(
       pkg.defaultDuration ?? (pkg.duration as PackageDuration),

@@ -12,6 +12,7 @@ import {
   type GearItem,
   type PackageItem,
 } from '~/lib/trailrent/catalog';
+import {collectProductMediaImageUrls} from '~/lib/trailrent/catalog-image';
 import {formatGel} from '~/lib/trailrent/pricing';
 import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
 import {
@@ -66,6 +67,7 @@ export type HomepageFeaturedItem = {
   title: string;
   imageUrl?: string;
   imageAlt?: string;
+  imageUrls?: string[];
   dailyRate: number;
   compareAt?: number;
   url: string;
@@ -74,6 +76,40 @@ export type HomepageFeaturedItem = {
 /** Handle for the Shopify collection that lists this package's included gear. */
 export function packageIncludesCollectionHandle(packageHandle: string): string {
   return `${packageHandle}-includes`;
+}
+
+/** Reverse of packageIncludesCollectionHandle — kit collection → package product PDP. */
+export function packageProductHandleFromKitCollection(
+  kitCollectionHandle: string,
+): string | null {
+  const suffix = '-includes';
+  if (kitCollectionHandle.endsWith(suffix)) {
+    return kitCollectionHandle.slice(0, -suffix.length);
+  }
+  return null;
+}
+
+export function resolvePackageItemUrl(
+  pkg: Pick<
+    ShopifyPackageItem,
+    'productHandle' | 'catalogUrl' | 'includedCollectionHandle'
+  >,
+): string | null {
+  const fromConvention = pkg.includedCollectionHandle
+    ? packageProductHandleFromKitCollection(pkg.includedCollectionHandle)
+    : null;
+  const productHandle =
+    pkg.productHandle && !pkg.productHandle.endsWith('-includes')
+      ? pkg.productHandle
+      : fromConvention;
+
+  if (productHandle) return `/products/${productHandle}`;
+
+  if (pkg.catalogUrl && !pkg.catalogUrl.startsWith('/collections/')) {
+    return pkg.catalogUrl;
+  }
+
+  return null;
 }
 
 export type CatalogProductNode = {
@@ -159,6 +195,7 @@ export type ShopifyGearItem = GearItem & {
   variantId?: string;
   imageUrl?: string;
   imageAlt?: string;
+  imageUrls: string[];
   compareAtPrice?: number;
   savingsPercent?: number;
   builderProduct: GearBuilderProduct;
@@ -626,6 +663,7 @@ function mapGearProduct(
     variantId: variant?.id,
     imageUrl: product.featuredImage?.url,
     imageAlt: product.featuredImage?.altText ?? product.title,
+    imageUrls: collectProductMediaImageUrls(product),
     compareAtPrice: compareAt,
     savingsPercent,
     builderProduct,
@@ -733,6 +771,9 @@ function mapPackageCollection(
     DURATION_DAYS[duration],
   );
 
+  const productHandle =
+    packageProductHandleFromKitCollection(collection.handle) ?? collection.handle;
+
   return {
     id: collection.id,
     title,
@@ -746,11 +787,10 @@ function mapPackageCollection(
     durationLabel: labelFromFilter(duration, DURATION_FILTERS, locale),
     difficulty,
     difficultyLabel: labelFromFilter(difficulty, DIFFICULTY_FILTERS, locale),
-    productHandle: collection.handle,
+    productHandle,
     items: kitProducts.map((entry) => entry.title),
     productId: collection.id,
     variantId: undefined,
-    catalogUrl: `/collections/${collection.handle}`,
     imageUrl: collection.image?.url,
     imageAlt: collection.image?.altText ?? title,
     imageUrls: collectPackageCollectionCardImages(collection, kitProducts),
@@ -777,44 +817,42 @@ export async function loadPackageCollections(
   return nodes.filter(isPackageKitCollection);
 }
 
-export async function loadHomepageFeaturedItems(
+export async function loadHomepageFeaturedSections(
   storefront: Storefront,
   locale: 'ka' | 'en',
-  options?: {limit?: number},
-): Promise<HomepageFeaturedItem[]> {
-  const limit = options?.limit ?? 8;
+  options?: {packageLimit?: number; gearLimit?: number},
+): Promise<{packages: HomepageFeaturedItem[]; gear: HomepageFeaturedItem[]}> {
+  const packageLimit = options?.packageLimit ?? 4;
+  const gearLimit = options?.gearLimit ?? 4;
   const [packages, gear] = await Promise.all([
     loadShopifyPackages(storefront, locale).catch(() => [] as ShopifyPackageItem[]),
     loadShopifyGear(storefront, locale).catch(() => [] as ShopifyGearItem[]),
   ]);
 
-  const items: HomepageFeaturedItem[] = [];
-
-  for (const pkg of packages) {
-    items.push({
+  return {
+    packages: packages.slice(0, packageLimit).map((pkg) => ({
       id: pkg.id,
       title: pkg.title,
       imageUrl: pkg.imageUrl,
       imageAlt: pkg.imageAlt,
+      imageUrls: pkg.imageUrls,
       dailyRate: pkg.dailyRate,
       compareAt: pkg.compareAtPrice,
-      url: pkg.catalogUrl ?? `/collections/${pkg.productHandle}`,
-    });
-  }
-
-  for (const item of gear) {
-    items.push({
+      url: resolvePackageItemUrl(pkg) ?? '/packages',
+    })),
+    gear: gear.slice(0, gearLimit).map((item) => ({
       id: item.id,
       title: item.title,
       imageUrl: item.imageUrl,
       imageAlt: item.imageAlt,
+      imageUrls: item.imageUrls,
       dailyRate: item.dailyRate,
       compareAt: item.compareAtPrice,
-      url: item.productHandle ? `/products/${item.productHandle}` : '/individual-gear',
-    });
-  }
-
-  return items.slice(0, limit);
+      url: item.productHandle
+        ? `/products/${item.productHandle}`
+        : '/individual-gear',
+    })),
+  };
 }
 
 export async function loadShopifyPackages(

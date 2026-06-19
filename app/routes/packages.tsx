@@ -35,6 +35,7 @@ function mapDemoGearItem(item: (typeof INDIVIDUAL_GEAR)[number]): ShopifyGearIte
   return {
     ...item,
     productId: item.id,
+    imageUrls: item.image ? [item.image] : [],
     builderProduct,
   };
 }

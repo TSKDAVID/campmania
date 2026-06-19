@@ -53,6 +53,7 @@ export function GearCatalogGrid({
               }
               title={item.title}
               imageUrl={item.imageUrl}
+              imageUrls={item.imageUrls}
               imageAlt={item.imageAlt}
               price={
                 <PriceWithCompare

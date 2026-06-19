@@ -129,6 +129,19 @@ const SEARCH_PRODUCT_FRAGMENT = `#graphql
     title
     trackingParameters
     vendor
+    featuredImage {
+      url
+      altText
+    }
+    media(first: 5) {
+      nodes {
+        id
+        image {
+          url
+          altText
+        }
+      }
+    }
     selectedOrFirstAvailableVariant(
       selectedOptions: []
       ignoreUnknownOptions: true

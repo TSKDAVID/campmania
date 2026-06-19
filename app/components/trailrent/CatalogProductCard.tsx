@@ -1,31 +1,51 @@
 import type {ReactNode} from 'react';
 import {Link} from 'react-router';
 import {CatalogCardImage} from '~/components/trailrent/CatalogCardImage';
+import {ProductCardImageScrubber} from '~/components/trailrent/ProductCardImageScrubber';
 import {IconArrowRight} from '~/components/trailrent/Icons';
 
 export function CatalogProductCard({
   title,
   to,
   imageUrl,
+  imageUrls,
   imageAlt,
   price,
   loading = 'lazy',
+  variant = 'product',
+  imageFit,
 }: {
   title: string;
   to?: string | null;
   imageUrl?: string | null;
+  imageUrls?: string[];
   imageAlt?: string;
   price: ReactNode;
   loading?: 'eager' | 'lazy';
+  variant?: 'product' | 'package';
+  imageFit?: 'cover' | 'contain';
 }) {
+  const fit =
+    imageFit ?? (variant === 'package' ? 'cover' : 'contain');
+  const images =
+    imageUrls?.length ? imageUrls : imageUrl ? [imageUrl] : [];
+  const cardClass =
+    variant === 'package' ? 'cm-kit-card--package' : 'cm-kit-card--product';
+
   const inner = (
     <>
       <div className="cm-kit-card-media relative overflow-hidden">
-        {imageUrl ? (
-          <CatalogCardImage
-            src={imageUrl}
+        {images.length > 1 ? (
+          <ProductCardImageScrubber
+            images={images}
             alt={imageAlt ?? title}
-            fit="contain"
+            fit={fit}
+          />
+        ) : images.length === 1 ? (
+          <CatalogCardImage
+            src={images[0]}
+            alt={imageAlt ?? title}
+            fit={fit}
             loading={loading}
           />
         ) : (
@@ -46,11 +66,11 @@ export function CatalogProductCard({
   );
 
   if (!to) {
-    return <article className="cm-kit-card cm-kit-card--product">{inner}</article>;
+    return <article className={`cm-kit-card ${cardClass}`}>{inner}</article>;
   }
 
   return (
-    <article className="cm-kit-card cm-kit-card--product group">
+    <article className={`cm-kit-card ${cardClass} group`}>
       <Link
         to={to}
         className="cm-kit-card-link no-underline hover:no-underline"

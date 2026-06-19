@@ -38,3 +38,25 @@ export function catalogCardImageSrcSet(
 /** Sizes for 2-col mobile → 3-col tablet → 4-col desktop product grids. */
 export const CATALOG_CARD_IMAGE_SIZES =
   '(min-width: 1024px) 22vw, (min-width: 768px) 30vw, (min-width: 640px) 44vw, 48vw';
+
+export function collectProductMediaImageUrls(input: {
+  featuredImage?: {url?: string | null} | null;
+  media?: {
+    nodes?: Array<{image?: {url?: string | null} | null}> | null;
+  } | null;
+}): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  const add = (url?: string | null) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    urls.push(url);
+  };
+
+  add(input.featuredImage?.url);
+  for (const node of input.media?.nodes ?? []) {
+    add(node.image?.url);
+  }
+
+  return urls;
+}

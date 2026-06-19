@@ -42,9 +42,9 @@ export default function Collection() {
   return (
     <div>
       <PageBanner
-        eyebrow={tr.featured.eyebrow}
-        title={tr.featured.title}
-        subtitle={tr.featured.subtitle}
+        eyebrow={tr.featured.gear.eyebrow}
+        title={tr.featured.gear.title}
+        subtitle={tr.featured.gear.subtitle}
       />
       <section className="tr-section bg-mist">
         <div className="tr-page-width">
@@ -62,7 +62,7 @@ export default function Collection() {
           </PaginatedResourceSection>
           {!products.nodes.length ? (
             <p className="py-12 text-center text-charcoal/70">
-              {tr.featured.empty}
+              {tr.featured.gear.empty}
             </p>
           ) : null}
         </div>
@@ -86,6 +86,15 @@ const COLLECTION_ITEM_FRAGMENT = `#graphql
       url
       width
       height
+    }
+    media(first: 5) {
+      nodes {
+        id
+        image {
+          url
+          altText
+        }
+      }
     }
     priceRange {
       minVariantPrice {

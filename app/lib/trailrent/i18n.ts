@@ -78,11 +78,20 @@ const translations = {
       button: 'კომპლექტების ნახვა',
     },
     featured: {
-      eyebrow: 'გირჩევთ',
-      title: 'პოპულარული ქირა',
-      subtitle: 'აირჩიეთ და დაჯავშნეთ პირდაპირ — მეტროში მიღება.',
-      viewAll: 'ყველა პროდუქტი',
-      empty: 'პროდუქტები მალე გამოჩნდება — დაამატეთ ნივთები Shopify Admin-ში.',
+      packages: {
+        eyebrow: 'ბილიკის კომპლექტები',
+        title: 'პოპულარული კომპლექტები',
+        subtitle: 'აირჩიეთ ბილიკი — ყველაფერი ერთ პაკეტში, მეტროში მიღება.',
+        viewAll: 'ყველა კომპლექტი',
+        empty: 'კომპლექტები მალე გამოჩნდება — დაამატეთ Shopify Admin-ში.',
+      },
+      gear: {
+        eyebrow: 'ინდივიდუალური',
+        title: 'პოპულარული აღჭურვილობა',
+        subtitle: 'კარავი, რუქსაკი, საძილებელი — აირჩიეთ რაც გჭირდებათ.',
+        viewAll: 'ყველა ნივთი',
+        empty: 'ნივთები მალე გამოჩნდება — დაამატეთ Shopify Admin-ში.',
+      },
     },
     home: {
       searchPlaceholder: 'რას ეძებთ? კარავი, რუქსაკი, კომპლექტი…',
@@ -412,11 +421,20 @@ const translations = {
       button: 'Browse packages',
     },
     featured: {
-      eyebrow: 'Popular',
-      title: 'Rent now',
-      subtitle: 'Pick your dates and book — metro pickup in Tbilisi.',
-      viewAll: 'View all products',
-      empty: 'Products coming soon — add items in Shopify Admin.',
+      packages: {
+        eyebrow: 'Trail packages',
+        title: 'Popular packages',
+        subtitle: 'Pick a trek — everything in one kit, metro pickup in Tbilisi.',
+        viewAll: 'View all packages',
+        empty: 'Packages coming soon — add kits in Shopify Admin.',
+      },
+      gear: {
+        eyebrow: 'Individual gear',
+        title: 'Popular gear',
+        subtitle: 'Tent, backpack, sleeping bag — rent only what you need.',
+        viewAll: 'View all gear',
+        empty: 'Gear coming soon — add items in Shopify Admin.',
+      },
     },
     home: {
       searchPlaceholder: 'Search tents, backpacks, kits…',

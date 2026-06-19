@@ -4,6 +4,7 @@ import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {IconArrowRight, IconSearch} from '~/components/trailrent/Icons';
 import {useLocale} from '~/providers/LocaleProvider';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
+import {collectProductMediaImageUrls} from '~/lib/trailrent/catalog-image';
 import {urlWithTrackingParams, type RegularSearchReturn} from '~/lib/search';
 
 type SearchItems = RegularSearchReturn['result']['items'];
@@ -134,20 +135,38 @@ function SearchResultsProducts({
           <>
             <div className="cm-catalog-grid cm-catalog-grid--gear cm-search-product-grid">
               {nodes.map((product, index) => {
+                const productWithMedia = product as typeof product & {
+                  featuredImage?: {
+                    url?: string | null;
+                    altText?: string | null;
+                  } | null;
+                  media?: {
+                    nodes?: Array<{
+                      image?: {url?: string | null; altText?: string | null} | null;
+                    }> | null;
+                  } | null;
+                };
+
                 const productUrl = urlWithTrackingParams({
-                  baseUrl: `/products/${product.handle}`,
-                  trackingParams: product.trackingParameters,
+                  baseUrl: `/products/${productWithMedia.handle}`,
+                  trackingParams: productWithMedia.trackingParameters,
                   term,
                 });
 
-                const price = product.selectedOrFirstAvailableVariant?.price;
+                const price =
+                  productWithMedia.selectedOrFirstAvailableVariant?.price;
                 const compareAtPrice =
-                  product.selectedOrFirstAvailableVariant?.compareAtPrice;
-                const image = product.selectedOrFirstAvailableVariant?.image;
+                  productWithMedia.selectedOrFirstAvailableVariant?.compareAtPrice;
+                const image =
+                  productWithMedia.selectedOrFirstAvailableVariant?.image;
                 const amount = price ? Number(price.amount) : 0;
                 const compareAt = compareAtPrice
                   ? Number(compareAtPrice.amount)
                   : undefined;
+                const imageUrls = collectProductMediaImageUrls({
+                  featuredImage: productWithMedia.featuredImage ?? image,
+                  media: productWithMedia.media,
+                });
                 const priceLabel =
                   amount > 0 ? (
                     <PriceWithCompare
@@ -166,11 +185,16 @@ function SearchResultsProducts({
 
                 return (
                   <CatalogProductCard
-                    key={product.id}
+                    key={productWithMedia.id}
                     to={productUrl}
-                    title={product.title}
-                    imageUrl={image?.url}
-                    imageAlt={image?.altText ?? product.title}
+                    title={productWithMedia.title}
+                    imageUrl={image?.url ?? productWithMedia.featuredImage?.url}
+                    imageUrls={imageUrls}
+                    imageAlt={
+                      image?.altText ??
+                      productWithMedia.featuredImage?.altText ??
+                      productWithMedia.title
+                    }
                     price={priceLabel}
                     loading={index < 4 ? 'eager' : 'lazy'}
                   />
