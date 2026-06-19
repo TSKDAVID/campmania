@@ -821,7 +821,11 @@ export async function loadHomepageFeaturedSections(
   storefront: Storefront,
   locale: 'ka' | 'en',
   options?: {packageLimit?: number; gearLimit?: number},
-): Promise<{packages: HomepageFeaturedItem[]; gear: HomepageFeaturedItem[]}> {
+): Promise<{
+  packages: ShopifyPackageItem[];
+  gear: HomepageFeaturedItem[];
+  gearCatalog: ShopifyGearItem[];
+}> {
   const packageLimit = options?.packageLimit ?? 4;
   const gearLimit = options?.gearLimit ?? 4;
   const [packages, gear] = await Promise.all([
@@ -830,16 +834,8 @@ export async function loadHomepageFeaturedSections(
   ]);
 
   return {
-    packages: packages.slice(0, packageLimit).map((pkg) => ({
-      id: pkg.id,
-      title: pkg.title,
-      imageUrl: pkg.imageUrl,
-      imageAlt: pkg.imageAlt,
-      imageUrls: pkg.imageUrls,
-      dailyRate: pkg.dailyRate,
-      compareAt: pkg.compareAtPrice,
-      url: resolvePackageItemUrl(pkg) ?? '/packages',
-    })),
+    packages: packages.slice(0, packageLimit),
+    gearCatalog: gear,
     gear: gear.slice(0, gearLimit).map((item) => ({
       id: item.id,
       title: item.title,
