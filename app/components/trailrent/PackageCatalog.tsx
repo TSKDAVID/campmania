@@ -92,6 +92,9 @@ function PackageCard({
 
   const selectedDays = packageDurationDays(selectedDuration);
   const perDayWord = locale === 'ka' ? 'დღე' : selectedDays === 1 ? 'day' : 'days';
+  const selectedDurationLabel =
+    durationOptions.find((option) => option.value === selectedDuration)?.label ??
+    `${selectedDays} ${perDayWord}`;
 
   const cardImages = useMemo(() => {
     if (pkg.imageUrls?.length) return pkg.imageUrls;
@@ -172,9 +175,7 @@ function PackageCard({
           <div className="cm-kit-card-meta">
             <span>{pkg.trekLabel}</span>
             <span aria-hidden>·</span>
-            <span>
-              {selectedDays} {perDayWord}
-            </span>
+            <span>{selectedDurationLabel}</span>
           </div>
           <h3 className="cm-kit-card-title">{pkg.title}</h3>
         </header>
