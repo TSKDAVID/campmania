@@ -54,9 +54,16 @@ function fieldImage(fields: MetaobjectField[], key: string) {
   return field?.reference?.image ?? null;
 }
 
+function parseActiveBoolean(value?: string | null): boolean {
+  if (value == null) return false;
+  const normalized = value.trim().toLowerCase();
+  return normalized === 'true' || normalized === '1' || normalized === 'yes';
+}
+
 function isActive(fields: MetaobjectField[]): boolean {
-  const value = fieldValue(fields, 'active').toLowerCase();
-  return value !== 'false' && value !== '0';
+  const field = fields.find((entry) => entry?.key === 'active');
+  if (!field) return true;
+  return parseActiveBoolean(field.value);
 }
 
 function localizedField(
