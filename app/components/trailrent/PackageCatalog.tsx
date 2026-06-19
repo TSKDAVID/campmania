@@ -129,13 +129,13 @@ function PackageCard({
     : pkg.savingsPercent;
 
   const inner = (
-    <>
-      <div className="cm-kit-card-media relative overflow-hidden">
+    <div className="cm-pkg-card__layout">
+      <div className="cm-kit-card-media cm-pkg-card__media">
         {pkg.imageUrl ? (
           <CatalogCardImage
             src={pkg.imageUrl}
             alt={pkg.imageAlt ?? pkg.title}
-            fit="contain"
+            fit="cover"
           />
         ) : (
           <>
@@ -158,99 +158,106 @@ function PackageCard({
         ) : null}
       </div>
 
-      <div className="cm-kit-card-includes-strip">
-        {includedThumbs.map((thumb) => (
-          <Link
-            key={`${pkg.id}-${thumb.label}`}
-            to={thumb.href}
-            className="cm-kit-card-includes-thumb no-underline hover:no-underline"
-            title={thumb.label}
-            aria-label={thumb.label}
-            prefetch="intent"
-          >
-            {thumb.imageUrl ? (
-              <img src={thumb.imageUrl} alt={thumb.label} loading="lazy" />
-            ) : (
-              <span>{thumb.label.slice(0, 2).toUpperCase()}</span>
-            )}
-          </Link>
-        ))}
-      </div>
+      <div className="cm-pkg-card__body">
+        <header className="cm-pkg-card__header">
+          <div className="cm-kit-card-meta">
+            <span>{pkg.trekLabel}</span>
+            <span aria-hidden>·</span>
+            <span>
+              {selectedDays} {perDayWord}
+            </span>
+          </div>
+          <h3 className="cm-kit-card-title">{pkg.title}</h3>
+        </header>
 
-      <div className="cm-kit-card-body">
-        <div className="cm-kit-card-meta">
-          <span>{pkg.trekLabel}</span>
-          <span aria-hidden>·</span>
-          <span>{selectedDays} {perDayWord}</span>
-        </div>
+        <div className="cm-pkg-card__middle">
+          {includedThumbs.length > 0 ? (
+            <div className="cm-pkg-card__thumbs">
+              {includedThumbs.map((thumb) => (
+                <Link
+                  key={`${pkg.id}-${thumb.label}`}
+                  to={thumb.href}
+                  className="cm-kit-card-includes-thumb no-underline hover:no-underline"
+                  title={thumb.label}
+                  aria-label={thumb.label}
+                  prefetch="intent"
+                >
+                  {thumb.imageUrl ? (
+                    <img src={thumb.imageUrl} alt={thumb.label} loading="lazy" />
+                  ) : (
+                    <span>{thumb.label.slice(0, 2).toUpperCase()}</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          ) : null}
 
-        <h3 className="cm-kit-card-title">{pkg.title}</h3>
+          {displayedItems.length > 0 ? (
+            <p className="cm-pkg-card__included">
+              <span className="sr-only">{includedLabel}: </span>
+              {displayedItems.slice(0, 4).join(' · ')}
+              {displayedItems.length > 4
+                ? ` +${displayedItems.length - 4}`
+                : null}
+            </p>
+          ) : null}
 
-        <div className="cm-kit-card-duration-row" role="group" aria-label="Package duration">
-          {durationOptions.map((option) => (
-            <button
-              key={`${pkg.id}-${option.value}`}
-              type="button"
-              className={`cm-kit-card-duration-btn ${
-                selectedDuration === option.value ? 'cm-kit-card-duration-btn--active' : ''
-              }`}
-              onClick={() => setSelectedDuration(option.value as PackageDuration)}
+          <div className="cm-pkg-card__actions">
+            <div
+              className="cm-kit-card-duration-row"
+              role="group"
+              aria-label="Package duration"
             >
-              {option.label}
-            </button>
-          ))}
-        </div>
+              {durationOptions.map((option) => (
+                <button
+                  key={`${pkg.id}-${option.value}`}
+                  type="button"
+                  className={`cm-kit-card-duration-btn ${
+                    selectedDuration === option.value
+                      ? 'cm-kit-card-duration-btn--active'
+                      : ''
+                  }`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setSelectedDuration(option.value as PackageDuration);
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
 
-        <div className="cm-kit-card-reveal" aria-hidden>
-          <div className="cm-kit-card-reveal-inner">
-            {pkg.description ? (
-              <p className="cm-kit-card-desc">{pkg.description}</p>
-            ) : null}
-            {displayedItems.length > 0 ? (
-              <div>
-                <p className="cm-kit-card-included-label">{includedLabel}</p>
-                <ul className="cm-kit-card-included-list">
-                  {displayedItems.slice(0, 6).map((item) => (
-                    <li key={item} className="cm-kit-card-included-item">
-                      {item}
-                    </li>
-                  ))}
-                  {displayedItems.length > 6 ? (
-                    <li className="cm-kit-card-included-more text-xs text-muted">
-                      +{displayedItems.length - 6}
-                    </li>
-                  ) : null}
-                </ul>
-              </div>
-            ) : null}
+            <div className="cm-pkg-card__daily-price">
+              <PriceWithCompare
+                amount={bundleDaily}
+                compareAtAmount={showCompare ? subtotalDaily : undefined}
+                suffix={` / ${perDayWord}`}
+                compareLabel={savingsLabel}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="cm-kit-card-footer">
-          <div className="cm-kit-card-pricing min-w-0">
-            <PriceWithCompare
-              amount={bundleDaily}
-              compareAtAmount={showCompare ? subtotalDaily : undefined}
-              suffix={` / ${perDayWord}`}
-              compareLabel={savingsLabel}
-            />
-            <TotalWithCompare
-              label={totalLabel}
-              amount={bundleTotal}
-              compareAtAmount={showCompare ? subtotalTotal ?? undefined : undefined}
-              meta={
-                displayedItems.length > 0
-                  ? ` · ${displayedItems.length} ${itemsCountLabel}`
-                  : undefined
-              }
-            />
-          </div>
+        <footer className="cm-kit-card-footer cm-pkg-card__footer">
+          <TotalWithCompare
+            label={totalLabel}
+            amount={bundleTotal}
+            compareAtAmount={
+              showCompare ? subtotalTotal ?? undefined : undefined
+            }
+            meta={
+              displayedItems.length > 0
+                ? ` · ${displayedItems.length} ${itemsCountLabel}`
+                : undefined
+            }
+          />
           <span className="cm-kit-card-arrow" aria-hidden>
             <IconArrowRight size={18} />
           </span>
-        </div>
+        </footer>
       </div>
-    </>
+    </div>
   );
 
   return (

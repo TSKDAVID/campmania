@@ -598,61 +598,138 @@
     @apply aspect-[4/5] bg-white sm:aspect-[3/4];
   }
 
+  /* ── Package catalog cards (horizontal layout) ───────────────────────── */
   .cm-kit-card--package {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr;
+    @apply flex h-full flex-col;
   }
 
-  .cm-kit-card--package .cm-kit-card-media {
-    @apply aspect-[16/10] bg-white sm:aspect-[5/4];
+  .cm-pkg-card__layout {
+    @apply flex min-h-0 flex-1 flex-col;
   }
 
   @media (min-width: 640px) {
-    .cm-kit-card--package {
-      grid-template-columns: 9.5rem minmax(0, 1fr);
-      grid-template-rows: auto auto;
+    .cm-pkg-card__layout {
+      flex-direction: row;
+      min-height: 10.5rem;
     }
+  }
 
-    .cm-kit-card--package .cm-kit-card-media {
-      grid-column: 1;
-      grid-row: 1;
-      aspect-ratio: 5 / 4;
-      align-self: start;
-      min-height: 0;
-    }
+  .cm-pkg-card__media {
+    @apply relative shrink-0 overflow-hidden bg-stone/30;
+    aspect-ratio: 16 / 10;
+  }
 
-    .cm-kit-card--package .cm-kit-card-includes-strip {
-      grid-column: 1;
-      grid-row: 2;
-      align-self: start;
-    }
-
-    .cm-kit-card--package .cm-kit-card-body {
-      grid-column: 2;
-      grid-row: 1 / 3;
+  @media (min-width: 640px) {
+    .cm-pkg-card__media {
+      width: 38%;
+      aspect-ratio: auto;
       align-self: stretch;
+      min-height: 10.5rem;
+    }
+
+    .cm-pkg-card__media .cm-kit-card-image {
+      @apply absolute inset-0 h-full w-full object-cover object-center;
+      max-height: none;
+      padding: 0;
     }
   }
 
-  @media (min-width: 1024px) {
-    .cm-kit-card--package {
-      grid-template-columns: 10.5rem minmax(0, 1fr);
-    }
+  .cm-pkg-card__body {
+    @apply flex min-w-0 flex-1 flex-col gap-2 px-3 py-3 sm:gap-2.5 sm:px-4 sm:py-3.5;
   }
 
-  .cm-kit-card-includes-strip {
-    @apply flex min-h-0 gap-1 px-3 pb-0.5 sm:gap-1.5 sm:px-2.5 sm:pb-1.5;
+  .cm-pkg-card__header {
+    @apply flex min-w-0 flex-col gap-1;
   }
 
-  .cm-kit-card--package .cm-kit-card-includes-strip {
-    @apply flex-nowrap gap-1.5 overflow-x-auto sm:gap-2;
+  .cm-pkg-card__middle {
+    @apply flex min-w-0 flex-1 flex-col gap-2;
+  }
+
+  .cm-pkg-card__thumbs {
+    @apply flex min-w-0 flex-nowrap gap-1.5 overflow-x-auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
 
-  .cm-kit-card--package .cm-kit-card-includes-strip::-webkit-scrollbar {
+  .cm-pkg-card__thumbs::-webkit-scrollbar {
     display: none;
+  }
+
+  .cm-pkg-card__included {
+    @apply m-0 line-clamp-2 text-[11px] leading-snug text-muted;
+    font-family: var(--font-body);
+  }
+
+  .cm-pkg-card__actions {
+    @apply mt-auto flex items-end justify-between gap-3;
+  }
+
+  .cm-pkg-card__actions .cm-kit-card-duration-row {
+    @apply m-0 min-w-0 flex-1 flex-wrap gap-1.5;
+  }
+
+  .cm-pkg-card__daily-price {
+    @apply shrink-0 text-right;
+  }
+
+  .cm-pkg-card__daily-price .cm-kit-card-price-row {
+    @apply justify-end;
+  }
+
+  .cm-pkg-card__footer {
+    @apply mt-0 flex items-center justify-end gap-2 border-t border-stone/60 pt-2;
+  }
+
+  .cm-pkg-card__footer .cm-kit-card-total-line {
+    @apply text-right;
+  }
+
+  .cm-kit-card--package .cm-kit-card-meta {
+    @apply gap-1.5 text-[11px];
+  }
+
+  .cm-kit-card--package .cm-kit-card-title {
+    @apply line-clamp-2 text-sm leading-snug sm:text-base;
+  }
+
+  .cm-kit-card--package .cm-kit-card-duration-btn,
+  .cm-kit-card--package .cm-kit-card-includes-thumb {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+
+  .cm-kit-card--package .cm-kit-card-duration-btn {
+    @apply px-2.5 py-1 text-[11px] sm:text-xs;
+  }
+
+  .cm-kit-card--package .cm-kit-card-includes-thumb {
+    @apply h-8 w-8 sm:h-9 sm:w-9;
+  }
+
+  .cm-kit-card--package .cm-kit-card-price {
+    @apply text-base sm:text-lg;
+  }
+
+  .cm-kit-card--package .cm-kit-card-compare {
+    @apply text-sm sm:text-base;
+  }
+
+  .cm-kit-card--package .cm-kit-card-total-line {
+    @apply text-xs;
+  }
+
+  .cm-kit-card--package .cm-kit-card-arrow {
+    @apply h-9 w-9;
+  }
+
+  .cm-kit-card--package:hover .cm-kit-card-arrow {
+    @apply bg-pine text-mist;
+  }
+
+  .cm-kit-card-includes-strip {
+    @apply flex min-h-0 gap-1 px-3 pb-0.5 sm:gap-1.5 sm:px-2.5 sm:pb-1.5;
   }
 
   .cm-kit-card-includes-thumb {
@@ -671,59 +748,6 @@
     @apply max-h-full w-full object-contain object-center px-1.5 py-2 sm:px-2.5 sm:py-3;
   }
 
-  .cm-kit-card--package .cm-kit-card-body {
-    @apply flex min-w-0 flex-col justify-between gap-1 px-3.5 pb-3 pt-2.5 sm:gap-1.5 sm:px-4 sm:pb-3.5 sm:pt-3;
-    position: relative;
-    width: 100%;
-  }
-
-  @media (min-width: 640px) {
-    .cm-kit-card--package .cm-kit-card-body {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-rows: auto auto 1fr auto;
-      grid-template-areas:
-        'meta meta'
-        'title title'
-        '. .'
-        'duration pricing';
-      align-content: space-between;
-      gap: 0.375rem 0.75rem;
-    }
-
-    .cm-kit-card--package .cm-kit-card-meta {
-      grid-area: meta;
-      align-self: start;
-    }
-
-    .cm-kit-card--package .cm-kit-card-title {
-      grid-area: title;
-      align-self: start;
-    }
-
-    .cm-kit-card--package .cm-kit-card-reveal {
-      display: none;
-    }
-
-    .cm-kit-card--package .cm-kit-card-meta span[aria-hidden] {
-      display: none;
-    }
-
-    .cm-kit-card--package .cm-kit-card-duration-row {
-      grid-area: duration;
-      align-self: end;
-      justify-self: start;
-      min-width: 0;
-    }
-
-    .cm-kit-card--package .cm-kit-card-footer {
-      grid-area: pricing;
-      align-self: end;
-      justify-self: end;
-      flex-shrink: 0;
-    }
-  }
-
   .cm-kit-card-link {
     @apply flex h-full flex-col text-charcoal;
     color: inherit;
@@ -735,13 +759,6 @@
     z-index: 1;
   }
 
-  .cm-kit-card--package .cm-kit-card-duration-btn,
-  .cm-kit-card--package .cm-kit-card-includes-thumb {
-    position: relative;
-    z-index: 2;
-    flex-shrink: 0;
-  }
-
   .cm-kit-card-meta {
     @apply flex flex-wrap items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted;
     font-family: var(--font-label);
@@ -751,10 +768,6 @@
     @apply mt-2 flex items-center justify-between gap-2 border-t border-stone/60 pt-2;
   }
 
-  .cm-kit-card--package .cm-kit-card-footer {
-    @apply mt-auto gap-2 pt-2 sm:mt-0 sm:border-t-0 sm:pt-0;
-  }
-
   .cm-kit-card-title {
     @apply line-clamp-2 text-sm font-bold leading-snug text-pine sm:text-base;
     font-family: var(--font-display);
@@ -762,42 +775,6 @@
 
   .cm-kit-card-duration-row {
     @apply mt-2 flex flex-wrap gap-1.5;
-  }
-
-  .cm-kit-card--package .cm-kit-card-duration-row {
-    @apply mt-1.5 flex flex-wrap gap-1.5 sm:mt-0;
-  }
-
-  .cm-kit-card--package .cm-kit-card-duration-btn {
-    @apply px-2.5 py-1 text-[11px] sm:text-xs;
-  }
-
-  .cm-kit-card--package .cm-kit-card-includes-thumb {
-    @apply h-8 w-8 sm:h-9 sm:w-9;
-  }
-
-  .cm-kit-card--package .cm-kit-card-title {
-    @apply line-clamp-2 w-full text-sm leading-snug sm:text-base;
-  }
-
-  .cm-kit-card--package .cm-kit-card-meta {
-    @apply w-full gap-1.5 text-[11px] sm:justify-between;
-  }
-
-  .cm-kit-card--package .cm-kit-card-price {
-    @apply text-base sm:text-lg;
-  }
-
-  .cm-kit-card--package .cm-kit-card-compare {
-    @apply text-sm sm:text-base;
-  }
-
-  .cm-kit-card--package .cm-kit-card-total-line {
-    @apply text-xs;
-  }
-
-  .cm-kit-card--package .cm-kit-card-arrow {
-    @apply h-9 w-9;
   }
 
   .cm-kit-card-duration-btn {
@@ -859,52 +836,9 @@
   }
 
   @media (hover: hover) and (min-width: 1024px) {
-    .cm-kit-card--package {
-      overflow: visible;
-    }
-
-    .cm-kit-card--package:hover {
-      @apply z-10 border-moss/40 shadow-lg;
-    }
-
-    /* Reveal panel floats to the right side from top edge */
-    .cm-kit-card--package .cm-kit-card-reveal {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: calc(100% + 0.6rem);
-      width: 220px;
-      z-index: 12;
-      opacity: 0;
-      /* Start slightly to the right, then slide into place on hover */
-      transform: translateX(0.5rem);
-      pointer-events: none;
-      transition: opacity 0.22s ease, transform 0.22s ease;
-    }
-
-    .cm-kit-card--package .cm-kit-card-reveal-inner {
-      @apply rounded-xl border border-stone/70 bg-white p-3.5 shadow-xl;
-      box-shadow: 0 8px 30px -4px rgb(30 50 30 / 0.15);
-    }
-
-    .cm-kit-card--package:hover .cm-kit-card-reveal {
-      opacity: 1;
-      transform: translateX(0);
-      pointer-events: auto;
-    }
-
     .cm-kit-card--product:hover {
       @apply -translate-y-0.5 shadow-md;
     }
-  }
-
-  .cm-kit-card--package .cm-kit-card-reveal .cm-kit-card-included-list {
-    gap: 0.125rem;
-    grid-template-columns: 1fr;
-  }
-
-  .cm-kit-card--package .cm-kit-card-reveal .cm-kit-card-included-item {
-    @apply text-[11px] leading-snug;
   }
 
   .cm-kit-card-pricing {
@@ -960,12 +894,6 @@
     display: grid;
     gap: 0.25rem 0.5rem;
     grid-template-columns: 1fr;
-  }
-
-  @media (min-width: 540px) {
-    .cm-kit-card--package .cm-kit-card-included-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   .cm-kit-card-included-item {
