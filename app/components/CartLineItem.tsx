@@ -12,11 +12,12 @@ import {
   getVisibleSelectedOptions,
   hasLineComponents,
   isBundleCartLine,
+  resolveCartLineCompareAtDaily,
+  resolveCartLineCompareAtTotal,
   resolveCartLineDisplayPrice,
   resolveCartLineUnitPrice,
 } from '~/lib/trailrent/cart-display';
-import {formatGel} from '~/lib/trailrent/pricing';
-
+import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 export type CartLine = OptimisticCartLine<CartApiQueryFragment>;
 
 export function CartLineItem({
@@ -43,6 +44,8 @@ export function CartLineItem({
     modeBuy: tr.cart.modeBuy,
   });
   const displayTotal = resolveCartLineDisplayPrice(line);
+  const compareAtTotal = resolveCartLineCompareAtTotal(line);
+  const compareAtDaily = resolveCartLineCompareAtDaily(line);
   const unitPrice = resolveCartLineUnitPrice(line);
   const bundleComponents = hasLineComponents(line)
     ? (line.lineComponents ?? [])
@@ -144,13 +147,20 @@ export function CartLineItem({
             <div className="cm-cart-line-price" aria-label="Price">
               {displayTotal > 0 ? (
                 <>
-                  <span className="cm-cart-line-price-total">
-                    {formatGel(displayTotal)}
-                  </span>
+                  <PriceWithCompare
+                    amount={displayTotal}
+                    compareAtAmount={compareAtTotal}
+                    size="compact"
+                    className="cm-cart-line-price-total"
+                  />
                   {meta.rentalDays && unitPrice > 0 ? (
                     <span className="cm-cart-line-price-detail">
-                      {formatGel(unitPrice)} {tr.cart.perDay} · {meta.rentalDays}{' '}
-                      {tr.cart.days}
+                      <PriceWithCompare
+                        amount={unitPrice}
+                        compareAtAmount={compareAtDaily}
+                        size="compact"
+                      />{' '}
+                      {tr.cart.perDay} · {meta.rentalDays} {tr.cart.days}
                     </span>
                   ) : null}
                 </>

@@ -67,6 +67,17 @@ export function isBundleCartLine(line: CartLine): boolean {
 }
 
 export function resolveCartLineDisplayPrice(line: CartLine): number {
+  const attrs = getLineAttributeMap(line);
+  const mode = getLineFulfillmentMode(line);
+
+  if (mode === 'rent') {
+    const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
+    const days = getCartLineRentalDays(line) ?? 0;
+    if (quotedDaily > 0 && days > 0) {
+      return quotedDaily * days;
+    }
+  }
+
   const totalFromCost = moneyAmount(line.cost?.totalAmount);
   if (totalFromCost > 0) return totalFromCost;
 
@@ -77,7 +88,6 @@ export function resolveCartLineDisplayPrice(line: CartLine): number {
 
   if (unitPrice > 0 && qty > 0) return unitPrice * qty;
 
-  const attrs = getLineAttributeMap(line);
   const quoted = Number(attrs.quoted_purchase_price ?? 0);
   if (quoted > 0) return quoted;
 
@@ -92,6 +102,12 @@ export function resolveCartLineDisplayPrice(line: CartLine): number {
 }
 
 export function resolveCartLineUnitPrice(line: CartLine): number {
+  const attrs = getLineAttributeMap(line);
+  if (getLineFulfillmentMode(line) === 'rent') {
+    const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
+    if (quotedDaily > 0) return quotedDaily;
+  }
+
   const perQty = moneyAmount(line.cost?.amountPerQuantity);
   if (perQty > 0) return perQty;
 
@@ -103,6 +119,33 @@ export function resolveCartLineUnitPrice(line: CartLine): number {
   if (total > 0 && qty > 0) return total / qty;
 
   return 0;
+}
+
+export function resolveCartLineCompareAtDaily(line: CartLine): number | undefined {
+  const attrs = getLineAttributeMap(line);
+  if (getLineFulfillmentMode(line) !== 'rent') return undefined;
+
+  const compare = Number(attrs.quoted_compare_at_daily ?? 0);
+  const daily = Number(attrs.quoted_daily_rate ?? 0);
+  if (compare > 0 && compare > daily) return compare;
+
+  return undefined;
+}
+
+export function resolveCartLineCompareAtTotal(line: CartLine): number | undefined {
+  const compareDaily = resolveCartLineCompareAtDaily(line);
+  if (!compareDaily) return undefined;
+
+  const days = getCartLineRentalDays(line) ?? 0;
+  if (days <= 0) return undefined;
+
+  return compareDaily * days;
+}
+
+export function resolveCartDisplaySubtotal(lines: CartLine[]): number {
+  return lines
+    .filter(shouldShowCartLine)
+    .reduce((sum, line) => sum + resolveCartLineDisplayPrice(line), 0);
 }
 
 export function shouldShowCartLine(line: CartLine): boolean {

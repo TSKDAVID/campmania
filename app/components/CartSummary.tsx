@@ -4,7 +4,7 @@ import {CartForm, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
-import {formatCartMoney, moneyAmount} from '~/lib/trailrent/cart-display';
+import {formatCartMoney, moneyAmount, resolveCartDisplaySubtotal} from '~/lib/trailrent/cart-display';
 import {formatGel} from '~/lib/trailrent/pricing';
 
 type CartSummaryProps = {
@@ -22,6 +22,11 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
   const giftCardHeadingId = useId();
   const giftCardInputId = useId();
   const subtotalAmount = moneyAmount(cart?.cost?.subtotalAmount);
+  const lines = cart?.lines?.nodes ?? [];
+  const displaySubtotal =
+    lines.length > 0
+      ? resolveCartDisplaySubtotal(lines)
+      : subtotalAmount;
 
   return (
     <div aria-labelledby={summaryId} className={className}>
@@ -31,7 +36,7 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
 
       <dl className="cm-cart-subtotal">
         <dt>{tr.cart.subtotal}</dt>
-        <dd>{subtotalAmount > 0 ? formatGel(subtotalAmount) : '—'}</dd>
+        <dd>{displaySubtotal > 0 ? formatGel(displaySubtotal) : '—'}</dd>
       </dl>
 
       {layout === 'page' ? (

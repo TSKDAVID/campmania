@@ -31,6 +31,8 @@ export type RentalProductFormProps = {
   buyCheckoutReady?: boolean;
   productTitle: string;
   dailyRate: number;
+  /** Compare-at daily rate shown on PDP (kit subtotal before bundle discount). */
+  compareAtDailyRate?: number;
   purchasePrice: number;
   rentToOwnOffer?: RentToOwnOffer;
   isTrustedTier?: boolean;
@@ -50,8 +52,20 @@ function buildLineAttributes(options: {
   rentalCredit?: number;
   rentalDays?: number;
   quotedPurchasePrice?: number;
+  quotedDailyRate?: number;
+  quotedCompareAtDaily?: number;
 }): Array<{key: string; value: string}> {
-  const {mode, startDate, endDate, metroId, rentalCredit, rentalDays, quotedPurchasePrice} = options;
+  const {
+    mode,
+    startDate,
+    endDate,
+    metroId,
+    rentalCredit,
+    rentalDays,
+    quotedPurchasePrice,
+    quotedDailyRate,
+    quotedCompareAtDaily,
+  } = options;
   const isPurchase = mode === 'purchase';
 
   const attributes: Array<{key: string; value: string}> = [
@@ -79,6 +93,23 @@ function buildLineAttributes(options: {
       {key: 'rental_end', value: endDate},
       {key: 'rental_days', value: String(rentalDays ?? 1)},
     );
+    if (quotedDailyRate != null && quotedDailyRate > 0) {
+      attributes.push({
+        key: 'quoted_daily_rate',
+        value: String(quotedDailyRate),
+      });
+    }
+    if (
+      quotedCompareAtDaily != null &&
+      quotedCompareAtDaily > 0 &&
+      quotedDailyRate != null &&
+      quotedCompareAtDaily > quotedDailyRate
+    ) {
+      attributes.push({
+        key: 'quoted_compare_at_daily',
+        value: String(quotedCompareAtDaily),
+      });
+    }
   }
 
   return attributes;
@@ -91,6 +122,7 @@ export function RentalProductForm({
   buyCheckoutReady = false,
   productTitle,
   dailyRate,
+  compareAtDailyRate,
   purchasePrice,
   rentToOwnOffer,
   isTrustedTier = false,
@@ -146,11 +178,19 @@ export function RentalProductForm({
           rentalDays: rentalPricing.days,
           quotedPurchasePrice:
             !isRentMode && !buyVariantId ? purchasePrice : undefined,
+          quotedDailyRate: isRentMode ? dailyRate : undefined,
+          quotedCompareAtDaily:
+            isRentMode &&
+            compareAtDailyRate != null &&
+            compareAtDailyRate > dailyRate
+              ? compareAtDailyRate
+              : undefined,
         }),
       },
     ],
     [
       activeVariantId,
+      buyVariantId,
       cartQuantity,
       mode,
       startDate,
@@ -159,6 +199,9 @@ export function RentalProductForm({
       hasRentToOwnCredit,
       rentToOwnOffer?.rentalCredit,
       rentalPricing.days,
+      dailyRate,
+      compareAtDailyRate,
+      purchasePrice,
     ],
   );
 

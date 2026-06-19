@@ -331,6 +331,8 @@ export default function Product() {
         buyCheckoutReady,
         productTitle: title,
         dailyRate: displayDailyRate,
+        compareAtDailyRate:
+          displayCompareAt > displayDailyRate ? displayCompareAt : undefined,
         purchasePrice,
         rentToOwnOffer,
         isTrustedTier: trustedTier,
