@@ -116,7 +116,11 @@ const HOW_STEPS = [
   {key: 'step4' as const, num: '4'},
 ];
 
-export function HomeSearchBar() {
+type HomeSearchBarProps = {
+  variant?: 'default' | 'overlay';
+};
+
+export function HomeSearchBar({variant = 'default'}: HomeSearchBarProps) {
   const {translations: tr, locale} = useLocale();
   const fetcher = useFetcher<PredictiveSearchReturn>({key: 'home-search'});
   const containerRef = useRef<HTMLDivElement>(null);
@@ -204,9 +208,16 @@ export function HomeSearchBar() {
     inputRef.current?.focus();
   };
 
+  const isOverlay = variant === 'overlay';
+
   return (
-    <div className="cm-home-search-slot">
-      <div ref={containerRef} className="cm-home-search">
+    <div
+      className={`cm-home-search-slot${isOverlay ? ' cm-home-search-slot--overlay' : ''}`}
+    >
+      <div
+        ref={containerRef}
+        className={`cm-home-search${isOverlay ? ' cm-home-search--overlay' : ''}`}
+      >
         <SearchForm action="/search" className="cm-home-search-form">
           {() => (
             <div

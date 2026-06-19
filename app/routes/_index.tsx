@@ -43,15 +43,15 @@ export default function Homepage() {
   return (
     <div className="cm-home">
       <header className="cm-home-header">
-        <div className="cm-home-width cm-home-top-bar">
-          <HomeSearchBar />
-        </div>
         <div className="cm-home-hero cm-home-hero-bleed">
           <Suspense fallback={<HomePromoCarousel slides={null} />}>
             <Await resolve={promoSlides}>
               {(slides) => <HomePromoCarousel slides={slides} />}
             </Await>
           </Suspense>
+          <div className="cm-home-hero-search">
+            <HomeSearchBar variant="overlay" />
+          </div>
         </div>
         <div className="cm-home-width cm-home-top-bar">
           <HomeQuickNav />
