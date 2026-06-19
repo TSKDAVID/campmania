@@ -97,14 +97,22 @@ function FeaturedProducts({
     <Suspense
       fallback={
         <>
-          <FeaturedPackagesSectionSkeleton />
           <FeaturedSectionSkeleton />
+          <FeaturedPackagesSectionSkeleton />
         </>
       }
     >
       <Await resolve={sections}>
         {({packages, gear, gearCatalog}) => (
           <>
+            <FeaturedGearSection
+              id="home-gear-heading"
+              copy={tr.featured.gear}
+              viewAllHref="/individual-gear"
+              items={gear}
+              perDay={perDay}
+              emptyCta={{label: tr.hero.ctaGear, href: '/individual-gear'}}
+            />
             <FeaturedPackagesSection
               id="home-packages-heading"
               copy={tr.featured.packages}
@@ -118,14 +126,6 @@ function FeaturedProducts({
               savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
               includedLabel={tr.packages.included}
               emptyCta={{label: tr.hero.ctaPackages, href: '/packages'}}
-            />
-            <FeaturedGearSection
-              id="home-gear-heading"
-              copy={tr.featured.gear}
-              viewAllHref="/individual-gear"
-              items={gear}
-              perDay={perDay}
-              emptyCta={{label: tr.hero.ctaGear, href: '/individual-gear'}}
             />
           </>
         )}
