@@ -21,9 +21,6 @@ import {
   IconTent,
 } from '~/components/trailrent/Icons';
 
-const PROMO_IMAGE =
-  'https://images.unsplash.com/photo-1478131143081-80f7f84b84c7?auto=format&fit=crop&w=2000&q=80';
-
 const PACKAGE_TILE_IMAGE =
   'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=75';
 
@@ -417,31 +414,6 @@ export function HomeSearchBar() {
         ) : null}
       </div>
     </div>
-  );
-}
-
-export function HomePromoBanner() {
-  const {translations: tr} = useLocale();
-
-  return (
-    <Link to="/collections/all" className="cm-home-promo group">
-      <img
-        src={PROMO_IMAGE}
-        alt=""
-        className="cm-home-promo-image"
-        fetchPriority="high"
-      />
-      <div className="cm-home-promo-overlay" aria-hidden />
-      <div className="cm-home-promo-content">
-        <p className="cm-home-promo-badge">{tr.home.promoBadge}</p>
-        <h1 className="cm-home-promo-title">{tr.hero.title}</h1>
-        <p className="cm-home-promo-subtitle">{tr.hero.subtitle}</p>
-        <span className="cm-home-promo-cta">
-          {tr.home.promoCta}
-          <IconArrowRight size={16} />
-        </span>
-      </div>
-    </Link>
   );
 }
 

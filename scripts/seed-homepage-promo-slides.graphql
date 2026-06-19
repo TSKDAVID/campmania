@@ -1,0 +1,87 @@
+mutation SeedHomepagePromoSlides {
+  primary: metaobjectUpsert(
+    handle: {type: "homepage_promo_slide", handle: "hero-catalog"}
+    metaobject: {
+      fields: [
+        {
+          key: "title_en"
+          value: "Your next adventure — fully equipped."
+        }
+        {
+          key: "title_ka"
+          value: "თქვენი შემდეგი სათავგადასავლო — სრულად მომზადებული."
+        }
+        {
+          key: "subtitle_en"
+          value: "Full trail kits or individual gear — metro pickup, digital ID verification, 0 GEL cash deposit."
+        }
+        {
+          key: "subtitle_ka"
+          value: "სრული trail კომპლექტები ან ინდივიდუალური აღჭურვილობა — მეტროს გაჩვენებაზე მიღება, ციფრული ID-ით დადასტურება, 0 ₾ ნაღდი დეპოზიტი."
+        }
+        {
+          key: "badge_en"
+          value: "Metro pickup · 0 GEL deposit"
+        }
+        {
+          key: "badge_ka"
+          value: "მეტროში მიღება · 0 ₾ დეპოზიტი"
+        }
+        {key: "cta_label_en", value: "Browse catalog"}
+        {key: "cta_label_ka", value: "კატალოგის ნახვა"}
+        {key: "link_url", value: "/collections/all"}
+        {key: "sort_order", value: "0"}
+        {key: "active", value: "true"}
+      ]
+    }
+  ) {
+    metaobject {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  packages: metaobjectUpsert(
+    handle: {type: "homepage_promo_slide", handle: "hero-trail-kits"}
+    metaobject: {
+      fields: [
+        {
+          key: "title_en"
+          value: "Rent a complete trail kit"
+        }
+        {
+          key: "title_ka"
+          value: "სრული ბილიკის კომპლექტის ქირა"
+        }
+        {
+          key: "subtitle_en"
+          value: "Tusheti, Borjomi, Kazbegi — everything in one package."
+        }
+        {
+          key: "subtitle_ka"
+          value: "ტობავარჩხილი, ბირთვისი, კაზბეგი — ყველაფერი ერთ პაკეტში."
+        }
+        {key: "badge_en", value: "Popular"}
+        {key: "badge_ka", value: "პოპულარული"}
+        {key: "cta_label_en", value: "View packages"}
+        {key: "cta_label_ka", value: "კომპლექტების ნახვა"}
+        {key: "link_url", value: "/packages"}
+        {key: "sort_order", value: "1"}
+        {key: "active", value: "true"}
+      ]
+    }
+  ) {
+    metaobject {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

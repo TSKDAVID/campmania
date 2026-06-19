@@ -1973,6 +1973,56 @@
     @apply bg-amber/90;
   }
 
+  .cm-home-promo-carousel {
+    @apply relative;
+  }
+
+  .cm-home-promo-viewport {
+    @apply relative overflow-hidden rounded-2xl md:rounded-3xl;
+    aspect-ratio: 4 / 3;
+  }
+
+  @media (min-width: 768px) {
+    .cm-home-promo-viewport {
+      aspect-ratio: 21 / 9;
+    }
+  }
+
+  .cm-home-promo-slide {
+    @apply absolute inset-0 z-0 opacity-0 pointer-events-none transition-[opacity,transform] duration-500 ease-out;
+    transform: translateX(1.25rem);
+  }
+
+  .cm-home-promo-slide.is-active {
+    @apply z-[1] opacity-100 pointer-events-auto;
+    transform: translateX(0);
+  }
+
+  .cm-home-promo-nav {
+    @apply absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-pine/70 text-xl leading-none text-mist shadow-md backdrop-blur-sm transition hover:bg-pine/90;
+    font-family: var(--font-label);
+  }
+
+  .cm-home-promo-nav--prev {
+    @apply left-3 sm:left-4;
+  }
+
+  .cm-home-promo-nav--next {
+    @apply right-3 sm:right-4;
+  }
+
+  .cm-home-promo-dots {
+    @apply absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:bottom-4;
+  }
+
+  .cm-home-promo-dot {
+    @apply h-2.5 w-2.5 rounded-full border border-white/50 bg-white/30 transition hover:bg-white/60;
+  }
+
+  .cm-home-promo-dot.is-active {
+    @apply w-7 border-amber bg-amber;
+  }
+
   .cm-home-quicknav {
     @apply -mx-1 flex gap-2 overflow-x-auto pb-1;
     scrollbar-width: none;

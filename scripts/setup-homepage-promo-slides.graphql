@@ -1,0 +1,91 @@
+mutation CreateHomepagePromoSlideDefinition {
+  metaobjectDefinitionCreate(
+    definition: {
+      type: "homepage_promo_slide"
+      name: "Homepage promo slide"
+      description: "Hero carousel slide on the Campmania Hydrogen homepage"
+      displayNameKey: "title_en"
+      access: {storefront: PUBLIC_READ}
+      fieldDefinitions: [
+        {
+          key: "title_en"
+          name: "Title (English)"
+          type: "single_line_text_field"
+          required: true
+        }
+        {
+          key: "title_ka"
+          name: "Title (Georgian)"
+          type: "single_line_text_field"
+          required: true
+        }
+        {
+          key: "subtitle_en"
+          name: "Subtitle (English)"
+          type: "multi_line_text_field"
+        }
+        {
+          key: "subtitle_ka"
+          name: "Subtitle (Georgian)"
+          type: "multi_line_text_field"
+        }
+        {
+          key: "badge_en"
+          name: "Badge (English)"
+          type: "single_line_text_field"
+        }
+        {
+          key: "badge_ka"
+          name: "Badge (Georgian)"
+          type: "single_line_text_field"
+        }
+        {
+          key: "cta_label_en"
+          name: "CTA label (English)"
+          type: "single_line_text_field"
+        }
+        {
+          key: "cta_label_ka"
+          name: "CTA label (Georgian)"
+          type: "single_line_text_field"
+        }
+        {
+          key: "link_url"
+          name: "Link URL"
+          description: "Relative path (e.g. /collections/all) or full URL"
+          type: "single_line_text_field"
+          required: true
+        }
+        {
+          key: "image"
+          name: "Background image"
+          type: "file_reference"
+          validations: [{name: "file_type_options", value: "[\"Image\"]"}]
+        }
+        {
+          key: "sort_order"
+          name: "Sort order"
+          description: "Lower numbers appear first"
+          type: "number_integer"
+        }
+        {
+          key: "active"
+          name: "Active"
+          description: "Uncheck to hide without deleting"
+          type: "boolean"
+        }
+      ]
+    }
+  ) {
+    metaobjectDefinition {
+      id
+      type
+      name
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}

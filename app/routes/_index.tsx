@@ -8,18 +8,29 @@ import {
   HomeCategories,
   HomeHowItWorksCompact,
   HomePerksStrip,
-  HomePromoBanner,
   HomeQuickNav,
   HomeSearchBar,
   HomeShopTiles,
 } from '~/components/trailrent/HomeCommerce';
+import {HomePromoCarousel} from '~/components/trailrent/HomePromoCarousel';
+import {
+  HOMEPAGE_PROMO_SLIDES_QUERY,
+  parseHomepagePromoSlides,
+} from '~/lib/trailrent/homepagePromo';
+import {getLocaleFromRequest} from '~/providers/LocaleProvider';
 
 export async function loader(args: Route.LoaderArgs) {
+  const locale = getLocaleFromRequest(args.request);
   const featuredProducts = args.context.storefront
     .query(FEATURED_PRODUCTS_QUERY, {variables: {first: 8}})
     .catch(() => null);
 
-  return {featuredProducts};
+  const promoSlides = args.context.storefront
+    .query(HOMEPAGE_PROMO_SLIDES_QUERY)
+    .then((response) => parseHomepagePromoSlides(response, locale))
+    .catch(() => []);
+
+  return {featuredProducts, promoSlides};
 }
 
 export const meta: Route.MetaFunction = () => [
@@ -27,13 +38,17 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 export default function Homepage() {
-  const {featuredProducts} = useLoaderData<typeof loader>();
+  const {featuredProducts, promoSlides} = useLoaderData<typeof loader>();
 
   return (
     <div className="cm-home">
       <div className="tr-page-width cm-home-top">
         <HomeSearchBar />
-        <HomePromoBanner />
+        <Suspense fallback={<HomePromoCarousel slides={null} />}>
+          <Await resolve={promoSlides}>
+            {(slides) => <HomePromoCarousel slides={slides} />}
+          </Await>
+        </Suspense>
         <HomeQuickNav />
       </div>
 
