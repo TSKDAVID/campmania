@@ -18,6 +18,7 @@ import {INCLUSION_PRODUCT_FRAGMENT} from '~/graphql/storefront/CatalogProductsQu
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {
   COLLECTION_PRODUCTS_QUERY,
+  mapCatalogNodeToGearBuilderProduct,
   packageIncludesCollectionHandle,
   resolveIncludedKitNodes,
   resolvePackagePricingFromCatalog,
@@ -27,6 +28,7 @@ import type {PackageDuration} from '~/lib/trailrent/gear-builder';
 import {
   ProductDescription,
   ProductIncludedPanel,
+  type ProductIncludedItem,
   ProductInlinePrice,
   ProductPricingExtras,
   ProductTrustBar,
@@ -382,6 +384,21 @@ export default function Product() {
     };
   }, [gearBuilderEnabled, isPackage, product, tags, title, dailyRate, rentVariant, selectedVariant]);
 
+  const includedProducts = useMemo((): ProductIncludedItem[] => {
+    if (!includedKitProducts.length) return [];
+    return includedKitProducts.map((node) => {
+      const product = mapCatalogNodeToGearBuilderProduct(
+        node as Parameters<typeof mapCatalogNodeToGearBuilderProduct>[0],
+      );
+      return {
+        title: product.title,
+        handle: product.handle,
+        imageUrl: product.imageUrl,
+        dailyRate: product.dailyRate,
+      };
+    });
+  }, [includedKitProducts]);
+
   const galleryImages = useMemo((): GalleryImage[] => {
     const fromMedia = (product.media?.nodes ?? [])
       .map((node: {
@@ -478,7 +495,10 @@ export default function Product() {
 
             {includedItems.length > 0 ? (
               <div className="cm-product-buybox-card cm-product-buybox-card--split">
-                <ProductIncludedPanel items={includedItems} />
+                <ProductIncludedPanel
+                  items={includedItems}
+                  includedProducts={includedProducts}
+                />
 
                 {bookingFormProps ? (
                   <RentalProductForm {...bookingFormProps} layout="stacked" compact />

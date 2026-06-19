@@ -76,6 +76,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
     packages: TRAIL_PACKAGES.map((pkg) => ({
       ...pkg,
       productId: pkg.id,
+      imageUrls: [] as string[],
       includedProductHandles: [],
       includedCollectionProducts: [] as GearBuilderProduct[],
       defaultDuration: (pkg.duration as ShopifyPackageItem['defaultDuration']) ?? '2-day',

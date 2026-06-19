@@ -49,6 +49,15 @@ type CatalogProductNode = {
     url: string;
     altText?: string | null;
   } | null;
+  media?: {
+    nodes: Array<{
+      id?: string;
+      image?: {
+        url: string;
+        altText?: string | null;
+      } | null;
+    }>;
+  } | null;
   priceRange: {
     minVariantPrice: {amount: string; currencyCode: string};
   };
@@ -91,6 +100,7 @@ export type ShopifyPackageItem = PackageItem & {
   variantId?: string;
   imageUrl?: string;
   imageAlt?: string;
+  imageUrls: string[];
   compareAtPrice?: number;
   savingsPercent?: number;
   /** @deprecated Prefer includedCollectionProducts — kept for legacy metafield fallback */
@@ -201,6 +211,35 @@ async function loadKitCollectionProducts(
 
   const nodes = (collection?.products?.nodes ?? []) as CatalogProductNode[];
   return nodes.map((node) => mapGearBuilderProduct(node));
+}
+
+export function mapCatalogNodeToGearBuilderProduct(
+  product: CatalogProductNode,
+): GearBuilderProduct {
+  return mapGearBuilderProduct(product);
+}
+
+function collectPackageCardImages(
+  product: CatalogProductNode,
+  kitProducts: GearBuilderProduct[],
+): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  const add = (url?: string | null) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    urls.push(url);
+  };
+
+  add(product.featuredImage?.url);
+  for (const node of product.media?.nodes ?? []) {
+    add(node.image?.url);
+  }
+  for (const kit of kitProducts) {
+    add(kit.imageUrl);
+  }
+
+  return urls;
 }
 
 function mapGearBuilderProduct(product: CatalogProductNode): GearBuilderProduct {
@@ -405,6 +444,7 @@ function mapPackageProduct(
     variantId: variant?.id,
     imageUrl: product.featuredImage?.url,
     imageAlt: product.featuredImage?.altText ?? product.title,
+    imageUrls: collectPackageCardImages(product, includedCollectionProducts),
     compareAtPrice: compareAt,
     savingsPercent,
     includedProductHandles,

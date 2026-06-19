@@ -11,6 +11,8 @@ import type {
   ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
 import {
+  normalizePackageDuration,
+  packageDurationDays,
   resolvePackageComposition,
   type GearBuilderProduct,
   type PackageDuration,
@@ -19,7 +21,7 @@ import {
   buildPackageFilterGroups,
   PackageFiltersPanel,
 } from '~/components/trailrent/CatalogFilters';
-import {CatalogCardImage} from '~/components/trailrent/CatalogCardImage';
+import {PackageCardImageScrubber} from '~/components/trailrent/PackageCardImageScrubber';
 import {
   PriceWithCompare,
   TotalWithCompare,
@@ -54,7 +56,9 @@ function PackageCard({
   const diffStyle = DIFFICULTY_STYLES[pkg.difficulty] ?? 'bg-stone text-muted';
   const productUrl = pkg.productHandle ? `/products/${pkg.productHandle}` : null;
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration>(
-    pkg.defaultDuration ?? (pkg.duration as PackageDuration),
+    normalizePackageDuration(
+      pkg.defaultDuration ?? (pkg.duration as PackageDuration),
+    ),
   );
   const gearCatalog = useMemo(() => {
     const byHandle = new Map<string, GearBuilderProduct>();
@@ -86,8 +90,14 @@ function PackageCard({
     [pkg, selectedDuration, baseProductHandles, gearCatalog],
   );
 
-  const selectedDays = composition.days;
-  const perDayWord = locale === 'ka' ? 'დღე' : 'day';
+  const selectedDays = packageDurationDays(selectedDuration);
+  const perDayWord = locale === 'ka' ? 'დღე' : selectedDays === 1 ? 'day' : 'days';
+
+  const cardImages = useMemo(() => {
+    if (pkg.imageUrls?.length) return pkg.imageUrls;
+    if (pkg.imageUrl) return [pkg.imageUrl];
+    return [];
+  }, [pkg.imageUrls, pkg.imageUrl]);
 
   const includedThumbs = useMemo(() => {
     const thumbSource =
@@ -131,11 +141,10 @@ function PackageCard({
   const inner = (
     <div className="cm-pkg-card__layout">
       <div className="cm-kit-card-media cm-pkg-card__media">
-        {pkg.imageUrl ? (
-          <CatalogCardImage
-            src={pkg.imageUrl}
+        {cardImages.length > 0 ? (
+          <PackageCardImageScrubber
+            images={cardImages}
             alt={pkg.imageAlt ?? pkg.title}
-            fit="cover"
           />
         ) : (
           <>
@@ -220,7 +229,9 @@ function PackageCard({
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
-                    setSelectedDuration(option.value as PackageDuration);
+                    setSelectedDuration(
+                      normalizePackageDuration(option.value),
+                    );
                   }}
                 >
                   {option.label}

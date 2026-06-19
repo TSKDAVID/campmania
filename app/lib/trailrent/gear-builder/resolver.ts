@@ -13,6 +13,25 @@ export const DURATION_DAYS: Record<PackageDuration, number> = {
   weekend: 3,
 };
 
+const DURATION_ALIASES: Record<string, PackageDuration> = {
+  '3-day': 'weekend',
+  '3days': 'weekend',
+};
+
+export function normalizePackageDuration(
+  value: PackageDuration | string,
+): PackageDuration {
+  const normalized = String(value).trim().toLowerCase();
+  if (normalized in DURATION_DAYS) {
+    return normalized as PackageDuration;
+  }
+  return DURATION_ALIASES[normalized] ?? '2-day';
+}
+
+export function packageDurationDays(duration: PackageDuration | string): number {
+  return DURATION_DAYS[normalizePackageDuration(duration)];
+}
+
 /** Industry-style backpack capacity targets by hike length (liters). */
 export const BACKPACK_CAPACITY_BY_DURATION: Record<
   PackageDuration,
@@ -125,7 +144,7 @@ export function resolvePackageComposition(options: {
     fallbackItemLabels = [],
     gearCatalog,
   } = options;
-  const days = DURATION_DAYS[duration];
+  const days = packageDurationDays(duration);
 
   const seenProductIds = new Set<string>();
   const baseProducts: GearBuilderProduct[] = [];

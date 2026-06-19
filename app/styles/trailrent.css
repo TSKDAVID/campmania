@@ -616,15 +616,19 @@
 
   .cm-pkg-card__media {
     @apply relative shrink-0 overflow-hidden bg-stone/30;
+    position: relative;
+    z-index: 2;
     aspect-ratio: 16 / 10;
   }
 
   @media (min-width: 640px) {
     .cm-pkg-card__media {
-      width: 38%;
+      width: 47%;
       aspect-ratio: auto;
       align-self: stretch;
       min-height: 10.5rem;
+      position: relative;
+      z-index: 2;
     }
 
     .cm-pkg-card__media .cm-kit-card-image {
@@ -632,6 +636,14 @@
       max-height: none;
       padding: 0;
     }
+  }
+
+  .cm-pkg-card__scrub {
+    @apply absolute inset-0;
+  }
+
+  .cm-pkg-card__scrub--active .cm-kit-card-image {
+    @apply transition-opacity duration-150 ease-out;
   }
 
   .cm-pkg-card__body {
@@ -1491,6 +1503,47 @@
   .cm-product-included-body {
     @apply px-5 py-4;
     padding-left: 1.25rem;
+  }
+
+  .cm-product-included-thumbs {
+    @apply mb-3 flex flex-wrap gap-2;
+  }
+
+  .cm-product-included-thumb-wrap {
+    @apply relative;
+  }
+
+  .cm-product-included-thumb {
+    @apply flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-stone/70 bg-white text-[10px] font-semibold text-forest shadow-sm;
+  }
+
+  .cm-product-included-thumb img {
+    @apply h-full w-full object-cover;
+  }
+
+  .cm-product-included-tooltip {
+    @apply pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 z-20 min-w-[9rem] max-w-[12rem] -translate-x-1/2 rounded-lg border border-stone/70 bg-white px-2.5 py-2 text-center opacity-0 shadow-md transition-opacity duration-150;
+  }
+
+  .cm-product-included-tooltip::after {
+    content: '';
+    @apply absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-white;
+    filter: drop-shadow(0 1px 0 rgb(214 211 205 / 0.7));
+  }
+
+  .cm-product-included-tooltip-title {
+    @apply block text-xs font-semibold leading-snug text-pine;
+    font-family: var(--font-body);
+  }
+
+  .cm-product-included-tooltip-price {
+    @apply mt-0.5 block text-[11px] font-medium text-muted;
+    font-family: var(--font-body);
+  }
+
+  .cm-product-included-thumb-wrap:hover .cm-product-included-tooltip,
+  .cm-product-included-thumb-wrap:focus-within .cm-product-included-tooltip {
+    @apply opacity-100;
   }
 
   .cm-product-included-list {

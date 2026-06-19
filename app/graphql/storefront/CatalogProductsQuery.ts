@@ -106,6 +106,17 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
       width
       height
     }
+    media(first: 5) {
+      nodes {
+        ... on MediaImage {
+          id
+          image {
+            url
+            altText
+          }
+        }
+      }
+    }
     priceRange {
       minVariantPrice {
         amount

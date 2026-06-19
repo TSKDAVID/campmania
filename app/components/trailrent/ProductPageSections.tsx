@@ -189,9 +189,27 @@ export function ProductTrustBar({isTrustedTier = false}: {isTrustedTier?: boolea
   );
 }
 
-export function ProductIncludedPanel({items}: {items: string[]}) {
-  const {translations: tr} = useLocale();
-  if (!items.length) return null;
+export type ProductIncludedItem = {
+  title: string;
+  handle?: string;
+  imageUrl?: string;
+  dailyRate?: number;
+};
+
+export function ProductIncludedPanel({
+  items,
+  includedProducts,
+}: {
+  items: string[];
+  includedProducts?: ProductIncludedItem[];
+}) {
+  const {translations: tr, locale} = useLocale();
+  const entries: ProductIncludedItem[] = includedProducts?.length
+    ? includedProducts
+    : items.map((title) => ({title}));
+  if (!entries.length) return null;
+
+  const perDay = locale === 'ka' ? 'დღე' : 'day';
 
   return (
     <section
@@ -208,18 +226,47 @@ export function ProductIncludedPanel({items}: {items: string[]}) {
             id="product-included-heading"
             className="cm-product-included-title"
           >
-            {items.length} {tr.product.itemsIncluded}
+            {entries.length} {tr.product.itemsIncluded}
           </h2>
         </div>
       </div>
       <div className="cm-product-included-body">
+        {entries.some((entry) => entry.imageUrl) ? (
+          <div className="cm-product-included-thumbs" role="list">
+            {entries.map((entry) => (
+              <div
+                key={entry.handle ?? entry.title}
+                className="cm-product-included-thumb-wrap"
+                role="listitem"
+              >
+                <span className="cm-product-included-thumb" tabIndex={0}>
+                  {entry.imageUrl ? (
+                    <img src={entry.imageUrl} alt="" loading="lazy" />
+                  ) : (
+                    <span>{entry.title.slice(0, 2).toUpperCase()}</span>
+                  )}
+                </span>
+                <span className="cm-product-included-tooltip" role="tooltip">
+                  <span className="cm-product-included-tooltip-title">
+                    {entry.title}
+                  </span>
+                  {entry.dailyRate != null && entry.dailyRate > 0 ? (
+                    <span className="cm-product-included-tooltip-price">
+                      {formatGel(entry.dailyRate)} / {perDay}
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <ul className="cm-product-included-list">
-          {items.map((item) => (
-            <li key={item} className="cm-product-included-item">
+          {entries.map((entry) => (
+            <li key={entry.title} className="cm-product-included-item">
               <span className="cm-product-included-check" aria-hidden>
                 <IconCheck size={12} />
               </span>
-              <span className="cm-product-included-text">{item}</span>
+              <span className="cm-product-included-text">{entry.title}</span>
             </li>
           ))}
         </ul>
