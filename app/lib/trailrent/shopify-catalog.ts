@@ -1,6 +1,7 @@
 import {
   COLLECTION_PRODUCTS_QUERY,
   CATALOG_PRODUCT_FRAGMENT,
+  PACKAGE_COLLECTIONS_QUERY,
 } from '~/graphql/storefront/CatalogProductsQuery';
 import type {Storefront} from '@shopify/hydrogen';
 import {
@@ -30,9 +31,45 @@ import {
 
 /** Create these collections in Shopify Admin and add products. */
 export const SHOPIFY_COLLECTION_HANDLES = {
+  /** Legacy listing collection — not a kit package itself. */
   packages: 'trail-packages',
   gear: 'individual-gear',
 } as const;
+
+/** Parent/listing collections — excluded from package kit discovery. */
+export const PACKAGE_LISTING_HANDLES = new Set([
+  SHOPIFY_COLLECTION_HANDLES.packages,
+  'frontpage',
+]);
+
+export type PackageCollectionNode = {
+  id: string;
+  handle: string;
+  title: string;
+  description?: string | null;
+  image?: {
+    url: string;
+    altText?: string | null;
+  } | null;
+  themeTemplate?: {value?: string | null} | null;
+  isPackage?: {value?: string | null} | null;
+  trekMeta?: {value?: string | null} | null;
+  durationMeta?: {value?: string | null} | null;
+  difficultyMeta?: {value?: string | null} | null;
+  products?: {
+    nodes: CatalogProductNode[];
+  } | null;
+};
+
+export type HomepageFeaturedItem = {
+  id: string;
+  title: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  dailyRate: number;
+  compareAt?: number;
+  url: string;
+};
 
 /** Handle for the Shopify collection that lists this package's included gear. */
 export function packageIncludesCollectionHandle(packageHandle: string): string {
@@ -108,6 +145,8 @@ export type ShopifyPackageItem = PackageItem & {
   imageUrls: string[];
   compareAtPrice?: number;
   savingsPercent?: number;
+  /** PDP or collection URL for this package card. */
+  catalogUrl?: string;
   /** @deprecated Prefer includedCollectionProducts — kept for legacy metafield fallback */
   includedProductHandles: string[];
   includedCollectionHandle?: string;
@@ -593,10 +632,202 @@ function mapGearProduct(
   };
 }
 
+function collectPackageCollectionCardImages(
+  collection: PackageCollectionNode,
+  kitProducts: GearBuilderProduct[],
+): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  const add = (url?: string | null) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    urls.push(url);
+  };
+
+  add(collection.image?.url);
+  for (const kit of kitProducts) {
+    add(kit.imageUrl);
+  }
+
+  return urls;
+}
+
+function formatPackageCollectionTitle(title: string): string {
+  return title.replace(/\s*kit contents\s*$/i, '').trim();
+}
+
+function inferTrekFromCollection(collection: PackageCollectionNode): string {
+  const metafield = collection.trekMeta?.value?.trim();
+  if (metafield) return metafield;
+
+  const haystack = `${collection.handle} ${collection.title}`.toLowerCase();
+  if (haystack.includes('birtvisi') || haystack.includes('ბირთვის')) {
+    return 'birtvisi';
+  }
+  if (haystack.includes('tobavarchkhili') || haystack.includes('ტობავარჩ')) {
+    return 'tobavarchkhili';
+  }
+  if (haystack.includes('borjomi') || haystack.includes('ბორჯომ')) {
+    return 'borjomi';
+  }
+  if (haystack.includes('kazbegi') || haystack.includes('კაზბ')) {
+    return 'kazbegi';
+  }
+
+  return 'tobavarchkhili';
+}
+
+function inferDurationFromCollection(
+  collection: PackageCollectionNode,
+): PackageDuration {
+  const metafield = collection.durationMeta?.value?.trim();
+  if (metafield) {
+    return (metafield.replace(/^duration-/, '') ?? '2-day') as PackageDuration;
+  }
+  return '2-day';
+}
+
+function inferDifficultyFromCollection(collection: PackageCollectionNode): string {
+  const metafield = collection.difficultyMeta?.value?.trim();
+  if (metafield) return metafield.replace(/^difficulty-/, '');
+  return 'moderate';
+}
+
+/** Storefront cannot read theme templateSuffix — mirror it with metafield or naming convention. */
+export function isPackageKitCollection(collection: PackageCollectionNode): boolean {
+  if (PACKAGE_LISTING_HANDLES.has(collection.handle)) return false;
+  if (collection.handle === SHOPIFY_COLLECTION_HANDLES.gear) return false;
+
+  const themeTemplate = collection.themeTemplate?.value?.trim().toLowerCase();
+  if (themeTemplate === 'packages') return true;
+
+  const isPackage = collection.isPackage?.value?.trim().toLowerCase();
+  if (isPackage === 'true' || isPackage === '1') return true;
+
+  const titleLower = collection.title.toLowerCase();
+  const handleLower = collection.handle.toLowerCase();
+  if (titleLower.includes('kit contents') || handleLower.endsWith('-includes')) {
+    return true;
+  }
+  if (collection.handle.includes('კომპლექტ')) return true;
+
+  return false;
+}
+
+function mapPackageCollection(
+  collection: PackageCollectionNode,
+  locale: 'ka' | 'en',
+): ShopifyPackageItem | null {
+  const kitNodes = collection.products?.nodes ?? [];
+  if (!kitNodes.length) return null;
+
+  const kitProducts = kitNodes.map((node) => mapGearBuilderProduct(node));
+  const trek = inferTrekFromCollection(collection);
+  const duration = inferDurationFromCollection(collection);
+  const difficulty = inferDifficultyFromCollection(collection);
+  const title = formatPackageCollectionTitle(collection.title);
+  const summary = collection.description?.trim() ?? '';
+
+  const packagePricing = calculatePackagePricing(
+    packageRentDailyRatesFromProducts(kitProducts),
+    DURATION_DAYS[duration],
+  );
+
+  return {
+    id: collection.id,
+    title,
+    description: summary,
+    priceLabel: `${formatGel(packagePricing.bundleDaily)} / ${locale === 'ka' ? 'დღე' : 'day'}`,
+    dailyRate: packagePricing.bundleDaily,
+    currency: 'GEL',
+    trek,
+    trekLabel: labelFromFilter(trek, TREK_FILTERS, locale),
+    duration,
+    durationLabel: labelFromFilter(duration, DURATION_FILTERS, locale),
+    difficulty,
+    difficultyLabel: labelFromFilter(difficulty, DIFFICULTY_FILTERS, locale),
+    productHandle: collection.handle,
+    items: kitProducts.map((entry) => entry.title),
+    productId: collection.id,
+    variantId: undefined,
+    catalogUrl: `/collections/${collection.handle}`,
+    imageUrl: collection.image?.url,
+    imageAlt: collection.image?.altText ?? title,
+    imageUrls: collectPackageCollectionCardImages(collection, kitProducts),
+    compareAtPrice: packagePricing.subtotalDaily,
+    savingsPercent: packagePricing.discountPercent || undefined,
+    includedProductHandles: kitProducts.map((entry) => entry.handle),
+    includedCollectionHandle: collection.handle,
+    includedCollectionProducts: kitProducts,
+    defaultDuration: duration,
+  };
+}
+
+export async function loadPackageCollections(
+  storefront: Storefront,
+): Promise<PackageCollectionNode[]> {
+  const {collections} = await storefront
+    .query(PACKAGE_COLLECTIONS_QUERY, {
+      variables: {first: 50},
+      ...liveStorefrontCache(storefront),
+    })
+    .catch(() => ({collections: null}));
+
+  const nodes = (collections?.nodes ?? []) as PackageCollectionNode[];
+  return nodes.filter(isPackageKitCollection);
+}
+
+export async function loadHomepageFeaturedItems(
+  storefront: Storefront,
+  locale: 'ka' | 'en',
+  options?: {limit?: number},
+): Promise<HomepageFeaturedItem[]> {
+  const limit = options?.limit ?? 8;
+  const [packages, gear] = await Promise.all([
+    loadShopifyPackages(storefront, locale).catch(() => [] as ShopifyPackageItem[]),
+    loadShopifyGear(storefront, locale).catch(() => [] as ShopifyGearItem[]),
+  ]);
+
+  const items: HomepageFeaturedItem[] = [];
+
+  for (const pkg of packages) {
+    items.push({
+      id: pkg.id,
+      title: pkg.title,
+      imageUrl: pkg.imageUrl,
+      imageAlt: pkg.imageAlt,
+      dailyRate: pkg.dailyRate,
+      compareAt: pkg.compareAtPrice,
+      url: pkg.catalogUrl ?? `/collections/${pkg.productHandle}`,
+    });
+  }
+
+  for (const item of gear) {
+    items.push({
+      id: item.id,
+      title: item.title,
+      imageUrl: item.imageUrl,
+      imageAlt: item.imageAlt,
+      dailyRate: item.dailyRate,
+      compareAt: item.compareAtPrice,
+      url: item.productHandle ? `/products/${item.productHandle}` : '/individual-gear',
+    });
+  }
+
+  return items.slice(0, limit);
+}
+
 export async function loadShopifyPackages(
   storefront: Storefront,
   locale: 'ka' | 'en',
 ): Promise<ShopifyPackageItem[]> {
+  const packageCollections = await loadPackageCollections(storefront);
+  const fromCollections = packageCollections
+    .map((collection) => mapPackageCollection(collection, locale))
+    .filter((item): item is ShopifyPackageItem => item != null);
+
+  if (fromCollections.length > 0) return fromCollections;
+
   const {collection} = await storefront.query(COLLECTION_PRODUCTS_QUERY, {
     variables: {
       handle: SHOPIFY_COLLECTION_HANDLES.packages,
@@ -650,4 +881,4 @@ export async function loadGearBuilderCatalog(
   return gear.map((item) => item.builderProduct);
 }
 
-export {CATALOG_PRODUCT_FRAGMENT, COLLECTION_PRODUCTS_QUERY};
+export {CATALOG_PRODUCT_FRAGMENT, COLLECTION_PRODUCTS_QUERY, PACKAGE_COLLECTIONS_QUERY};

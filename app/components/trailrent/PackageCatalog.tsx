@@ -55,7 +55,9 @@ function PackageCard({
   includedLabel: string;
 }) {
   const diffStyle = DIFFICULTY_STYLES[pkg.difficulty] ?? 'bg-stone text-muted';
-  const productUrl = pkg.productHandle ? `/products/${pkg.productHandle}` : null;
+  const productUrl =
+    pkg.catalogUrl ??
+    (pkg.productHandle ? `/products/${pkg.productHandle}` : null);
   const [selectedDuration, setSelectedDuration] = useState<PackageDuration>(
     normalizePackageDuration(
       pkg.defaultDuration ?? (pkg.duration as PackageDuration),

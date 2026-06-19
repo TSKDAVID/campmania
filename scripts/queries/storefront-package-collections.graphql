@@ -1,0 +1,34 @@
+query StorefrontPackageCollections {
+  trailPackages: collection(handle: "trail-packages") {
+    handle
+    title
+    image { url }
+    products(first: 5) { nodes { handle title } }
+  }
+  borjomi: collection(handle: "ბორჯომის-ეროვნული-პარკის-კომპლექტი") {
+    handle
+    title
+    image { url altText }
+    description
+    products(first: 10) {
+      nodes {
+        handle
+        title
+        featuredImage { url }
+        priceRange { minVariantPrice { amount } }
+      }
+    }
+    packageMeta: metafield(namespace: "custom", key: "is_package") { value }
+    trekMeta: metafield(namespace: "custom", key: "trek") { value }
+    durationMeta: metafield(namespace: "custom", key: "duration") { value }
+    difficultyMeta: metafield(namespace: "custom", key: "difficulty") { value }
+  }
+  collections(first: 20) {
+    nodes {
+      handle
+      title
+      image { url }
+      isPackage: metafield(namespace: "custom", key: "is_package") { value }
+    }
+  }
+}

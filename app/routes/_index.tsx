@@ -1,9 +1,9 @@
 import {Await, Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/_index';
 import {Suspense} from 'react';
-import type {FeaturedProductsQuery} from 'storefrontapi.generated';
 import {useLocale} from '~/providers/LocaleProvider';
-import {ProductItem} from '~/components/ProductItem';
+import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
+import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {
   HomeCategories,
   HomeHowItWorksCompact,
@@ -16,13 +16,19 @@ import {
   HOMEPAGE_PROMO_SLIDES_QUERY,
   parseHomepagePromoSlides,
 } from '~/lib/trailrent/homepagePromo';
+import {
+  loadHomepageFeaturedItems,
+  type HomepageFeaturedItem,
+} from '~/lib/trailrent/shopify-catalog';
 import {getLocaleFromRequest} from '~/providers/LocaleProvider';
 
 export async function loader(args: Route.LoaderArgs) {
   const locale = getLocaleFromRequest(args.request);
-  const featuredProducts = args.context.storefront
-    .query(FEATURED_PRODUCTS_QUERY, {variables: {first: 8}})
-    .catch(() => null);
+  const featuredProducts = loadHomepageFeaturedItems(
+    args.context.storefront,
+    locale,
+    {limit: 8},
+  ).catch(() => [] as HomepageFeaturedItem[]);
 
   const promoSlides = args.context.storefront
     .query(HOMEPAGE_PROMO_SLIDES_QUERY)
@@ -70,9 +76,10 @@ export default function Homepage() {
 function FeaturedProducts({
   products,
 }: {
-  products: Promise<FeaturedProductsQuery | null>;
+  products: Promise<HomepageFeaturedItem[]>;
 }) {
-  const {translations: tr} = useLocale();
+  const {translations: tr, locale} = useLocale();
+  const perDay = locale === 'ka' ? '/ დღე' : '/ day';
 
   return (
     <section className="cm-home-products" aria-labelledby="home-products-heading">
@@ -85,7 +92,7 @@ function FeaturedProducts({
             </h2>
             <p className="cm-home-section-subtitle">{tr.featured.subtitle}</p>
           </div>
-          <Link to="/collections/all" className="cm-home-section-link shrink-0">
+          <Link to="/packages" className="cm-home-section-link shrink-0">
             {tr.featured.viewAll}
             <span aria-hidden>→</span>
           </Link>
@@ -104,14 +111,26 @@ function FeaturedProducts({
           }
         >
           <Await resolve={products}>
-            {(response) =>
-              response?.products.nodes.length ? (
+            {(items) =>
+              items.length ? (
                 <div className="cm-catalog-grid">
-                  {response.products.nodes.map((product, index) => (
-                    <ProductItem
-                      key={product.id}
-                      product={product}
+                  {items.map((item, index) => (
+                    <CatalogProductCard
+                      key={item.id}
+                      to={item.url}
+                      title={item.title}
+                      imageUrl={item.imageUrl}
+                      imageAlt={item.imageAlt ?? item.title}
                       loading={index < 4 ? 'eager' : 'lazy'}
+                      price={
+                        item.dailyRate > 0 ? (
+                          <PriceWithCompare
+                            amount={item.dailyRate}
+                            compareAtAmount={item.compareAt}
+                            suffix={` ${perDay}`}
+                          />
+                        ) : null
+                      }
                     />
                   ))}
                 </div>
@@ -130,49 +149,3 @@ function FeaturedProducts({
     </section>
   );
 }
-
-const FEATURED_PRODUCT_FRAGMENT = `#graphql
-  fragment FeaturedProduct on Product {
-    id
-    title
-    handle
-    featuredImage {
-      id
-      url
-      altText
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-      maxVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    compareAtPriceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-  }
-` as const;
-
-const FEATURED_PRODUCTS_QUERY = `#graphql
-  query FeaturedProducts(
-    $country: CountryCode
-    $language: LanguageCode
-    $first: Int!
-  ) @inContext(country: $country, language: $language) {
-    products(first: $first, sortKey: BEST_SELLING) {
-      nodes {
-        ...FeaturedProduct
-      }
-    }
-  }
-  ${FEATURED_PRODUCT_FRAGMENT}
-` as const;

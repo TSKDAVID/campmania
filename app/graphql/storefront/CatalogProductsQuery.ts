@@ -249,3 +249,46 @@ export const COLLECTION_PRODUCTS_QUERY = `#graphql
   }
   ${CATALOG_PRODUCT_FRAGMENT}
 ` as const;
+
+/** All collections — filter client-side for package kit collections (theme template packages). */
+export const PACKAGE_COLLECTIONS_QUERY = `#graphql
+  query PackageCollections(
+    $country: CountryCode
+    $language: LanguageCode
+    $first: Int!
+  ) @inContext(country: $country, language: $language) {
+    collections(first: $first) {
+      nodes {
+        id
+        title
+        handle
+        description
+        image {
+          url
+          altText
+        }
+        themeTemplate: metafield(namespace: "custom", key: "theme_template") {
+          value
+        }
+        isPackage: metafield(namespace: "custom", key: "is_package") {
+          value
+        }
+        trekMeta: metafield(namespace: "custom", key: "trek") {
+          value
+        }
+        durationMeta: metafield(namespace: "custom", key: "duration") {
+          value
+        }
+        difficultyMeta: metafield(namespace: "custom", key: "difficulty") {
+          value
+        }
+        products(first: 50) {
+          nodes {
+            ...InclusionProduct
+          }
+        }
+      }
+    }
+  }
+  ${INCLUSION_PRODUCT_FRAGMENT}
+` as const;

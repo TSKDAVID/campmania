@@ -1,0 +1,24 @@
+query ListPackageCollections {
+  collections(first: 50) {
+    nodes {
+      id
+      handle
+      title
+      templateSuffix
+      image {
+        url
+        altText
+      }
+      productsCount {
+        count
+      }
+      metafields(first: 10) {
+        nodes {
+          namespace
+          key
+          value
+        }
+      }
+    }
+  }
+}

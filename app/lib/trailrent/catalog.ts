@@ -32,6 +32,7 @@ export type GearItem = {
 export const TREK_FILTERS = [
   {value: 'tobavarchkhili', labelKa: 'ტობავარჩხილი', labelEn: 'Tobavarchkhili'},
   {value: 'birtvisi', labelKa: 'ბირთვისი', labelEn: 'Birtvisi'},
+  {value: 'borjomi', labelKa: 'ბორჯომი', labelEn: 'Borjomi'},
   {value: 'kazbegi', labelKa: 'კაზბეგი', labelEn: 'Kazbegi'},
 ] as const;
 
