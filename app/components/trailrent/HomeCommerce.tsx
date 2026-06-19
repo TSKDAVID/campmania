@@ -447,7 +447,7 @@ export function HomeCategories() {
 
   return (
     <section className="cm-home-categories" aria-labelledby="home-categories-heading">
-      <div className="tr-page-width">
+      <div className="cm-home-width">
         <div className="cm-home-section-head">
           <h2 id="home-categories-heading" className="cm-home-section-title">
             <IconTent size={20} className="text-moss" aria-hidden />

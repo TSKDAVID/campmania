@@ -42,21 +42,27 @@ export default function Homepage() {
 
   return (
     <div className="cm-home">
-      <div className="tr-page-width cm-home-top">
-        <HomeSearchBar />
-        <Suspense fallback={<HomePromoCarousel slides={null} />}>
-          <Await resolve={promoSlides}>
-            {(slides) => <HomePromoCarousel slides={slides} />}
-          </Await>
-        </Suspense>
-        <HomeQuickNav />
-      </div>
+      <header className="cm-home-header">
+        <div className="cm-home-width cm-home-top-bar">
+          <HomeSearchBar />
+        </div>
+        <div className="cm-home-hero cm-home-hero-bleed">
+          <Suspense fallback={<HomePromoCarousel slides={null} />}>
+            <Await resolve={promoSlides}>
+              {(slides) => <HomePromoCarousel slides={slides} />}
+            </Await>
+          </Suspense>
+        </div>
+        <div className="cm-home-width cm-home-top-bar">
+          <HomeQuickNav />
+        </div>
+      </header>
 
       <HomeCategories />
 
       <FeaturedProducts products={featuredProducts} />
 
-      <div className="tr-page-width cm-home-bottom">
+      <div className="cm-home-width cm-home-bottom">
         <HomeShopTiles />
         <HomePerksStrip />
         <HomeHowItWorksCompact />
@@ -74,7 +80,7 @@ function FeaturedProducts({
 
   return (
     <section className="cm-home-products" aria-labelledby="home-products-heading">
-      <div className="tr-page-width">
+      <div className="cm-home-width">
         <div className="cm-home-section-head">
           <div>
             <p className="tr-eyebrow">{tr.featured.eyebrow}</p>

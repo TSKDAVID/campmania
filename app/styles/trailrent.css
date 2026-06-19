@@ -1904,20 +1904,43 @@
     @apply bg-mist pb-10 md:pb-14;
   }
 
-  .cm-home-top {
-    @apply space-y-4 pb-6 pt-4 sm:space-y-5 sm:pt-5 md:pt-6;
+  .cm-home-width {
+    @apply mx-auto w-full max-w-[94rem] px-3 sm:px-5 md:px-8;
+  }
+
+  @media (min-width: 1536px) {
+    .cm-home-width {
+      max-width: 100rem;
+    }
+  }
+
+  .cm-home-header {
+    @apply space-y-4 pb-5 pt-4 sm:space-y-5 sm:pb-6 sm:pt-5 md:pt-6;
+  }
+
+  .cm-home-top-bar {
+    @apply space-y-0;
   }
 
   .cm-home-bottom {
     @apply space-y-8 pt-2 md:space-y-10;
   }
 
+  .cm-home-hero {
+    @apply relative w-full;
+  }
+
+  .cm-home-hero-bleed {
+    width: 100%;
+    padding-inline: clamp(0.75rem, 2.5vw, 2rem);
+  }
+
   .cm-home-search-slot {
-    @apply relative z-20 flex w-full justify-center;
+    @apply relative z-20 w-full;
   }
 
   .cm-home-search {
-    @apply relative w-full max-w-5xl;
+    @apply relative w-full;
   }
 
   .cm-home-search-form {
@@ -2063,6 +2086,11 @@
     }
   }
 
+  .cm-home-promo.cm-home-promo-slide {
+    @apply h-full w-full rounded-none border-0 shadow-none;
+    aspect-ratio: auto;
+  }
+
   .cm-home-promo-image {
     @apply absolute inset-0 h-full w-full object-cover transition duration-500;
   }
@@ -2076,7 +2104,7 @@
   }
 
   .cm-home-promo-content {
-    @apply relative flex h-full flex-col justify-end p-5 sm:p-6 md:max-w-xl md:p-8 lg:max-w-2xl;
+    @apply relative flex h-full flex-col justify-end p-5 sm:p-6 md:max-w-xl md:p-8 lg:max-w-2xl xl:max-w-3xl;
   }
 
   .cm-home-promo-badge {
@@ -2102,17 +2130,40 @@
   }
 
   .cm-home-promo-carousel {
-    @apply relative;
+    @apply relative w-full;
   }
 
   .cm-home-promo-viewport {
-    @apply relative overflow-hidden rounded-2xl md:rounded-3xl;
+    @apply relative w-full overflow-hidden rounded-2xl md:rounded-3xl;
     aspect-ratio: 4 / 3;
+    min-height: 13.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .cm-home-promo-viewport {
+      aspect-ratio: 16 / 9;
+      min-height: 16rem;
+    }
   }
 
   @media (min-width: 768px) {
     .cm-home-promo-viewport {
       aspect-ratio: 21 / 9;
+      min-height: 18.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cm-home-promo-viewport {
+      aspect-ratio: 2.35 / 1;
+      min-height: 22rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .cm-home-promo-viewport {
+      aspect-ratio: 2.55 / 1;
+      min-height: 26rem;
     }
   }
 
@@ -2152,7 +2203,7 @@
   }
 
   .cm-home-quicknav {
-    @apply -mx-1 flex gap-2 overflow-x-auto pb-1;
+    @apply flex gap-2 overflow-x-auto pb-0.5 sm:gap-2.5;
     scrollbar-width: none;
   }
 
@@ -2174,7 +2225,7 @@
   }
 
   .cm-home-categories {
-    @apply border-y border-stone/70 bg-white py-6 md:py-8;
+    @apply border-y border-stone/70 bg-white py-5 sm:py-6 md:py-8;
   }
 
   .cm-home-section-head {
@@ -2251,7 +2302,7 @@
   }
 
   .cm-home-products {
-    @apply py-5 sm:py-6 md:py-8;
+    @apply py-6 sm:py-7 md:py-9;
   }
 
   .cm-home-products-empty {
