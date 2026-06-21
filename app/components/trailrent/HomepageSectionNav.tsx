@@ -3,12 +3,8 @@ import {useLocale} from '~/providers/LocaleProvider';
 
 const SECTION_IDS = [
   'home-hero',
-  'home-quicknav',
-  'home-categories',
   'home-gear',
   'home-packages',
-  'home-shop',
-  'home-perks',
   'home-steps',
 ] as const;
 
@@ -39,13 +35,9 @@ export function HomepageSectionNav() {
 
   const labels: Record<SectionId, string> = {
     'home-hero': tr.home.sectionNav.hero,
-    'home-quicknav': tr.home.sectionNav.quickNav,
-    'home-categories': tr.home.sectionNav.categories,
-    'home-gear': tr.featured.gear.title,
-    'home-packages': tr.featured.packages.title,
-    'home-shop': tr.home.sectionNav.shop,
-    'home-perks': tr.home.sectionNav.perks,
-    'home-steps': tr.howItWorks.title,
+    'home-gear': tr.home.sectionNav.gear,
+    'home-packages': tr.home.sectionNav.packages,
+    'home-steps': tr.home.sectionNav.steps,
   };
 
   useEffect(() => {
@@ -111,18 +103,18 @@ export function HomepageSectionNav() {
             <li key={id} className="cm-home-scroll-nav-item">
               <button
                 type="button"
-                className={`cm-home-scroll-nav-dot${isActive ? ' is-active' : ''}`}
-                aria-label={labels[id]}
+                className={`cm-home-scroll-nav-link${isActive ? ' is-active' : ''}`}
                 aria-current={isActive ? 'true' : undefined}
-                title={labels[id]}
                 onClick={() => scrollTo(id)}
               >
-                <span className="cm-home-scroll-nav-dot-inner" aria-hidden />
+                <span className="cm-home-scroll-nav-dot" aria-hidden>
+                  <span className="cm-home-scroll-nav-dot-inner" />
+                </span>
+                <span className="cm-home-scroll-nav-label">{labels[id]}</span>
               </button>
               {!isLast ? (
                 <span className="cm-home-scroll-nav-connector" aria-hidden>
                   <span className="cm-home-scroll-nav-line" />
-                  <span className="cm-home-scroll-nav-chevron">›</span>
                 </span>
               ) : null}
             </li>

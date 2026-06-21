@@ -2309,62 +2309,81 @@
   .cm-home-scroll-nav {
     position: fixed;
     top: 50%;
-    left: max(0.75rem, calc((100vw - min(100vw, var(--cm-layout-max))) / 2 - 3rem));
+    left: clamp(1rem, 2vw, 1.5rem);
     z-index: 40;
     transform: translateY(-50%);
     pointer-events: none;
     display: none;
+    max-width: min(11rem, calc((100vw - min(100vw, var(--cm-layout-max))) / 2 - 1rem));
   }
 
-  @media (min-width: 90rem) {
+  @media (min-width: 75rem) {
     .cm-home-scroll-nav {
       display: block;
     }
   }
 
   .cm-home-scroll-nav-list {
-    @apply m-0 flex list-none flex-col items-center p-0;
+    @apply m-0 flex list-none flex-col items-start p-0;
     pointer-events: auto;
   }
 
   .cm-home-scroll-nav-item {
-    @apply flex flex-col items-center;
+    @apply flex w-full flex-col items-start;
   }
 
-  .cm-home-scroll-nav-dot {
-    @apply relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 transition;
+  .cm-home-scroll-nav-link {
+    @apply relative flex min-h-11 w-full items-center gap-2.5 rounded-lg border-0 bg-transparent py-1.5 pl-0 pr-2 text-left transition;
     cursor: pointer;
   }
 
-  .cm-home-scroll-nav-dot:focus-visible {
+  .cm-home-scroll-nav-link:focus-visible {
     @apply outline-none ring-2 ring-moss/50 ring-offset-2 ring-offset-mist;
+  }
+
+  .cm-home-scroll-nav-dot {
+    @apply flex h-5 w-5 shrink-0 items-center justify-center;
   }
 
   .cm-home-scroll-nav-dot-inner {
     @apply block h-2.5 w-2.5 rounded-full border-2 border-stone/80 bg-mist transition;
   }
 
-  .cm-home-scroll-nav-dot:hover .cm-home-scroll-nav-dot-inner {
+  .cm-home-scroll-nav-link:hover .cm-home-scroll-nav-dot-inner,
+  .cm-home-scroll-nav-link:focus-visible .cm-home-scroll-nav-dot-inner {
     @apply border-moss bg-stone/40;
   }
 
-  .cm-home-scroll-nav-dot.is-active .cm-home-scroll-nav-dot-inner {
+  .cm-home-scroll-nav-link.is-active .cm-home-scroll-nav-dot-inner {
     @apply scale-125 border-moss bg-moss;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-moss) 22%, transparent);
   }
 
+  .cm-home-scroll-nav-label {
+    @apply max-w-[8.5rem] truncate text-xs leading-snug text-muted transition;
+    font-family: var(--font-label);
+    opacity: 0.55;
+  }
+
+  .cm-home-scroll-nav-link:hover .cm-home-scroll-nav-label,
+  .cm-home-scroll-nav-link:focus-visible .cm-home-scroll-nav-label {
+    @apply text-pine;
+    opacity: 0.9;
+  }
+
+  .cm-home-scroll-nav-link.is-active .cm-home-scroll-nav-label {
+    @apply font-semibold text-pine;
+    opacity: 1;
+  }
+
   .cm-home-scroll-nav-connector {
-    @apply relative flex flex-col items-center;
-    height: 1.375rem;
+    @apply pointer-events-none relative ml-2.5 flex flex-col items-center;
+    height: 1.25rem;
+    width: 0;
   }
 
   .cm-home-scroll-nav-line {
     @apply block w-px flex-1 bg-stone/70;
-  }
-
-  .cm-home-scroll-nav-chevron {
-    @apply absolute -bottom-0.5 text-[0.55rem] leading-none text-stone/80;
-    font-family: var(--font-body);
   }
 
   /* Gear Builder */

@@ -124,11 +124,10 @@ const translations = {
       searching: 'იძებნება…',
       sectionNav: {
         label: 'მთავარი გვერდის სექციები',
-        hero: 'მთავარი ბანერი',
-        quickNav: 'სწრაფი ნავიგაცია',
-        categories: 'კატეგორიები',
-        shop: 'მაღაზია',
-        perks: 'უპირატესობები',
+        hero: 'მთავარი',
+        gear: 'აღჭურვილობა',
+        packages: 'კომპლექტები',
+        steps: 'როგორ მუშაობს',
       },
     },
     searchPage: {
@@ -476,11 +475,10 @@ const translations = {
       searching: 'Searching…',
       sectionNav: {
         label: 'Homepage sections',
-        hero: 'Hero banner',
-        quickNav: 'Quick navigation',
-        categories: 'Categories',
-        shop: 'Shop',
-        perks: 'Trust & perks',
+        hero: 'Home',
+        gear: 'Gear',
+        packages: 'Packages',
+        steps: 'How it works',
       },
     },
     searchPage: {
