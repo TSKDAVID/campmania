@@ -56,8 +56,8 @@ export function Header({
           <span className="font-display text-lg tracking-tight text-mist transition group-hover:text-amber sm:text-xl xl:text-2xl">
             {tr.brand}
           </span>
-          <span className="mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-sage xl:block">
-            Tbilisi · Georgia
+          <span className="cm-brand-tagline mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-sage xl:block">
+            {tr.headerLocation}
           </span>
         </NavLink>
 

@@ -203,7 +203,7 @@ export const TRAIL_PACKAGES: PackageItem[] = [
     trek: 'kazbegi',
     trekLabel: 'კაზბეგი',
     duration: 'weekend',
-    durationLabel: '7 days',
+    durationLabel: '7 დღე',
     difficulty: 'hard',
     difficultyLabel: 'რთული',
     productHandle: 'kazbegi-alpine-kit',

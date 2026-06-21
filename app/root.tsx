@@ -22,6 +22,7 @@ import {
   LocaleProvider,
   getLocaleFromRequest,
 } from './providers/LocaleProvider';
+import {DEFAULT_LOCALE} from './lib/trailrent/i18n';
 import {GearBuilderProvider} from './providers/GearBuilderProvider';
 
 export type RootLoader = typeof loader;
@@ -151,9 +152,11 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
+  const data = useRouteLoaderData<RootLoader>('root');
+  const lang = data?.locale ?? DEFAULT_LOCALE;
 
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -164,7 +167,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Georgian:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+Georgian:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
         <Meta />

@@ -8,6 +8,7 @@ const translations = {
   ka: {
     brand: 'Campmania',
     tagline: 'პრემიუმ ლაშქრობის აღჭურვილობის ქირა — თბილისი',
+    headerLocation: 'თბილისი · საქართველო',
     announcement:
       'მეტროში მიღება · 0 ₾ დეპოზიტი · Trusted Tier პროგრამა',
     nav: {
@@ -16,7 +17,7 @@ const translations = {
       gear: 'აღჭურვილობა',
       gearBuilder: 'აწყობა',
       howItWorks: 'როგორ მუშაობს',
-      faq: 'FAQ',
+      faq: 'კითხვები',
       account: 'ანგარიში',
       signIn: 'შესვლა',
       cart: 'კალათა',
@@ -351,6 +352,7 @@ const translations = {
   en: {
     brand: 'Campmania',
     tagline: 'Premium hiking gear rental — Tbilisi',
+    headerLocation: 'Tbilisi · Georgia',
     announcement:
       'Metro hub pickup · 0 GEL deposit · Trusted Tier rewards',
     nav: {

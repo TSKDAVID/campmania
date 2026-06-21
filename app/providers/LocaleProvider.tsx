@@ -1,4 +1,11 @@
-import {createContext, useContext, useMemo, useState, type ReactNode} from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   DEFAULT_LOCALE,
   getTranslations,
@@ -23,6 +30,12 @@ export function LocaleProvider({
   children: ReactNode;
 }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = locale;
+    }
+  }, [locale]);
 
   const setLocale = (next: Locale) => {
     setLocaleState(next);

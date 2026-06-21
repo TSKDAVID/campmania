@@ -10,9 +10,13 @@
   --color-amber: #d4a574;
   --color-charcoal: #1c2421;
   --color-muted: #5a6b62;
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
-  --font-label: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Noto Serif', 'Noto Serif Georgian', Georgia, serif;
+  --font-body: 'Noto Sans', 'Noto Sans Georgian', system-ui, sans-serif;
+  --font-label: 'Noto Sans', 'Noto Sans Georgian', system-ui, sans-serif;
+  --cm-font-display: var(--font-display);
+  --cm-font-body: var(--font-body);
+  --cm-font-label: var(--font-label);
+  --cm-font-mono: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
   --header-height: 72px;
   --site-top-height: var(--header-height);
 }
@@ -20,22 +24,49 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-mist text-charcoal antialiased;
-    font-family: var(--font-body);
+    font-family: var(--cm-font-body);
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: 'kern' 1, 'liga' 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  html[lang='ka'] body {
+    line-height: 1.68;
+    letter-spacing: 0.01em;
+  }
+
+  html[lang='en'] body {
+    line-height: 1.58;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-display);
+    font-family: var(--cm-font-display);
     @apply text-pine;
+  }
+
+  html[lang='ka'] :is(h1, h2, h3, h4, .font-display) {
+    letter-spacing: 0;
+    line-height: 1.28;
+  }
+
+  html[lang='ka'] .tracking-tight {
+    letter-spacing: 0;
+  }
+
+  html[lang='ka'] main .uppercase {
+    text-transform: none;
+    letter-spacing: 0.02em;
   }
 
   a {
@@ -3070,4 +3101,50 @@
 
 :is(a, button).cm-rental-mode-btn--buy {
   color: var(--color-pine);
+}
+
+/*
+ * Georgian locale — avoid uppercase + wide tracking on Mkhedruli UI copy.
+ * Latin brand names (Campmania, BORJOMI) still render from the same stack.
+ */
+html[lang='ka'] :is(
+  .tr-eyebrow,
+  .tr-btn,
+  .tr-btn-primary,
+  .tr-btn-secondary,
+  .tr-btn-ghost,
+  .cm-page-banner-eyebrow,
+  .cm-filter-group-label,
+  .cm-filter-mobile-trigger,
+  .cm-filter-active-chip,
+  .cm-filter-pill,
+  .cm-kit-card-meta,
+  .cm-kit-card-included-label,
+  .cm-loyalty-tier-pill,
+  .cm-product-eyebrow,
+  .cm-product-price-chip-label,
+  .cm-product-included-eyebrow,
+  .cm-home-promo-badge,
+  .cm-home-promo-cta,
+  .cm-home-tile-cta,
+  .cm-gear-builder-strip-title,
+  .cm-gear-builder-field > span,
+  .cm-gear-builder-dialog-metric-label,
+  .cm-gear-builder-dialog-item-type,
+  .cm-cart-line-badge,
+  .cm-cart-line-qty-label,
+  .cm-brand-tagline,
+  .cm-site-footer h3
+) {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+html[lang='ka'] :is(.cm-nav-link, .cm-mobile-nav-link) {
+  letter-spacing: 0.01em;
+}
+
+html[lang='ka'] :is(.cm-product-description-body, .cm-home-promo-subtitle, .cm-home-step-desc) {
+  line-height: 1.72;
 }
