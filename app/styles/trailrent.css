@@ -2257,29 +2257,49 @@
   }
 
   .cm-home-steps {
-    @apply rounded-2xl border border-stone/60 bg-white p-4 sm:p-5 md:p-6;
+    @apply flex flex-col gap-5 rounded-2xl border border-stone/60 bg-white px-4 py-5 sm:gap-5 sm:px-5 sm:py-6 md:gap-6 md:px-6 md:py-6;
+  }
+
+  .cm-home-steps .cm-home-section-head {
+    @apply mb-0 items-center;
   }
 
   .cm-home-steps-grid {
-    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-4;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  @media (min-width: 640px) {
+    .cm-home-steps-grid {
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cm-home-steps-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
   .cm-home-step {
-    @apply rounded-xl bg-mist/50 p-3.5 sm:p-4;
+    @apply flex h-full min-h-[8.5rem] flex-col gap-2.5 rounded-xl bg-mist/50 p-4 sm:min-h-[9rem] sm:gap-3;
   }
 
   .cm-home-step-num {
-    @apply flex h-7 w-7 items-center justify-center rounded-full bg-pine text-xs font-bold text-mist;
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pine text-xs font-bold text-mist;
     font-family: var(--font-label);
   }
 
   .cm-home-step-title {
-    @apply mt-2 text-sm font-bold text-pine;
+    @apply text-sm font-bold leading-snug text-pine;
     font-family: var(--font-label);
   }
 
   .cm-home-step-desc {
-    @apply mt-1 text-xs leading-relaxed text-muted;
+    @apply flex-1 text-xs leading-relaxed text-muted;
   }
 
   /* Gear Builder */

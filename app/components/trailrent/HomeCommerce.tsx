@@ -217,7 +217,7 @@ export function HomeHowItWorksCompact() {
         <h2 id="home-steps-heading" className="cm-home-section-title">
           {tr.howItWorks.title}
         </h2>
-        <Link to="/pages/how-it-works" className="cm-home-section-link">
+        <Link to="/pages/how-it-works" className="cm-home-section-link shrink-0">
           {tr.home.stepsLink}
           <IconArrowRight size={14} />
         </Link>
