@@ -2302,6 +2302,71 @@
     @apply flex-1 text-xs leading-relaxed text-muted;
   }
 
+  .cm-home-scroll-target {
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+  }
+
+  .cm-home-scroll-nav {
+    position: fixed;
+    top: 50%;
+    left: max(0.75rem, calc((100vw - min(100vw, var(--cm-layout-max))) / 2 - 3rem));
+    z-index: 40;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: none;
+  }
+
+  @media (min-width: 90rem) {
+    .cm-home-scroll-nav {
+      display: block;
+    }
+  }
+
+  .cm-home-scroll-nav-list {
+    @apply m-0 flex list-none flex-col items-center p-0;
+    pointer-events: auto;
+  }
+
+  .cm-home-scroll-nav-item {
+    @apply flex flex-col items-center;
+  }
+
+  .cm-home-scroll-nav-dot {
+    @apply relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 transition;
+    cursor: pointer;
+  }
+
+  .cm-home-scroll-nav-dot:focus-visible {
+    @apply outline-none ring-2 ring-moss/50 ring-offset-2 ring-offset-mist;
+  }
+
+  .cm-home-scroll-nav-dot-inner {
+    @apply block h-2.5 w-2.5 rounded-full border-2 border-stone/80 bg-mist transition;
+  }
+
+  .cm-home-scroll-nav-dot:hover .cm-home-scroll-nav-dot-inner {
+    @apply border-moss bg-stone/40;
+  }
+
+  .cm-home-scroll-nav-dot.is-active .cm-home-scroll-nav-dot-inner {
+    @apply scale-125 border-moss bg-moss;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-moss) 22%, transparent);
+  }
+
+  .cm-home-scroll-nav-connector {
+    @apply relative flex flex-col items-center;
+    height: 1.375rem;
+  }
+
+  .cm-home-scroll-nav-line {
+    @apply block w-px flex-1 bg-stone/70;
+  }
+
+  .cm-home-scroll-nav-chevron {
+    @apply absolute -bottom-0.5 text-[0.55rem] leading-none text-stone/80;
+    font-family: var(--font-body);
+  }
+
   /* Gear Builder */
   .cm-gear-builder-page {
     @apply py-5 md:py-8;

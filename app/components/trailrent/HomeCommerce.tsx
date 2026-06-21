@@ -99,7 +99,11 @@ export function HomeCategories() {
   const {locale, translations: tr} = useLocale();
 
   return (
-    <section className="cm-home-categories" aria-labelledby="home-categories-heading">
+    <section
+      id="home-categories"
+      className="cm-home-categories cm-home-scroll-target"
+      aria-labelledby="home-categories-heading"
+    >
       <div className="cm-home-width">
         <div className="cm-home-section-head">
           <h2 id="home-categories-heading" className="cm-home-section-title">
@@ -159,7 +163,11 @@ export function HomeShopTiles() {
   ];
 
   return (
-    <section className="cm-home-tiles" aria-label="Shop">
+    <section
+      id="home-shop"
+      className="cm-home-tiles cm-home-scroll-target"
+      aria-label="Shop"
+    >
       <div className="cm-home-tile-grid">
         {tiles.map((tile) => (
           <Link key={tile.to} to={tile.to} className={`cm-home-tile ${tile.accent}`}>
@@ -197,7 +205,11 @@ export function HomePerksStrip() {
   ];
 
   return (
-    <div className="cm-home-perks" role="list">
+    <div
+      id="home-perks"
+      className="cm-home-perks cm-home-scroll-target"
+      role="list"
+    >
       {perks.map(({Icon, label}) => (
         <div key={label} className="cm-home-perk" role="listitem">
           <Icon size={16} className="text-moss" aria-hidden />
@@ -212,7 +224,11 @@ export function HomeHowItWorksCompact() {
   const {translations: tr} = useLocale();
 
   return (
-    <section className="cm-home-steps" aria-labelledby="home-steps-heading">
+    <section
+      id="home-steps"
+      className="cm-home-steps cm-home-scroll-target"
+      aria-labelledby="home-steps-heading"
+    >
       <div className="cm-home-section-head">
         <h2 id="home-steps-heading" className="cm-home-section-title">
           {tr.howItWorks.title}

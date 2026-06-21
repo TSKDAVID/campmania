@@ -122,6 +122,14 @@ const translations = {
       searchClear: 'გასუფთავება',
       viewAllResults: 'ყველა შედეგის ნახვა',
       searching: 'იძებნება…',
+      sectionNav: {
+        label: 'მთავარი გვერდის სექციები',
+        hero: 'მთავარი ბანერი',
+        quickNav: 'სწრაფი ნავიგაცია',
+        categories: 'კატეგორიები',
+        shop: 'მაღაზია',
+        perks: 'უპირატესობები',
+      },
     },
     searchPage: {
       title: 'ძიება',
@@ -466,6 +474,14 @@ const translations = {
       searchClear: 'Clear',
       viewAllResults: 'View all results',
       searching: 'Searching…',
+      sectionNav: {
+        label: 'Homepage sections',
+        hero: 'Hero banner',
+        quickNav: 'Quick navigation',
+        categories: 'Categories',
+        shop: 'Shop',
+        perks: 'Trust & perks',
+      },
     },
     searchPage: {
       title: 'Search',

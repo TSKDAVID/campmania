@@ -14,6 +14,7 @@ import {
   HomeShopTiles,
 } from '~/components/trailrent/HomeCommerce';
 import {HomePromoCarousel} from '~/components/trailrent/HomePromoCarousel';
+import {HomepageSectionNav} from '~/components/trailrent/HomepageSectionNav';
 import {
   HOMEPAGE_PROMO_SLIDES_QUERY,
   parseHomepagePromoSlides,
@@ -51,7 +52,8 @@ export default function Homepage() {
 
   return (
     <div className="cm-home">
-      <header className="cm-home-header">
+      <HomepageSectionNav />
+      <header id="home-hero" className="cm-home-header cm-home-scroll-target">
         <div className="cm-home-hero cm-home-hero-bleed">
           <Suspense fallback={<HomePromoCarousel slides={null} />}>
             <Await resolve={promoSlides}>
@@ -59,7 +61,10 @@ export default function Homepage() {
             </Await>
           </Suspense>
         </div>
-        <div className="cm-home-width cm-home-top-bar">
+        <div
+          id="home-quicknav"
+          className="cm-home-width cm-home-top-bar cm-home-scroll-target"
+        >
           <HomeQuickNav />
         </div>
       </header>
@@ -106,6 +111,7 @@ function FeaturedProducts({
         {({packages, gear, gearCatalog}) => (
           <>
             <FeaturedGearSection
+              sectionId="home-gear"
               id="home-gear-heading"
               copy={tr.featured.gear}
               viewAllHref="/individual-gear"
@@ -114,6 +120,7 @@ function FeaturedProducts({
               emptyCta={{label: tr.hero.ctaGear, href: '/individual-gear'}}
             />
             <FeaturedPackagesSection
+              sectionId="home-packages"
               id="home-packages-heading"
               copy={tr.featured.packages}
               viewAllHref="/packages"
@@ -200,6 +207,7 @@ function FeaturedSectionHead({
 }
 
 function FeaturedPackagesSection({
+  sectionId,
   id,
   copy,
   viewAllHref,
@@ -213,6 +221,7 @@ function FeaturedPackagesSection({
   includedLabel,
   emptyCta,
 }: {
+  sectionId: string;
   id: string;
   copy: {
     eyebrow: string;
@@ -233,7 +242,11 @@ function FeaturedPackagesSection({
   emptyCta: {label: string; href: string};
 }) {
   return (
-    <section className="cm-home-products" aria-labelledby={id}>
+    <section
+      id={sectionId}
+      className="cm-home-products cm-home-scroll-target"
+      aria-labelledby={id}
+    >
       <div className="cm-home-width">
         <FeaturedSectionHead id={id} copy={copy} viewAllHref={viewAllHref} />
 
@@ -267,6 +280,7 @@ function FeaturedPackagesSection({
 }
 
 function FeaturedGearSection({
+  sectionId,
   id,
   copy,
   viewAllHref,
@@ -274,6 +288,7 @@ function FeaturedGearSection({
   perDay,
   emptyCta,
 }: {
+  sectionId: string;
   id: string;
   copy: {
     eyebrow: string;
@@ -288,7 +303,11 @@ function FeaturedGearSection({
   emptyCta: {label: string; href: string};
 }) {
   return (
-    <section className="cm-home-products" aria-labelledby={id}>
+    <section
+      id={sectionId}
+      className="cm-home-products cm-home-scroll-target"
+      aria-labelledby={id}
+    >
       <div className="cm-home-width">
         <FeaturedSectionHead id={id} copy={copy} viewAllHref={viewAllHref} />
 
