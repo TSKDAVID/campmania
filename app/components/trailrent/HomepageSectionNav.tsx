@@ -12,6 +12,7 @@ type SectionId = (typeof SECTION_IDS)[number];
 
 const HEADER_OFFSET_PX = 72;
 const SCROLL_OFFSET_PX = HEADER_OFFSET_PX + 16;
+const SCROLL_PIN_RELEASE_MS = 120;
 
 function getActiveSection(): SectionId {
   let current: SectionId = SECTION_IDS[0];
@@ -32,6 +33,8 @@ export function HomepageSectionNav() {
   const {translations: tr} = useLocale();
   const [activeId, setActiveId] = useState<SectionId>(SECTION_IDS[0]);
   const rafRef = useRef<number | null>(null);
+  const scrollTargetRef = useRef<SectionId | null>(null);
+  const pinReleaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const labels: Record<SectionId, string> = {
     'home-hero': tr.home.sectionNav.hero,
@@ -42,10 +45,36 @@ export function HomepageSectionNav() {
 
   useEffect(() => {
     const syncActive = () => {
+      if (scrollTargetRef.current) {
+        setActiveId(scrollTargetRef.current);
+        return;
+      }
       setActiveId(getActiveSection());
     };
 
+    const releaseScrollPin = () => {
+      if (pinReleaseTimerRef.current) {
+        clearTimeout(pinReleaseTimerRef.current);
+        pinReleaseTimerRef.current = null;
+      }
+      scrollTargetRef.current = null;
+      setActiveId(getActiveSection());
+    };
+
+    const bumpPinRelease = () => {
+      if (!scrollTargetRef.current) return;
+      if (pinReleaseTimerRef.current) {
+        clearTimeout(pinReleaseTimerRef.current);
+      }
+      pinReleaseTimerRef.current = setTimeout(
+        releaseScrollPin,
+        SCROLL_PIN_RELEASE_MS,
+      );
+    };
+
     const onScroll = () => {
+      if (scrollTargetRef.current) bumpPinRelease();
+
       if (rafRef.current != null) return;
       rafRef.current = window.requestAnimationFrame(() => {
         rafRef.current = null;
@@ -53,29 +82,24 @@ export function HomepageSectionNav() {
       });
     };
 
+    const onScrollEnd = () => {
+      if (scrollTargetRef.current) releaseScrollPin();
+    };
+
     syncActive();
     window.addEventListener('scroll', onScroll, {passive: true});
     window.addEventListener('resize', syncActive, {passive: true});
-
-    const observer = new IntersectionObserver(
-      () => syncActive(),
-      {
-        rootMargin: `-${SCROLL_OFFSET_PX}px 0px -55% 0px`,
-        threshold: [0, 0.01, 0.1],
-      },
-    );
-
-    for (const id of SECTION_IDS) {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    }
+    window.addEventListener('scrollend', onScrollEnd, {passive: true});
 
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', syncActive);
-      observer.disconnect();
+      window.removeEventListener('scrollend', onScrollEnd);
       if (rafRef.current != null) {
         window.cancelAnimationFrame(rafRef.current);
+      }
+      if (pinReleaseTimerRef.current) {
+        clearTimeout(pinReleaseTimerRef.current);
       }
     };
   }, []);
@@ -83,10 +107,20 @@ export function HomepageSectionNav() {
   const scrollTo = useCallback((id: SectionId) => {
     const el = document.getElementById(id);
     if (!el) return;
+
     const top =
       el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET_PX;
-    window.scrollTo({top, behavior: 'smooth'});
+    const alreadyAtTarget = Math.abs(window.scrollY - top) < 2;
+
     setActiveId(id);
+
+    if (alreadyAtTarget) {
+      scrollTargetRef.current = null;
+      return;
+    }
+
+    scrollTargetRef.current = id;
+    window.scrollTo({top, behavior: 'smooth'});
   }, []);
 
   return (
