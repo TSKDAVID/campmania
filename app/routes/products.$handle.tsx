@@ -1,6 +1,6 @@
 import {useMemo, useState} from 'react';
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
-import {useLoaderData} from 'react-router';
+import {useLoaderData, redirect} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {
   getSelectedProductOptions,
@@ -21,6 +21,7 @@ import {
   mapCatalogNodeToGearBuilderProduct,
   resolveIncludedKitNodes,
   resolvePackagePricingFromCatalog,
+  findPackageProductByKitAlias,
   type CatalogProductNode,
 } from '~/lib/trailrent/shopify-catalog';
 import {liveStorefrontCache} from '~/lib/trailrent/storefront-live';
@@ -85,14 +86,21 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product}] = await Promise.all([
+  const [{product: queriedProduct}] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
       ...liveStorefrontCache(storefront),
     }),
   ]);
 
+  let product = queriedProduct;
+
   if (!product?.id) {
+    const alias = await findPackageProductByKitAlias(storefront, handle);
+    if (alias && alias.handle !== handle) {
+      const url = new URL(request.url);
+      throw redirect(`/products/${alias.handle}${url.search}`);
+    }
     throw new Response(null, {status: 404});
   }
 

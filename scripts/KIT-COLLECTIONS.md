@@ -7,6 +7,8 @@ Convention `{package-handle}-includes` is only used when the metafield is unset.
 | ---------------------- | --------------------- | -------------- |
 | `birtvisi-package` | `birtvisi-package-includes` | `gid://shopify/Collection/655392768292` |
 | `tobavarchkhili` | `tobavarchkhili-includes` | `gid://shopify/Collection/655392801060` |
+
+**Important:** Package cards link using the **real product handle** from the `trail-packages` collection (via `custom.included_collection` metafield). If `/products/tobavarchkhili` 404s, the Shopify product handle may differ — add the product to `trail-packages` and ensure `included_collection` points at the kit collection. The storefront auto-redirects convention aliases when the product is findable.
 | `borjomi-package` | `ბორჯომის-ეროვნული-პარკის-კომპლექტი` | `gid://shopify/Collection/655429009700` |
 
 Kit collections must be published to the **campmania** Hydrogen sales channel.

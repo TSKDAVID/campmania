@@ -1,6 +1,7 @@
 import {Link} from 'react-router';
 import {useCallback, useRef} from 'react';
 import type {ShopifyPackageItem} from '~/lib/trailrent/shopify-catalog';
+import {resolvePackageItemUrl} from '~/lib/trailrent/shopify-catalog';
 import {useLocale} from '~/providers/LocaleProvider';
 
 type CuratedPackagesShowcaseProps = {
@@ -146,7 +147,7 @@ type ShowcaseCardProps = {
 
 function ShowcaseCard({pkg, index, hoverLabel, isKa}: ShowcaseCardProps) {
   const ordinal = String(index + 1).padStart(2, '0');
-  const href = pkg.productHandle ? `/products/${pkg.productHandle}` : '/packages';
+  const href = resolvePackageItemUrl(pkg) ?? '/packages';
 
   return (
     <Link to={href} className="cm-showcase-card" prefetch="intent">

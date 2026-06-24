@@ -2,6 +2,7 @@ import {
   COLLECTION_PRODUCTS_QUERY,
   CATALOG_PRODUCT_FRAGMENT,
   PACKAGE_COLLECTIONS_QUERY,
+  PACKAGE_PRODUCT_BY_TREK_QUERY,
 } from '~/graphql/storefront/CatalogProductsQuery';
 import type {Storefront} from '@shopify/hydrogen';
 import {
@@ -87,6 +88,108 @@ export function packageProductHandleFromKitCollection(
     return kitCollectionHandle.slice(0, -suffix.length);
   }
   return null;
+}
+
+/** Map kit collection handle → package product from trail-packages metafields. */
+export function buildKitCollectionToPackageMap(
+  packageProducts: CatalogProductNode[],
+): Map<string, CatalogProductNode> {
+  const map = new Map<string, CatalogProductNode>();
+  for (const product of packageProducts) {
+    const kitHandle = product.includedCollection?.reference?.handle?.trim();
+    if (kitHandle) {
+      map.set(kitHandle, product);
+    }
+  }
+  return map;
+}
+
+/**
+ * Resolve a package product when the URL uses a kit-convention alias
+ * (e.g. /products/tobavarchkhili) but Shopify handle differs
+ * (e.g. tobavarchkhili-package).
+ */
+export async function findPackageProductByKitAlias(
+  storefront: Storefront,
+  aliasHandle: string,
+): Promise<{handle: string; id: string} | null> {
+  const conventionKitHandle = aliasHandle.endsWith('-includes')
+    ? aliasHandle
+    : `${aliasHandle}-includes`;
+
+  const {collection} = await storefront
+    .query(COLLECTION_PRODUCTS_QUERY, {
+      variables: {handle: SHOPIFY_COLLECTION_HANDLES.packages, first: 50},
+      ...liveStorefrontCache(storefront),
+    })
+    .catch(() => ({collection: null}));
+
+  const nodes = (collection?.products?.nodes ?? []) as CatalogProductNode[];
+
+  for (const product of nodes) {
+    if (product.handle === aliasHandle) {
+      return {handle: product.handle, id: product.id};
+    }
+
+    const kitHandle = product.includedCollection?.reference?.handle?.trim();
+    if (!kitHandle) continue;
+
+    if (
+      kitHandle === conventionKitHandle ||
+      packageProductHandleFromKitCollection(kitHandle) === aliasHandle
+    ) {
+      return {handle: product.handle, id: product.id};
+    }
+  }
+
+  const trekSlug = aliasHandle
+    .replace(/-package.*$/, '')
+    .replace(/-includes$/, '')
+    .replace(/-weekend-kit$/, '')
+    .replace(/-day-hike-kit$/, '')
+    .replace(/-alpine-kit$/, '');
+
+  if (!trekSlug) return null;
+
+  const {products} = await storefront
+    .query(PACKAGE_PRODUCT_BY_TREK_QUERY, {
+      variables: {query: `tag:trek-${trekSlug}`},
+      ...liveStorefrontCache(storefront),
+    })
+    .catch(() => ({products: null}));
+
+  for (const product of (products?.nodes ?? []) as Array<{
+    id: string;
+    handle: string;
+    includedCollection?: {
+      reference?: {handle?: string | null} | null;
+    } | null;
+  }>) {
+    const kitHandle = product.includedCollection?.reference?.handle?.trim();
+    if (!kitHandle) continue;
+
+    if (
+      kitHandle === conventionKitHandle ||
+      packageProductHandleFromKitCollection(kitHandle) === aliasHandle
+    ) {
+      return {handle: product.handle, id: product.id};
+    }
+  }
+
+  return null;
+}
+
+async function loadTrailPackageProducts(
+  storefront: Storefront,
+): Promise<CatalogProductNode[]> {
+  const {collection} = await storefront
+    .query(COLLECTION_PRODUCTS_QUERY, {
+      variables: {handle: SHOPIFY_COLLECTION_HANDLES.packages, first: 50},
+      ...liveStorefrontCache(storefront),
+    })
+    .catch(() => ({collection: null}));
+
+  return (collection?.products?.nodes ?? []) as CatalogProductNode[];
 }
 
 export function resolvePackageItemUrl(
@@ -755,6 +858,7 @@ export function isPackageKitCollection(collection: PackageCollectionNode): boole
 function mapPackageCollection(
   collection: PackageCollectionNode,
   locale: 'ka' | 'en',
+  kitToPackage?: Map<string, CatalogProductNode>,
 ): ShopifyPackageItem | null {
   const kitNodes = collection.products?.nodes ?? [];
   if (!kitNodes.length) return null;
@@ -771,8 +875,11 @@ function mapPackageCollection(
     DURATION_DAYS[duration],
   );
 
+  const linkedPackage = kitToPackage?.get(collection.handle);
   const productHandle =
-    packageProductHandleFromKitCollection(collection.handle) ?? collection.handle;
+    linkedPackage?.handle ??
+    packageProductHandleFromKitCollection(collection.handle) ??
+    collection.handle;
 
   return {
     id: collection.id,
@@ -789,7 +896,7 @@ function mapPackageCollection(
     difficultyLabel: labelFromFilter(difficulty, DIFFICULTY_FILTERS, locale),
     productHandle,
     items: kitProducts.map((entry) => entry.title),
-    productId: collection.id,
+    productId: linkedPackage?.id ?? collection.id,
     variantId: undefined,
     imageUrl: collection.image?.url,
     imageAlt: collection.image?.altText ?? title,
@@ -855,27 +962,38 @@ export async function loadShopifyPackages(
   storefront: Storefront,
   locale: 'ka' | 'en',
 ): Promise<ShopifyPackageItem[]> {
-  const packageCollections = await loadPackageCollections(storefront);
+  const [packageCollections, trailNodes] = await Promise.all([
+    loadPackageCollections(storefront),
+    loadTrailPackageProducts(storefront),
+  ]);
+  const kitToPackage = buildKitCollectionToPackageMap(trailNodes);
+
   const fromCollections = packageCollections
-    .map((collection) => mapPackageCollection(collection, locale))
+    .map((collection) => {
+      const fromKit = mapPackageCollection(collection, locale, kitToPackage);
+      if (!fromKit) return null;
+
+      const linked = kitToPackage.get(collection.handle);
+      if (linked) {
+        return mapPackageProduct(
+          linked,
+          locale,
+          fromKit.includedCollectionProducts,
+          fromKit.includedCollectionHandle,
+          fromKit.imageUrl,
+        );
+      }
+
+      return fromKit;
+    })
     .filter((item): item is ShopifyPackageItem => item != null);
 
   if (fromCollections.length > 0) return fromCollections;
 
-  const {collection} = await storefront.query(COLLECTION_PRODUCTS_QUERY, {
-    variables: {
-      handle: SHOPIFY_COLLECTION_HANDLES.packages,
-      first: 50,
-    },
-    ...liveStorefrontCache(storefront),
-  });
-
-  if (!collection?.products?.nodes?.length) return [];
-
-  const nodes = collection.products.nodes as CatalogProductNode[];
+  if (!trailNodes.length) return [];
 
   return Promise.all(
-    nodes.map(async (product) => {
+    trailNodes.map(async (product) => {
       const kit = await resolvePackageKitProducts(storefront, product);
 
       return mapPackageProduct(

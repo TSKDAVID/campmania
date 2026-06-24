@@ -292,3 +292,26 @@ export const PACKAGE_COLLECTIONS_QUERY = `#graphql
   }
   ${INCLUSION_PRODUCT_FRAGMENT}
 ` as const;
+
+/** Find package product by trek tag when listing collection is incomplete. */
+export const PACKAGE_PRODUCT_BY_TREK_QUERY = `#graphql
+  query PackageProductByTrekTag(
+    $query: String!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    products(first: 5, query: $query) {
+      nodes {
+        id
+        handle
+        includedCollection: metafield(namespace: "custom", key: "included_collection") {
+          reference {
+            ... on Collection {
+              handle
+            }
+          }
+        }
+      }
+    }
+  }
+` as const;
