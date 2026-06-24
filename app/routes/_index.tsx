@@ -3,23 +3,14 @@ import type {Route} from './+types/_index';
 import {Suspense} from 'react';
 import {useLocale} from '~/providers/LocaleProvider';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
-import {CampManiaHero} from '~/components/trailrent/CampManiaHero';
-import {PackageCard} from '~/components/trailrent/PackageCard';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
-import {DURATION_FILTERS} from '~/lib/trailrent/catalog';
-import {
-  HomeCategories,
-  HomeHowItWorksCompact,
-  HomePerksStrip,
-  HomeQuickNav,
-  HomeShopTiles,
-} from '~/components/trailrent/HomeCommerce';
-import {HomepageSectionNav} from '~/components/trailrent/HomepageSectionNav';
+import {EditorialHero} from '~/components/trailrent/EditorialHero';
+import {BrandTicker} from '~/components/trailrent/BrandTicker';
+import {CuratedPackagesShowcase} from '~/components/trailrent/CuratedPackagesShowcase';
+import {CategoryBentoMatrix} from '~/components/trailrent/CategoryBentoMatrix';
 import {
   loadHomepageFeaturedSections,
   type HomepageFeaturedItem,
-  type ShopifyGearItem,
-  type ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
 import {
   HOMEPAGE_PROMO_SLIDES_QUERY,
@@ -32,7 +23,7 @@ export async function loader(args: Route.LoaderArgs) {
   const featuredSections = loadHomepageFeaturedSections(
     args.context.storefront,
     locale,
-    {packageLimit: 4, gearLimit: 4},
+    {packageLimit: 6, gearLimit: 4},
   ).catch(() => ({packages: [], gear: [], gearCatalog: []}));
 
   const promoSlides = args.context.storefront
@@ -44,254 +35,129 @@ export async function loader(args: Route.LoaderArgs) {
 }
 
 export const meta: Route.MetaFunction = () => [
-  {title: 'Campmania | Premium Hiking Gear Rental — Tbilisi'},
+  {title: 'Camp Mania | Premium Gear Rental — Tbilisi'},
 ];
 
 export default function Homepage() {
-  const {featuredSections} = useLoaderData<typeof loader>();
+  const {featuredSections, promoSlides} = useLoaderData<typeof loader>();
 
   return (
-    <div className="cm-home overflow-x-hidden">
-      <HomepageSectionNav />
-      <Suspense
-        fallback={
-          <>
-            <header id="home-hero" className="cm-home-header cm-home-scroll-target">
-              <CampManiaHero packages={[]} />
-              <div
-                id="home-quicknav"
-                className="cm-home-width cm-home-top-bar cm-home-scroll-target"
-              >
-                <HomeQuickNav />
-              </div>
-            </header>
-            <FeaturedSectionSkeleton />
-            <FeaturedPackagesSectionSkeleton />
-          </>
-        }
-      >
+    <div className="cm-home cm-editorial overflow-x-hidden">
+      <EditorialHero promoSlides={promoSlides} />
+
+      <BrandTicker />
+
+      <Suspense fallback={<HomepageDeferredSkeleton />}>
         <Await resolve={featuredSections}>
-          {({packages, gear, gearCatalog}) => (
+          {({packages, gear}) => (
             <>
-              <header id="home-hero" className="cm-home-header cm-home-scroll-target">
-                <CampManiaHero packages={packages} />
-                <div
-                  id="home-quicknav"
-                  className="cm-home-width cm-home-top-bar cm-home-scroll-target"
-                >
-                  <HomeQuickNav />
-                </div>
-              </header>
+              <CuratedPackagesShowcase packages={packages} />
 
-              <HomeCategories />
+              <CategoryBentoMatrix />
 
-              <FeaturedGearSection
-                sectionId="home-gear"
-                id="home-gear-heading"
-                items={gear}
-              />
-              <FeaturedPackagesSection
-                sectionId="home-packages"
-                id="home-packages-heading"
-                packages={packages}
-                gearCatalog={gearCatalog}
-              />
+              <FeaturedGearStrip items={gear} />
             </>
           )}
         </Await>
       </Suspense>
-
-      <div className="cm-home-width cm-home-bottom">
-        <HomeShopTiles />
-        <HomePerksStrip />
-        <HomeHowItWorksCompact />
-      </div>
     </div>
   );
 }
 
-function FeaturedPackagesSection({
-  sectionId,
-  id,
-  packages,
-  gearCatalog,
-}: {
-  sectionId: string;
-  id: string;
-  packages: ShopifyPackageItem[];
-  gearCatalog: ShopifyGearItem[];
-}) {
-  const {translations: tr, locale} = useLocale();
-  const durationOptions = DURATION_FILTERS.map((option) => ({
-    value: option.value,
-    label: locale === 'ka' ? option.labelKa : option.labelEn,
-  }));
+function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
+  const {locale} = useLocale();
+  const isKa = locale === 'ka';
+  const perDay = isKa ? '/ დღე' : '/ day';
 
   return (
     <section
-      id={sectionId}
-      className="cm-home-products cm-home-scroll-target"
-      aria-labelledby={id}
+      id="home-gear"
+      className="cm-gear-strip cm-home-scroll-target"
+      aria-labelledby="cm-gear-strip-heading"
     >
-      <div className="cm-home-width">
-        <FeaturedSectionHead
-          id={id}
-          copy={tr.featured.packages}
-          viewAllHref="/packages"
-        />
-
-        {packages.length ? (
-          <div className="cm-catalog-grid cm-catalog-grid--packages">
-            {packages.map((pkg) => (
-              <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                gear={gearCatalog}
-                locale={locale}
-                durationOptions={durationOptions}
-                totalLabel={tr.booking.total}
-                itemsCountLabel={tr.packages.itemsCount}
-                savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
-                includedLabel={tr.packages.included}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="cm-home-products-empty">
-            <p>{tr.featured.packages.empty}</p>
-            <Link to="/packages" className="tr-btn-primary mt-4 inline-flex">
-              {tr.hero.ctaPackages}
-            </Link>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function FeaturedGearSection({
-  sectionId,
-  id,
-  items,
-}: {
-  sectionId: string;
-  id: string;
-  items: HomepageFeaturedItem[];
-}) {
-  const {translations: tr, locale} = useLocale();
-  const perDay = locale === 'ka' ? '/ დღე' : '/ day';
-
-  return (
-    <section
-      id={sectionId}
-      className="cm-home-products cm-home-scroll-target"
-      aria-labelledby={id}
-    >
-      <div className="cm-home-width">
-        <FeaturedSectionHead
-          id={id}
-          copy={tr.featured.gear}
-          viewAllHref="/individual-gear"
-        />
-
-        {items.length ? (
-          <div className="cm-catalog-grid">
-            {items.map((item, index) => (
-              <CatalogProductCard
-                key={item.id}
-                to={item.url}
-                title={item.title}
-                imageUrl={item.imageUrl}
-                imageUrls={item.imageUrls}
-                imageAlt={item.imageAlt ?? item.title}
-                loading={index < 4 ? 'eager' : 'lazy'}
-                variant="product"
-                price={
-                  item.dailyRate > 0 ? (
-                    <PriceWithCompare
-                      amount={item.dailyRate}
-                      compareAtAmount={item.compareAt}
-                      suffix={` ${perDay}`}
-                    />
-                  ) : null
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="cm-home-products-empty">
-            <p>{tr.featured.gear.empty}</p>
-            <Link to="/individual-gear" className="tr-btn-primary mt-4 inline-flex">
-              {tr.hero.ctaGear}
-            </Link>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function FeaturedSectionSkeleton() {
-  return (
-    <section className="cm-home-products">
-      <div className="cm-home-width">
-        <div className="cm-catalog-grid">
-          {Array.from({length: 4}).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-[3/4] animate-pulse rounded-xl bg-stone/60"
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeaturedPackagesSectionSkeleton() {
-  return (
-    <section className="cm-home-products">
-      <div className="cm-home-width">
-        <div className="cm-catalog-grid cm-catalog-grid--packages">
-          {Array.from({length: 2}).map((_, i) => (
-            <div
-              key={i}
-              className="h-40 animate-pulse rounded-xl bg-stone/60 sm:h-44"
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeaturedSectionHead({
-  id,
-  copy,
-  viewAllHref,
-}: {
-  id: string;
-  copy: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    viewAll: string;
-  };
-  viewAllHref: string;
-}) {
-  return (
-    <div className="cm-home-section-head">
-      <div>
-        <p className="tr-eyebrow">{copy.eyebrow}</p>
-        <h2 id={id} className="cm-home-section-title">
-          {copy.title}
+      <header className="cm-gear-strip__head">
+        <p className="cm-gear-strip__eyebrow">
+          {isKa ? '04 — ცალკეული აღჭურვილობა' : '04 — Individual gear'}
+        </p>
+        <h2 id="cm-gear-strip-heading" className="cm-gear-strip__title">
+          {isKa
+            ? 'შეარჩიე ცალკეული აღჭურვილობა.'
+            : 'Hand-picked individual gear.'}
         </h2>
-        <p className="cm-home-section-subtitle">{copy.subtitle}</p>
-      </div>
-      <Link to={viewAllHref} className="cm-home-section-link shrink-0">
-        {copy.viewAll}
-        <span aria-hidden>→</span>
-      </Link>
-    </div>
+        <Link to="/individual-gear" className="cm-gear-strip__link">
+          <span>{isKa ? 'სრული კატალოგი' : 'Full catalog'}</span>
+          <span aria-hidden>→</span>
+        </Link>
+      </header>
+
+      {items.length ? (
+        <div className="cm-gear-strip__grid">
+          {items.map((item, index) => (
+            <CatalogProductCard
+              key={item.id}
+              to={item.url}
+              title={item.title}
+              imageUrl={item.imageUrl}
+              imageUrls={item.imageUrls}
+              imageAlt={item.imageAlt ?? item.title}
+              loading={index < 2 ? 'eager' : 'lazy'}
+              variant="product"
+              price={
+                item.dailyRate > 0 ? (
+                  <PriceWithCompare
+                    amount={item.dailyRate}
+                    compareAtAmount={item.compareAt}
+                    suffix={` ${perDay}`}
+                  />
+                ) : null
+              }
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="cm-gear-strip__empty">
+          <p>
+            {isKa
+              ? 'აღჭურვილობა მალე გამოჩნდება.'
+              : 'Gear will be available shortly.'}
+          </p>
+          <Link to="/individual-gear" className="cm-gear-strip__empty-link">
+            {isKa ? 'ნახე კატალოგი' : 'Browse catalog'} →
+          </Link>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function HomepageDeferredSkeleton() {
+  return (
+    <>
+      <section className="cm-showcase cm-showcase--skeleton" aria-hidden>
+        <div className="cm-showcase__head">
+          <div className="cm-skeleton cm-skeleton--eyebrow" />
+          <div className="cm-skeleton cm-skeleton--title" />
+        </div>
+        <div className="cm-showcase__track">
+          <ol className="cm-showcase__rail">
+            {Array.from({length: 3}).map((_, index) => (
+              <li key={index} className="cm-showcase__cell">
+                <div className="cm-showcase-card cm-showcase-card--skeleton">
+                  <div className="cm-showcase-card__media" />
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="cm-bento cm-bento--skeleton" aria-hidden>
+        <div className="cm-bento__grid">
+          {Array.from({length: 6}).map((_, index) => (
+            <div key={index} className="cm-bento__cell cm-bento__cell--skeleton" />
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
