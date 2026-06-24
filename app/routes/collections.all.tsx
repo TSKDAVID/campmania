@@ -89,10 +89,12 @@ const COLLECTION_ITEM_FRAGMENT = `#graphql
     }
     media(first: 5) {
       nodes {
-        id
-        image {
-          url
-          altText
+        ... on MediaImage {
+          id
+          image {
+            url
+            altText
+          }
         }
       }
     }

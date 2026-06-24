@@ -16,7 +16,6 @@ import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
-import trailrentStyles from './styles/trailrent.css?url';
 import {PageLayout} from './components/PageLayout';
 import {
   LocaleProvider,
@@ -49,18 +48,19 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   return false;
 };
 
+const FONTS_STYLESHEET =
+  'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap';
+
 /**
- * The main and reset stylesheets are added in the Layout component
- * to prevent a bug in development HMR updates.
- *
- * This avoids the "failed to execute 'insertBefore' on 'Node'" error
- * that occurs after editing and navigating to another page.
- *
- * It's a temporary fix until the issue is resolved.
- * https://github.com/remix-run/remix/issues/9242
+ * Stylesheets are registered here (not only in Layout) so React Router's asset
+ * manifest resolves hashed /assets/*.css URLs correctly on Oxygen.
  */
 export function links() {
   return [
+    {rel: 'stylesheet', href: tailwindCss},
+    {rel: 'stylesheet', href: resetStyles},
+    {rel: 'stylesheet', href: appStyles},
+    {rel: 'stylesheet', href: FONTS_STYLESHEET},
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',
@@ -68,6 +68,15 @@ export function links() {
     {
       rel: 'preconnect',
       href: 'https://shop.app',
+    },
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.googleapis.com',
+    },
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossOrigin: 'anonymous',
     },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
   ];
@@ -160,16 +169,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="stylesheet" href={tailwindCss}></link>
-        <link rel="stylesheet" href={resetStyles}></link>
-        <link rel="stylesheet" href={appStyles}></link>
-        <link rel="stylesheet" href={trailrentStyles}></link>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
         <Meta />
         <Links />
       </head>

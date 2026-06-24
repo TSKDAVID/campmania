@@ -61,6 +61,7 @@ export function Aside({
       className={`overlay overlay--${type}${isCart ? ' overlay--cart-glass' : ''} ${expanded ? 'expanded' : ''}`}
       role="dialog"
       aria-labelledby={id}
+      hidden={!expanded}
     >
       <button className="close-outside" onClick={close} aria-label="Close" />
       <aside className={isCart ? 'cm-cart-drawer' : undefined}>
