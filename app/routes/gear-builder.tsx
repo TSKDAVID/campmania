@@ -47,8 +47,15 @@ export const meta: Route.MetaFunction = () => [
   {title: 'Campmania | Gear Builder'},
 ];
 
-export function shouldRevalidate() {
-  return true;
+export function shouldRevalidate({
+  formMethod,
+  defaultShouldRevalidate,
+}: {
+  formMethod?: string;
+  defaultShouldRevalidate: boolean;
+}) {
+  if (formMethod && formMethod !== 'GET') return true;
+  return defaultShouldRevalidate;
 }
 
 export async function loader({context, request}: Route.LoaderArgs) {
@@ -188,9 +195,21 @@ export default function GearBuilderPage() {
   const {gear, loadedBuild, isLoggedIn} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
   const fetcher = useFetcher<typeof action>();
-  const builder = useGearBuilder();
+  const {
+    state: builderState,
+    addItemType,
+    setSlotProduct,
+    removeSlot,
+    clearSlotProduct,
+    clearAll,
+    replaceState,
+    setBuildMeta,
+    maxSlots,
+  } = useGearBuilder();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const newKitRequested = searchParams.get('new') === '1';
+  const buildIdFromUrl = searchParams.get('build');
   const [activeType, setActiveType] = useState<GearItemType | null>(null);
   const [saveOpen, setSaveOpen] = useState(false);
   const [saveAsNew, setSaveAsNew] = useState(false);
@@ -210,9 +229,9 @@ export default function GearBuilderPage() {
   }));
 
   useEffect(() => {
-    if (searchParams.get('new') !== '1') return;
+    if (!newKitRequested) return;
 
-    builder.clearAll();
+    clearAll();
     setActiveType(null);
     setBuildName('');
     setBuildTrek('');
@@ -221,13 +240,12 @@ export default function GearBuilderPage() {
     setSaveAsNew(false);
     setHydratedBuildId(null);
     navigate('/gear-builder', {replace: true});
-  }, [searchParams, builder, navigate]);
+  }, [newKitRequested, clearAll, navigate]);
 
   useEffect(() => {
-    const currentBuildId = searchParams.get('build');
-    if (!currentBuildId || !loadedBuild || hydratedBuildId === currentBuildId) return;
+    if (!buildIdFromUrl || !loadedBuild || hydratedBuildId === buildIdFromUrl) return;
 
-    builder.replaceState({
+    replaceState({
       version: 1,
       slots: loadedBuild.slots,
       updatedAt: loadedBuild.updatedAt,
@@ -237,8 +255,8 @@ export default function GearBuilderPage() {
     });
     setBuildName(loadedBuild.name);
     setBuildTrek(loadedBuild.trek ?? '');
-    setHydratedBuildId(currentBuildId);
-  }, [loadedBuild, builder, searchParams, hydratedBuildId]);
+    setHydratedBuildId(buildIdFromUrl);
+  }, [buildIdFromUrl, loadedBuild, hydratedBuildId, replaceState]);
 
   const catalogProducts = useMemo(
     () => gear.map((item) => item.builderProduct),
@@ -247,31 +265,31 @@ export default function GearBuilderPage() {
 
   useEffect(() => {
     if (!catalogProducts.length) return;
-    if (!slotsNeedCatalogEnrichment(builder.state.slots)) return;
+    if (!slotsNeedCatalogEnrichment(builderState.slots)) return;
 
     const enriched = enrichGearBuilderSlots(
-      builder.state.slots,
+      builderState.slots,
       catalogProducts,
     );
     const changed = enriched.some(
-      (slot, index) => slot.imageUrl !== builder.state.slots[index]?.imageUrl,
+      (slot, index) => slot.imageUrl !== builderState.slots[index]?.imageUrl,
     );
     if (!changed) return;
 
-    builder.replaceState({
-      ...builder.state,
+    replaceState({
+      ...builderState,
       slots: enriched,
     });
-  }, [catalogProducts, builder]);
+  }, [catalogProducts, builderState, replaceState]);
 
   useEffect(() => {
-    if (builder.state.name && !buildName) {
-      setBuildName(builder.state.name);
+    if (builderState.name && !buildName) {
+      setBuildName(builderState.name);
     }
-    if (builder.state.trek && !buildTrek) {
-      setBuildTrek(builder.state.trek);
+    if (builderState.trek && !buildTrek) {
+      setBuildTrek(builderState.trek);
     }
-  }, [builder.state.name, builder.state.trek, buildName, buildTrek]);
+  }, [builderState.name, builderState.trek, buildName, buildTrek]);
 
   useEffect(() => {
     if (fetcher.state !== 'idle') return;
@@ -282,20 +300,20 @@ export default function GearBuilderPage() {
     setSaveNotice(true);
     setSaveOpen(false);
     if (fetcher.data.buildId) {
-      builder.setBuildMeta({
+      setBuildMeta({
         buildId: fetcher.data.buildId,
         name: buildNameRef.current.trim(),
         trek: buildTrekRef.current || undefined,
       });
     }
-  }, [fetcher.data, fetcher.state, builder]);
+  }, [fetcher.data, fetcher.state, setBuildMeta]);
 
   const grouped = useMemo(
     () => groupGearByType(gear.map((item) => item.builderProduct)),
     [gear],
   );
 
-  const slots = builder.state.slots;
+  const slots = builderState.slots;
   const filledSlots = slots.filter((slot) => slot.productId).length;
 
   const hasAnyGear = filledSlots > 0;
@@ -307,7 +325,7 @@ export default function GearBuilderPage() {
   const activeProducts = activeType ? grouped[activeType] ?? [] : [];
 
   const handleClearDraft = () => {
-    builder.clearAll();
+    clearAll();
     setActiveType(null);
     setBuildName('');
     setBuildTrek('');
@@ -315,7 +333,7 @@ export default function GearBuilderPage() {
     setSaveNotice(false);
     setSaveAsNew(false);
 
-    if (searchParams.get('build')) {
+    if (buildIdFromUrl) {
       setHydratedBuildId(null);
       navigate('/gear-builder', {replace: true});
     }
@@ -323,7 +341,7 @@ export default function GearBuilderPage() {
 
   const handleOpenSave = () => {
     setSaveNotice(false);
-    setSaveAsNew(!builder.state.buildId);
+    setSaveAsNew(!builderState.buildId);
     setSaveOpen(true);
   };
 
@@ -345,26 +363,26 @@ export default function GearBuilderPage() {
     const name = buildName.trim();
     if (!name) return;
 
-    const creatingNew = saveAsNew || !builder.state.buildId;
+    const creatingNew = saveAsNew || !builderState.buildId;
 
-    builder.setBuildMeta({
+    setBuildMeta({
       name,
       trek: buildTrek || undefined,
-      buildId: creatingNew ? null : builder.state.buildId,
+      buildId: creatingNew ? null : builderState.buildId,
     });
 
     fetcher.submit(
       {
         intent: 'save',
         state: JSON.stringify({
-          ...builder.state,
+          ...builderState,
           name,
           trek: buildTrek || undefined,
-          buildId: creatingNew ? undefined : builder.state.buildId,
+          buildId: creatingNew ? undefined : builderState.buildId,
         }),
         name,
         trek: buildTrek,
-        buildId: creatingNew ? '' : (builder.state.buildId ?? ''),
+        buildId: creatingNew ? '' : (builderState.buildId ?? ''),
         saveAsNew: creatingNew ? 'true' : 'false',
       },
       {method: 'post'},
@@ -436,18 +454,18 @@ export default function GearBuilderPage() {
         <GearBuilderStrip
           slots={slots}
           locale={locale}
-          maxSlots={builder.maxSlots}
+          maxSlots={maxSlots}
           activeType={activeType}
           onSelectType={setActiveType}
           onAddType={(type) => {
-            builder.addItemType(type);
+            addItemType(type);
             setActiveType(type);
           }}
           onRemoveSlot={(type) => {
-            builder.removeSlot(type);
+            removeSlot(type);
             if (activeType === type) setActiveType(null);
           }}
-          onClearSlotProduct={builder.clearSlotProduct}
+          onClearSlotProduct={clearSlotProduct}
           removeSlotLabel={tr.gearBuilder.removeSlot}
           clearItemLabel={tr.gearBuilder.clearSlotItem}
           slotLimitLabel={tr.gearBuilder.slotLimit}
@@ -507,7 +525,7 @@ export default function GearBuilderPage() {
           saveError={saveError}
           isSaving={fetcher.state !== 'idle'}
           canSave={canSaveBuild}
-          hasExistingBuild={Boolean(builder.state.buildId)}
+          hasExistingBuild={Boolean(builderState.buildId)}
           saveAsNew={saveAsNew}
           onSaveAsNewChange={setSaveAsNew}
           labels={{
@@ -536,7 +554,7 @@ export default function GearBuilderPage() {
           }}
           onBuildNameChange={setBuildName}
           onTrekPick={handleTrekPick}
-          onRemoveItem={builder.clearSlotProduct}
+          onRemoveItem={clearSlotProduct}
           onSave={handleSave}
         />
 
@@ -556,7 +574,7 @@ export default function GearBuilderPage() {
                   rentUnavailableLabel={tr.gearBuilder.rentUnavailable}
                   onSelect={(product, variantId) => {
                     if (!activeType) return;
-                    builder.setSlotProduct(activeType, product, variantId);
+                    setSlotProduct(activeType, product, variantId);
                   }}
                 />
               </>

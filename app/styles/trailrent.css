@@ -2589,7 +2589,7 @@
   }
 
   .cm-gear-builder-strip {
-    @apply rounded-2xl border border-stone/60 bg-white p-3 shadow-sm md:p-4;
+    @apply overflow-visible rounded-2xl border border-stone/60 bg-white p-3 shadow-sm md:p-4;
   }
 
   .cm-gear-builder-strip-head {
@@ -2607,7 +2607,7 @@
   }
 
   .cm-gear-builder-strip-track {
-    @apply flex flex-wrap items-start gap-2;
+    @apply flex flex-wrap items-start gap-2 overflow-visible;
   }
 
   .cm-gear-builder-strip-item {
