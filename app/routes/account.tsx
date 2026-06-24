@@ -12,6 +12,7 @@ import {useLocale} from '~/providers/LocaleProvider';
 import {
   getLoyaltyStatus,
   parseCustomerTags,
+  RETURNS_FOR_TIER,
 } from '~/lib/trailrent/loyalty';
 
 export function shouldRevalidate() {
@@ -114,7 +115,11 @@ export default function AccountLayout() {
               {loyalty.isVerified ? tr.loyalty.trailTested : tr.loyalty.explorer}
             </span>
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
-              {tr.account.tierMember}
+              {loyalty.isVerified
+                ? tr.loyalty.verified
+                : locale === 'ka'
+                  ? `${loyalty.cleanReturns}/${RETURNS_FOR_TIER} სუფთა დაბრუნება`
+                  : `${loyalty.cleanReturns}/${RETURNS_FOR_TIER} clean returns`}
             </span>
           </div>
         </div>
