@@ -20,6 +20,7 @@ import {
 } from '~/components/trailrent/GearBuilderPanel';
 import {GearBuilderSaveDialog} from '~/components/trailrent/GearBuilderSaveDialog';
 import {loadShopifyGear} from '~/lib/trailrent/shopify-catalog';
+import {getCartActionErrorMessage} from '~/lib/trailrent/cart-display';
 import {getLocaleFromRequest} from '~/providers/LocaleProvider';
 import {TREK_FILTERS} from '~/lib/trailrent/catalog';
 import {
@@ -603,16 +604,26 @@ export default function GearBuilderPage() {
               inputs={{lines: cartLines}}
               action={CartForm.ACTIONS.LinesAdd}
             >
-              {(cartFetcher) => (
-                <button
-                  type="submit"
-                  className="tr-btn-primary cm-gear-builder-cart-btn w-full"
-                  disabled={!cartLines.length || cartFetcher.state !== 'idle'}
-                >
-                  <IconCart size={18} />
-                  {tr.gearBuilder.addBundleToCart}
-                </button>
-              )}
+              {(cartFetcher) => {
+                const addError = getCartActionErrorMessage(cartFetcher.data);
+                return (
+                  <>
+                    {addError ? (
+                      <p className="cm-rental-status cm-rental-status--error" role="alert">
+                        {addError}
+                      </p>
+                    ) : null}
+                    <button
+                      type="submit"
+                      className="tr-btn-primary cm-gear-builder-cart-btn w-full"
+                      disabled={!cartLines.length || cartFetcher.state !== 'idle'}
+                    >
+                      <IconCart size={18} />
+                      {tr.gearBuilder.addBundleToCart}
+                    </button>
+                  </>
+                );
+              }}
             </CartForm>
           </aside>
         </div>

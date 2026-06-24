@@ -1941,6 +1941,14 @@
     @apply mt-5 w-full;
   }
 
+  .cm-rental-status {
+    @apply mb-3 text-sm leading-relaxed;
+  }
+
+  .cm-rental-status--error {
+    @apply text-amber-900;
+  }
+
   /* ── Rental date range picker ─────────────────────────────────────────── */
   .cm-date-range {
     @apply rounded-xl border border-stone/80 bg-mist/35;

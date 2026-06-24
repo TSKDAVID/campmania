@@ -4,6 +4,20 @@ import {formatGel, formatRentalDate} from '~/lib/trailrent/pricing';
 
 type SelectedOption = {name: string; value: string};
 
+/** User-facing message from a /cart action response (CartForm fetcher data). */
+export function getCartActionErrorMessage(data: unknown): string | null {
+  if (!data || typeof data !== 'object') return null;
+  const payload = data as {
+    errors?: Array<{message?: string}>;
+    warnings?: Array<{message?: string}>;
+  };
+  return (
+    payload.errors?.find((entry) => entry.message)?.message ??
+    payload.warnings?.find((entry) => entry.message)?.message ??
+    null
+  );
+}
+
 export function moneyAmount(
   money?: {amount?: string | null} | null,
 ): number {

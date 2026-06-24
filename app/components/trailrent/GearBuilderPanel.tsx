@@ -303,7 +303,7 @@ export function GearOptionGrid({
                     <button
                       key={variant.id}
                       type="button"
-                      disabled={!variant.id}
+                      disabled={!variant.id || variant.availableForSale === false}
                       className="cm-gear-builder-variant-btn"
                       onClick={() => onSelect(product, variant.id)}
                     >
@@ -315,7 +315,7 @@ export function GearOptionGrid({
                 <button
                   type="button"
                   className="tr-btn-primary cm-gear-builder-select-btn"
-                  disabled={!canSelect}
+                  disabled={!canSelect || !rentInStock}
                   onClick={() => onSelect(product, defaultRent?.id)}
                 >
                   {locale === 'ka' ? 'არჩევა' : 'Select'}

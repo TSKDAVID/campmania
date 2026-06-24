@@ -1,0 +1,60 @@
+# Diagnose 3-person tent rental product — inventory vs rental-day quantity.
+# Run: shopify store auth --store b6dvzp-py.myshopify.com --scopes read_products,read_inventory
+#      shopify store execute --store b6dvzp-py.myshopify.com --query-file scripts/queries/diagnose-tent-product.graphql
+
+query DiagnoseTentProduct {
+  product(id: "gid://shopify/Product/10507124637988") {
+    id
+    title
+    handle
+    status
+    totalInventory
+    variants(first: 10) {
+      nodes {
+        id
+        title
+        sku
+        availableForSale
+        inventoryQuantity
+        inventoryPolicy
+        sellableOnlineQuantity
+        price
+        selectedOptions {
+          name
+          value
+        }
+        inventoryItem {
+          id
+          tracked
+          inventoryLevels(first: 5) {
+            nodes {
+              quantities(names: ["available"]) {
+                name
+                quantity
+              }
+              location {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  productByHandle: productByHandle(handle: "3-კაციანი-კარავი-ქირით") {
+    id
+    title
+    handle
+    variants(first: 10) {
+      nodes {
+        id
+        title
+        availableForSale
+        inventoryQuantity
+        inventoryPolicy
+        sellableOnlineQuantity
+        price
+      }
+    }
+  }
+}

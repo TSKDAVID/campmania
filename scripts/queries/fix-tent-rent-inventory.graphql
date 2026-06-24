@@ -1,0 +1,29 @@
+# Fix rental tent inventory so default 3-day bookings can add to cart.
+# Rental PDP sends quantity = rental_days (default 3). Each variant needs either:
+#   - inventoryQuantity >= typical max rental days, OR
+#   - inventoryPolicy CONTINUE (continue selling when out of stock)
+#
+# Run after diagnose-tent-product.graphql confirms low inventory / DENY policy.
+# shopify store auth --store b6dvzp-py.myshopify.com --scopes write_products,write_inventory
+# shopify store execute --store b6dvzp-py.myshopify.com --query-file scripts/queries/fix-tent-rent-inventory.graphql --allow-mutations
+
+mutation FixTentRentInventory {
+  rentVariant: productVariantUpdate(
+    input: {
+      id: "REPLACE_WITH_RENT_VARIANT_GID"
+      inventoryPolicy: CONTINUE
+    }
+  ) {
+    productVariant {
+      id
+      title
+      inventoryPolicy
+      inventoryQuantity
+      sellableOnlineQuantity
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

@@ -4,6 +4,7 @@ export type FulfillmentVariantNode = {
   id: string;
   title?: string | null;
   availableForSale?: boolean;
+  quantityAvailable?: number | null;
   price: {amount: string; currencyCode: string};
   compareAtPrice?: {amount: string; currencyCode: string} | null;
   selectedOptions?: Array<{name: string; value: string}>;
@@ -120,21 +121,31 @@ export function pickRentVariant(
 ): FulfillmentVariantNode | undefined {
   if (!variants.length) return undefined;
 
-  const explicit = variants.find(isRentVariant);
-  if (explicit) return explicit;
+  const explicitRent = variants.filter(isRentVariant);
+  if (explicitRent.length) {
+    const availableRent = explicitRent.filter(
+      (variant) => variant.availableForSale !== false,
+    );
+    return availableRent[0] ?? explicitRent[0];
+  }
 
-  if (variants.length === 1) return variants[0];
+  if (variants.length === 1) {
+    return isBuyVariant(variants[0]!) ? undefined : variants[0];
+  }
 
   const buy = variants.find(isBuyVariant);
   const nonBuy = buy
     ? variants.filter((variant) => variant.id !== buy.id)
     : variants;
 
-  if (nonBuy.length) {
-    return [...nonBuy].sort(byPriceAsc)[0];
-  }
+  if (!nonBuy.length) return undefined;
 
-  return [...variants].sort(byPriceAsc)[0];
+  const availableNonBuy = nonBuy.filter(
+    (variant) => variant.availableForSale !== false,
+  );
+  const candidates = availableNonBuy.length ? availableNonBuy : nonBuy;
+
+  return [...candidates].sort(byPriceAsc)[0];
 }
 
 /** Variants suitable for rental selection (excludes explicit Buy variants). */

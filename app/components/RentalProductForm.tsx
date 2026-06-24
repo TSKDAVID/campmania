@@ -18,6 +18,7 @@ import {
   TBILISI_METRO_STATIONS,
   type DeliveryOption,
 } from '~/components/trailrent/DeliverySelector';
+import {getCartActionErrorMessage} from '~/lib/trailrent/cart-display';
 
 export type FulfillmentMode = 'rent' | 'purchase';
 
@@ -29,6 +30,9 @@ export type RentToOwnOffer = {
 
 export type RentalProductFormProps = {
   rentVariantId: string;
+  rentVariantAvailable?: boolean;
+  /** Max units Shopify allows in cart (rental days must not exceed this when tracked). */
+  rentSellableQuantity?: number;
   buyVariantId?: string;
   buyAvailable: boolean;
   /** Dedicated Buy variant exists — checkout charges correct purchase price. */
@@ -134,6 +138,8 @@ function buildLineAttributes(options: {
 
 export function RentalProductForm({
   rentVariantId,
+  rentVariantAvailable = true,
+  rentSellableQuantity,
   buyVariantId,
   buyAvailable,
   buyCheckoutReady = false,
@@ -182,7 +188,13 @@ export function RentalProductForm({
   );
 
   const activeVariantId = isRentMode ? rentVariantId : (buyVariantId ?? rentVariantId);
+  // Daily rate × rental days — Shopify line quantity matches billable days.
   const cartQuantity = isRentMode ? rentalPricing.days : 1;
+  const rentExceedsInventory =
+    isRentMode &&
+    rentSellableQuantity != null &&
+    rentSellableQuantity >= 0 &&
+    rentalPricing.days > rentSellableQuantity;
 
   const buyDisplayTotal = hasRentToOwnCredit
     ? rentToOwnOffer!.buyNowPrice
@@ -237,7 +249,10 @@ export function RentalProductForm({
   );
 
   const canSubmit = isRentMode
-    ? datesValid && deliveryReady
+    ? rentVariantAvailable &&
+      !rentExceedsInventory &&
+      datesValid &&
+      deliveryReady
     : showBuyToggle && purchasePrice > 0;
 
   const displayTotal = isRentMode
@@ -401,25 +416,50 @@ export function RentalProductForm({
             inputs={{lines: cartLines}}
             action={CartForm.ACTIONS.LinesAdd}
           >
-            {(fetcher) => (
-              <button
-                type="submit"
-                disabled={!canSubmit || fetcher.state !== 'idle'}
-                onClick={() => {
-                  if (canSubmit && fetcher.state === 'idle') {
-                    onSuccess?.();
-                  }
-                }}
-                className="tr-btn-primary cm-rental-submit disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <IconCart size={18} />
-                {canSubmit
-                  ? isRentMode
-                    ? tr.booking.addToCart
-                    : `${tr.booking.addToCartBuy} · ${formatGel(purchasePrice)}`
-                  : tr.booking.unavailable}
-              </button>
-            )}
+            {(fetcher) => {
+              const addError = getCartActionErrorMessage(fetcher.data);
+              return (
+                <>
+                  {!rentVariantAvailable && isRentMode ? (
+                    <p className="cm-rental-status cm-rental-status--error">
+                      {tr.booking.rentUnavailable}
+                    </p>
+                  ) : null}
+                  {rentExceedsInventory ? (
+                    <p className="cm-rental-status cm-rental-status--error">
+                      {tr.booking.rentInventoryLimit.replace(
+                        '{days}',
+                        String(rentSellableQuantity),
+                      )}
+                    </p>
+                  ) : null}
+                  {addError ? (
+                    <p className="cm-rental-status cm-rental-status--error" role="alert">
+                      {addError}
+                    </p>
+                  ) : null}
+                  <button
+                    type="submit"
+                    disabled={!canSubmit || fetcher.state !== 'idle'}
+                    onClick={() => {
+                      if (canSubmit && fetcher.state === 'idle') {
+                        onSuccess?.();
+                      }
+                    }}
+                    className="tr-btn-primary cm-rental-submit disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <IconCart size={18} />
+                    {!rentVariantAvailable && isRentMode
+                      ? tr.booking.unavailable
+                      : canSubmit
+                        ? isRentMode
+                          ? tr.booking.addToCart
+                          : `${tr.booking.addToCartBuy} · ${formatGel(purchasePrice)}`
+                        : tr.booking.unavailable}
+                  </button>
+                </>
+              );
+            }}
           </CartForm>
         </div>
       </div>

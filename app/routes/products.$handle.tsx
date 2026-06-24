@@ -306,6 +306,11 @@ export default function Product() {
   const bookingFormProps = rentVariant?.id
     ? {
         rentVariantId: rentVariant.id,
+        rentVariantAvailable: rentVariant.availableForSale !== false,
+        rentSellableQuantity:
+          rentVariant.quantityAvailable != null
+            ? rentVariant.quantityAvailable
+            : undefined,
         buyVariantId: buyVariant?.id,
         buyAvailable,
         buyCheckoutReady,
@@ -522,6 +527,7 @@ export default function Product() {
 const PRODUCT_VARIANT_FRAGMENT = `
   fragment ProductVariant on ProductVariant {
     availableForSale
+    quantityAvailable
     compareAtPrice {
       amount
       currencyCode

@@ -260,6 +260,9 @@ const translations = {
       presetWeek: '1 კვირა',
       invalidRange: 'დასრულების თარიღი უნდა იყოს დაწყების შემდეგ',
       tapToChange: 'შეცვლა',
+      rentUnavailable: 'ქირა ამჟამად მიუწვდომელია',
+      rentInventoryLimit:
+        'ამ პერიოდისთვის კალათაში ვერ ემატება — მაქსიმუმ {days} დღე (მარაგის ლიმიტი). შეამცირეთ თარიღები ან დაგვიკავშირდით.',
     },
     loyalty: {
       eyebrow: 'Trusted Tier',
@@ -646,6 +649,9 @@ const translations = {
       presetWeek: '1 week',
       invalidRange: 'End date must be after start date',
       tapToChange: 'Change',
+      rentUnavailable: 'Rent is currently unavailable',
+      rentInventoryLimit:
+        'Cannot add this rental period — stock allows up to {days} day(s). Shorten your dates or contact us.',
     },
     loyalty: {
       eyebrow: 'Trusted Tier',
