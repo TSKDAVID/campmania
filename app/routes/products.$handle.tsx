@@ -293,7 +293,10 @@ export default function Product() {
         }
       : (rentVariant?.compareAtPrice as MoneyV2 | null | undefined);
 
-  const trustedTier = isTrustedTier(customerRentalContext.tags);
+  const trustedTier = isTrustedTier(
+    customerRentalContext.tags,
+    customerRentalContext.orders,
+  );
   const rentToOwnOffer = buildRentToOwnOffer({
     productId,
     purchasePrice,

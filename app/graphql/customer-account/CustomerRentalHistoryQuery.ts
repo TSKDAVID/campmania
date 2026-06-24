@@ -27,6 +27,7 @@ export const RENTAL_HISTORY_ORDER_FRAGMENT = `#graphql
   fragment RentalHistoryOrder on Order {
     id
     processedAt
+    fulfillmentStatus
     lineItems(first: 50) {
       nodes {
         ...RentalHistoryLineItem

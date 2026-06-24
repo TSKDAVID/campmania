@@ -21,6 +21,9 @@ type GearBuilderSaveDialogProps = {
   saveError: string | null;
   isSaving: boolean;
   canSave: boolean;
+  hasExistingBuild?: boolean;
+  saveAsNew?: boolean;
+  onSaveAsNewChange?: (value: boolean) => void;
   labels: {
     title: string;
     desc: string;
@@ -39,6 +42,8 @@ type GearBuilderSaveDialogProps = {
     saveFailed: string;
     removeItem: string;
     summaryEmpty: string;
+    saveAsNew?: string;
+    updateExisting?: string;
   };
   onBuildNameChange: (value: string) => void;
   onTrekPick: (trekValue: string) => void;
@@ -61,6 +66,9 @@ export function GearBuilderSaveDialog({
   saveError,
   isSaving,
   canSave,
+  hasExistingBuild = false,
+  saveAsNew = false,
+  onSaveAsNewChange,
   labels,
   onBuildNameChange,
   onTrekPick,
@@ -226,6 +234,17 @@ export function GearBuilderSaveDialog({
             </div>
           </div>
 
+          {hasExistingBuild && onSaveAsNewChange && labels.saveAsNew ? (
+            <label className="flex items-center gap-2 text-sm text-charcoal/85">
+              <input
+                type="checkbox"
+                checked={saveAsNew}
+                onChange={(event) => onSaveAsNewChange(event.target.checked)}
+              />
+              <span>{labels.saveAsNew}</span>
+            </label>
+          ) : null}
+
           {!canSave ? (
             <p className="cm-gear-builder-status cm-gear-builder-status--muted">
               {labels.minItemsRequired}
@@ -264,7 +283,9 @@ export function GearBuilderSaveDialog({
             onClick={onSave}
           >
             <IconSave size={16} />
-            {labels.confirmSave}
+            {hasExistingBuild && !saveAsNew && labels.updateExisting
+              ? labels.updateExisting
+              : labels.confirmSave}
           </button>
         </footer>
       </div>

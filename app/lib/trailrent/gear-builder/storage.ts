@@ -165,6 +165,7 @@ export function writeGearBuilderLibrary(
   session: {
     set: (key: string, value: unknown) => void;
     unset: (key: string) => void;
+    get?: (key: string) => unknown;
   },
   library: GearBuilderLibrary,
   customerId?: string | null,
@@ -257,4 +258,34 @@ export function findSavedBuild(
 
 export function createBuildId() {
   return `build-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+/** Merge anonymous session builds into a logged-in customer's library once. */
+export function mergeGuestGearBuilderLibrary(
+  session: {
+    get: (key: string) => unknown;
+    unset: (key: string) => void;
+  },
+  library: GearBuilderLibrary,
+  customerId: string,
+): GearBuilderLibrary {
+  if (customerId) {
+    const guestLibrary = parseGearBuilderLibrary(
+      session.get(GEAR_BUILDER_LIBRARY_KEY),
+    );
+    if (!guestLibrary?.builds.length) return library;
+
+    let merged = library;
+    for (const build of guestLibrary.builds) {
+      if (merged.builds.some((entry) => entry.id === build.id)) continue;
+      const result = upsertSavedBuild(merged, build);
+      if (!result.error) merged = result.library;
+    }
+
+    session.unset(GEAR_BUILDER_LIBRARY_KEY);
+    session.unset(GEAR_BUILDER_SESSION_KEY);
+    return merged;
+  }
+
+  return library;
 }

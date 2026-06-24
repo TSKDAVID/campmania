@@ -85,7 +85,7 @@
 
 @layer components {
   .tr-page-width {
-    @apply mx-auto max-w-7xl px-3 sm:px-5 md:px-8;
+    @apply mx-auto w-full max-w-[var(--cm-layout-max)] px-4 sm:px-5 md:px-8;
   }
 
   .tr-eyebrow {
@@ -307,7 +307,7 @@
     }
 
     .cm-filter-panel-inline .cm-filter-panel-body {
-      @apply p-2;
+      @apply p-0;
     }
 
     .cm-filter-panel-inline .cm-filter-pill {
@@ -321,7 +321,7 @@
     }
 
     .cm-filter-panel-inline .cm-filter-panel-body {
-      @apply px-1 py-2.5;
+      @apply px-0 py-2.5;
     }
 
     .cm-filter-panel-inline .cm-filter-pills {

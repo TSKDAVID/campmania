@@ -8,7 +8,7 @@ type RentalHistoryLineItem =
   RentalHistoryOrder['lineItems']['nodes'][number];
 
 /** Line item custom attributes that identify a prior rental (not a purchase). */
-function isRentalLineItem(lineItem: RentalHistoryLineItem): boolean {
+export function isRentalLineItem(lineItem: RentalHistoryLineItem): boolean {
   const attrs = Object.fromEntries(
     lineItem.customAttributes.map((a) => [a.key, a.value ?? '']),
   );

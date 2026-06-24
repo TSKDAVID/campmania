@@ -25,6 +25,7 @@ import {TREK_FILTERS} from '~/lib/trailrent/catalog';
 import {
   createBuildId,
   findSavedBuild,
+  mergeGuestGearBuilderLibrary,
   parseGearBuilderState,
   readGearBuilderLibrary,
   upsertSavedBuild,
@@ -44,6 +45,10 @@ import {GEAR_BUILDER_MAX_SAVED_BUILDS, GEAR_BUILDER_MIN_SAVE_ITEMS} from '~/lib/
 export const meta: Route.MetaFunction = () => [
   {title: 'Campmania | Gear Builder'},
 ];
+
+export function shouldRevalidate() {
+  return true;
+}
 
 export async function loader({context, request}: Route.LoaderArgs) {
   if (!isGearBuilderEnabled(context.env)) {
@@ -66,9 +71,16 @@ export async function loader({context, request}: Route.LoaderArgs) {
   }
 
   const library = readGearBuilderLibrary(context.session, customerId);
+  const mergedLibrary = customerId
+    ? mergeGuestGearBuilderLibrary(context.session, library, customerId)
+    : library;
+  if (mergedLibrary !== library && customerId) {
+    writeGearBuilderLibrary(context.session, mergedLibrary, customerId);
+  }
+
   const url = new URL(request.url);
   const buildId = url.searchParams.get('build');
-  const loadedBuildRaw = buildId ? findSavedBuild(library, buildId) : null;
+  const loadedBuildRaw = buildId ? findSavedBuild(mergedLibrary, buildId) : null;
   const catalogProducts = gear.map((item) => item.builderProduct);
   const loadedBuild = loadedBuildRaw
     ? {
@@ -79,7 +91,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
 
   return {
     gear,
-    library,
+    library: mergedLibrary,
     loadedBuild,
     isLoggedIn,
     customerId,
@@ -116,6 +128,7 @@ export async function action({request, context}: Route.ActionArgs) {
     const name = String(formData.get('name') ?? '').trim();
     const trek = String(formData.get('trek') ?? '').trim() || undefined;
     const buildId = String(formData.get('buildId') ?? '').trim() || undefined;
+    const saveAsNew = formData.get('saveAsNew') === 'true';
 
     let parsed;
     try {
@@ -139,8 +152,12 @@ export async function action({request, context}: Route.ActionArgs) {
       return data({ok: false, error: 'name_required'}, {status: 400});
     }
 
-    const library = readGearBuilderLibrary(context.session, customerId);
-    const id = buildId ?? createBuildId();
+    let library = readGearBuilderLibrary(context.session, customerId);
+    if (customerId) {
+      library = mergeGuestGearBuilderLibrary(context.session, library, customerId);
+    }
+
+    const id = saveAsNew || !buildId ? createBuildId() : buildId;
     const {library: nextLibrary, error} = upsertSavedBuild(library, {
       id,
       name,
@@ -175,6 +192,7 @@ export default function GearBuilderPage() {
   const [searchParams] = useSearchParams();
   const [activeType, setActiveType] = useState<GearItemType | null>(null);
   const [saveOpen, setSaveOpen] = useState(false);
+  const [saveAsNew, setSaveAsNew] = useState(false);
   const [buildName, setBuildName] = useState('');
   const [buildTrek, setBuildTrek] = useState('');
   const [hydratedBuildId, setHydratedBuildId] = useState<string | null>(null);
@@ -189,6 +207,20 @@ export default function GearBuilderPage() {
     value: trek.value,
     label: locale === 'ka' ? trek.labelKa : trek.labelEn,
   }));
+
+  useEffect(() => {
+    if (searchParams.get('new') !== '1') return;
+
+    builder.clearAll();
+    setActiveType(null);
+    setBuildName('');
+    setBuildTrek('');
+    setSaveOpen(false);
+    setSaveNotice(false);
+    setSaveAsNew(false);
+    setHydratedBuildId(null);
+    navigate('/gear-builder', {replace: true});
+  }, [searchParams, builder, navigate]);
 
   useEffect(() => {
     const currentBuildId = searchParams.get('build');
@@ -280,6 +312,7 @@ export default function GearBuilderPage() {
     setBuildTrek('');
     setSaveOpen(false);
     setSaveNotice(false);
+    setSaveAsNew(false);
 
     if (searchParams.get('build')) {
       setHydratedBuildId(null);
@@ -289,7 +322,12 @@ export default function GearBuilderPage() {
 
   const handleOpenSave = () => {
     setSaveNotice(false);
+    setSaveAsNew(!builder.state.buildId);
     setSaveOpen(true);
+  };
+
+  const handleStartAnotherKit = () => {
+    handleClearDraft();
   };
 
   const handleTrekPick = (trekValue: string) => {
@@ -306,13 +344,13 @@ export default function GearBuilderPage() {
     const name = buildName.trim();
     if (!name) return;
 
+    const creatingNew = saveAsNew || !builder.state.buildId;
+
     builder.setBuildMeta({
       name,
       trek: buildTrek || undefined,
-      buildId: builder.state.buildId,
+      buildId: creatingNew ? null : builder.state.buildId,
     });
-
-    const isNewBuild = !builder.state.buildId;
 
     fetcher.submit(
       {
@@ -321,11 +359,12 @@ export default function GearBuilderPage() {
           ...builder.state,
           name,
           trek: buildTrek || undefined,
-          buildId: isNewBuild ? undefined : builder.state.buildId,
+          buildId: creatingNew ? undefined : builder.state.buildId,
         }),
         name,
         trek: buildTrek,
-        buildId: isNewBuild ? '' : (builder.state.buildId ?? ''),
+        buildId: creatingNew ? '' : (builder.state.buildId ?? ''),
+        saveAsNew: creatingNew ? 'true' : 'false',
       },
       {method: 'post'},
     );
@@ -435,10 +474,20 @@ export default function GearBuilderPage() {
           </button>
 
           {saveNotice ? (
-            <p className="cm-gear-builder-status cm-gear-builder-status--success">
-              <IconCheck size={16} />
-              {tr.gearBuilder.saved}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="cm-gear-builder-status cm-gear-builder-status--success">
+                <IconCheck size={16} />
+                {tr.gearBuilder.saved}
+              </p>
+              <button
+                type="button"
+                className="tr-btn-secondary cm-gear-builder-toolbar-btn"
+                onClick={handleStartAnotherKit}
+              >
+                <IconLayers size={16} />
+                {tr.gearBuilder.startAnotherKit}
+              </button>
+            </div>
           ) : null}
         </div>
 
@@ -457,6 +506,9 @@ export default function GearBuilderPage() {
           saveError={saveError}
           isSaving={fetcher.state !== 'idle'}
           canSave={canSaveBuild}
+          hasExistingBuild={Boolean(builder.state.buildId)}
+          saveAsNew={saveAsNew}
+          onSaveAsNewChange={setSaveAsNew}
           labels={{
             title: tr.gearBuilder.savePanelTitle,
             desc: tr.gearBuilder.savePanelDesc,
@@ -478,6 +530,8 @@ export default function GearBuilderPage() {
             saveFailed: tr.gearBuilder.saveFailed,
             removeItem: tr.gearBuilder.clearSlotItem,
             summaryEmpty: tr.gearBuilder.summaryEmpty,
+            saveAsNew: tr.gearBuilder.saveAsNew,
+            updateExisting: tr.gearBuilder.updateExisting,
           }}
           onBuildNameChange={setBuildName}
           onTrekPick={handleTrekPick}

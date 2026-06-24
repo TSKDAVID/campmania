@@ -7,6 +7,7 @@ import {
 } from 'react-router';
 import type {Route} from './+types/account';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
+import {CUSTOMER_RENTAL_HISTORY_QUERY} from '~/graphql/customer-account/CustomerRentalHistoryQuery';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
   getLoyaltyStatus,
@@ -19,18 +20,27 @@ export function shouldRevalidate() {
 
 export async function loader({context}: Route.LoaderArgs) {
   const {customerAccount} = context;
-  const {data, errors} = await customerAccount.query(CUSTOMER_DETAILS_QUERY, {
-    variables: {
-      language: customerAccount.i18n.language,
-    },
-  });
+  const language = customerAccount.i18n.language;
+
+  const [customerResult, rentalResult] = await Promise.all([
+    customerAccount.query(CUSTOMER_DETAILS_QUERY, {
+      variables: {language},
+    }),
+    customerAccount.query(CUSTOMER_RENTAL_HISTORY_QUERY, {
+      variables: {language, first: 25},
+    }),
+  ]);
+
+  const {data, errors} = customerResult;
 
   if (errors?.length || !data?.customer) {
     throw await customerAccount.handleAuthStatus();
   }
 
+  const rentalOrders = rentalResult.data?.customer?.orders?.nodes ?? [];
+
   return remixData(
-    {customer: data.customer},
+    {customer: data.customer, rentalOrders},
     {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -54,12 +64,17 @@ function customerInitials(
 }
 
 export default function AccountLayout() {
-  const {customer} = useLoaderData<typeof loader>();
+  const {customer, rentalOrders} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
 
   const email = customer.emailAddress?.emailAddress ?? null;
   const tags = parseCustomerTags(customer.tags);
-  const loyalty = getLoyaltyStatus({tags, email, tagsOnly: true});
+  const loyalty = getLoyaltyStatus({
+    tags,
+    email,
+    orders: rentalOrders,
+    tagsOnly: true,
+  });
 
   const displayName =
     [customer.firstName, customer.lastName].filter(Boolean).join(' ') ||
@@ -108,7 +123,7 @@ export default function AccountLayout() {
       <AccountMenu />
 
       <div className="tr-page-width py-6 md:py-8">
-        <Outlet context={{customer}} />
+        <Outlet context={{customer, rentalOrders}} />
       </div>
     </div>
   );

@@ -37,7 +37,11 @@ type GearBuilderContextValue = {
   clearSlotProduct: (itemType: GearItemType) => void;
   clearAll: () => void;
   replaceState: (state: GearBuilderState) => void;
-  setBuildMeta: (meta: {name?: string; trek?: string; buildId?: string}) => void;
+  setBuildMeta: (meta: {
+    name?: string;
+    trek?: string;
+    buildId?: string | null;
+  }) => void;
   maxSlots: number;
 };
 
@@ -160,12 +164,23 @@ export function GearBuilderProvider({children}: {children: ReactNode}) {
   }, []);
 
   const setBuildMeta = useCallback(
-    (meta: {name?: string; trek?: string; buildId?: string}) => {
-      setState((current) => ({
-        ...current,
-        ...meta,
-        updatedAt: new Date().toISOString(),
-      }));
+    (meta: {name?: string; trek?: string; buildId?: string | null}) => {
+      setState((current) => {
+        const next: GearBuilderState = {
+          ...current,
+          updatedAt: new Date().toISOString(),
+        };
+        if (meta.name !== undefined) next.name = meta.name;
+        if (meta.trek !== undefined) next.trek = meta.trek;
+        if ('buildId' in meta) {
+          if (meta.buildId === null || meta.buildId === undefined) {
+            delete next.buildId;
+          } else {
+            next.buildId = meta.buildId;
+          }
+        }
+        return next;
+      });
     },
     [],
   );

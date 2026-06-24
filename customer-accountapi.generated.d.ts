@@ -498,7 +498,7 @@ export type RentalHistoryLineItemFragment = Pick<
 
 export type RentalHistoryOrderFragment = Pick<
   CustomerAccountAPI.Order,
-  'id' | 'processedAt'
+  'id' | 'processedAt' | 'fulfillmentStatus'
 > & {
   lineItems: {
     nodes: Array<
@@ -531,7 +531,7 @@ export type CustomerRentalHistoryQuery = {
   customer: Pick<CustomerAccountAPI.Customer, 'tags'> & {
     orders: {
       nodes: Array<
-        Pick<CustomerAccountAPI.Order, 'id' | 'processedAt'> & {
+        Pick<CustomerAccountAPI.Order, 'id' | 'processedAt' | 'fulfillmentStatus'> & {
           lineItems: {
             nodes: Array<
               Pick<

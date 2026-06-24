@@ -13,8 +13,10 @@ import {
 } from '~/components/trailrent/Icons';
 import {
   getLoyaltyStatus,
+  loyaltyProgressLabel,
   parseCustomerTags,
 } from '~/lib/trailrent/loyalty';
+import type {CustomerRentalHistoryQuery} from 'customer-accountapi.generated';
 import type {CustomerDetailsQuery} from 'customer-accountapi.generated';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
 import {readGearBuilderLibrary} from '~/lib/trailrent/gear-builder/storage';
@@ -37,16 +39,17 @@ export const meta: Route.MetaFunction = () => [
 
 type AccountContext = {
   customer: CustomerDetailsQuery['customer'];
+  rentalOrders: CustomerRentalHistoryQuery['customer']['orders']['nodes'];
 };
 
 export default function AccountDashboard() {
-  const {customer} = useOutletContext<AccountContext>();
+  const {customer, rentalOrders} = useOutletContext<AccountContext>();
   const {savedBuilds} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
 
   const email = customer.emailAddress?.emailAddress ?? null;
   const tags = parseCustomerTags(customer.tags);
-  const loyalty = getLoyaltyStatus({tags, email, tagsOnly: true});
+  const loyalty = getLoyaltyStatus({tags, email, orders: rentalOrders, tagsOnly: true});
 
   const benefits = loyalty.isVerified
     ? [tr.loyalty.benefitDeposit, tr.loyalty.benefitPriority, tr.loyalty.benefitUpgrade]
@@ -55,7 +58,7 @@ export default function AccountDashboard() {
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
-        <LoyaltyCard status={loyalty} benefits={benefits} />
+        <LoyaltyCard status={loyalty} benefits={benefits} locale={locale} />
         <SavedGearBuilderCard savedBuilds={savedBuilds} locale={locale} />
       </div>
 
@@ -99,7 +102,7 @@ function SavedGearBuilderCard({
             {tr.gearBuilder.accountBuildsTitle}
           </h2>
         </div>
-        <Link to="/gear-builder" className="tr-btn-secondary text-sm">
+        <Link to="/gear-builder?new=1" className="tr-btn-secondary text-sm">
           {tr.gearBuilder.accountNewBuild}
           <IconArrowRight size={14} />
         </Link>
@@ -180,9 +183,11 @@ function QuickLink({
 function LoyaltyCard({
   status,
   benefits,
+  locale,
 }: {
   status: ReturnType<typeof getLoyaltyStatus>;
   benefits: string[];
+  locale: 'ka' | 'en';
 }) {
   const {translations: tr} = useLocale();
 
@@ -233,7 +238,9 @@ function LoyaltyCard({
                 style={{width: `${status.progressPercent}%`}}
               />
             </div>
-            <p className="mt-2 text-sm text-muted">{tr.loyalty.oneMoreReturn}</p>
+            <p className="mt-2 text-sm text-muted">
+              {loyaltyProgressLabel(status.returnsToNextTier, locale)}
+            </p>
           </div>
         )}
 
