@@ -5,7 +5,6 @@ export type DeliveryOption = 'metro' | 'home';
 
 export const HOME_DELIVERY_FEE = 7;
 
-/** Standard Tbilisi metro: Akhmeteli–Varketili (red) + Saburtalo (green) lines. */
 export const TBILISI_METRO_STATIONS: Array<{
   id: string;
   line: 'akhmeteli-varketili' | 'saburtalo';
@@ -44,6 +43,7 @@ type DeliverySelectorProps = {
   onMetroStationChange: (id: string) => void;
   address: string;
   onAddressChange: (address: string) => void;
+  compact?: boolean;
 };
 
 export function DeliverySelector({
@@ -53,22 +53,15 @@ export function DeliverySelector({
   onMetroStationChange,
   address,
   onAddressChange,
+  compact = false,
 }: DeliverySelectorProps) {
   const {locale} = useLocale();
   const isKa = locale === 'ka';
   const metroPanelId = useId();
   const homePanelId = useId();
 
-  const metroLabel = isKa ? 'მეტროსადგურზე მიწოდება' : 'Metro station pickup';
-  const homeLabel = isKa ? 'მისამართზე მიწოდება' : 'Doorstep delivery';
-  const metroBadge = isKa ? '0 GEL (უფასო)' : '0 GEL (free)';
-  const homeBadge = '+7 GEL';
-  const metroMicrocopy = isKa
-    ? 'მიიღე უახლოეს სადგურზე — გადასაცემი ფანჯარა 10:00–20:00.'
-    : 'Pickup at any Tbilisi metro station, 10:00–20:00.';
-  const homeMicrocopy = isKa
-    ? 'მინიმუმ 24 საათით ადრე ჯავშანი.'
-    : 'Book at least 24h in advance.';
+  const metroLabel = isKa ? 'მეტრო' : 'Metro';
+  const homeLabel = isKa ? 'ბინაზე' : 'Door';
   const addressPlaceholder = isKa
     ? 'ქუჩა, კორპუსი, ბინა'
     : 'Street, building, apartment';
@@ -89,130 +82,84 @@ export function DeliverySelector({
       role="radiogroup"
       aria-label={isKa ? 'მიწოდების მეთოდი' : 'Delivery method'}
     >
-      <legend className="cm-delivery__legend">
-        {isKa ? '03 — მიწოდება' : '03 — Delivery'}
-      </legend>
+      {!compact ? (
+        <legend className="cm-delivery__legend">
+          {isKa ? 'მიწოდება' : 'Delivery'}
+        </legend>
+      ) : null}
 
-      <div className="cm-delivery__stack">
-        <DeliveryBlock
-          active={option === 'metro'}
-          onSelect={() => onOptionChange('metro')}
-          title={metroLabel}
-          badge={metroBadge}
-          badgeTone="free"
-          microcopy={metroMicrocopy}
-          ariaControls={metroPanelId}
+      <div className="cm-delivery__toggle-row">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={option === 'metro'}
+          aria-controls={metroPanelId}
+          className={`cm-delivery__toggle-btn${option === 'metro' ? ' cm-delivery__toggle-btn--active' : ''}`}
+          onClick={() => onOptionChange('metro')}
         >
-          {option === 'metro' ? (
-            <div id={metroPanelId} className="cm-delivery__panel">
-              <label htmlFor="cm-metro-select" className="cm-delivery__field-label">
-                {isKa ? 'სადგური' : 'Station'}
-              </label>
-              <select
-                id="cm-metro-select"
-                className="cm-delivery__select"
-                value={metroStationId}
-                onChange={(event) => onMetroStationChange(event.target.value)}
-              >
-                <optgroup
-                  label={isKa ? 'ახმეტელი — ვარკეთილი (წითელი)' : 'Akhmeteli–Varketili (Red)'}
-                >
-                  {groupedStations.akhmeteli.map((station) => (
-                    <option key={station.id} value={station.id}>
-                      {isKa ? station.nameKa : station.nameEn}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup
-                  label={isKa ? 'საბურთალო (მწვანე)' : 'Saburtalo (Green)'}
-                >
-                  {groupedStations.saburtalo.map((station) => (
-                    <option key={station.id} value={station.id}>
-                      {isKa ? station.nameKa : station.nameEn}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-          ) : null}
-        </DeliveryBlock>
-
-        <DeliveryBlock
-          active={option === 'home'}
-          onSelect={() => onOptionChange('home')}
-          title={homeLabel}
-          badge={homeBadge}
-          badgeTone="paid"
-          microcopy={homeMicrocopy}
-          ariaControls={homePanelId}
+          {metroLabel}
+          <span className="text-xs text-muted"> · {isKa ? 'უფასო' : 'free'}</span>
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={option === 'home'}
+          aria-controls={homePanelId}
+          className={`cm-delivery__toggle-btn${option === 'home' ? ' cm-delivery__toggle-btn--active' : ''}`}
+          onClick={() => onOptionChange('home')}
         >
-          {option === 'home' ? (
-            <div id={homePanelId} className="cm-delivery__panel">
-              <label htmlFor="cm-address-input" className="cm-delivery__field-label">
-                {isKa ? 'მისამართი' : 'Address'}
-              </label>
-              <input
-                id="cm-address-input"
-                type="text"
-                className="cm-delivery__input"
-                placeholder={addressPlaceholder}
-                value={address}
-                onChange={(event) => onAddressChange(event.target.value)}
-                autoComplete="street-address"
-              />
-            </div>
-          ) : null}
-        </DeliveryBlock>
+          {homeLabel}
+          <span className="text-xs text-muted"> · +7 GEL</span>
+        </button>
       </div>
+
+      {option === 'metro' ? (
+        <div id={metroPanelId} className="cm-delivery__panel">
+          <label htmlFor="cm-metro-select" className="cm-delivery__field-label">
+            {isKa ? 'სადგური' : 'Station'}
+          </label>
+          <select
+            id="cm-metro-select"
+            className="cm-select"
+            value={metroStationId}
+            onChange={(event) => onMetroStationChange(event.target.value)}
+          >
+            <optgroup
+              label={isKa ? 'ახმეტელი — ვარკეთილი' : 'Akhmeteli–Varketili'}
+            >
+              {groupedStations.akhmeteli.map((station) => (
+                <option key={station.id} value={station.id}>
+                  {isKa ? station.nameKa : station.nameEn}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label={isKa ? 'საბურთალო' : 'Saburtalo'}>
+              {groupedStations.saburtalo.map((station) => (
+                <option key={station.id} value={station.id}>
+                  {isKa ? station.nameKa : station.nameEn}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
+      ) : null}
+
+      {option === 'home' ? (
+        <div id={homePanelId} className="cm-delivery__panel">
+          <label htmlFor="cm-address-input" className="cm-delivery__field-label">
+            {isKa ? 'მისამართი' : 'Address'}
+          </label>
+          <input
+            id="cm-address-input"
+            type="text"
+            className="cm-input"
+            placeholder={addressPlaceholder}
+            value={address}
+            onChange={(event) => onAddressChange(event.target.value)}
+            autoComplete="street-address"
+          />
+        </div>
+      ) : null}
     </fieldset>
-  );
-}
-
-type DeliveryBlockProps = {
-  active: boolean;
-  onSelect: () => void;
-  title: string;
-  badge: string;
-  badgeTone: 'free' | 'paid';
-  microcopy: string;
-  ariaControls: string;
-  children?: React.ReactNode;
-};
-
-function DeliveryBlock({
-  active,
-  onSelect,
-  title,
-  badge,
-  badgeTone,
-  microcopy,
-  ariaControls,
-  children,
-}: DeliveryBlockProps) {
-  return (
-    <div className={`cm-delivery__block${active ? ' cm-delivery__block--active' : ''}`}>
-      <button
-        type="button"
-        role="radio"
-        aria-checked={active}
-        aria-controls={ariaControls}
-        className="cm-delivery__toggle"
-        onClick={onSelect}
-      >
-        <span className="cm-delivery__marker" aria-hidden>
-          <span className="cm-delivery__marker-dot" />
-        </span>
-        <span className="cm-delivery__toggle-text">
-          <span className="cm-delivery__title">{title}</span>
-          <span className="cm-delivery__microcopy">{microcopy}</span>
-        </span>
-        <span
-          className={`cm-delivery__badge cm-delivery__badge--${badgeTone}`}
-        >
-          {badge}
-        </span>
-      </button>
-      {children}
-    </div>
   );
 }

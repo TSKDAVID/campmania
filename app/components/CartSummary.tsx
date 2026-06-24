@@ -88,7 +88,7 @@ function CartCheckoutActions({
   if (!checkoutUrl) return null;
 
   return (
-    <a href={checkoutUrl} target="_self" className="tr-btn-primary cm-cart-checkout">
+    <a href={checkoutUrl} target="_self" className="cm-btn cm-btn--primary cm-btn--full cm-cart-checkout">
       {label}
     </a>
   );

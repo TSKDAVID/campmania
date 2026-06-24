@@ -3,7 +3,6 @@ import {useSearchParams} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {buildGearFilterOptionsFromCatalog} from '~/lib/trailrent/catalog';
 import type {ShopifyGearItem} from '~/lib/trailrent/shopify-catalog';
-import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {GearFiltersBar} from '~/components/trailrent/CatalogFilters';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
@@ -27,24 +26,22 @@ export function GearCatalogGrid({
   const filtered = category ? gear.filter((g) => g.category === category) : gear;
 
   return (
-    <section className="cm-catalog-page bg-white">
-      <div className="tr-page-width cm-catalog-page-intro">
-        <CatalogPageHeading title={tr.gear.title} />
+    <section className="cm-catalog-page">
+      <header className="cm-catalog-header">
+        <h1 className="cm-catalog-header__title">{tr.gear.title}</h1>
         {!shopifyConnected ? (
-          <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
+          <p className="text-sm text-muted" style={{marginTop: 'var(--space-2)'}}>
             {tr.gear.shopifySetupHint}
           </p>
         ) : null}
+      </header>
+
+      <div className="cm-catalog-filters">
+        <GearFiltersBar options={filterOptions} />
       </div>
 
-      <div className="cm-catalog-filters-sticky">
-        <div className="tr-page-width">
-          <GearFiltersBar options={filterOptions} />
-        </div>
-      </div>
-
-      <div className="tr-page-width cm-catalog-page-body">
-        <div className="cm-catalog-grid cm-catalog-grid--gear">
+      <div className="cm-catalog-grid-wrap">
+        <div className="cm-product-grid">
           {filtered.map((item, index) => (
             <CatalogProductCard
               key={item.id}

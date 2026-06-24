@@ -1,6 +1,6 @@
-import {Link, useLoaderData} from 'react-router';
+import {useLoaderData} from 'react-router';
 import type {Route} from './+types/blogs.$blogHandle._index';
-import {Image, getPaginationVariables} from '@shopify/hydrogen';
+import {getPaginationVariables} from '@shopify/hydrogen';
 import type {ArticleItemFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
@@ -65,53 +65,50 @@ export default function Blog() {
   const {articles} = blog;
 
   return (
-    <div className="blog">
-      <h1>{blog.title}</h1>
-      <div className="blog-grid">
-        <PaginatedResourceSection<ArticleItemFragment> connection={articles}>
-          {({node: article, index}) => (
-            <ArticleItem
-              article={article}
-              key={article.id}
-              loading={index < 2 ? 'eager' : 'lazy'}
-            />
-          )}
-        </PaginatedResourceSection>
-      </div>
+    <div className="cm-blog-list">
+      <header className="cm-page-banner">
+        <h1 className="cm-page-banner__title">{blog.title}</h1>
+      </header>
+      <PaginatedResourceSection<ArticleItemFragment> connection={articles}>
+        {({node: article}) => (
+          <ArticleItem article={article} blogHandle={blog.handle} />
+        )}
+      </PaginatedResourceSection>
     </div>
   );
 }
 
 function ArticleItem({
   article,
-  loading,
+  blogHandle,
 }: {
   article: ArticleItemFragment;
-  loading?: HTMLImageElement['loading'];
+  blogHandle: string;
 }) {
-  const publishedAt = new Intl.DateTimeFormat('en-US', {
+  const publishedAt = new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
   }).format(new Date(article.publishedAt!));
+
   return (
-    <div className="blog-article" key={article.id}>
-      <Link to={`/blogs/${article.blog.handle}/${article.handle}`}>
-        {article.image && (
-          <div className="blog-article-image">
-            <Image
-              alt={article.image.altText || article.title}
-              aspectRatio="3/2"
-              data={article.image}
-              loading={loading}
-              sizes="(min-width: 768px) 50vw, 100vw"
-            />
-          </div>
-        )}
-        <h3>{article.title}</h3>
-        <small>{publishedAt}</small>
+    <article className="cm-blog-list__item" key={article.id}>
+      <time className="cm-blog-list__date" dateTime={article.publishedAt!}>
+        {publishedAt}
+      </time>
+      <Link
+        to={`/blogs/${blogHandle}/${article.handle}`}
+        className="cm-blog-list__title"
+      >
+        {article.title}
       </Link>
-    </div>
+      <Link
+        to={`/blogs/${blogHandle}/${article.handle}`}
+        className="cm-blog-list__read"
+      >
+        read →
+      </Link>
+    </article>
   );
 }
 

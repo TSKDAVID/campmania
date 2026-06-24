@@ -69,21 +69,27 @@ export default function Collection() {
   const {collection} = useLoaderData<typeof loader>();
 
   return (
-    <div className="collection">
-      <h1>{collection.title}</h1>
-      <p className="collection-description">{collection.description}</p>
-      <PaginatedResourceSection<ProductItemFragment>
-        connection={collection.products}
-        resourcesClassName="cm-catalog-grid"
-      >
-        {({node: product, index}) => (
-          <ProductItem
-            key={product.id}
-            product={product}
-            loading={index < 8 ? 'eager' : undefined}
-          />
-        )}
-      </PaginatedResourceSection>
+    <section className="cm-catalog-page">
+      <header className="cm-catalog-header">
+        <h1 className="cm-catalog-header__title">{collection.title}</h1>
+        {collection.description ? (
+          <p className="cm-catalog-header__sub">{collection.description}</p>
+        ) : null}
+      </header>
+      <div className="cm-catalog-grid-wrap">
+        <PaginatedResourceSection<ProductItemFragment>
+          connection={collection.products}
+          resourcesClassName="cm-product-grid"
+        >
+          {({node: product, index}) => (
+            <ProductItem
+              key={product.id}
+              product={product}
+              loading={index < 8 ? 'eager' : undefined}
+            />
+          )}
+        </PaginatedResourceSection>
+      </div>
       <Analytics.CollectionView
         data={{
           collection: {
@@ -92,7 +98,7 @@ export default function Collection() {
           },
         }}
       />
-    </div>
+    </section>
   );
 }
 
