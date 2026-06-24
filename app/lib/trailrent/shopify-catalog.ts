@@ -850,18 +850,12 @@ function inferDifficultyFromCollection(collection: PackageCollectionNode): strin
   return 'moderate';
 }
 
-/** Storefront cannot read theme templateSuffix — use collection metafields instead. */
+/** Storefront cannot read templateSuffix — use custom.theme_template metafield (sync from Admin). */
 export function isTrailPackageCollection(
   collection: PackageCollectionNode,
 ): boolean {
   if (PACKAGE_LISTING_HANDLES.has(collection.handle)) return false;
   if (collection.handle === SHOPIFY_COLLECTION_HANDLES.gear) return false;
-
-  const handleLower = collection.handle.toLowerCase();
-  const titleLower = collection.title.toLowerCase();
-  if (handleLower.endsWith('-includes') || titleLower.includes('kit contents')) {
-    return false;
-  }
 
   const themeTemplate = collection.themeTemplate?.value?.trim().toLowerCase();
   if (themeTemplate === 'packages') return true;
@@ -876,11 +870,10 @@ export const isPackageKitCollection = isTrailPackageCollection;
 function kitNodesForPackageCollection(
   collection: PackageCollectionNode,
 ): CatalogProductNode[] {
-  const fromMetafield =
-    collection.includedKitCollection?.reference?.products?.nodes ?? [];
-  if (fromMetafield.length) return fromMetafield;
+  const ownProducts = collection.products?.nodes ?? [];
+  if (ownProducts.length) return ownProducts;
 
-  return collection.products?.nodes ?? [];
+  return collection.includedKitCollection?.reference?.products?.nodes ?? [];
 }
 
 function kitCollectionHandleForPackage(

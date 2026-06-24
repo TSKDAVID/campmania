@@ -1,0 +1,13 @@
+query ListCollectionTemplateSuffix {
+  collections(first: 50) {
+    nodes {
+      id
+      handle
+      title
+      templateSuffix
+      productsCount {
+        count
+      }
+    }
+  }
+}

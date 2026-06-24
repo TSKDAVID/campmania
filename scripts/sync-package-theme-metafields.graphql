@@ -1,0 +1,98 @@
+# Sync custom.theme_template = packages for collections whose Admin templateSuffix is "packages".
+# Skips listing collection trail-packages.
+# Run after setup-collection-package-metafields.graphql
+
+mutation SyncPackageThemeMetafields {
+  tobavarchkhili: collectionUpdate(
+    input: {
+      id: "gid://shopify/Collection/655285649700"
+      metafields: [
+        {
+          namespace: "custom"
+          key: "theme_template"
+          value: "packages"
+          type: "single_line_text_field"
+        }
+      ]
+    }
+  ) {
+    collection {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  tobavarchkhiliIncludes: collectionUpdate(
+    input: {
+      id: "gid://shopify/Collection/655392801060"
+      metafields: [
+        {
+          namespace: "custom"
+          key: "theme_template"
+          value: "packages"
+          type: "single_line_text_field"
+        }
+      ]
+    }
+  ) {
+    collection {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  borjomi: collectionUpdate(
+    input: {
+      id: "gid://shopify/Collection/655429009700"
+      metafields: [
+        {
+          namespace: "custom"
+          key: "theme_template"
+          value: "packages"
+          type: "single_line_text_field"
+        }
+      ]
+    }
+  ) {
+    collection {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  birtvisiIncludes: collectionUpdate(
+    input: {
+      id: "gid://shopify/Collection/655392768292"
+      templateSuffix: "packages"
+      metafields: [
+        {
+          namespace: "custom"
+          key: "theme_template"
+          value: "packages"
+          type: "single_line_text_field"
+        }
+      ]
+    }
+  ) {
+    collection {
+      id
+      handle
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

@@ -4,12 +4,14 @@
 
 | Type | How to mark in Admin | Example handle | On `/packages`? |
 | ---- | -------------------- | -------------- | --------------- |
-| **Trail package** | Collection metafield `custom.theme_template` = `packages` (or `custom.is_package` = true) | `tobavarchkhili`, `birtvisi-package` | **Yes** |
-| **Kit contents** | Manual collection; handle ends with `-includes` or title contains "kit contents" | `tobavarchkhili-includes` | **No** |
+| **Trail package** | Admin theme template = `packages` **and** collection metafield `custom.theme_template` = `packages` (run sync script) | `tobavarchkhili-includes`, `ბორჯომის-ეროვნული-პარკის-კომპლექტი` | **Yes** |
+| **Kit contents** | Same as trail package when theme template is `packages` — products in the collection are included gear | `tobavarchkhili-includes` | **Yes** (one card per package collection) |
 | **Gear catalog** | Collection handle `individual-gear` | `individual-gear` | No (→ `/individual-gear`) |
 | **Package listing (legacy)** | Collection handle `trail-packages` | `trail-packages` | No (product index only) |
 
-The storefront loads **trail package collections** and filters with `isTrailPackageCollection` (metafield only — never `*-includes`).
+The storefront loads **trail package collections** and filters with `isTrailPackageCollection` (`custom.theme_template` = `packages`). Products **in that collection** are the included items on package cards.
+
+**After setting Admin theme template to `packages`**, run `scripts/sync-package-theme-metafields.graphql` so the Storefront API can see the flag (Admin `templateSuffix` is not exposed on Storefront).
 
 Optional on each **trail package collection**:
 - `custom.included_collection` → kit contents collection (gear + bundle pricing)

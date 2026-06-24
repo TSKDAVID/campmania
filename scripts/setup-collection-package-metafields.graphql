@@ -1,0 +1,46 @@
+# Define collection metafield mirrored from Admin theme template "packages".
+# Storefront API cannot read templateSuffix — sync with scripts/sync-package-theme-metafields.graphql
+
+mutation CreateCollectionThemeTemplateMetafield {
+  themeTemplate: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "theme_template"
+      name: "Theme template"
+      description: "Mirrors collection theme template suffix (e.g. packages). Set automatically or match Admin dropdown."
+      type: "single_line_text_field"
+      ownerType: COLLECTION
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition {
+      id
+      key
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  isPackage: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "is_package"
+      name: "Is trail package"
+      description: "Alternative flag for package collections on /packages"
+      type: "boolean"
+      ownerType: COLLECTION
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition {
+      id
+      key
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
