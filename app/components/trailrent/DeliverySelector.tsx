@@ -54,7 +54,7 @@ export function DeliverySelector({
   address,
   onAddressChange,
 }: DeliverySelectorProps) {
-  const {locale} = useLocale();
+  const {locale, translations: tr} = useLocale();
   const isKa = locale === 'ka';
   const metroPanelId = useId();
   const homePanelId = useId();
@@ -90,7 +90,7 @@ export function DeliverySelector({
       aria-label={isKa ? 'მიწოდების მეთოდი' : 'Delivery method'}
     >
       <legend className="cm-delivery__legend">
-        {isKa ? '03 — მიწოდება' : '03 — Delivery'}
+        {tr.pages.delivery}
       </legend>
 
       <div className="cm-delivery__stack">

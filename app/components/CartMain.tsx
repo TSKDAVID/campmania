@@ -44,6 +44,7 @@ function getLineItemChildrenMap(lines: CartLine[]): LineItemChildrenMap {
 
 export function CartMain({layout, cart: originalCart}: CartMainProps) {
   const cart = useOptimisticCart(originalCart);
+  const {translations: tr} = useLocale();
   const [deliveryOption, setDeliveryOption] =
     useState<DeliveryOption>('metro');
   const [metroStationId, setMetroStationId] = useState(
@@ -72,44 +73,73 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
 
       {linesCount ? (
         <div className={`cart-details${isAside ? ' cart-details--aside' : ''}`}>
-          <div className={isAside ? 'cart-aside-body' : undefined}>
-            <p id="cart-lines" className="sr-only">
-              Line items
-            </p>
-            <ul
-              aria-labelledby="cart-lines"
-              className={`cm-cart-lines${isAside ? ' cm-cart-lines--aside' : ''}`}
-            >
-              {visibleLines.map((line) => (
-                <CartLineItem
-                  key={line.id}
-                  line={line}
-                  layout={layout}
-                  childrenMap={childrenMap}
-                />
-              ))}
-            </ul>
-          </div>
+          {isAside ? (
+            <div className="cm-cart-aside">
+              <div className="cm-cart-aside-scroll">
+                <section className="cm-cart-aside-panel" aria-labelledby="cart-lines">
+                  <p id="cart-lines" className="cm-cart-aside-section-label">
+                    {tr.cart.itemsSection}
+                  </p>
+                  <ul className="cm-cart-lines cm-cart-lines--aside">
+                    {visibleLines.map((line) => (
+                      <CartLineItem
+                        key={line.id}
+                        line={line}
+                        layout={layout}
+                        childrenMap={childrenMap}
+                      />
+                    ))}
+                  </ul>
+                </section>
 
-          {cartHasItems ? (
-            <div className={isAside ? 'cart-aside-footer' : undefined}>
-              {isAside ? (
-                <DeliverySelector
-                  option={deliveryOption}
-                  onOptionChange={setDeliveryOption}
-                  metroStationId={metroStationId}
-                  onMetroStationChange={setMetroStationId}
-                  address={deliveryAddress}
-                  onAddressChange={setDeliveryAddress}
-                />
+                <section className="cm-cart-aside-delivery">
+                  <DeliverySelector
+                    option={deliveryOption}
+                    onOptionChange={setDeliveryOption}
+                    metroStationId={metroStationId}
+                    onMetroStationChange={setMetroStationId}
+                    address={deliveryAddress}
+                    onAddressChange={setDeliveryAddress}
+                  />
+                </section>
+              </div>
+
+              {cartHasItems ? (
+                <div className="cm-cart-aside-footer">
+                  <CartSummary
+                    cart={cart}
+                    layout={layout}
+                    deliveryFee={deliveryFee}
+                  />
+                </div>
               ) : null}
-              <CartSummary
-                cart={cart}
-                layout={layout}
-                deliveryFee={isAside ? deliveryFee : 0}
-              />
             </div>
-          ) : null}
+          ) : (
+            <>
+              <div>
+                <p id="cart-lines" className="sr-only">
+                  Line items
+                </p>
+                <ul
+                  aria-labelledby="cart-lines"
+                  className="cm-cart-lines"
+                >
+                  {visibleLines.map((line) => (
+                    <CartLineItem
+                      key={line.id}
+                      line={line}
+                      layout={layout}
+                      childrenMap={childrenMap}
+                    />
+                  ))}
+                </ul>
+              </div>
+
+              {cartHasItems ? (
+                <CartSummary cart={cart} layout={layout} deliveryFee={0} />
+              ) : null}
+            </>
+          )}
         </div>
       ) : null}
     </section>

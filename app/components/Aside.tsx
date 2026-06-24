@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import {useId} from 'react';
+import {IconBag, IconX} from '~/components/trailrent/Icons';
 
 type AsideType = 'search' | 'cart' | 'mobile' | 'closed';
 type AsideContextValue = {
@@ -58,7 +59,7 @@ export function Aside({
   return (
     <div
       aria-modal
-      className={`overlay overlay--${type}${isCart ? ' overlay--cart-glass' : ''} ${expanded ? 'expanded' : ''}`}
+      className={`overlay overlay--${type}${isCart ? ' overlay--cart overlay--cart-glass' : ''} ${expanded ? 'expanded' : ''}`}
       role="dialog"
       aria-labelledby={id}
       hidden={!expanded}
@@ -66,9 +67,21 @@ export function Aside({
       <button className="close-outside" onClick={close} aria-label="Close" />
       <aside className={isCart ? 'cm-cart-drawer' : undefined}>
         <header className={isCart ? 'cm-cart-drawer__header' : undefined}>
-          <h3 id={id}>{heading}</h3>
-          <button className="close reset" onClick={close} aria-label="Close">
-            &times;
+          <div className="cm-cart-drawer__header-main">
+            {isCart ? (
+              <span className="cm-cart-drawer__header-icon" aria-hidden>
+                <IconBag size={18} />
+              </span>
+            ) : null}
+            <h3 id={id}>{heading}</h3>
+          </div>
+          <button
+            type="button"
+            className={`close reset${isCart ? ' cm-cart-drawer__close' : ''}`}
+            onClick={close}
+            aria-label="Close"
+          >
+            {isCart ? <IconX size={20} /> : <span aria-hidden>&times;</span>}
           </button>
         </header>
         <main className={isCart ? 'cm-cart-drawer__main' : undefined}>{children}</main>

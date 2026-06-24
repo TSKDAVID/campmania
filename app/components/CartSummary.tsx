@@ -33,9 +33,15 @@ export function CartSummary({cart, layout, deliveryFee = 0}: CartSummaryProps) {
 
   return (
     <div aria-labelledby={summaryId} className={className}>
-      <h4 id={summaryId} className="cm-cart-summary-heading">
-        {tr.cart.totals}
-      </h4>
+      {!isAside ? (
+        <h4 id={summaryId} className="cm-cart-summary-heading">
+          {tr.cart.totals}
+        </h4>
+      ) : (
+        <h4 id={summaryId} className="sr-only">
+          {tr.cart.totals}
+        </h4>
+      )}
 
       {isAside && deliveryFee > 0 ? (
         <dl className="cm-cart-fee-row">
@@ -44,7 +50,7 @@ export function CartSummary({cart, layout, deliveryFee = 0}: CartSummaryProps) {
         </dl>
       ) : null}
 
-      <dl className="cm-cart-subtotal">
+      <dl className={`cm-cart-subtotal${isAside ? ' cm-cart-subtotal--aside' : ''}`}>
         <dt>{isAside ? tr.booking.total : tr.cart.subtotal}</dt>
         <dd>{displayTotal > 0 ? formatGel(displayTotal) : '—'}</dd>
       </dl>

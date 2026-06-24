@@ -336,6 +336,7 @@ const translations = {
     },
     cart: {
       title: 'თქვენი ქირის კალათა',
+      itemsSection: 'შეკვეთის ნივთები',
       pickupNote: 'მეტრო / მიღების დეტალები',
       agreement: 'ვეთანხმები ქირის ხელშეკრულებას',
       deliveryNote: 'მეტროს გაჩვენება · უფასო დაბრუნება',
@@ -721,6 +722,7 @@ const translations = {
     },
     cart: {
       title: 'Your rental cart',
+      itemsSection: 'Items in cart',
       pickupNote: 'Metro / pickup details',
       agreement: 'I agree to the rental agreement',
       deliveryNote: 'Metro hub pickup · Free return',
