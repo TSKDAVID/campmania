@@ -151,7 +151,7 @@
   }
 
   .cm-site-header {
-    @apply border-b border-charcoal/15 bg-oatmeal/90 text-charcoal backdrop-blur-md;
+    @apply border-b border-charcoal bg-oatmeal/95 text-charcoal backdrop-blur-md;
     min-height: var(--header-height);
   }
 

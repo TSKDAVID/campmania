@@ -1,7 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
 import {useLocale} from '~/providers/LocaleProvider';
-import {METRO_STATIONS, getStationLabel} from '~/lib/trailrent/metro';
 import {
   calculateRentalTotal,
   formatGel,
@@ -10,10 +9,15 @@ import {
 } from '~/lib/trailrent/pricing';
 import {
   IconCart,
-  IconMapPin,
   IconShield,
 } from '~/components/trailrent/Icons';
 import {RentalDateRangePicker} from '~/components/trailrent/RentalDateRangePicker';
+import {
+  DeliverySelector,
+  HOME_DELIVERY_FEE,
+  TBILISI_METRO_STATIONS,
+  type DeliveryOption,
+} from '~/components/trailrent/DeliverySelector';
 
 export type FulfillmentMode = 'rent' | 'purchase';
 
@@ -48,7 +52,10 @@ function buildLineAttributes(options: {
   mode: FulfillmentMode;
   startDate: string;
   endDate: string;
+  deliveryOption: DeliveryOption;
   metroId: string;
+  deliveryAddress: string;
+  deliveryFee: number;
   rentalCredit?: number;
   rentalDays?: number;
   quotedPurchasePrice?: number;
@@ -59,7 +66,10 @@ function buildLineAttributes(options: {
     mode,
     startDate,
     endDate,
+    deliveryOption,
     metroId,
+    deliveryAddress,
+    deliveryFee,
     rentalCredit,
     rentalDays,
     quotedPurchasePrice,
@@ -70,9 +80,16 @@ function buildLineAttributes(options: {
 
   const attributes: Array<{key: string; value: string}> = [
     {key: 'fulfillment_mode', value: mode},
-    {key: 'metro_station', value: metroId},
+    {key: 'delivery_method', value: deliveryOption},
+    {key: 'delivery_fee', value: String(deliveryFee)},
     {key: 'rent_to_own', value: isPurchase && rentalCredit ? 'true' : 'false'},
   ];
+
+  if (deliveryOption === 'metro') {
+    attributes.push({key: 'metro_station', value: metroId});
+  } else if (deliveryAddress.trim()) {
+    attributes.push({key: 'delivery_address', value: deliveryAddress.trim()});
+  }
 
   if (isPurchase) {
     if (rentalCredit != null && rentalCredit > 0) {
@@ -131,16 +148,22 @@ export function RentalProductForm({
   compact = false,
   layout = 'stacked',
 }: RentalProductFormProps) {
-  const {translations: tr, locale} = useLocale();
+  const {translations: tr} = useLocale();
   const defaults = getDefaultDateRange();
 
   const [startDate, setStartDate] = useState(defaults.start);
   const [endDate, setEndDate] = useState(defaults.end);
-  const [metroId, setMetroId] = useState(METRO_STATIONS[0]?.id ?? '');
+  const [deliveryOption, setDeliveryOption] = useState<DeliveryOption>('metro');
+  const [metroId, setMetroId] = useState(
+    TBILISI_METRO_STATIONS[0]?.id ?? 'rustaveli',
+  );
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [mode, setMode] = useState<FulfillmentMode>('rent');
 
   const showBuyToggle = buyAvailable && purchasePrice > 0;
   const isRentMode = mode === 'rent';
+  const deliveryFee =
+    deliveryOption === 'home' && isRentMode ? HOME_DELIVERY_FEE : 0;
   const hasRentToOwnCredit =
     rentToOwnOffer?.eligible === true &&
     (rentToOwnOffer.rentalCredit ?? 0) > 0;
@@ -150,7 +173,8 @@ export function RentalProductForm({
   }, [mode, onModeChange]);
 
   const datesValid = isDateRangeValid(startDate, endDate);
-  const station = METRO_STATIONS.find((s) => s.id === metroId);
+  const deliveryReady =
+    deliveryOption === 'metro' || deliveryAddress.trim().length > 0;
 
   const rentalPricing = useMemo(
     () => calculateRentalTotal(dailyRate, startDate, endDate),
@@ -173,7 +197,10 @@ export function RentalProductForm({
           mode,
           startDate,
           endDate,
+          deliveryOption,
           metroId,
+          deliveryAddress,
+          deliveryFee,
           rentalCredit: hasRentToOwnCredit ? rentToOwnOffer?.rentalCredit : undefined,
           rentalDays: rentalPricing.days,
           quotedPurchasePrice:
@@ -195,8 +222,12 @@ export function RentalProductForm({
       mode,
       startDate,
       endDate,
+      deliveryOption,
       metroId,
+      deliveryAddress,
+      deliveryFee,
       hasRentToOwnCredit,
+      isRentMode,
       rentToOwnOffer?.rentalCredit,
       rentalPricing.days,
       dailyRate,
@@ -206,10 +237,12 @@ export function RentalProductForm({
   );
 
   const canSubmit = isRentMode
-    ? datesValid
+    ? datesValid && deliveryReady
     : showBuyToggle && purchasePrice > 0;
 
-  const displayTotal = isRentMode ? rentalPricing.total : buyDisplayTotal;
+  const displayTotal = isRentMode
+    ? rentalPricing.total + deliveryFee
+    : buyDisplayTotal;
 
   const setFulfillmentMode = (next: FulfillmentMode) => {
     setMode(next);
@@ -298,29 +331,14 @@ export function RentalProductForm({
           </div>
 
           <div className="cm-rental-field">
-            <label htmlFor="rental-metro-select" className="cm-form-label">
-              <span className="inline-flex items-center gap-2">
-                <IconMapPin size={16} className="text-moss" />
-                {isRentMode ? tr.booking.metro : tr.booking.pickupMetro}
-              </span>
-            </label>
-            <select
-              id="rental-metro-select"
-              value={metroId}
-              onChange={(e) => setMetroId(e.target.value)}
-              className="cm-form-field"
-            >
-              {METRO_STATIONS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {getStationLabel(s, locale)} · {s.line}
-                </option>
-              ))}
-            </select>
-            {station ? (
-              <p className="mt-2 text-sm text-muted">
-                {tr.booking.pickupWindow}: {station.pickupWindow}
-              </p>
-            ) : null}
+            <DeliverySelector
+              option={deliveryOption}
+              onOptionChange={setDeliveryOption}
+              metroStationId={metroId}
+              onMetroStationChange={setMetroId}
+              address={deliveryAddress}
+              onAddressChange={setDeliveryAddress}
+            />
           </div>
         </div>
 
@@ -341,6 +359,14 @@ export function RentalProductForm({
                       {formatGel(rentalPricing.subtotal)}
                     </span>
                   </div>
+                  {deliveryFee > 0 ? (
+                    <div className="cm-rental-summary-row">
+                      <span>{tr.pages.delivery}</span>
+                      <span className="cm-rental-summary-amount">
+                        {formatGel(deliveryFee)}
+                      </span>
+                    </div>
+                  ) : null}
                 </>
               ) : (
                 <div className="cm-rental-summary-row">

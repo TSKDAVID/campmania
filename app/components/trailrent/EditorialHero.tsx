@@ -1,6 +1,6 @@
+import {useCallback, useState, Suspense} from 'react';
 import {Await} from 'react-router';
-import {Suspense} from 'react';
-import {motion} from 'framer-motion';
+import {motion, AnimatePresence} from 'framer-motion';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
   getFallbackHomepagePromoSlides,
@@ -23,7 +23,7 @@ export function EditorialHero({promoSlides}: EditorialHeroProps) {
       <HeroCopyColumn />
       <Suspense fallback={<HeroBillboardSkeleton />}>
         <Await resolve={promoSlides}>
-          {(slides) => <HeroBillboardColumn slides={slides} />}
+          {(slides) => <HeroBillboardCarousel slides={slides} />}
         </Await>
       </Suspense>
     </section>
@@ -98,27 +98,54 @@ function HeroCopyColumn() {
   );
 }
 
-function HeroBillboardColumn({slides}: {slides: HomepagePromoSlide[]}) {
+function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
   const {locale} = useLocale();
   const resolved = slides.length ? slides : getFallbackHomepagePromoSlides(locale);
-  const slide = resolved[0];
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const goTo = useCallback(
+    (index: number) => {
+      if (!resolved.length) return;
+      const next = ((index % resolved.length) + resolved.length) % resolved.length;
+      setActiveIndex(next);
+    },
+    [resolved.length],
+  );
+
+  const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
+  const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
+
+  if (!resolved.length) return <HeroBillboardSkeleton />;
+
+  const slide = resolved[activeIndex] ?? resolved[0];
   if (!slide) return <HeroBillboardSkeleton />;
+
+  const hasMultiple = resolved.length > 1;
+  const carouselLabel =
+    locale === 'ka' ? 'მთავარი ბანერი' : 'Homepage banner carousel';
 
   return (
     <motion.aside
       className="cm-hero-billboard"
-      aria-label={slide.title}
+      aria-label={carouselLabel}
       initial={{opacity: 0}}
       animate={{opacity: 1}}
       transition={{duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1]}}
     >
       <div className="cm-hero-billboard__frame">
-        <img
-          src={slide.imageUrl}
-          alt={slide.imageAlt ?? slide.title}
-          className="cm-hero-billboard__image"
-          loading="eager"
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={slide.id ?? slide.title}
+            src={slide.imageUrl}
+            alt={slide.imageAlt ?? slide.title}
+            className="cm-hero-billboard__image"
+            loading="eager"
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            exit={{opacity: 0}}
+            transition={{duration: 0.45, ease: [0.22, 1, 0.36, 1]}}
+          />
+        </AnimatePresence>
 
         {slide.badge ? (
           <span className="cm-hero-billboard__corner-badge">{slide.badge}</span>
@@ -137,6 +164,48 @@ function HeroBillboardColumn({slides}: {slides: HomepagePromoSlide[]}) {
             <span aria-hidden>→</span>
           </a>
         </div>
+
+        {hasMultiple ? (
+          <div className="cm-hero-billboard__controls">
+            <button
+              type="button"
+              className="cm-hero-billboard__nav-btn"
+              onClick={goPrev}
+              aria-label={locale === 'ka' ? 'წინა სлайд' : 'Previous slide'}
+            >
+              ←
+            </button>
+
+            <div className="cm-hero-billboard__dots" role="tablist">
+              {resolved.map((entry, index) => (
+                <button
+                  key={entry.id ?? `${entry.title}-${index}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === activeIndex}
+                  aria-label={
+                    locale === 'ka'
+                      ? `სлайд ${index + 1} / ${resolved.length}`
+                      : `Slide ${index + 1} of ${resolved.length}`
+                  }
+                  className={`cm-hero-billboard__dot${
+                    index === activeIndex ? ' cm-hero-billboard__dot--active' : ''
+                  }`}
+                  onClick={() => goTo(index)}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="cm-hero-billboard__nav-btn"
+              onClick={goNext}
+              aria-label={locale === 'ka' ? 'შემდეგი სлайд' : 'Next slide'}
+            >
+              →
+            </button>
+          </div>
+        ) : null}
       </div>
     </motion.aside>
   );

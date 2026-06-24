@@ -31,6 +31,7 @@ import {
   type ProductIncludedItem,
   ProductInlinePrice,
   ProductPricingExtras,
+  ProductTechnicalSpecs,
   ProductTrustBar,
 } from '~/components/trailrent/ProductPageSections';
 import {AddToGearBuilderButton} from '~/components/trailrent/AddToGearBuilderButton';
@@ -413,22 +414,28 @@ export default function Product() {
   }, [product.media?.nodes, rentVariant?.image, selectedVariant?.image]);
 
   return (
-    <article className="cm-product-page">
-      <div
-        className={`cm-product-page-inner${isSoloProduct ? ' cm-product-page-inner--solo' : ''}`}
-      >
-        <div
-          className={`cm-product-layout${
-            isSoloProduct ? ' cm-product-layout--solo' : ' cm-product-layout--package'
-          }`}
-        >
-          <header className="cm-product-header cm-product-header--media-top cm-product-layout-title">
-            <p className="cm-product-eyebrow">
-              {isPackage ? tr.packages.eyebrow : tr.product.rental}
-            </p>
-            <div className="cm-product-title-row">
-              <h1 className="cm-product-title">{title}</h1>
-              <div className="cm-product-title-price">
+    <article className="cm-product-page cm-pdp-editorial">
+      <div className="cm-pdp-editorial__inner">
+        <div className="cm-pdp-editorial__grid">
+          <aside className="cm-pdp-editorial__media" aria-label={title}>
+            <ProductImage
+              images={galleryImages}
+              image={selectedVariant?.image ?? rentVariant?.image}
+              title={title}
+              variant={isSoloProduct ? 'solo' : 'kit'}
+            />
+          </aside>
+
+          <div className="cm-pdp-editorial__details">
+            <header>
+              <p className="cm-pdp-editorial__eyebrow">
+                {isPackage ? tr.packages.eyebrow : tr.product.rental}
+              </p>
+              <h1 className="cm-pdp-editorial__title">{title}</h1>
+              {productSubtitle ? (
+                <p className="cm-editorial-body mt-2">{productSubtitle}</p>
+              ) : null}
+              <div className="cm-pdp-editorial__price-row mt-4">
                 <ProductInlinePrice
                   fulfillmentMode={fulfillmentMode}
                   rentPrice={displayRentPrice}
@@ -445,48 +452,27 @@ export default function Product() {
                   variant="inline"
                 />
               </div>
-            </div>
-          </header>
+            </header>
 
-          <aside className="cm-product-layout-media" aria-label={title}>
-            <ProductImage
-              images={galleryImages}
-              image={selectedVariant?.image ?? rentVariant?.image}
-              title={title}
-              variant={isSoloProduct ? 'solo' : 'kit'}
-            />
-            {productSubtitle ? (
-              <div className="cm-product-media-caption">
-                <p className="cm-product-subtitle">{productSubtitle}</p>
-              </div>
-            ) : null}
-          </aside>
-
-          <div className="cm-product-buybox">
-            <div className="cm-product-buybox-head">
-              <ProductTrustBar isTrustedTier={trustedTier} />
-            </div>
+            <ProductTrustBar isTrustedTier={trustedTier} />
 
             {includedItems.length > 0 ? (
-              <div className="cm-product-buybox-card cm-product-buybox-card--split">
+              <div className="cm-pdp-section">
                 <ProductIncludedPanel
                   items={includedItems}
                   includedProducts={includedProducts}
+                  variant="editorial"
                 />
-
-                {bookingFormProps ? (
-                  <RentalProductForm {...bookingFormProps} layout="stacked" compact />
-                ) : (
-                  <p className="cm-product-unavailable cm-product-unavailable--in-card">
-                    {locale === 'ka'
-                      ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
-                      : 'This variant is currently unavailable.'}
-                  </p>
-                )}
               </div>
-            ) : bookingFormProps ? (
+            ) : null}
+
+            {bookingFormProps ? (
               <div className="cm-product-booking">
-                <RentalProductForm {...bookingFormProps} layout="wide" compact />
+                <RentalProductForm
+                  {...bookingFormProps}
+                  layout={isPackage ? 'stacked' : 'wide'}
+                  compact
+                />
                 {builderProduct ? (
                   <AddToGearBuilderButton
                     product={builderProduct}
@@ -504,7 +490,11 @@ export default function Product() {
           </div>
         </div>
 
-        <ProductDescription html={descriptionHtml} title={tr.product.about} />
+        {descriptionHtml?.trim() ? (
+          <div className="cm-pdp-editorial__below">
+            <ProductTechnicalSpecs html={descriptionHtml} />
+          </div>
+        ) : null}
       </div>
 
       <Analytics.ProductView
@@ -526,7 +516,7 @@ export default function Product() {
   );
 }
 
-const PRODUCT_VARIANT_FRAGMENT = `#graphql
+const PRODUCT_VARIANT_FRAGMENT = `
   fragment ProductVariant on ProductVariant {
     availableForSale
     compareAtPrice {
@@ -563,7 +553,7 @@ const PRODUCT_VARIANT_FRAGMENT = `#graphql
   }
 ` as const;
 
-const PRODUCT_FRAGMENT = `#graphql
+const PRODUCT_FRAGMENT = `
   fragment Product on Product {
     id
     title
@@ -683,9 +673,10 @@ const PRODUCT_FRAGMENT = `#graphql
       }
     }
   }
-  ${PRODUCT_VARIANT_FRAGMENT}
-  ${INCLUSION_PRODUCT_FRAGMENT}
 ` as const;
+
+const STRIP_GRAPHQL_TAG = (fragment: string) =>
+  fragment.replace(/^#graphql\s*\n?/, '');
 
 const PRODUCT_QUERY = `#graphql
   query Product(
@@ -698,5 +689,7 @@ const PRODUCT_QUERY = `#graphql
       ...Product
     }
   }
+  ${PRODUCT_VARIANT_FRAGMENT}
+  ${STRIP_GRAPHQL_TAG(INCLUSION_PRODUCT_FRAGMENT)}
   ${PRODUCT_FRAGMENT}
 ` as const;

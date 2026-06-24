@@ -200,36 +200,54 @@ export type ProductIncludedItem = {
 export function ProductIncludedPanel({
   items,
   includedProducts,
+  variant = 'default',
 }: {
   items: string[];
   includedProducts?: ProductIncludedItem[];
+  variant?: 'default' | 'editorial';
 }) {
-  const {translations: tr} = useLocale();
+  const {translations: tr, locale} = useLocale();
   const entries: ProductIncludedItem[] = includedProducts?.length
     ? includedProducts
     : items.map((title) => ({title}));
   if (!entries.length) return null;
 
+  const isEditorial = variant === 'editorial';
+  const sectionTitle =
+    locale === 'ka' ? 'რა შედის ნაკრებში' : "What's Included";
+
   return (
     <section
-      className="cm-product-included"
+      className={isEditorial ? 'cm-pdp-section' : 'cm-product-included'}
       aria-labelledby="product-included-heading"
     >
-      <div className="cm-product-included-header">
-        <span className="cm-product-included-icon" aria-hidden>
-          <IconPackage size={18} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="cm-product-included-eyebrow">{tr.product.included}</p>
-          <h2
-            id="product-included-heading"
-            className="cm-product-included-title"
-          >
-            {entries.length} {tr.product.itemsIncluded}
+      {isEditorial ? (
+        <div className="cm-pdp-section__head">
+          <h2 id="product-included-heading" className="cm-pdp-section__title">
+            {sectionTitle}
           </h2>
         </div>
-      </div>
-      <div className="cm-product-included-body">
+      ) : (
+        <div className="cm-product-included-header">
+          <span className="cm-product-included-icon" aria-hidden>
+            <IconPackage size={18} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="cm-product-included-eyebrow">{tr.product.included}</p>
+            <h2
+              id="product-included-heading"
+              className="cm-product-included-title"
+            >
+              {entries.length} {tr.product.itemsIncluded}
+            </h2>
+          </div>
+        </div>
+      )}
+      <div
+        className={
+          isEditorial ? 'cm-pdp-section__body' : 'cm-product-included-body'
+        }
+      >
         {entries.some((entry) => entry.imageUrl) ? (
           <div className="cm-product-included-thumbs" role="list">
             {entries.map((entry) => (
@@ -243,17 +261,44 @@ export function ProductIncludedPanel({
             ))}
           </div>
         ) : null}
-        <ul className="cm-product-included-list">
+        <ul className={isEditorial ? undefined : 'cm-product-included-list'}>
           {entries.map((entry) => (
-            <li key={entry.title} className="cm-product-included-item">
-              <span className="cm-product-included-check" aria-hidden>
-                <IconCheck size={12} />
-              </span>
+            <li
+              key={entry.handle ?? entry.title}
+              className={isEditorial ? undefined : 'cm-product-included-item'}
+            >
+              {!isEditorial ? (
+                <span className="cm-product-included-check" aria-hidden>
+                  <IconCheck size={12} />
+                </span>
+              ) : null}
               <span className="cm-product-included-text">{entry.title}</span>
             </li>
           ))}
         </ul>
       </div>
+    </section>
+  );
+}
+
+export function ProductTechnicalSpecs({html}: {html: string}) {
+  const {locale} = useLocale();
+  if (!html?.trim()) return null;
+
+  const title =
+    locale === 'ka' ? 'ტექნიკური მახასიათებლები' : 'Technical Specs';
+
+  return (
+    <section className="cm-pdp-section" aria-labelledby="product-specs-heading">
+      <div className="cm-pdp-section__head">
+        <h2 id="product-specs-heading" className="cm-pdp-section__title">
+          {title}
+        </h2>
+      </div>
+      <div
+        className="cm-pdp-section__body cm-product-description-body"
+        dangerouslySetInnerHTML={{__html: html}}
+      />
     </section>
   );
 }

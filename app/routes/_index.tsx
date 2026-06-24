@@ -42,7 +42,7 @@ export default function Homepage() {
   const {featuredSections, promoSlides} = useLoaderData<typeof loader>();
 
   return (
-    <div className="cm-home cm-editorial overflow-x-hidden">
+    <div className="cm-home overflow-x-hidden">
       <EditorialHero promoSlides={promoSlides} />
 
       <BrandTicker />
@@ -51,11 +51,11 @@ export default function Homepage() {
         <Await resolve={featuredSections}>
           {({packages, gear}) => (
             <>
+              <FeaturedGearStrip items={gear} />
+
               <CuratedPackagesShowcase packages={packages} />
 
               <CategoryBentoMatrix />
-
-              <FeaturedGearStrip items={gear} />
             </>
           )}
         </Await>
@@ -77,7 +77,7 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
     >
       <header className="cm-gear-strip__head">
         <p className="cm-gear-strip__eyebrow">
-          {isKa ? '04 — ცალკეული აღჭურვილობა' : '04 — Individual gear'}
+          {isKa ? '02 — ცალკეული აღჭურვილობა' : '02 — Individual gear'}
         </p>
         <h2 id="cm-gear-strip-heading" className="cm-gear-strip__title">
           {isKa

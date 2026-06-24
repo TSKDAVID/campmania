@@ -72,7 +72,7 @@ export function CategoryBentoMatrix() {
       aria-labelledby="cm-bento-heading"
     >
       <header className="cm-bento__head">
-        <p className="cm-bento__eyebrow">02 — კატეგორიები</p>
+        <p className="cm-bento__eyebrow">04 — კატეგორიები</p>
         <h2 id="cm-bento-heading" className="cm-bento__title">
           ინდივიდუალური აღჭურვილობა — ნებისმიერი მარშრუტისთვის.
         </h2>

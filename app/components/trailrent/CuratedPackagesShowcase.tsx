@@ -11,7 +11,7 @@ const HOVER_BADGE_KA = 'ნაკრების ნახვა';
 export function CuratedPackagesShowcase({packages}: CuratedPackagesShowcaseProps) {
   const {locale} = useLocale();
   const isKa = locale === 'ka';
-  const eyebrow = isKa ? '01 — შერჩეული ნაკრებები' : '01 — Curated packages';
+  const eyebrow = isKa ? '03 — შერჩეული ნაკრებები' : '03 — Curated packages';
   const heading = isKa
     ? 'სალაშქრო კოლექცია, რომელიც პატივს სცემს ბუნებას.'
     : 'Trail kits engineered for the Caucasus.';
