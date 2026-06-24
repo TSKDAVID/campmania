@@ -295,16 +295,16 @@
 
 /* ── Hero carousel controls ───────────────────────────────────────────── */
 .cm-hero-billboard__controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border-top: var(--cm-border);
+  border: var(--cm-border);
+  border-top: none;
   background: var(--cm-canvas);
 }
 
@@ -347,8 +347,4 @@
 
 .cm-hero-billboard__dot--active {
   background: var(--cm-accent);
-}
-
-.cm-hero-billboard__frame {
-  position: relative;
 }

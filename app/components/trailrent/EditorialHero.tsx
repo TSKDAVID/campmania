@@ -164,49 +164,49 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
             <span aria-hidden>→</span>
           </a>
         </div>
-
-        {hasMultiple ? (
-          <div className="cm-hero-billboard__controls">
-            <button
-              type="button"
-              className="cm-hero-billboard__nav-btn"
-              onClick={goPrev}
-              aria-label={locale === 'ka' ? 'წინა სлайд' : 'Previous slide'}
-            >
-              ←
-            </button>
-
-            <div className="cm-hero-billboard__dots" role="tablist">
-              {resolved.map((entry, index) => (
-                <button
-                  key={entry.id ?? `${entry.title}-${index}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={index === activeIndex}
-                  aria-label={
-                    locale === 'ka'
-                      ? `სлайд ${index + 1} / ${resolved.length}`
-                      : `Slide ${index + 1} of ${resolved.length}`
-                  }
-                  className={`cm-hero-billboard__dot${
-                    index === activeIndex ? ' cm-hero-billboard__dot--active' : ''
-                  }`}
-                  onClick={() => goTo(index)}
-                />
-              ))}
-            </div>
-
-            <button
-              type="button"
-              className="cm-hero-billboard__nav-btn"
-              onClick={goNext}
-              aria-label={locale === 'ka' ? 'შემდეგი სлайд' : 'Next slide'}
-            >
-              →
-            </button>
-          </div>
-        ) : null}
       </div>
+
+      {hasMultiple ? (
+        <div className="cm-hero-billboard__controls">
+          <button
+            type="button"
+            className="cm-hero-billboard__nav-btn"
+            onClick={goPrev}
+            aria-label={locale === 'ka' ? 'წინა სлайд' : 'Previous slide'}
+          >
+            ←
+          </button>
+
+          <div className="cm-hero-billboard__dots" role="tablist">
+            {resolved.map((entry, index) => (
+              <button
+                key={entry.id ?? `${entry.title}-${index}`}
+                type="button"
+                role="tab"
+                aria-selected={index === activeIndex}
+                aria-label={
+                  locale === 'ka'
+                    ? `სлайд ${index + 1} / ${resolved.length}`
+                    : `Slide ${index + 1} of ${resolved.length}`
+                }
+                className={`cm-hero-billboard__dot${
+                  index === activeIndex ? ' cm-hero-billboard__dot--active' : ''
+                }`}
+                onClick={() => goTo(index)}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="cm-hero-billboard__nav-btn"
+            onClick={goNext}
+            aria-label={locale === 'ka' ? 'შემდეგი სлайд' : 'Next slide'}
+          >
+            →
+          </button>
+        </div>
+      ) : null}
     </motion.aside>
   );
 }
