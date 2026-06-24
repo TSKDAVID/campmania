@@ -39,20 +39,6 @@ export async function loader({context}: Route.LoaderArgs) {
   );
 }
 
-function customerInitials(
-  firstName?: string | null,
-  lastName?: string | null,
-  email?: string | null,
-) {
-  const fromName = [firstName, lastName]
-    .filter(Boolean)
-    .map((part) => part!.charAt(0))
-    .join('')
-    .toUpperCase();
-  if (fromName) return fromName.slice(0, 2);
-  return email?.charAt(0).toUpperCase() ?? '?';
-}
-
 export default function AccountLayout() {
   const {customer} = useLoaderData<typeof loader>();
   const {translations: tr, locale} = useLocale();
@@ -74,40 +60,21 @@ export default function AccountLayout() {
       : 'Your account';
 
   return (
-    <div className="min-h-screen bg-mist">
-      <div className="cm-account-header">
-        <div className="cm-account-header-inner">
-          <div
-            className="cm-account-avatar"
-            aria-hidden
-          >
-            {customerInitials(customer.firstName, customer.lastName, email)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="tr-eyebrow">{tr.account.eyebrow}</p>
-            <h1 className="mt-1 font-display text-2xl font-bold text-pine md:text-3xl">
-              {greeting}
-            </h1>
-            <p className="mt-1 truncate text-sm text-muted">{email ?? displayName}</p>
-          </div>
-          <div className="flex shrink-0 flex-col items-end gap-1">
-            <span
-              className={`cm-loyalty-tier-pill ${
-                loyalty.isVerified ? 'cm-loyalty-tier-vip' : 'border border-stone bg-mist text-muted'
-              }`}
-            >
-              {loyalty.isVerified ? tr.loyalty.trailTested : tr.loyalty.explorer}
-            </span>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
-              {tr.account.tierMember}
-            </span>
-          </div>
-        </div>
-      </div>
+    <div className="cm-account-layout">
+      <header style={{gridColumn: '1 / -1', paddingBottom: 'var(--space-3)', borderBottom: 'var(--border)'}}>
+        <p className="text-xs text-muted" style={{textTransform: 'uppercase', letterSpacing: '0.08em'}}>
+          {tr.account.eyebrow}
+        </p>
+        <h1 className="text-2xl" style={{margin: 'var(--space-1) 0'}}>{greeting}</h1>
+        <p className="text-sm text-muted">{email ?? displayName}</p>
+        <span className="cm-tag" style={{marginTop: 'var(--space-2)', display: 'inline-block'}}>
+          {loyalty.isVerified ? tr.loyalty.trailTested : tr.loyalty.explorer}
+        </span>
+      </header>
 
       <AccountMenu />
 
-      <div className="tr-page-width py-6 md:py-8">
+      <div>
         <Outlet context={{customer}} />
       </div>
     </div>
@@ -125,20 +92,16 @@ function AccountMenu() {
 
   return (
     <nav className="cm-account-nav" role="navigation" aria-label="Account">
-      <div className="flex flex-1 flex-wrap">
-        {links.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.end}
-            className={({isActive}) =>
-              `cm-account-nav-link ${isActive ? 'cm-account-nav-link-active' : ''}`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
-      </div>
+      {links.map((link) => (
+        <NavLink
+          key={link.to}
+          to={link.to}
+          end={link.end}
+          className={({isActive}) => (isActive ? 'active' : undefined)}
+        >
+          {link.label}
+        </NavLink>
+      ))}
       <Logout />
     </nav>
   );
@@ -147,11 +110,8 @@ function AccountMenu() {
 function Logout() {
   const {translations: tr} = useLocale();
   return (
-    <Form className="ml-auto shrink-0" method="POST" action="/account/logout">
-      <button
-        type="submit"
-        className="px-4 py-3.5 text-sm font-semibold text-muted transition hover:text-pine"
-      >
+    <Form method="POST" action="/account/logout">
+      <button type="submit" className="cm-btn cm-btn--outline" style={{width: '100%', marginTop: 'var(--space-2)'}}>
         {tr.account.signOut}
       </button>
     </Form>

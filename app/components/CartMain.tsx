@@ -95,6 +95,7 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
             <div className={isAside ? 'cart-aside-footer' : undefined}>
               {isAside ? (
                 <DeliverySelector
+                  compact
                   option={deliveryOption}
                   onOptionChange={setDeliveryOption}
                   metroStationId={metroStationId}

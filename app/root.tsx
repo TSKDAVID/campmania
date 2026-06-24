@@ -49,7 +49,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 };
 
 const FONTS_STYLESHEET =
-  'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap';
+  'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap&subset=georgian,latin';
 
 /**
  * Stylesheets are registered here (not only in Layout) so React Router's asset

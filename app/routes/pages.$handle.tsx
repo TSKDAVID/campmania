@@ -58,12 +58,15 @@ export default function Page() {
   const {page} = useLoaderData<typeof loader>();
 
   return (
-    <div className="page">
-      <header>
-        <h1>{page.title}</h1>
+    <>
+      <header className="cm-page-banner">
+        <h1 className="cm-page-banner__title">{page.title}</h1>
       </header>
-      <main dangerouslySetInnerHTML={{__html: page.body}} />
-    </div>
+      <div
+        className="cm-page-body cm-page-body--narrow cm-page-body--article"
+        dangerouslySetInnerHTML={{__html: page.body}}
+      />
+    </>
   );
 }
 
