@@ -3,6 +3,8 @@ import type {Route} from './+types/search';
 import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
 import {SearchForm} from '~/components/SearchForm';
 import {SearchResults} from '~/components/SearchResults';
+import {CatalogPageHeading} from '~/components/trailrent/HomeSections';
+import {IconSearch} from '~/components/trailrent/Icons';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
   type RegularSearchReturn,
@@ -44,25 +46,26 @@ export default function SearchPage() {
   const hasResults = Boolean(result?.total);
 
   return (
-    <section className="cm-search-page">
-      <header className="cm-catalog-header">
-        <h1 className="cm-catalog-header__title">{tr.searchPage.title}</h1>
-      </header>
+    <section className="cm-search-page bg-white">
+      <div className="tr-page-width cm-search-page-intro">
+        <CatalogPageHeading title={tr.searchPage.title} />
 
-      <div className="cm-container">
         <SearchForm className="cm-search-form">
           {({inputRef}) => (
-            <div className="cm-search-form" style={{marginBottom: 'var(--space-4)'}}>
+            <div className="cm-search-form-inner">
+              <span className="cm-search-form-icon" aria-hidden>
+                <IconSearch size={20} />
+              </span>
               <input
                 ref={inputRef}
-                className="cm-input"
+                className="cm-search-input"
                 defaultValue={term}
                 name="q"
                 placeholder={tr.home.searchPlaceholder}
                 type="search"
                 autoComplete="off"
               />
-              <button type="submit" className="cm-btn cm-btn--primary">
+              <button type="submit" className="tr-btn-primary cm-search-submit">
                 {tr.searchPage.submit}
               </button>
             </div>

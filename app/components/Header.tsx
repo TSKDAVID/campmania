@@ -7,8 +7,8 @@ import {
 } from '@shopify/hydrogen';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
-import {LanguageSwitcher} from '~/components/LanguageSwitcher';
-import {IconBag, IconMenu} from '~/components/trailrent/Icons';
+import {LanguageSwitcher} from '~/components/trailrent/HomeSections';
+import {IconBag, IconMenu, IconSearch} from '~/components/trailrent/Icons';
 import {useLocale} from '~/providers/LocaleProvider';
 import {countVisibleCartLines} from '~/lib/trailrent/cart-display';
 
@@ -28,6 +28,7 @@ type NavItem = {
   end?: boolean;
 };
 
+/** Campmania primary navigation — always use branded routes, not Shopify default menu. */
 function useCampmaniaNav(): NavItem[] {
   const {translations: tr} = useLocale();
   return [
@@ -40,17 +41,32 @@ function useCampmaniaNav(): NavItem[] {
   ];
 }
 
-export function Header({isLoggedIn, cart}: HeaderProps) {
+export function Header({
+  isLoggedIn,
+  cart,
+}: HeaderProps) {
+  const {translations: tr} = useLocale();
   const navItems = useCampmaniaNav();
 
   return (
     <header className="cm-site-header">
       <div className="cm-site-header-inner">
-        <NavLink prefetch="intent" to="/" className="cm-wordmark" end>
-          campmania
+        {/* Logo */}
+        <NavLink prefetch="intent" to="/" className="group min-w-0 shrink-0" end>
+          <span className="font-display text-lg tracking-tight text-charcoal transition group-hover:text-terracotta sm:text-xl xl:text-2xl">
+            {tr.brand}
+          </span>
+          <span className="cm-brand-tagline mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-muted xl:block">
+            {tr.headerLocation}
+          </span>
         </NavLink>
 
-        <nav className="cm-site-nav" role="navigation" aria-label="Main">
+        {/* Desktop nav */}
+        <nav
+          className="cm-site-nav hidden lg:flex"
+          role="navigation"
+          aria-label="Main"
+        >
           {navItems.map((item) => (
             <NavLink
               key={item.id}
@@ -58,7 +74,7 @@ export function Header({isLoggedIn, cart}: HeaderProps) {
               end={item.end}
               prefetch="intent"
               className={({isActive}) =>
-                `cm-nav-link${isActive ? ' cm-nav-link-active' : ''}`
+                `cm-nav-link ${isActive ? 'cm-nav-link-active' : ''}`
               }
             >
               {item.label}
@@ -66,9 +82,11 @@ export function Header({isLoggedIn, cart}: HeaderProps) {
           ))}
         </nav>
 
-        <div className="cm-header-actions">
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
           <LanguageSwitcher />
           <AccountLink isLoggedIn={isLoggedIn} />
+          <SearchToggle />
           <CartToggle cart={cart} />
           <HeaderMenuMobileToggle />
         </div>
@@ -103,7 +121,7 @@ export function HeaderMenu({
           onClick={close}
           prefetch="intent"
           className={({isActive}) =>
-            `cm-mobile-nav-link${isActive ? ' cm-mobile-nav-link-active' : ''}`
+            `cm-mobile-nav-link ${isActive ? 'cm-mobile-nav-link-active' : ''}`
           }
         >
           {item.label}
@@ -136,24 +154,30 @@ export function HeaderMenu({
   );
 }
 
+/** Sign in → Shopify OAuth. Account → dashboard when authenticated. */
 function AccountLink({isLoggedIn}: {isLoggedIn: Promise<boolean>}) {
   const {translations: tr} = useLocale();
 
   return (
-    <Suspense fallback={<span className="cm-header-account">{tr.nav.signIn}</span>}>
-      <Await
-        resolve={isLoggedIn}
-        errorElement={
-          <NavLink prefetch="intent" to="/account/login" className="cm-header-account">
-            {tr.nav.signIn}
-          </NavLink>
-        }
-      >
+    <Suspense
+      fallback={
+        <span className="hidden text-sm text-sage sm:inline">{tr.nav.signIn}</span>
+      }
+    >
+      <Await resolve={isLoggedIn} errorElement={
+        <NavLink
+          prefetch="intent"
+          to="/account/login"
+          className="hidden text-sm font-medium text-sage transition hover:text-mist no-underline hover:no-underline sm:inline"
+        >
+          {tr.nav.signIn}
+        </NavLink>
+      }>
         {(loggedIn) => (
           <NavLink
             prefetch="intent"
             to={loggedIn ? '/account' : '/account/login'}
-            className="cm-header-account"
+            className="hidden text-sm font-medium text-sage transition hover:text-mist no-underline hover:no-underline sm:inline"
           >
             {loggedIn ? tr.nav.account : tr.nav.signIn}
           </NavLink>
@@ -172,8 +196,22 @@ function HeaderMenuMobileToggle() {
       onClick={() => open('mobile')}
       aria-label="Open menu"
     >
-      <IconMenu size={20} />
+      <IconMenu size={18} />
     </button>
+  );
+}
+
+function SearchToggle() {
+  const {translations: tr} = useLocale();
+  return (
+    <NavLink
+      to="/search"
+      prefetch="intent"
+      className="cm-icon-btn"
+      aria-label={tr.nav.search}
+    >
+      <IconSearch size={18} />
+    </NavLink>
   );
 }
 
@@ -198,9 +236,11 @@ function CartBadge({count}: {count: number}) {
         } as CartViewPayload);
       }}
     >
-      <IconBag size={20} />
+      <IconBag size={18} />
       {count > 0 ? (
-        <span className="cm-cart-count">{count}</span>
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber px-1 text-[10px] font-bold text-pine">
+          {count}
+        </span>
       ) : null}
     </button>
   );
@@ -219,5 +259,7 @@ function CartToggle({cart}: Pick<HeaderProps, 'cart'>) {
 function CartBanner() {
   const originalCart = useAsyncValue() as CartApiQueryFragment | null;
   const cart = useOptimisticCart(originalCart);
-  return <CartBadge count={countVisibleCartLines(cart?.lines?.nodes)} />;
+  return (
+    <CartBadge count={countVisibleCartLines(cart?.lines?.nodes)} />
+  );
 }
