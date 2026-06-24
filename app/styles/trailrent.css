@@ -1,24 +1,28 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-pine: #0d2818;
-  --color-forest: #1a3d2e;
-  --color-moss: #4a7c59;
-  --color-sage: #8faf9a;
-  --color-mist: #f0f4f1;
-  --color-stone: #e4eae6;
-  --color-amber: #d4a574;
-  --color-charcoal: #1c2421;
-  --color-muted: #5a6b62;
-  --font-display: 'Noto Serif', 'Noto Serif Georgian', Georgia, serif;
-  --font-body: 'Noto Sans', 'Noto Sans Georgian', system-ui, sans-serif;
-  --font-label: 'Noto Sans', 'Noto Sans Georgian', system-ui, sans-serif;
+  --color-oatmeal: #F7F5F0;
+  --color-pine: #2A2A2A;
+  --color-forest: #1F1F1F;
+  --color-moss: #C86D53;
+  --color-sage: #8A8580;
+  --color-mist: #F7F5F0;
+  --color-stone: #E8E4DC;
+  --color-amber: #C86D53;
+  --color-terracotta: #C86D53;
+  --color-charcoal: #2A2A2A;
+  --color-muted: #6B6560;
+  --color-border: #2A2A2A;
+  --font-display: 'DM Sans', 'Noto Sans Georgian', system-ui, sans-serif;
+  --font-body: 'DM Sans', 'Noto Sans Georgian', system-ui, sans-serif;
+  --font-label: 'DM Sans', 'Noto Sans Georgian', system-ui, sans-serif;
   --cm-font-display: var(--font-display);
   --cm-font-body: var(--font-body);
   --cm-font-label: var(--font-label);
   --cm-font-mono: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
   --header-height: 72px;
   --site-top-height: var(--header-height);
+  --cm-cart-aside-width: 28rem;
 }
 
 @layer base {
@@ -52,7 +56,9 @@
   h3,
   h4 {
     font-family: var(--cm-font-display);
-    @apply text-pine;
+    @apply text-charcoal;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
   html[lang='ka'] :is(h1, h2, h3, h4, .font-display) {
@@ -85,44 +91,44 @@
   }
 
   .tr-eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.14em] text-moss;
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-muted;
     font-family: var(--font-label);
   }
 
   .tr-btn {
-    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline;
+    @apply inline-flex items-center justify-center rounded-none border border-charcoal px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] transition no-underline hover:no-underline;
     font-family: var(--font-label);
   }
 
   .tr-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide shadow-md shadow-pine/25 transition no-underline hover:no-underline bg-pine text-mist hover:bg-forest;
+    @apply inline-flex items-center justify-center gap-2 rounded-none border border-terracotta bg-terracotta px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-oatmeal transition no-underline hover:no-underline hover:bg-charcoal hover:border-charcoal;
     font-family: var(--font-label);
   }
 
   .tr-btn-secondary {
-    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-pine/70 bg-white text-forest hover:bg-pine hover:text-mist;
+    @apply inline-flex items-center justify-center rounded-none border border-charcoal bg-transparent px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-charcoal transition no-underline hover:no-underline hover:bg-charcoal hover:text-oatmeal;
     font-family: var(--font-label);
   }
 
   .tr-btn-ghost {
-    @apply inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-wide transition no-underline hover:no-underline border border-white/40 bg-white/15 text-mist hover:border-white/70 hover:bg-white/25;
+    @apply inline-flex items-center justify-center rounded-none border border-charcoal/30 bg-oatmeal/60 px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-charcoal transition no-underline hover:no-underline hover:border-charcoal;
     font-family: var(--font-label);
   }
 
   .tr-card {
-    @apply rounded-xl border border-stone/80 bg-white shadow-sm transition hover:shadow-md;
+    @apply rounded-none border border-charcoal/20 bg-oatmeal shadow-none transition hover:border-charcoal/40;
   }
 
   .tr-card-elevated {
-    @apply rounded-2xl border border-stone/60 bg-white shadow-lg shadow-pine/5 transition hover:-translate-y-0.5 hover:shadow-xl no-underline hover:no-underline;
+    @apply rounded-none border border-charcoal/25 bg-oatmeal shadow-none transition hover:border-charcoal no-underline hover:no-underline;
   }
 
   .tr-pill {
-    @apply rounded-full border border-stone bg-white px-4 py-2 text-sm font-medium text-charcoal transition hover:border-moss hover:text-forest;
+    @apply rounded-none border border-charcoal/25 bg-oatmeal px-4 py-2 text-sm font-medium text-charcoal transition hover:border-charcoal;
   }
 
   .tr-pill-active {
-    @apply border-forest bg-forest text-mist;
+    @apply border-charcoal bg-charcoal text-oatmeal;
   }
 
   .tr-section {
@@ -147,7 +153,7 @@
   }
 
   .cm-site-header {
-    @apply border-b border-white/10 bg-pine/95 text-mist backdrop-blur-md;
+    @apply border-b border-charcoal/15 bg-oatmeal/90 text-charcoal backdrop-blur-md;
     min-height: var(--header-height);
   }
 
@@ -167,7 +173,7 @@
   }
 
   .cm-icon-btn {
-    @apply flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 text-sage/90 transition hover:border-amber/40 hover:bg-white/10 hover:text-mist no-underline hover:no-underline sm:h-9 sm:w-9;
+    @apply flex h-8 w-8 items-center justify-center rounded-none border border-charcoal/20 text-charcoal transition hover:border-terracotta hover:text-terracotta no-underline hover:no-underline sm:h-9 sm:w-9;
   }
 
   /* ── Mobile navigation drawer ────────────────────────────────────────── */
@@ -190,12 +196,12 @@
   }
 
   .cm-nav-link {
-    @apply relative shrink-0 whitespace-nowrap px-0.5 text-[11px] font-medium text-sage/90 transition hover:text-mist no-underline hover:no-underline lg:px-1 xl:text-sm;
+    @apply relative shrink-0 whitespace-nowrap px-0.5 text-[11px] font-medium text-muted transition hover:text-charcoal no-underline hover:no-underline lg:px-1 xl:text-sm;
     font-family: var(--font-label);
   }
 
   .cm-nav-link-active {
-    @apply text-mist;
+    @apply text-charcoal;
   }
 
   .cm-nav-link-active::after {
@@ -1941,7 +1947,7 @@
   }
 
   .cm-home-header {
-    @apply space-y-4 pb-5 pt-3 sm:space-y-5 sm:pb-6 sm:pt-4 md:pt-5;
+    @apply space-y-8 pb-8 pt-4 sm:space-y-10 sm:pb-10 md:pt-6;
   }
 
   .cm-home-top-bar {
@@ -3002,7 +3008,7 @@
   }
 
   .cm-cart-line-card {
-    @apply flex gap-3 rounded-2xl border border-stone/70 bg-white p-3 shadow-sm;
+    @apply flex gap-3 rounded-none border border-charcoal/15 bg-oatmeal/80 p-3;
   }
 
   .cm-cart-line--nested .cm-cart-line-card {
@@ -3123,11 +3129,12 @@
   }
 
   .cm-cart-summary-heading {
-    @apply m-0 mb-2 font-display text-lg text-pine;
+    @apply m-0 mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal;
+    font-family: var(--font-label);
   }
 
   .cm-cart-subtotal {
-    @apply mb-3 flex items-baseline justify-between gap-3 border-b border-stone/60 pb-3;
+    @apply mb-3 flex items-baseline justify-between gap-3 border-b border-charcoal/15 pb-3;
   }
 
   .cm-cart-subtotal dt {
@@ -3135,7 +3142,7 @@
   }
 
   .cm-cart-subtotal dd {
-    @apply m-0 font-body text-lg font-bold tabular-nums text-pine;
+    @apply m-0 font-body text-lg font-semibold tabular-nums text-charcoal;
   }
 
   .cm-cart-checkout {
@@ -3163,7 +3170,167 @@
   }
 
   .cm-cart-discount-form button {
-    @apply rounded-lg border border-stone/80 bg-white px-3 py-2 text-sm font-medium text-charcoal transition hover:bg-mist/60;
+    @apply rounded-none border border-charcoal/20 bg-oatmeal px-3 py-2 text-sm font-medium text-charcoal transition hover:border-charcoal;
+  }
+
+  /* ── Editorial hero ──────────────────────────────────────────────────── */
+  .cm-hero {
+    @apply relative mx-auto w-full max-w-[var(--cm-layout-max)] px-4 py-10 sm:px-6 md:py-16 lg:px-10 lg:py-20;
+  }
+
+  .cm-hero__grid {
+    @apply grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] md:gap-8 lg:gap-14;
+  }
+
+  .cm-hero__copy {
+    @apply max-w-xl space-y-5 md:space-y-6;
+  }
+
+  .cm-hero__eyebrow {
+    @apply m-0 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted;
+    font-family: var(--font-label);
+  }
+
+  .cm-hero__title {
+    @apply m-0 text-[clamp(2rem,5vw,3.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-charcoal;
+    font-family: var(--font-display);
+  }
+
+  .cm-hero__subtitle {
+    @apply m-0 max-w-md text-base leading-relaxed text-muted md:text-lg;
+  }
+
+  .cm-hero__cta {
+    @apply mt-2 inline-flex items-center justify-center border border-terracotta bg-terracotta px-8 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-oatmeal transition hover:border-charcoal hover:bg-charcoal;
+    font-family: var(--font-label);
+  }
+
+  .cm-hero__visual {
+    @apply relative min-h-[14rem] md:min-h-[22rem] lg:min-h-[26rem];
+  }
+
+  .cm-hero__visual--loading {
+    @apply border border-charcoal/10 bg-oatmeal;
+  }
+
+  .cm-hero-canvas {
+    @apply absolute inset-0 h-full w-full;
+  }
+
+  .cm-hero-canvas canvas {
+    @apply h-full w-full;
+  }
+
+  .cm-hero-mobile-art {
+    @apply relative mx-auto h-[14rem] w-full max-w-md md:hidden;
+  }
+
+  .cm-hero-mobile-art__item {
+    @apply absolute w-[5.5rem] opacity-90;
+  }
+
+  .cm-hero-mobile-art__item--a {
+    top: 8%;
+    left: 6%;
+  }
+
+  .cm-hero-mobile-art__item--b {
+    top: 4%;
+    right: 8%;
+    width: 5rem;
+  }
+
+  .cm-hero-mobile-art__item--c {
+    bottom: 10%;
+    left: 18%;
+    width: 4.75rem;
+  }
+
+  .cm-hero-mobile-art__item--d {
+    bottom: 6%;
+    right: 12%;
+    width: 5.25rem;
+  }
+
+  .cm-hero-mobile-art__photo {
+    @apply h-auto w-full rounded-none border border-charcoal/20 object-cover;
+    aspect-ratio: 1;
+  }
+
+  /* ── Glass cart drawer ───────────────────────────────────────────────── */
+  .cm-cart-drawer {
+    @apply flex h-full flex-col border-l border-charcoal/10 bg-oatmeal/75 backdrop-blur-2xl backdrop-saturate-150;
+  }
+
+  .cm-cart-drawer__header {
+    @apply flex shrink-0 items-center justify-between border-b border-charcoal/15 px-5;
+    min-height: var(--header-height);
+  }
+
+  .cm-cart-drawer__header h3 {
+    @apply m-0 text-sm font-semibold uppercase tracking-[0.16em] text-charcoal;
+    font-family: var(--font-label);
+  }
+
+  .cm-cart-drawer__header .close {
+    @apply text-2xl font-light text-charcoal opacity-70 transition hover:opacity-100;
+  }
+
+  .cm-cart-drawer__main {
+    @apply flex min-h-0 flex-1 flex-col overflow-hidden p-0;
+  }
+
+  .cm-delivery-selector {
+    @apply border-t border-charcoal/10 px-5 pb-3 pt-4;
+  }
+
+  .cm-delivery-selector__label {
+    @apply m-0 mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted;
+    font-family: var(--font-label);
+  }
+
+  .cm-delivery-selector__options {
+    @apply flex flex-col gap-2;
+  }
+
+  .cm-delivery-option {
+    @apply flex w-full items-center justify-between gap-3 border border-charcoal/20 bg-oatmeal/50 px-4 py-3 text-left transition hover:border-charcoal/40;
+    font-family: var(--font-body);
+  }
+
+  .cm-delivery-option--active {
+    @apply border-charcoal bg-oatmeal;
+  }
+
+  .cm-delivery-option__title {
+    @apply text-sm font-medium text-charcoal;
+  }
+
+  .cm-delivery-option__badge {
+    @apply shrink-0 text-xs font-semibold tabular-nums text-terracotta;
+    font-family: var(--font-label);
+  }
+
+  .cm-delivery-option__badge--free {
+    @apply text-charcoal;
+  }
+
+  .cm-delivery-panel {
+    @apply -mt-1 border border-t-0 border-charcoal/20 bg-oatmeal/80 px-4 py-3;
+  }
+
+  .cm-delivery-select,
+  .cm-delivery-input {
+    @apply w-full border border-charcoal/25 bg-oatmeal px-3 py-2.5 text-sm text-charcoal outline-none transition focus:border-charcoal;
+    font-family: var(--font-body);
+  }
+
+  .cm-cart-fee-row {
+    @apply mb-2 flex items-baseline justify-between gap-3 text-sm text-muted;
+  }
+
+  .cm-cart-fee-row dd {
+    @apply m-0 font-semibold tabular-nums text-charcoal;
   }
 }
 
@@ -3174,12 +3341,12 @@
  */
 :is(a, button).tr-btn-primary,
 .tr-btn-primary:is(a, button) {
-  color: var(--color-mist);
+  color: var(--color-oatmeal);
 }
 
 :is(a, button).tr-btn-primary:hover,
 .tr-btn-primary:is(a, button):hover {
-  color: var(--color-mist);
+  color: var(--color-oatmeal);
 }
 
 :is(a, button).tr-btn-secondary {

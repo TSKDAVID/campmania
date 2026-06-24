@@ -53,10 +53,10 @@ export function Header({
       <div className="cm-site-header-inner">
         {/* Logo */}
         <NavLink prefetch="intent" to="/" className="group min-w-0 shrink-0" end>
-          <span className="font-display text-lg tracking-tight text-mist transition group-hover:text-amber sm:text-xl xl:text-2xl">
+          <span className="font-display text-lg tracking-tight text-charcoal transition group-hover:text-terracotta sm:text-xl xl:text-2xl">
             {tr.brand}
           </span>
-          <span className="cm-brand-tagline mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-sage xl:block">
+          <span className="cm-brand-tagline mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-muted xl:block">
             {tr.headerLocation}
           </span>
         </NavLink>

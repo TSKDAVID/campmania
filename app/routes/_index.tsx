@@ -3,6 +3,7 @@ import type {Route} from './+types/_index';
 import {Suspense} from 'react';
 import {useLocale} from '~/providers/LocaleProvider';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
+import {CampManiaHero} from '~/components/trailrent/CampManiaHero';
 import {PackageCard} from '~/components/trailrent/PackageCard';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {DURATION_FILTERS} from '~/lib/trailrent/catalog';
@@ -13,18 +14,17 @@ import {
   HomeQuickNav,
   HomeShopTiles,
 } from '~/components/trailrent/HomeCommerce';
-import {HomePromoCarousel} from '~/components/trailrent/HomePromoCarousel';
 import {HomepageSectionNav} from '~/components/trailrent/HomepageSectionNav';
-import {
-  HOMEPAGE_PROMO_SLIDES_QUERY,
-  parseHomepagePromoSlides,
-} from '~/lib/trailrent/homepagePromo';
 import {
   loadHomepageFeaturedSections,
   type HomepageFeaturedItem,
   type ShopifyGearItem,
   type ShopifyPackageItem,
 } from '~/lib/trailrent/shopify-catalog';
+import {
+  HOMEPAGE_PROMO_SLIDES_QUERY,
+  parseHomepagePromoSlides,
+} from '~/lib/trailrent/homepagePromo';
 import {getLocaleFromRequest} from '~/providers/LocaleProvider';
 
 export async function loader(args: Route.LoaderArgs) {
@@ -48,30 +48,58 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 export default function Homepage() {
-  const {featuredSections, promoSlides} = useLoaderData<typeof loader>();
+  const {featuredSections} = useLoaderData<typeof loader>();
 
   return (
-    <div className="cm-home">
+    <div className="cm-home overflow-x-hidden">
       <HomepageSectionNav />
-      <header id="home-hero" className="cm-home-header cm-home-scroll-target">
-        <div className="cm-home-hero cm-home-hero-bleed">
-          <Suspense fallback={<HomePromoCarousel slides={null} />}>
-            <Await resolve={promoSlides}>
-              {(slides) => <HomePromoCarousel slides={slides} />}
-            </Await>
-          </Suspense>
-        </div>
-        <div
-          id="home-quicknav"
-          className="cm-home-width cm-home-top-bar cm-home-scroll-target"
-        >
-          <HomeQuickNav />
-        </div>
-      </header>
+      <Suspense
+        fallback={
+          <>
+            <header id="home-hero" className="cm-home-header cm-home-scroll-target">
+              <CampManiaHero packages={[]} />
+              <div
+                id="home-quicknav"
+                className="cm-home-width cm-home-top-bar cm-home-scroll-target"
+              >
+                <HomeQuickNav />
+              </div>
+            </header>
+            <FeaturedSectionSkeleton />
+            <FeaturedPackagesSectionSkeleton />
+          </>
+        }
+      >
+        <Await resolve={featuredSections}>
+          {({packages, gear, gearCatalog}) => (
+            <>
+              <header id="home-hero" className="cm-home-header cm-home-scroll-target">
+                <CampManiaHero packages={packages} />
+                <div
+                  id="home-quicknav"
+                  className="cm-home-width cm-home-top-bar cm-home-scroll-target"
+                >
+                  <HomeQuickNav />
+                </div>
+              </header>
 
-      <HomeCategories />
+              <HomeCategories />
 
-      <FeaturedProducts sections={featuredSections} />
+              <FeaturedGearSection
+                sectionId="home-gear"
+                id="home-gear-heading"
+                items={gear}
+              />
+              <FeaturedPackagesSection
+                sectionId="home-packages"
+                id="home-packages-heading"
+                packages={packages}
+                gearCatalog={gearCatalog}
+              />
+            </>
+          )}
+        </Await>
+      </Suspense>
 
       <div className="cm-home-width cm-home-bottom">
         <HomeShopTiles />
@@ -82,62 +110,124 @@ export default function Homepage() {
   );
 }
 
-function FeaturedProducts({
-  sections,
+function FeaturedPackagesSection({
+  sectionId,
+  id,
+  packages,
+  gearCatalog,
 }: {
-  sections: Promise<{
-    packages: ShopifyPackageItem[];
-    gear: HomepageFeaturedItem[];
-    gearCatalog: ShopifyGearItem[];
-  }>;
+  sectionId: string;
+  id: string;
+  packages: ShopifyPackageItem[];
+  gearCatalog: ShopifyGearItem[];
 }) {
   const {translations: tr, locale} = useLocale();
-  const perDay = locale === 'ka' ? '/ დღე' : '/ day';
   const durationOptions = DURATION_FILTERS.map((option) => ({
     value: option.value,
     label: locale === 'ka' ? option.labelKa : option.labelEn,
   }));
 
   return (
-    <Suspense
-      fallback={
-        <>
-          <FeaturedSectionSkeleton />
-          <FeaturedPackagesSectionSkeleton />
-        </>
-      }
+    <section
+      id={sectionId}
+      className="cm-home-products cm-home-scroll-target"
+      aria-labelledby={id}
     >
-      <Await resolve={sections}>
-        {({packages, gear, gearCatalog}) => (
-          <>
-            <FeaturedGearSection
-              sectionId="home-gear"
-              id="home-gear-heading"
-              copy={tr.featured.gear}
-              viewAllHref="/individual-gear"
-              items={gear}
-              perDay={perDay}
-              emptyCta={{label: tr.hero.ctaGear, href: '/individual-gear'}}
-            />
-            <FeaturedPackagesSection
-              sectionId="home-packages"
-              id="home-packages-heading"
-              copy={tr.featured.packages}
-              viewAllHref="/packages"
-              packages={packages}
-              gearCatalog={gearCatalog}
-              durationOptions={durationOptions}
-              locale={locale}
-              totalLabel={tr.booking.total}
-              itemsCountLabel={tr.packages.itemsCount}
-              savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
-              includedLabel={tr.packages.included}
-              emptyCta={{label: tr.hero.ctaPackages, href: '/packages'}}
-            />
-          </>
+      <div className="cm-home-width">
+        <FeaturedSectionHead
+          id={id}
+          copy={tr.featured.packages}
+          viewAllHref="/packages"
+        />
+
+        {packages.length ? (
+          <div className="cm-catalog-grid cm-catalog-grid--packages">
+            {packages.map((pkg) => (
+              <PackageCard
+                key={pkg.id}
+                pkg={pkg}
+                gear={gearCatalog}
+                locale={locale}
+                durationOptions={durationOptions}
+                totalLabel={tr.booking.total}
+                itemsCountLabel={tr.packages.itemsCount}
+                savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
+                includedLabel={tr.packages.included}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="cm-home-products-empty">
+            <p>{tr.featured.packages.empty}</p>
+            <Link to="/packages" className="tr-btn-primary mt-4 inline-flex">
+              {tr.hero.ctaPackages}
+            </Link>
+          </div>
         )}
-      </Await>
-    </Suspense>
+      </div>
+    </section>
+  );
+}
+
+function FeaturedGearSection({
+  sectionId,
+  id,
+  items,
+}: {
+  sectionId: string;
+  id: string;
+  items: HomepageFeaturedItem[];
+}) {
+  const {translations: tr, locale} = useLocale();
+  const perDay = locale === 'ka' ? '/ დღე' : '/ day';
+
+  return (
+    <section
+      id={sectionId}
+      className="cm-home-products cm-home-scroll-target"
+      aria-labelledby={id}
+    >
+      <div className="cm-home-width">
+        <FeaturedSectionHead
+          id={id}
+          copy={tr.featured.gear}
+          viewAllHref="/individual-gear"
+        />
+
+        {items.length ? (
+          <div className="cm-catalog-grid">
+            {items.map((item, index) => (
+              <CatalogProductCard
+                key={item.id}
+                to={item.url}
+                title={item.title}
+                imageUrl={item.imageUrl}
+                imageUrls={item.imageUrls}
+                imageAlt={item.imageAlt ?? item.title}
+                loading={index < 4 ? 'eager' : 'lazy'}
+                variant="product"
+                price={
+                  item.dailyRate > 0 ? (
+                    <PriceWithCompare
+                      amount={item.dailyRate}
+                      compareAtAmount={item.compareAt}
+                      suffix={` ${perDay}`}
+                    />
+                  ) : null
+                }
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="cm-home-products-empty">
+            <p>{tr.featured.gear.empty}</p>
+            <Link to="/individual-gear" className="tr-btn-primary mt-4 inline-flex">
+              {tr.hero.ctaGear}
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -203,147 +293,5 @@ function FeaturedSectionHead({
         <span aria-hidden>→</span>
       </Link>
     </div>
-  );
-}
-
-function FeaturedPackagesSection({
-  sectionId,
-  id,
-  copy,
-  viewAllHref,
-  packages,
-  gearCatalog,
-  durationOptions,
-  locale,
-  totalLabel,
-  itemsCountLabel,
-  savingsLabel,
-  includedLabel,
-  emptyCta,
-}: {
-  sectionId: string;
-  id: string;
-  copy: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    viewAll: string;
-    empty: string;
-  };
-  viewAllHref: string;
-  packages: ShopifyPackageItem[];
-  gearCatalog: ShopifyGearItem[];
-  durationOptions: Array<{value: string; label: string}>;
-  locale: 'ka' | 'en';
-  totalLabel: string;
-  itemsCountLabel: string;
-  savingsLabel: string;
-  includedLabel: string;
-  emptyCta: {label: string; href: string};
-}) {
-  return (
-    <section
-      id={sectionId}
-      className="cm-home-products cm-home-scroll-target"
-      aria-labelledby={id}
-    >
-      <div className="cm-home-width">
-        <FeaturedSectionHead id={id} copy={copy} viewAllHref={viewAllHref} />
-
-        {packages.length ? (
-          <div className="cm-catalog-grid cm-catalog-grid--packages">
-            {packages.map((pkg) => (
-              <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                gear={gearCatalog}
-                locale={locale}
-                durationOptions={durationOptions}
-                totalLabel={totalLabel}
-                itemsCountLabel={itemsCountLabel}
-                savingsLabel={savingsLabel}
-                includedLabel={includedLabel}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="cm-home-products-empty">
-            <p>{copy.empty}</p>
-            <Link to={emptyCta.href} className="tr-btn-primary mt-4 inline-flex">
-              {emptyCta.label}
-            </Link>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function FeaturedGearSection({
-  sectionId,
-  id,
-  copy,
-  viewAllHref,
-  items,
-  perDay,
-  emptyCta,
-}: {
-  sectionId: string;
-  id: string;
-  copy: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    viewAll: string;
-    empty: string;
-  };
-  viewAllHref: string;
-  items: HomepageFeaturedItem[];
-  perDay: string;
-  emptyCta: {label: string; href: string};
-}) {
-  return (
-    <section
-      id={sectionId}
-      className="cm-home-products cm-home-scroll-target"
-      aria-labelledby={id}
-    >
-      <div className="cm-home-width">
-        <FeaturedSectionHead id={id} copy={copy} viewAllHref={viewAllHref} />
-
-        {items.length ? (
-          <div className="cm-catalog-grid">
-            {items.map((item, index) => (
-              <CatalogProductCard
-                key={item.id}
-                to={item.url}
-                title={item.title}
-                imageUrl={item.imageUrl}
-                imageUrls={item.imageUrls}
-                imageAlt={item.imageAlt ?? item.title}
-                loading={index < 4 ? 'eager' : 'lazy'}
-                variant="product"
-                price={
-                  item.dailyRate > 0 ? (
-                    <PriceWithCompare
-                      amount={item.dailyRate}
-                      compareAtAmount={item.compareAt}
-                      suffix={` ${perDay}`}
-                    />
-                  ) : null
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="cm-home-products-empty">
-            <p>{copy.empty}</p>
-            <Link to={emptyCta.href} className="tr-btn-primary mt-4 inline-flex">
-              {emptyCta.label}
-            </Link>
-          </div>
-        )}
-      </div>
-    </section>
   );
 }

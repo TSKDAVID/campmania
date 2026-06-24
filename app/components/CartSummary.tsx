@@ -10,9 +10,10 @@ import {formatGel} from '~/lib/trailrent/pricing';
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
   layout: CartLayout;
+  deliveryFee?: number;
 };
 
-export function CartSummary({cart, layout}: CartSummaryProps) {
+export function CartSummary({cart, layout, deliveryFee = 0}: CartSummaryProps) {
   const {translations: tr} = useLocale();
   const className =
     layout === 'page' ? 'cart-summary-page cm-cart-summary' : 'cart-summary-aside cm-cart-summary';
@@ -27,6 +28,8 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
     lines.length > 0
       ? resolveCartDisplaySubtotal(lines)
       : subtotalAmount;
+  const displayTotal = displaySubtotal + deliveryFee;
+  const isAside = layout === 'aside';
 
   return (
     <div aria-labelledby={summaryId} className={className}>
@@ -34,9 +37,16 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
         {tr.cart.totals}
       </h4>
 
+      {isAside && deliveryFee > 0 ? (
+        <dl className="cm-cart-fee-row">
+          <dt>{tr.pages.delivery}</dt>
+          <dd>{formatGel(deliveryFee)}</dd>
+        </dl>
+      ) : null}
+
       <dl className="cm-cart-subtotal">
-        <dt>{tr.cart.subtotal}</dt>
-        <dd>{displaySubtotal > 0 ? formatGel(displaySubtotal) : '—'}</dd>
+        <dt>{isAside ? tr.booking.total : tr.cart.subtotal}</dt>
+        <dd>{displayTotal > 0 ? formatGel(displayTotal) : '—'}</dd>
       </dl>
 
       {layout === 'page' ? (

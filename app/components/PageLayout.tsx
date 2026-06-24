@@ -48,7 +48,7 @@ export function PageLayout({
         ) : null}
         <SiteTopHeightSync />
       </div>
-      <main>{children}</main>
+      <main className="overflow-x-hidden">{children}</main>
       <Footer
         footer={footer}
         header={header}

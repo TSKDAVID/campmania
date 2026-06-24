@@ -1,8 +1,15 @@
 import {useOptimisticCart} from '@shopify/hydrogen';
 import {Link} from 'react-router';
+import {useState} from 'react';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem, type CartLine} from '~/components/CartLineItem';
+import {
+  DeliverySelector,
+  DOORSTEP_DELIVERY_FEE,
+  type DeliveryMode,
+} from '~/components/trailrent/DeliverySelector';
+import {METRO_STATIONS} from '~/lib/trailrent/metro';
 import {useLocale} from '~/providers/LocaleProvider';
 import {shouldShowCartLine} from '~/lib/trailrent/cart-display';
 import {CartSummary} from './CartSummary';
@@ -37,6 +44,11 @@ function getLineItemChildrenMap(lines: CartLine[]): LineItemChildrenMap {
 
 export function CartMain({layout, cart: originalCart}: CartMainProps) {
   const cart = useOptimisticCart(originalCart);
+  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('metro');
+  const [metroId, setMetroId] = useState(METRO_STATIONS[0]?.id ?? '');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const deliveryFee =
+    deliveryMode === 'doorstep' ? DOORSTEP_DELIVERY_FEE : 0;
 
   const visibleLines = (cart?.lines?.nodes ?? []).filter(shouldShowCartLine);
   const linesCount = visibleLines.length > 0;
@@ -79,7 +91,21 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
 
           {cartHasItems ? (
             <div className={isAside ? 'cart-aside-footer' : undefined}>
-              <CartSummary cart={cart} layout={layout} />
+              {isAside ? (
+                <DeliverySelector
+                  mode={deliveryMode}
+                  onModeChange={setDeliveryMode}
+                  metroId={metroId}
+                  onMetroChange={setMetroId}
+                  address={deliveryAddress}
+                  onAddressChange={setDeliveryAddress}
+                />
+              ) : null}
+              <CartSummary
+                cart={cart}
+                layout={layout}
+                deliveryFee={isAside ? deliveryFee : 0}
+              />
             </div>
           ) : null}
         </div>

@@ -53,22 +53,24 @@ export function Aside({
     return () => abortController.abort();
   }, [close, expanded]);
 
+  const isCart = type === 'cart';
+
   return (
     <div
       aria-modal
-      className={`overlay overlay--${type} ${expanded ? 'expanded' : ''}`}
+      className={`overlay overlay--${type}${isCart ? ' overlay--cart-glass' : ''} ${expanded ? 'expanded' : ''}`}
       role="dialog"
       aria-labelledby={id}
     >
-      <button className="close-outside" onClick={close} />
-      <aside>
-        <header>
+      <button className="close-outside" onClick={close} aria-label="Close" />
+      <aside className={isCart ? 'cm-cart-drawer' : undefined}>
+        <header className={isCart ? 'cm-cart-drawer__header' : undefined}>
           <h3 id={id}>{heading}</h3>
           <button className="close reset" onClick={close} aria-label="Close">
             &times;
           </button>
         </header>
-        <main>{children}</main>
+        <main className={isCart ? 'cm-cart-drawer__main' : undefined}>{children}</main>
       </aside>
     </div>
   );
