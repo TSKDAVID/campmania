@@ -1,7 +1,5 @@
-import {Await} from 'react-router';
-import {Suspense} from 'react';
 import {SectionHeading} from '~/components/ui/SectionHeading';
-import {ProductCard} from '~/components/ui/ProductCard';
+import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {useLocale} from '~/providers/LocaleProvider';
 import type {HomepageFeaturedItem} from '~/lib/trailrent/shopify-catalog';
@@ -18,21 +16,19 @@ export function HomeKitsGrid({
   return (
     <section className="cm-home-section" aria-labelledby="home-kits-heading">
       <div className="cm-container">
-        <SectionHeading
-          title={isKa ? 'კომპლექტები' : 'the kits'}
-          className=""
-        />
-        <div className="cm-product-grid">
+        <SectionHeading title={isKa ? 'კომპლექტები' : 'the kits'} />
+        <div className="cm-product-grid cm-catalog-grid--packages">
           {packages.length ? (
             packages.map((item, index) => (
-              <ProductCard
+              <CatalogProductCard
                 key={item.id}
                 to={item.url}
                 title={item.title}
                 imageUrl={item.imageUrl}
+                imageUrls={item.imageUrls}
                 imageAlt={item.imageAlt ?? item.title}
                 loading={index < 3 ? 'eager' : 'lazy'}
-                ctaLabel={isKa ? 'ქირა' : 'Rent'}
+                variant="package"
                 price={
                   item.dailyRate > 0 ? (
                     <PriceWithCompare
@@ -52,27 +48,5 @@ export function HomeKitsGrid({
         </div>
       </div>
     </section>
-  );
-}
-
-export function HomeKitsGridDeferred({
-  packagesPromise,
-}: {
-  packagesPromise: Promise<HomepageFeaturedItem[]>;
-}) {
-  return (
-    <Suspense
-      fallback={
-        <section className="cm-home-section">
-          <div className="cm-container">
-            <div className="cm-skeleton cm-skeleton--title" />
-          </div>
-        </section>
-      }
-    >
-      <Await resolve={packagesPromise}>
-        {(packages) => <HomeKitsGrid packages={packages} />}
-      </Await>
-    </Suspense>
   );
 }

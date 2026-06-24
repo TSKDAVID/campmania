@@ -10,6 +10,7 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
+import {Button} from '~/components/ui/Button';
 import type {Route} from './+types/root';
 import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
@@ -218,14 +219,28 @@ export function ErrorBoundary() {
   }
 
   return (
-    <div className="route-error">
-      <h1>Oops</h1>
+    <div className="route-error cm-editorial">
+      <h1>{errorStatus === 404 ? 'Page not found' : 'Oops'}</h1>
       <h2>{errorStatus}</h2>
-      {errorMessage && (
+      {errorMessage && errorStatus !== 404 ? (
         <fieldset>
           <pre>{errorMessage}</pre>
         </fieldset>
+      ) : (
+        <p className="text-sm text-muted" style={{maxWidth: '36ch', marginBottom: 'var(--space-3)'}}>
+          {errorStatus === 404
+            ? 'This product or page may have moved. Browse kits from the homepage.'
+            : errorMessage}
+        </p>
       )}
+      <div style={{display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)'}}>
+        <Button to="/packages" variant="outline">
+          Browse kits
+        </Button>
+        <Button to="/" variant="primary">
+          Home
+        </Button>
+      </div>
     </div>
   );
 }

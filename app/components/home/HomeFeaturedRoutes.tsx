@@ -1,5 +1,5 @@
-import {Button} from '~/components/ui/Button';
 import {SectionHeading} from '~/components/ui/SectionHeading';
+import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {useLocale} from '~/providers/LocaleProvider';
 
 const ROUTES = [
@@ -17,7 +17,8 @@ const ROUTES = [
   },
   {
     name: 'Birtvisi',
-    kitHandle: 'birtvisi-day-hike-kit',
+    kitHandle: 'birtvisi-package',
+    altHandle: 'birtvisi-day-hike-kit',
     kitKa: 'ბირთვისის დღიური კომპლექტი',
     kitEn: 'Birtvisi day hike kit',
   },
@@ -33,26 +34,20 @@ export function HomeFeaturedRoutes() {
         <SectionHeading
           title={isKa ? 'რეკომენდებული მარშრუტები' : 'Featured routes'}
         />
-        <div className="cm-routes-scroll">
+        <div className="cm-routes-scroll cm-catalog-grid--packages">
           {ROUTES.map((route) => (
-            <article key={route.name} className="cm-product-card">
-              <div className="cm-img-placeholder" aria-hidden />
-              <div className="cm-product-card__body">
-                <h3 className="cm-product-card__title">{route.name}</h3>
-                <p className="cm-product-card__price">
+            <CatalogProductCard
+              key={route.name}
+              to={`/products/${route.kitHandle}`}
+              title={route.name}
+              imageUrl={null}
+              variant="package"
+              price={
+                <span className="text-sm text-muted">
                   {isKa ? route.kitKa : route.kitEn}
-                </p>
-                <div className="cm-product-card__cta">
-                  <Button
-                    to={`/products/${route.kitHandle}`}
-                    variant="outline"
-                    fullWidth
-                  >
-                    {isKa ? 'ნახე კომპლექტი' : 'see kit'}
-                  </Button>
-                </div>
-              </div>
-            </article>
+                </span>
+              }
+            />
           ))}
         </div>
       </div>
