@@ -1,5 +1,6 @@
 import {Link} from 'react-router';
 import type {Route} from './+types/pages.faq';
+import {PageBanner} from '~/components/trailrent/HomeSections';
 import {FAQ_ITEMS} from '~/lib/trailrent/faq-content';
 import {useLocale} from '~/providers/LocaleProvider';
 
@@ -9,27 +10,41 @@ export const meta: Route.MetaFunction = () => [
 
 export default function FaqPage() {
   const {translations: tr, locale} = useLocale();
-  const isKa = locale === 'ka';
 
   return (
     <>
-      <header className="cm-page-banner">
-        <h1 className="cm-page-banner__title">{tr.faq.title}</h1>
-      </header>
-      <div className="cm-page-body cm-page-body--narrow">
-        {FAQ_ITEMS.map((item) => (
-          <div key={item.qEn} className="cm-faq-item">
-            <h2 className="cm-faq-item__q">{isKa ? item.qKa : item.qEn}</h2>
-            <p className="cm-faq-item__a">{isKa ? item.aKa : item.aEn}</p>
+      <PageBanner
+        eyebrow={tr.faq.eyebrow}
+        title={tr.faq.title}
+        subtitle={
+          locale === 'ka'
+            ? 'ყველაფერი ქირაზე, მეტრო hub-ზე მიღებაზე და Trusted Tier-ზე.'
+            : 'Everything about rentals, metro pickup, and Trusted Tier.'
+        }
+        compact
+      />
+      <section className="tr-section-tight bg-white">
+        <div className="tr-page-width max-w-3xl">
+          <div className="divide-y divide-stone border-y border-stone">
+            {FAQ_ITEMS.map((item) => (
+              <details key={item.qEn} className="group py-4">
+                <summary className="cursor-pointer list-none font-semibold text-pine marker:content-none">
+                  {locale === 'ka' ? item.qKa : item.qEn}
+                </summary>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {locale === 'ka' ? item.aKa : item.aEn}
+                </p>
+              </details>
+            ))}
           </div>
-        ))}
-        <p className="text-sm text-muted" style={{marginTop: 'var(--space-4)'}}>
-          {isKa ? 'კიდევ კითხვა?' : 'Still have questions?'}{' '}
-          <Link to="/pages/contact" style={{color: 'var(--color-accent)'}}>
-            {isKa ? 'დაგვიკავშირდით' : 'Contact us'}
-          </Link>
-        </p>
-      </div>
+          <p className="mt-8 text-sm text-muted">
+            {locale === 'ka' ? 'კიდევ კითხვა?' : 'Still have questions?'}{' '}
+            <Link to="/pages/contact" className="cm-link font-semibold">
+              {locale === 'ka' ? 'დაგვიკავშირდით' : 'Contact us'}
+            </Link>
+          </p>
+        </div>
+      </section>
     </>
   );
 }

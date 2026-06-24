@@ -414,84 +414,88 @@ export default function Product() {
   }, [product.media?.nodes, rentVariant?.image, selectedVariant?.image]);
 
   return (
-    <article className="cm-pdp">
-      <div className="cm-pdp__grid">
-        <div className="cm-pdp__gallery" aria-label={title}>
-          <ProductImage
-            images={galleryImages}
-            image={selectedVariant?.image ?? rentVariant?.image}
-            title={title}
-            variant={isSoloProduct ? 'solo' : 'kit'}
-          />
-        </div>
-
-        <div className="cm-pdp__panel">
-          <header>
-            <p className="text-xs text-muted" style={{textTransform: 'uppercase', letterSpacing: '0.08em'}}>
-              {isPackage ? tr.packages.eyebrow : tr.product.rental}
-            </p>
-            <h1 className="cm-pdp__title">{title}</h1>
-            {productSubtitle ? (
-              <p className="text-sm text-muted" style={{marginTop: 'var(--space-1)'}}>{productSubtitle}</p>
-            ) : null}
-            <div className="cm-pdp__price">
-              <ProductInlinePrice
-                fulfillmentMode={fulfillmentMode}
-                rentPrice={displayRentPrice}
-                buyPrice={buyPriceMoney}
-                buyAvailable={buyAvailable}
-                compareAtPrice={displayCompareAtPrice}
-              />
-              <ProductPricingExtras
-                fulfillmentMode={fulfillmentMode}
-                rentPrice={displayRentPrice}
-                compareAtPrice={displayCompareAtPrice}
-                savingsPercent={savingsPercent}
-                buyAvailable={buyAvailable}
-                variant="inline"
-              />
-            </div>
-          </header>
-
-          <ProductTrustBar isTrustedTier={trustedTier} />
-
-          {includedItems.length > 0 ? (
-            <ProductIncludedPanel
-              items={includedItems}
-              includedProducts={includedProducts}
-              variant="editorial"
+    <article className="cm-product-page cm-pdp-editorial">
+      <div className="cm-pdp-editorial__inner">
+        <div className="cm-pdp-editorial__grid">
+          <aside className="cm-pdp-editorial__media" aria-label={title}>
+            <ProductImage
+              images={galleryImages}
+              image={selectedVariant?.image ?? rentVariant?.image}
+              title={title}
+              variant={isSoloProduct ? 'solo' : 'kit'}
             />
-          ) : null}
+          </aside>
 
-          {bookingFormProps ? (
-            <div>
-              <RentalProductForm
-                {...bookingFormProps}
-                layout={isPackage ? 'stacked' : 'wide'}
-                compact
-              />
-              {builderProduct ? (
-                <AddToGearBuilderButton
-                  product={builderProduct}
-                  variantId={rentVariant?.id}
-                />
+          <div className="cm-pdp-editorial__details">
+            <header>
+              <p className="cm-pdp-editorial__eyebrow">
+                {isPackage ? tr.packages.eyebrow : tr.product.rental}
+              </p>
+              <h1 className="cm-pdp-editorial__title">{title}</h1>
+              {productSubtitle ? (
+                <p className="cm-editorial-body mt-2">{productSubtitle}</p>
               ) : null}
-            </div>
-          ) : (
-            <p className="text-sm text-muted">
-              {locale === 'ka'
-                ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
-                : 'This variant is currently unavailable.'}
-            </p>
-          )}
-        </div>
-      </div>
+              <div className="cm-pdp-editorial__price-row mt-4">
+                <ProductInlinePrice
+                  fulfillmentMode={fulfillmentMode}
+                  rentPrice={displayRentPrice}
+                  buyPrice={buyPriceMoney}
+                  buyAvailable={buyAvailable}
+                  compareAtPrice={displayCompareAtPrice}
+                />
+                <ProductPricingExtras
+                  fulfillmentMode={fulfillmentMode}
+                  rentPrice={displayRentPrice}
+                  compareAtPrice={displayCompareAtPrice}
+                  savingsPercent={savingsPercent}
+                  buyAvailable={buyAvailable}
+                  variant="inline"
+                />
+              </div>
+            </header>
 
-      {descriptionHtml?.trim() ? (
-        <div className="cm-container" style={{paddingTop: 'var(--space-5)', paddingBottom: 'var(--space-5)'}}>
-          <ProductTechnicalSpecs html={descriptionHtml} />
+            <ProductTrustBar isTrustedTier={trustedTier} />
+
+            {includedItems.length > 0 ? (
+              <div className="cm-pdp-section">
+                <ProductIncludedPanel
+                  items={includedItems}
+                  includedProducts={includedProducts}
+                  variant="editorial"
+                />
+              </div>
+            ) : null}
+
+            {bookingFormProps ? (
+              <div className="cm-product-booking">
+                <RentalProductForm
+                  {...bookingFormProps}
+                  layout={isPackage ? 'stacked' : 'wide'}
+                  compact
+                />
+                {builderProduct ? (
+                  <AddToGearBuilderButton
+                    product={builderProduct}
+                    variantId={rentVariant?.id}
+                  />
+                ) : null}
+              </div>
+            ) : (
+              <p className="cm-product-unavailable">
+                {locale === 'ka'
+                  ? 'ეს ვარიანტი ამჟამად მიუწვდომელია.'
+                  : 'This variant is currently unavailable.'}
+              </p>
+            )}
+          </div>
         </div>
-      ) : null}
+
+        {descriptionHtml?.trim() ? (
+          <div className="cm-pdp-editorial__below">
+            <ProductTechnicalSpecs html={descriptionHtml} />
+          </div>
+        ) : null}
+      </div>
 
       <Analytics.ProductView
         data={{

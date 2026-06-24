@@ -15,6 +15,7 @@ import {
   PackageFiltersPanel,
 } from '~/components/trailrent/CatalogFilters';
 import {PackageCard} from '~/components/trailrent/PackageCard';
+import {IconMountain} from '~/components/trailrent/Icons';
 
 export function PackageCatalogGrid({
   packages,
@@ -64,44 +65,56 @@ export function PackageCatalogGrid({
   });
 
   return (
-    <section className="cm-catalog-page">
-      <header className="cm-catalog-header">
-        <h1 className="cm-catalog-header__title">{tr.packages.title}</h1>
-        <p className="cm-catalog-header__sub">{tr.packages.subtitle}</p>
-        {!shopifyConnected ? (
-          <p className="text-sm text-muted" style={{marginTop: 'var(--space-2)'}}>
-            {tr.packages.shopifySetupHint}
-          </p>
-        ) : null}
-      </header>
+    <>
+      <section className="cm-catalog-page bg-mist">
+        <div className="tr-page-width cm-catalog-page-inner">
+          {!shopifyConnected ? (
+            <p className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
+              {tr.packages.shopifySetupHint}
+            </p>
+          ) : null}
+          <div className="cm-catalog-layout cm-catalog-layout--packages">
+            <div className="cm-catalog-page-title-row">
+              <h1 className="cm-catalog-heading cm-catalog-heading--row">
+                {tr.packages.title}
+              </h1>
+            </div>
 
-      <PackageFiltersPanel
-        groups={filterGroups}
-        resultCount={filtered.length}
-        totalCount={packages.length}
-      />
+            <PackageFiltersPanel
+              groups={filterGroups}
+              resultCount={filtered.length}
+              totalCount={packages.length}
+            />
 
-      <div className="cm-catalog-grid-wrap">
-        {filtered.length === 0 ? (
-          <p className="text-muted">{tr.packages.noResults}</p>
-        ) : (
-          <div className="cm-product-grid">
-            {filtered.map((pkg) => (
-              <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                gear={gear}
-                locale={locale}
-                durationOptions={durationOptions}
-                totalLabel={tr.booking.total}
-                itemsCountLabel={tr.packages.itemsCount}
-                savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
-                includedLabel={tr.packages.included}
-              />
-            ))}
+            <div className="cm-catalog-main min-w-0">
+              {filtered.length === 0 ? (
+                <div className="cm-empty-state">
+                  <IconMountain size={40} className="text-sage/50" />
+                  <p className="mt-4 font-display text-lg font-semibold text-pine">
+                    {tr.packages.noResults}
+                  </p>
+                </div>
+              ) : (
+                <div className="cm-catalog-grid cm-catalog-grid--packages">
+                  {filtered.map((pkg) => (
+                    <PackageCard
+                      key={pkg.id}
+                      pkg={pkg}
+                      gear={gear}
+                      locale={locale}
+                      durationOptions={durationOptions}
+                      totalLabel={tr.booking.total}
+                      itemsCountLabel={tr.packages.itemsCount}
+                      savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
+                      includedLabel={tr.packages.included}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
-    </section>
+        </div>
+      </section>
+    </>
   );
 }

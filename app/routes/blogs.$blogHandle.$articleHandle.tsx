@@ -76,27 +76,21 @@ export default function Article() {
   }).format(new Date(article.publishedAt));
 
   return (
-    <article className="cm-page-body cm-page-body--narrow cm-page-body--article">
-      <header style={{marginBottom: 'var(--space-4)'}}>
-        <h1 className="text-2xl" style={{margin: '0 0 var(--space-2)'}}>
-          {title}
-        </h1>
-        <p className="text-xs text-muted">
-          <time dateTime={article.publishedAt}>{publishedDate}</time>
-          {author?.name ? ` · ${author.name}` : ''}
-        </p>
-      </header>
-
-      {image ? (
-        <div style={{marginBottom: 'var(--space-4)', border: 'var(--border)'}}>
-          <Image data={image} sizes="680px" loading="eager" />
+    <div className="article">
+      <h1>
+        {title}
+        <div>
+          <time dateTime={article.publishedAt}>{publishedDate}</time> &middot;{' '}
+          <address>{author?.name}</address>
         </div>
-      ) : null}
+      </h1>
+
+      {image && <Image data={image} sizes="90vw" loading="eager" />}
       <div
         dangerouslySetInnerHTML={{__html: contentHtml}}
-        className="text-base"
+        className="article"
       />
-    </article>
+    </div>
   );
 }
 

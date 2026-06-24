@@ -6,7 +6,6 @@ import {
   useState,
 } from 'react';
 import {useId} from 'react';
-import {useLocale} from '~/providers/LocaleProvider';
 
 type AsideType = 'search' | 'cart' | 'mobile' | 'closed';
 type AsideContextValue = {
@@ -15,6 +14,16 @@ type AsideContextValue = {
   close: () => void;
 };
 
+/**
+ * A side bar component with Overlay
+ * @example
+ * ```jsx
+ * <Aside type="search" heading="SEARCH">
+ *  <input type="search" />
+ *  ...
+ * </Aside>
+ * ```
+ */
 export function Aside({
   children,
   heading,
@@ -27,8 +36,6 @@ export function Aside({
   const {type: activeType, close} = useAside();
   const expanded = type === activeType;
   const id = useId();
-  const {translations: tr} = useLocale();
-
   useEffect(() => {
     const abortController = new AbortController();
 
@@ -47,14 +54,11 @@ export function Aside({
   }, [close, expanded]);
 
   const isCart = type === 'cart';
-  const isMobile = type === 'mobile';
-  const displayHeading =
-    isCart ? (tr.cart.title ?? 'your kit') : heading;
 
   return (
     <div
       aria-modal
-      className={`overlay overlay--${type}${isCart ? ' overlay--cart' : ''}${isMobile ? ' overlay--mobile' : ''} ${expanded ? 'expanded' : ''}`}
+      className={`overlay overlay--${type}${isCart ? ' overlay--cart-glass' : ''} ${expanded ? 'expanded' : ''}`}
       role="dialog"
       aria-labelledby={id}
       hidden={!expanded}
@@ -62,7 +66,7 @@ export function Aside({
       <button className="close-outside" onClick={close} aria-label="Close" />
       <aside className={isCart ? 'cm-cart-drawer' : undefined}>
         <header className={isCart ? 'cm-cart-drawer__header' : undefined}>
-          <h3 id={id}>{displayHeading}</h3>
+          <h3 id={id}>{heading}</h3>
           <button className="close reset" onClick={close} aria-label="Close">
             &times;
           </button>

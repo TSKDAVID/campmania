@@ -302,7 +302,7 @@ const translations = {
       tierMember: 'წევრი',
     },
     cart: {
-      title: 'შენი კომპლექტი',
+      title: 'თქვენი ქირის კალათა',
       pickupNote: 'მეტრო / მიღების დეტალები',
       agreement: 'ვეთანხმები ქირის ხელშეკრულებას',
       deliveryNote: 'მეტროს გაჩვენება · უფასო დაბრუნება',
@@ -654,7 +654,7 @@ const translations = {
       tierMember: 'Member',
     },
     cart: {
-      title: 'your kit',
+      title: 'Your rental cart',
       pickupNote: 'Metro / pickup details',
       agreement: 'I agree to the rental agreement',
       deliveryNote: 'Metro hub pickup · Free return',
