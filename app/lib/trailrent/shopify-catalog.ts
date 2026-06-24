@@ -58,6 +58,14 @@ export type PackageCollectionNode = {
   trekMeta?: {value?: string | null} | null;
   durationMeta?: {value?: string | null} | null;
   difficultyMeta?: {value?: string | null} | null;
+  includedKitCollection?: {
+    reference?: {
+      handle?: string | null;
+      products?: {
+        nodes: CatalogProductNode[];
+      } | null;
+    } | null;
+  } | null;
   products?: {
     nodes: CatalogProductNode[];
   } | null;
@@ -195,9 +203,17 @@ async function loadTrailPackageProducts(
 export function resolvePackageItemUrl(
   pkg: Pick<
     ShopifyPackageItem,
-    'productHandle' | 'catalogUrl' | 'includedCollectionHandle'
+    'productHandle' | 'catalogUrl' | 'packageCollectionHandle' | 'includedCollectionHandle'
   >,
 ): string | null {
+  if (pkg.packageCollectionHandle) {
+    return `/collections/${pkg.packageCollectionHandle}`;
+  }
+
+  if (pkg.catalogUrl?.startsWith('/collections/')) {
+    return pkg.catalogUrl;
+  }
+
   const fromConvention = pkg.includedCollectionHandle
     ? packageProductHandleFromKitCollection(pkg.includedCollectionHandle)
     : null;
@@ -208,9 +224,7 @@ export function resolvePackageItemUrl(
 
   if (productHandle) return `/products/${productHandle}`;
 
-  if (pkg.catalogUrl && !pkg.catalogUrl.startsWith('/collections/')) {
-    return pkg.catalogUrl;
-  }
+  if (pkg.catalogUrl) return pkg.catalogUrl;
 
   return null;
 }
@@ -284,6 +298,8 @@ export type ShopifyPackageItem = PackageItem & {
   imageUrls: string[];
   compareAtPrice?: number;
   savingsPercent?: number;
+  /** Trail package collection handle (`custom.theme_template` = packages). */
+  packageCollectionHandle?: string;
   /** PDP or collection URL for this package card. */
   catalogUrl?: string;
   /** @deprecated Prefer includedCollectionProducts — kept for legacy metafield fallback */
@@ -834,25 +850,50 @@ function inferDifficultyFromCollection(collection: PackageCollectionNode): strin
   return 'moderate';
 }
 
-/** Storefront cannot read theme templateSuffix — mirror it with metafield or naming convention. */
-export function isPackageKitCollection(collection: PackageCollectionNode): boolean {
+/** Storefront cannot read theme templateSuffix — use collection metafields instead. */
+export function isTrailPackageCollection(
+  collection: PackageCollectionNode,
+): boolean {
   if (PACKAGE_LISTING_HANDLES.has(collection.handle)) return false;
   if (collection.handle === SHOPIFY_COLLECTION_HANDLES.gear) return false;
+
+  const handleLower = collection.handle.toLowerCase();
+  const titleLower = collection.title.toLowerCase();
+  if (handleLower.endsWith('-includes') || titleLower.includes('kit contents')) {
+    return false;
+  }
 
   const themeTemplate = collection.themeTemplate?.value?.trim().toLowerCase();
   if (themeTemplate === 'packages') return true;
 
   const isPackage = collection.isPackage?.value?.trim().toLowerCase();
-  if (isPackage === 'true' || isPackage === '1') return true;
+  return isPackage === 'true' || isPackage === '1';
+}
 
-  const titleLower = collection.title.toLowerCase();
-  const handleLower = collection.handle.toLowerCase();
-  if (titleLower.includes('kit contents') || handleLower.endsWith('-includes')) {
-    return true;
-  }
-  if (collection.handle.includes('კომპლექტ')) return true;
+/** @deprecated Use isTrailPackageCollection */
+export const isPackageKitCollection = isTrailPackageCollection;
 
-  return false;
+function kitNodesForPackageCollection(
+  collection: PackageCollectionNode,
+): CatalogProductNode[] {
+  const fromMetafield =
+    collection.includedKitCollection?.reference?.products?.nodes ?? [];
+  if (fromMetafield.length) return fromMetafield;
+
+  return collection.products?.nodes ?? [];
+}
+
+function kitCollectionHandleForPackage(
+  collection: PackageCollectionNode,
+): string | undefined {
+  const fromMetafield =
+    collection.includedKitCollection?.reference?.handle?.trim();
+  if (fromMetafield) return fromMetafield;
+
+  const ownProducts = collection.products?.nodes ?? [];
+  if (ownProducts.length) return collection.handle;
+
+  return packageIncludesCollectionHandle(collection.handle);
 }
 
 function mapPackageCollection(
@@ -860,7 +901,7 @@ function mapPackageCollection(
   locale: 'ka' | 'en',
   kitToPackage?: Map<string, CatalogProductNode>,
 ): ShopifyPackageItem | null {
-  const kitNodes = collection.products?.nodes ?? [];
+  const kitNodes = kitNodesForPackageCollection(collection);
   if (!kitNodes.length) return null;
 
   const kitProducts = kitNodes.map((node) => mapGearBuilderProduct(node));
@@ -869,17 +910,17 @@ function mapPackageCollection(
   const difficulty = inferDifficultyFromCollection(collection);
   const title = formatPackageCollectionTitle(collection.title);
   const summary = collection.description?.trim() ?? '';
+  const kitCollectionHandle = kitCollectionHandleForPackage(collection);
 
   const packagePricing = calculatePackagePricing(
     packageRentDailyRatesFromProducts(kitProducts),
     DURATION_DAYS[duration],
   );
 
-  const linkedPackage = kitToPackage?.get(collection.handle);
-  const productHandle =
-    linkedPackage?.handle ??
-    packageProductHandleFromKitCollection(collection.handle) ??
-    collection.handle;
+  const linkedPackage = kitCollectionHandle
+    ? kitToPackage?.get(kitCollectionHandle)
+    : undefined;
+  const productHandle = linkedPackage?.handle;
 
   return {
     id: collection.id,
@@ -903,8 +944,10 @@ function mapPackageCollection(
     imageUrls: collectPackageCollectionCardImages(collection, kitProducts),
     compareAtPrice: packagePricing.subtotalDaily,
     savingsPercent: packagePricing.discountPercent || undefined,
+    packageCollectionHandle: collection.handle,
+    catalogUrl: `/collections/${collection.handle}`,
     includedProductHandles: kitProducts.map((entry) => entry.handle),
-    includedCollectionHandle: collection.handle,
+    includedCollectionHandle: kitCollectionHandle,
     includedCollectionProducts: kitProducts,
     defaultDuration: duration,
   };
@@ -921,7 +964,7 @@ export async function loadPackageCollections(
     .catch(() => ({collections: null}));
 
   const nodes = (collections?.nodes ?? []) as PackageCollectionNode[];
-  return nodes.filter(isPackageKitCollection);
+  return nodes.filter(isTrailPackageCollection);
 }
 
 export async function loadHomepageFeaturedSections(
@@ -969,23 +1012,9 @@ export async function loadShopifyPackages(
   const kitToPackage = buildKitCollectionToPackageMap(trailNodes);
 
   const fromCollections = packageCollections
-    .map((collection) => {
-      const fromKit = mapPackageCollection(collection, locale, kitToPackage);
-      if (!fromKit) return null;
-
-      const linked = kitToPackage.get(collection.handle);
-      if (linked) {
-        return mapPackageProduct(
-          linked,
-          locale,
-          fromKit.includedCollectionProducts,
-          fromKit.includedCollectionHandle,
-          fromKit.imageUrl,
-        );
-      }
-
-      return fromKit;
-    })
+    .map((collection) =>
+      mapPackageCollection(collection, locale, kitToPackage),
+    )
     .filter((item): item is ShopifyPackageItem => item != null);
 
   if (fromCollections.length > 0) return fromCollections;

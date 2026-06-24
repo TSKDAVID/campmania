@@ -1,14 +1,28 @@
 # Package kit collections — b6dvzp-py.myshopify.com
 
-`custom.included_collection` (collection_reference, Storefront `PUBLIC_READ`) is the **source of truth**.
-Convention `{package-handle}-includes` is only used when the metafield is unset.
+## Collection types
+
+| Type | How to mark in Admin | Example handle | On `/packages`? |
+| ---- | -------------------- | -------------- | --------------- |
+| **Trail package** | Collection metafield `custom.theme_template` = `packages` (or `custom.is_package` = true) | `tobavarchkhili`, `birtvisi-package` | **Yes** |
+| **Kit contents** | Manual collection; handle ends with `-includes` or title contains "kit contents" | `tobavarchkhili-includes` | **No** |
+| **Gear catalog** | Collection handle `individual-gear` | `individual-gear` | No (→ `/individual-gear`) |
+| **Package listing (legacy)** | Collection handle `trail-packages` | `trail-packages` | No (product index only) |
+
+The storefront loads **trail package collections** and filters with `isTrailPackageCollection` (metafield only — never `*-includes`).
+
+Optional on each **trail package collection**:
+- `custom.included_collection` → kit contents collection (gear + bundle pricing)
+- `custom.trek`, `custom.duration`, `custom.difficulty` → filters on `/packages`
+
+Package cards link to **`/collections/{handle}`**. Checkout product handle (optional) comes from `trail-packages` products linked via kit `included_collection`.
+
+`custom.included_collection` on **products** remains the source of truth for PDP kit contents.
 
 | Package product handle | Kit collection handle | Collection GID |
 | ---------------------- | --------------------- | -------------- |
 | `birtvisi-package` | `birtvisi-package-includes` | `gid://shopify/Collection/655392768292` |
 | `tobavarchkhili` | `tobavarchkhili-includes` | `gid://shopify/Collection/655392801060` |
-
-**Important:** Package cards link using the **real product handle** from the `trail-packages` collection (via `custom.included_collection` metafield). If `/products/tobavarchkhili` 404s, the Shopify product handle may differ — add the product to `trail-packages` and ensure `included_collection` points at the kit collection. The storefront auto-redirects convention aliases when the product is findable.
 | `borjomi-package` | `ბორჯომის-ეროვნული-პარკის-კომპლექტი` | `gid://shopify/Collection/655429009700` |
 
 Kit collections must be published to the **campmania** Hydrogen sales channel.
@@ -17,6 +31,7 @@ Kit collections must be published to the **campmania** Hydrogen sales channel.
 
 ```bash
 shopify store auth --store b6dvzp-py.myshopify.com --scopes read_products,write_products,read_publications,write_publications
+shopify store execute --store b6dvzp-py.myshopify.com --query-file scripts/queries/list-package-collections.graphql
 shopify store execute --store b6dvzp-py.myshopify.com --query-file scripts/queries/list-trail-packages.graphql
 shopify store execute --store b6dvzp-py.myshopify.com --query-file scripts/queries/kit-collection-details.graphql
 ```

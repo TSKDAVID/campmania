@@ -1,0 +1,50 @@
+# Check package products are published to the Hydrogen storefront channel.
+# shopify store auth --store b6dvzp-py.myshopify.com --scopes read_products,read_publications
+# shopify store execute --store b6dvzp-py.myshopify.com --query-file scripts/queries/diagnose-package-publication.graphql
+
+query DiagnosePackagePublication {
+  tobavarchkhili: product(id: "gid://shopify/Product/10507362042148") {
+    id
+    handle
+    title
+    status
+    resourcePublicationsV2(first: 10) {
+      nodes {
+        isPublished
+        publishDate
+        publication {
+          id
+          name
+        }
+      }
+    }
+  }
+  birtvisi: product(id: "gid://shopify/Product/10510093517092") {
+    id
+    handle
+    title
+    status
+    resourcePublicationsV2(first: 10) {
+      nodes {
+        isPublished
+        publication {
+          name
+        }
+      }
+    }
+  }
+  borjomi: product(id: "gid://shopify/Product/10513638261028") {
+    id
+    handle
+    title
+    status
+    resourcePublicationsV2(first: 10) {
+      nodes {
+        isPublished
+        publication {
+          name
+        }
+      }
+    }
+  }
+}

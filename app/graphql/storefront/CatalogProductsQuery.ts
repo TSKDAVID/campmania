@@ -250,7 +250,7 @@ export const COLLECTION_PRODUCTS_QUERY = `#graphql
   ${CATALOG_PRODUCT_FRAGMENT}
 ` as const;
 
-/** All collections — filter client-side for package kit collections (theme template packages). */
+/** All collections — filter client-side for trail package collections (`theme_template` = packages). */
 export const PACKAGE_COLLECTIONS_QUERY = `#graphql
   query PackageCollections(
     $country: CountryCode
@@ -281,6 +281,18 @@ export const PACKAGE_COLLECTIONS_QUERY = `#graphql
         }
         difficultyMeta: metafield(namespace: "custom", key: "difficulty") {
           value
+        }
+        includedKitCollection: metafield(namespace: "custom", key: "included_collection") {
+          reference {
+            ... on Collection {
+              handle
+              products(first: 50) {
+                nodes {
+                  ...InclusionProduct
+                }
+              }
+            }
+          }
         }
         products(first: 50) {
           nodes {

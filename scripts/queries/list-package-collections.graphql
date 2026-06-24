@@ -1,22 +1,30 @@
+# Trail package collections (theme_template = packages) vs kit contents (*-includes).
+# shopify store execute --store b6dvzp-py.myshopify.com --query-file scripts/queries/list-package-collections.graphql
+
 query ListPackageCollections {
   collections(first: 50) {
     nodes {
       id
       handle
       title
-      templateSuffix
-      image {
-        url
-        altText
+      themeTemplate: metafield(namespace: "custom", key: "theme_template") {
+        value
+      }
+      isPackage: metafield(namespace: "custom", key: "is_package") {
+        value
+      }
+      trek: metafield(namespace: "custom", key: "trek") {
+        value
       }
       productsCount {
         count
       }
-      metafields(first: 10) {
-        nodes {
-          namespace
-          key
-          value
+      includedKitCollection: metafield(namespace: "custom", key: "included_collection") {
+        reference {
+          ... on Collection {
+            handle
+            title
+          }
         }
       }
     }
