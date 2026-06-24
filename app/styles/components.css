@@ -1285,49 +1285,16 @@
   line-height: var(--text-sm-lh);
 }
 
-/* Route error / 404 */
+/* ── Route error ──────────────────────────────────────────────────────── */
 .route-error {
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
+  padding: var(--space-6) var(--gutter-mobile);
   max-width: var(--layout-max);
   margin: 0 auto;
-  padding: var(--space-6) var(--gutter-mobile);
-  background: var(--color-bg);
 }
 
 .route-error h1 {
-  font-size: var(--text-3xl);
-  font-weight: 500;
+  font-size: var(--text-2xl);
   margin: 0 0 var(--space-2);
-}
-
-.route-error h2 {
-  font-size: var(--text-lg);
-  font-weight: 500;
-  color: var(--color-ink-muted);
-  margin: 0 0 var(--space-3);
-}
-
-.route-error fieldset {
-  border: var(--border);
-  padding: var(--space-2);
-  margin: 0 0 var(--space-3);
-  width: 100%;
-  max-width: 480px;
-}
-
-.route-error pre {
-  margin: 0;
-  font-size: var(--text-sm);
-  white-space: pre-wrap;
-  color: var(--color-ink-muted);
-}
-
-.route-error .cm-btn {
-  margin-top: var(--space-2);
 }
 
 /* ── Gear builder ─────────────────────────────────────────────────────── */

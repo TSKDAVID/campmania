@@ -54,25 +54,6 @@ import {
 } from '~/lib/trailrent/gear-builder';
 import {isGearBuilderEnabled} from '~/lib/trailrent/feature-flags';
 
-/** Fallback handles when demo vs live Shopify handles differ. */
-const PRODUCT_HANDLE_FALLBACKS: Record<string, string[]> = {
-  'birtvisi-package': ['birtvisi-day-hike-kit'],
-  'birtvisi-day-hike-kit': ['birtvisi-package'],
-  'tobavarchkhili-weekend-kit': ['tobavarchkhili-package'],
-  'kazbegi-alpine-kit': ['kazbegi-package'],
-};
-
-async function queryProductByHandle(
-  storefront: Route.LoaderArgs['context']['storefront'],
-  handle: string,
-  request: Request,
-) {
-  return storefront.query(PRODUCT_QUERY, {
-    variables: {handle, selectedOptions: getSelectedProductOptions(request)},
-    ...liveStorefrontCache(storefront),
-  });
-}
-
 export const meta: Route.MetaFunction = ({data}) => {
   return [
     {title: `Campmania | ${data?.product.title ?? 'Product'}`},
@@ -104,47 +85,31 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product: initialProduct}] = await Promise.all([
-    queryProductByHandle(storefront, handle, request),
+  const [{product}] = await Promise.all([
+    storefront.query(PRODUCT_QUERY, {
+      variables: {handle, selectedOptions: getSelectedProductOptions(request)},
+      ...liveStorefrontCache(storefront),
+    }),
   ]);
-
-  let product = initialProduct;
-  let resolvedHandle = handle;
-
-  if (!product?.id) {
-    const fallbacks = PRODUCT_HANDLE_FALLBACKS[handle] ?? [];
-    for (const alt of fallbacks) {
-      const {product: altProduct} = await queryProductByHandle(
-        storefront,
-        alt,
-        request,
-      );
-      if (altProduct?.id) {
-        product = altProduct;
-        resolvedHandle = alt;
-        break;
-      }
-    }
-  }
 
   if (!product?.id) {
     throw new Response(null, {status: 404});
   }
 
-  redirectIfHandleIsLocalized(request, {handle: resolvedHandle, data: product});
+  redirectIfHandleIsLocalized(request, {handle, data: product});
 
   const includedKitProducts = await resolveIncludedKitNodes(
     storefront,
     product,
-    resolvedHandle,
+    handle,
   );
   const includedItems = includedKitProducts.length
     ? includedKitProducts.map((node) => node.title)
-    : await resolveIncludedItemTitles(storefront, product, resolvedHandle);
+    : await resolveIncludedItemTitles(storefront, product, handle);
   const packagePricing = await resolvePackagePricingForProduct(
     storefront,
     product,
-    resolvedHandle,
+    handle,
     includedKitProducts,
   );
 
