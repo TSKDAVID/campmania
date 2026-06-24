@@ -1,4 +1,5 @@
 import {Link} from 'react-router';
+import {useCallback, useRef} from 'react';
 import type {ShopifyPackageItem} from '~/lib/trailrent/shopify-catalog';
 import {useLocale} from '~/providers/LocaleProvider';
 
@@ -10,14 +11,27 @@ const HOVER_BADGE_KA = 'ნაკრების ნახვა';
 
 export function CuratedPackagesShowcase({packages}: CuratedPackagesShowcaseProps) {
   const {locale} = useLocale();
+  const trackRef = useRef<HTMLDivElement>(null);
   const isKa = locale === 'ka';
   const eyebrow = isKa ? '03 — შერჩეული ნაკრებები' : '03 — Curated packages';
   const heading = isKa
     ? 'სალაშქრო კოლექცია, რომელიც პატივს სცემს ბუნებას.'
     : 'Trail kits engineered for the Caucasus.';
   const subhead = isKa
-    ? 'ჩვენი მთავარი მცველი რჩეული ნაკრებები — გადახედე ჰორიზონტალურად.'
-    : 'Editorially curated rental kits — scroll horizontally.';
+    ? 'გადააციალე ჰორიზონტალურად ან გამოიყენე ისრები.'
+    : 'Swipe sideways or use the arrows.';
+  const scrollHint = isKa ? 'გადააციალე' : 'Swipe';
+
+  const scrollTrack = useCallback((direction: 'prev' | 'next') => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>('.cm-showcase__cell');
+    const step = card ? card.offsetWidth : track.clientWidth * 0.72;
+    track.scrollBy({
+      left: direction === 'next' ? step : -step,
+      behavior: 'smooth',
+    });
+  }, []);
 
   if (!packages.length) {
     return (
@@ -66,33 +80,58 @@ export function CuratedPackagesShowcase({packages}: CuratedPackagesShowcaseProps
         </Link>
       </header>
 
-      <div
-        className="cm-showcase__track"
-        role="region"
-        aria-label={isKa ? 'ნაკრებების კოლექცია' : 'Package collection'}
-      >
-        <ol className="cm-showcase__rail">
-          {packages.map((pkg, index) => (
-            <li key={pkg.id} className="cm-showcase__cell">
-              <ShowcaseCard
-                pkg={pkg}
-                index={index}
-                hoverLabel={HOVER_BADGE_KA}
-                isKa={isKa}
-              />
+      <div className="cm-showcase__carousel">
+        <div
+          className="cm-showcase__track"
+          ref={trackRef}
+          role="region"
+          aria-label={isKa ? 'ნაკრებების კოლექცია' : 'Package collection'}
+        >
+          <ol className="cm-showcase__rail">
+            {packages.map((pkg, index) => (
+              <li key={pkg.id} className="cm-showcase__cell">
+                <ShowcaseCard
+                  pkg={pkg}
+                  index={index}
+                  hoverLabel={HOVER_BADGE_KA}
+                  isKa={isKa}
+                />
+              </li>
+            ))}
+            <li className="cm-showcase__cell cm-showcase__cell--end" aria-hidden>
+              <Link to="/packages" className="cm-showcase__end-card">
+                <span className="cm-showcase__end-label">
+                  {isKa ? 'ნახე მთლიანი არქივი' : 'View full archive'}
+                </span>
+                <span className="cm-showcase__end-arrow" aria-hidden>
+                  →
+                </span>
+              </Link>
             </li>
-          ))}
-          <li className="cm-showcase__cell cm-showcase__cell--end" aria-hidden>
-            <Link to="/packages" className="cm-showcase__end-card">
-              <span className="cm-showcase__end-label">
-                {isKa ? 'ნახე მთლიანი არქივი' : 'View full archive'}
-              </span>
-              <span className="cm-showcase__end-arrow" aria-hidden>
-                →
-              </span>
-            </Link>
-          </li>
-        </ol>
+          </ol>
+        </div>
+
+        {packages.length > 1 ? (
+          <div className="cm-showcase__controls">
+            <button
+              type="button"
+              className="cm-showcase__nav-btn"
+              onClick={() => scrollTrack('prev')}
+              aria-label={isKa ? 'წინა ნაკრები' : 'Previous package'}
+            >
+              ←
+            </button>
+            <span className="cm-showcase__scroll-hint">{scrollHint}</span>
+            <button
+              type="button"
+              className="cm-showcase__nav-btn"
+              onClick={() => scrollTrack('next')}
+              aria-label={isKa ? 'შემდეგი ნაკრები' : 'Next package'}
+            >
+              →
+            </button>
+          </div>
+        ) : null}
       </div>
     </section>
   );
