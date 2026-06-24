@@ -52,7 +52,7 @@ export type RentalProductFormProps = {
   layout?: 'stacked' | 'wide';
 };
 
-function buildLineAttributes(options: {
+export function buildRentalLineAttributes(options: {
   mode: FulfillmentMode;
   startDate: string;
   endDate: string;
@@ -205,7 +205,7 @@ export function RentalProductForm({
       {
         merchandiseId: activeVariantId,
         quantity: cartQuantity,
-        attributes: buildLineAttributes({
+        attributes: buildRentalLineAttributes({
           mode,
           startDate,
           endDate,

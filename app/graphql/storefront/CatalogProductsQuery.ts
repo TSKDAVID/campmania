@@ -305,6 +305,59 @@ export const PACKAGE_COLLECTIONS_QUERY = `#graphql
   ${INCLUSION_PRODUCT_FRAGMENT}
 ` as const;
 
+/** Single trail package collection for `/collections/{handle}` package PDP. */
+export const PACKAGE_COLLECTION_BY_HANDLE_QUERY = `#graphql
+  query PackageCollectionByHandle(
+    $handle: String!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: $handle) {
+      id
+      title
+      handle
+      description
+      image {
+        url
+        altText
+      }
+      themeTemplate: metafield(namespace: "custom", key: "theme_template") {
+        value
+      }
+      isPackage: metafield(namespace: "custom", key: "is_package") {
+        value
+      }
+      trekMeta: metafield(namespace: "custom", key: "trek") {
+        value
+      }
+      durationMeta: metafield(namespace: "custom", key: "duration") {
+        value
+      }
+      difficultyMeta: metafield(namespace: "custom", key: "difficulty") {
+        value
+      }
+      includedKitCollection: metafield(namespace: "custom", key: "included_collection") {
+        reference {
+          ... on Collection {
+            handle
+            products(first: 50) {
+              nodes {
+                ...InclusionProduct
+              }
+            }
+          }
+        }
+      }
+      products(first: 50) {
+        nodes {
+          ...InclusionProduct
+        }
+      }
+    }
+  }
+  ${INCLUSION_PRODUCT_FRAGMENT}
+` as const;
+
 /** Find package product by trek tag when listing collection is incomplete. */
 export const PACKAGE_PRODUCT_BY_TREK_QUERY = `#graphql
   query PackageProductByTrekTag(

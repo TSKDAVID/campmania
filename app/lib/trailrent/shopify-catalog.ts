@@ -1,6 +1,7 @@
 import {
   COLLECTION_PRODUCTS_QUERY,
   CATALOG_PRODUCT_FRAGMENT,
+  PACKAGE_COLLECTION_BY_HANDLE_QUERY,
   PACKAGE_COLLECTIONS_QUERY,
   PACKAGE_PRODUCT_BY_TREK_QUERY,
 } from '~/graphql/storefront/CatalogProductsQuery';
@@ -946,6 +947,45 @@ function mapPackageCollection(
   };
 }
 
+export type PackageCollectionDetail = {
+  package: ShopifyPackageItem;
+  kitNodes: CatalogProductNode[];
+  linkedProduct: CatalogProductNode | null;
+};
+
+export async function loadPackageCollectionDetail(
+  storefront: Storefront,
+  handle: string,
+  locale: 'ka' | 'en',
+): Promise<PackageCollectionDetail | null> {
+  const {collection} = await storefront
+    .query(PACKAGE_COLLECTION_BY_HANDLE_QUERY, {
+      variables: {handle},
+      ...liveStorefrontCache(storefront),
+    })
+    .catch(() => ({collection: null}));
+
+  if (!collection) return null;
+
+  const node = collection as PackageCollectionNode;
+  if (!isTrailPackageCollection(node)) return null;
+
+  const trailNodes = await loadTrailPackageProducts(storefront);
+  const kitToPackage = buildKitCollectionToPackageMap(trailNodes);
+  const kitCollectionHandle = kitCollectionHandleForPackage(node);
+  const linkedProduct = kitCollectionHandle
+    ? (kitToPackage.get(kitCollectionHandle) ?? null)
+    : null;
+  const mapped = mapPackageCollection(node, locale, kitToPackage);
+  if (!mapped) return null;
+
+  return {
+    package: mapped,
+    kitNodes: kitNodesForPackageCollection(node),
+    linkedProduct,
+  };
+}
+
 export async function loadPackageCollections(
   storefront: Storefront,
 ): Promise<PackageCollectionNode[]> {
@@ -1055,4 +1095,4 @@ export async function loadGearBuilderCatalog(
   return gear.map((item) => item.builderProduct);
 }
 
-export {CATALOG_PRODUCT_FRAGMENT, COLLECTION_PRODUCTS_QUERY, PACKAGE_COLLECTIONS_QUERY};
+export {CATALOG_PRODUCT_FRAGMENT, COLLECTION_PRODUCTS_QUERY, PACKAGE_COLLECTION_BY_HANDLE_QUERY, PACKAGE_COLLECTIONS_QUERY};
