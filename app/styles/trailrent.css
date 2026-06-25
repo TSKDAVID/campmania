@@ -541,23 +541,12 @@
     z-index: 1;
   }
 
-  .cm-catalog-grid--packages {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.75rem;
-  }
-
-  @media (min-width: 1024px) {
-    .cm-catalog-grid--packages {
-      gap: 1rem;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
   .cm-catalog-grid--gear {
     position: relative;
     z-index: 1;
   }
 
+  /* Base grid — individual gear: 2 cols mobile → 3 at md → 5 at lg */
   .cm-catalog-grid {
     display: grid;
     gap: 0.5rem;
@@ -578,9 +567,33 @@
   }
 
   @media (min-width: 1024px) {
+    /* Individual gear: 5 columns (~28% smaller than 4-col baseline) */
     .cm-catalog-grid:not(.cm-catalog-grid--packages) {
       gap: 1rem;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  /* Packages grid — defined AFTER base grid so it wins the cascade */
+  .cm-catalog-grid--packages {
+    /* Mobile: single full-width card per row */
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 768px) {
+    .cm-catalog-grid--packages {
+      /* Tablet: still 1 column — packages need the full width */
+      grid-template-columns: minmax(0, 1fr) !important;
+      gap: 1rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cm-catalog-grid--packages {
+      /* Desktop: 2 columns as designed */
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
   }
 
@@ -4649,7 +4662,22 @@ html[lang='ka'] .cm-showcase-card__meta {
 
 @media (min-width: 768px) {
   .cm-gear-strip__grid {
+    /* Tablet: 3 cols — avoids oversized cards */
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .cm-gear-strip__grid {
+    /* Desktop: 4 cols but cards are naturally smaller in the strip context */
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .cm-gear-strip__grid {
+    /* Large desktop: 5 cols — matches the catalog page density */
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
