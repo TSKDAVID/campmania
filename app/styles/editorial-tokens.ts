@@ -18,19 +18,22 @@ export const editorialTokens: EditorialTokens = {
     paper: '#ece9e1',
     ink: '#101010',
     inkSoft: '#2a2a2a',
-    inkMute: '#5f5b55',
-    grid: '#000000',
-    accentCritical: '#9f1a1a',
-    accentSignal: '#8c5b1f',
+    inkMute: '#6b6660',
+    /* Grid color drives all structural borders — soft taupe at 12% opacity */
+    grid: 'rgba(16, 16, 16, 0.12)',
+    accentCritical: '#C86D53',
+    accentSignal: '#C86D53',
   },
   border: {
     hairline: '1px',
-    strong: '2px',
-    radius: '0px',
+    /* Strong is now same width as hairline — weight comes from context, not pixels */
+    strong: '1px',
+    radius: '6px',
   },
   shadow: {
-    hardSm: '2px 2px 0px #000000',
-    hardMd: '4px 4px 0px #000000',
+    /* Diffused luxury shadows instead of pixel-art offsets */
+    hardSm: '0 8px 30px rgba(0, 0, 0, 0.05)',
+    hardMd: '0 20px 40px -15px rgba(0, 0, 0, 0.08)',
     none: 'none',
   },
   spacing: {
@@ -51,10 +54,10 @@ export const editorialTokens: EditorialTokens = {
     trackingUltra: '0.22em',
   },
   motion: {
-    snap: '0ms',
-    linearFast: '120ms linear',
-    linearMedium: '180ms linear',
-    overlayFade: '220ms linear',
+    snap: '160ms ease',
+    linearFast: '160ms ease',
+    linearMedium: '200ms ease',
+    overlayFade: '220ms ease',
   },
   breakpoint: {
     xs: '480px',
