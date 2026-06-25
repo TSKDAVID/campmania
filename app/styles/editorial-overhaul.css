@@ -590,6 +590,7 @@ body {
 .cm-kit-card:hover {
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
   transform: translateY(-6px) scale(1.05);
+  /* z-index: 20 — below nav buttons (z-index: 50) so buttons stay on top */
   z-index: 20;
 }
 
