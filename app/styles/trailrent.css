@@ -3880,10 +3880,11 @@ html[lang='ka'] .cm-hero-editorial__headline {
   margin: 0;
   font-family: var(--cm-font-label);
   font-size: 0.68rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #C86D53;
+  /* Terracotta pops against dark glass */
+  color: #E88B6F;
 }
 
 .cm-hero-billboard__title {

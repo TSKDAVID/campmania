@@ -440,12 +440,13 @@ body {
 }
 
 .cm-hero-billboard__card {
-  border: var(--cm-border);
-  border-radius: 10px;
-  box-shadow: var(--cm-shadow-hard-md);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: color-mix(in srgb, var(--ed-color-paper) 85%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.42), 0 0 0 0.5px rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  /* Deep charcoal glass — white/terracotta text reads cleanly */
+  background: rgba(14, 14, 14, 0.72);
 }
 
 .cm-hero-billboard__controls {
