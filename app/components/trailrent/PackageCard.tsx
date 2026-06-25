@@ -156,12 +156,12 @@ export function PackageCard({
           </>
         )}
         <span
-          className={`cm-kit-card-badge absolute right-2 top-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${diffStyle}`}
+          className={`cm-kit-card-badge cm-kit-card-badge--difficulty absolute right-2 top-2 border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${diffStyle}`}
         >
           {pkg.difficultyLabel}
         </span>
         {discountPercent ? (
-          <span className="cm-kit-card-badge absolute left-2 top-2 rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold text-pine">
+          <span className="cm-kit-card-badge cm-kit-card-badge--discount absolute left-2 top-2 bg-amber px-2 py-0.5 text-[10px] font-bold text-pine">
             -{discountPercent}%
           </span>
         ) : null}

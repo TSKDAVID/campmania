@@ -10,18 +10,18 @@ export function LanguageSwitcher() {
   const {locale, setLocale} = useLocale();
 
   return (
-    <div className="flex items-center gap-1 rounded-sm border border-white/20 p-0.5 text-xs">
+    <div className="cm-locale-switcher">
       <button
         type="button"
         onClick={() => setLocale('ka')}
-        className={`rounded-sm px-2 py-1 ${locale === 'ka' ? 'bg-white/15 text-mist' : 'text-sage hover:text-mist'}`}
+        className={`cm-locale-btn ${locale === 'ka' ? 'cm-locale-btn--active' : ''}`}
       >
         ქარ
       </button>
       <button
         type="button"
         onClick={() => setLocale('en')}
-        className={`rounded-sm px-2 py-1 ${locale === 'en' ? 'bg-white/15 text-mist' : 'text-sage hover:text-mist'}`}
+        className={`cm-locale-btn ${locale === 'en' ? 'cm-locale-btn--active' : ''}`}
       >
         EN
       </button>

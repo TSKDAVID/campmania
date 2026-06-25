@@ -30,6 +30,11 @@ export function GearCatalogGrid({
     <section className="cm-catalog-page bg-white">
       <div className="tr-page-width cm-catalog-page-intro">
         <CatalogPageHeading title={tr.gear.title} />
+        <p className="cm-catalog-technical-note">
+          {locale === 'ka'
+            ? `კატალოგი ${filtered.length}/${gear.length}`
+            : `Catalog ${filtered.length}/${gear.length}`}
+        </p>
         {!shopifyConnected ? (
           <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
             {tr.gear.shopifySetupHint}

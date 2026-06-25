@@ -1,6 +1,5 @@
 import {useCallback, useState, Suspense} from 'react';
 import {Await} from 'react-router';
-import {motion, AnimatePresence} from 'framer-motion';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
   getFallbackHomepagePromoSlides,
@@ -34,45 +33,24 @@ function HeroCopyColumn() {
   const scrollToPackages = () => {
     document
       .getElementById('home-packages')
-      ?.scrollIntoView({behavior: 'smooth', block: 'start'});
+      ?.scrollIntoView({behavior: 'auto', block: 'start'});
   };
 
   return (
     <div className="cm-hero-editorial__copy">
-      <motion.p
-        className="cm-hero-editorial__eyebrow"
-        initial={{opacity: 0, y: 12}}
-        animate={{opacity: 1, y: 0}}
-        transition={{duration: 0.6, ease: [0.22, 1, 0.36, 1]}}
-      >
+      <p className="cm-hero-editorial__eyebrow">
         {EYEBROW_KA}
-      </motion.p>
+      </p>
 
-      <motion.h1
-        id="cm-hero-headline"
-        className="cm-hero-editorial__headline"
-        initial={{opacity: 0, y: 18}}
-        animate={{opacity: 1, y: 0}}
-        transition={{duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1]}}
-      >
+      <h1 id="cm-hero-headline" className="cm-hero-editorial__headline">
         {HEADLINE_KA}
-      </motion.h1>
+      </h1>
 
-      <motion.p
-        className="cm-hero-editorial__mission"
-        initial={{opacity: 0, y: 16}}
-        animate={{opacity: 1, y: 0}}
-        transition={{duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1]}}
-      >
+      <p className="cm-hero-editorial__mission">
         {MISSION_KA}
-      </motion.p>
+      </p>
 
-      <motion.div
-        className="cm-hero-editorial__actions"
-        initial={{opacity: 0, y: 16}}
-        animate={{opacity: 1, y: 0}}
-        transition={{duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1]}}
-      >
+      <div className="cm-hero-editorial__actions">
         <button
           type="button"
           className="cm-hero-editorial__cta"
@@ -86,7 +64,7 @@ function HeroCopyColumn() {
         <a className="cm-hero-editorial__link" href="/individual-gear">
           ინდივიდუალური აღჭურვილობა
         </a>
-      </motion.div>
+      </div>
 
       <div className="cm-hero-editorial__meta" aria-hidden>
         <span className="cm-hero-editorial__meta-line" />
@@ -125,27 +103,15 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
     locale === 'ka' ? 'მთავარი ბანერი' : 'Homepage banner carousel';
 
   return (
-    <motion.aside
-      className="cm-hero-billboard"
-      aria-label={carouselLabel}
-      initial={{opacity: 0}}
-      animate={{opacity: 1}}
-      transition={{duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1]}}
-    >
+    <aside className="cm-hero-billboard" aria-label={carouselLabel}>
       <div className="cm-hero-billboard__frame">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={slide.id ?? slide.title}
-            src={slide.imageUrl}
-            alt={slide.imageAlt ?? slide.title}
-            className="cm-hero-billboard__image"
-            loading="eager"
-            initial={{opacity: 0}}
-            animate={{opacity: 1}}
-            exit={{opacity: 0}}
-            transition={{duration: 0.45, ease: [0.22, 1, 0.36, 1]}}
-          />
-        </AnimatePresence>
+        <img
+          key={slide.id ?? slide.title}
+          src={slide.imageUrl}
+          alt={slide.imageAlt ?? slide.title}
+          className="cm-hero-billboard__image"
+          loading="eager"
+        />
 
         {slide.badge ? (
           <span className="cm-hero-billboard__corner-badge">{slide.badge}</span>
@@ -207,7 +173,7 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
           </button>
         </div>
       ) : null}
-    </motion.aside>
+    </aside>
   );
 }
 

@@ -105,9 +105,12 @@ export default function Cart() {
   const cart = useLoaderData<typeof loader>();
 
   return (
-    <div className="cart">
-      <h1>Cart</h1>
+    <section className="cm-cart-page tr-page-width">
+      <header className="cm-cart-page__head">
+        <p className="cm-page-kicker">Cart Ledger</p>
+        <h1 className="cm-page-title">Cart</h1>
+      </header>
       <CartMain layout="page" cart={cart} />
-    </div>
+    </section>
   );
 }
