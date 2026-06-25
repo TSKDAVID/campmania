@@ -261,16 +261,19 @@ export default function Addresses() {
   const {defaultAddress, addresses} = customer;
 
   return (
-    <div className="account-addresses cm-account-addresses">
-      <h2 className="cm-account-addresses__title">Addresses</h2>
+    <div className="account-addresses">
+      <h2>Addresses</h2>
+      <br />
       <div>
         <div>
-          <p className="cm-account-addresses__legend">Create address</p>
+          <legend>Create address</legend>
           <NewAddressForm key={addresses.nodes.length} />
         </div>
-        <hr className="cm-account-addresses__rule" />
+        <br />
+        <hr />
+        <br />
         {!addresses.nodes.length ? (
-          <p className="cm-account-addresses__empty">You have no addresses saved.</p>
+          <p>You have no addresses saved.</p>
         ) : (
           <ExistingAddresses
             addresses={addresses}
@@ -304,12 +307,11 @@ function NewAddressForm() {
       defaultAddress={null}
     >
       {({stateForMethod}) => (
-        <div className="cm-account-addresses__actions">
+        <div>
           <button
             disabled={stateForMethod('POST') !== 'idle'}
             formMethod="POST"
             type="submit"
-            className="tr-btn-primary"
           >
             {stateForMethod('POST') !== 'idle' ? 'Creating' : 'Create'}
           </button>
@@ -325,7 +327,7 @@ function ExistingAddresses({
 }: Pick<CustomerFragment, 'addresses' | 'defaultAddress'>) {
   return (
     <div>
-      <p className="cm-account-addresses__legend">Existing addresses</p>
+      <legend>Existing addresses</legend>
       {addresses.nodes.map((address) => (
         <AddressForm
           key={address.id}
@@ -334,12 +336,11 @@ function ExistingAddresses({
           defaultAddress={defaultAddress}
         >
           {({stateForMethod}) => (
-            <div className="cm-account-addresses__actions">
+            <div>
               <button
                 disabled={stateForMethod('PUT') !== 'idle'}
                 formMethod="PUT"
                 type="submit"
-                className="tr-btn-primary"
               >
                 {stateForMethod('PUT') !== 'idle' ? 'Saving' : 'Save'}
               </button>
@@ -347,7 +348,6 @@ function ExistingAddresses({
                 disabled={stateForMethod('DELETE') !== 'idle'}
                 formMethod="DELETE"
                 type="submit"
-                className="tr-btn-secondary"
               >
                 {stateForMethod('DELETE') !== 'idle' ? 'Deleting' : 'Delete'}
               </button>
@@ -377,14 +377,13 @@ export function AddressForm({
   const error = action?.error?.[addressId];
   const isDefaultAddress = defaultAddress?.id === addressId;
   return (
-    <Form id={addressId} className="cm-account-address-form">
-      <fieldset className="cm-account-address-form__fieldset">
+    <Form id={addressId}>
+      <fieldset>
         <input type="hidden" name="addressId" defaultValue={addressId} />
-        <label htmlFor="firstName" className="cm-form-label">First name*</label>
+        <label htmlFor="firstName">First name*</label>
         <input
           aria-label="First name"
           autoComplete="given-name"
-          className="cm-form-field"
           defaultValue={address?.firstName ?? ''}
           id="firstName"
           name="firstName"
@@ -392,11 +391,10 @@ export function AddressForm({
           required
           type="text"
         />
-        <label htmlFor="lastName" className="cm-form-label">Last name*</label>
+        <label htmlFor="lastName">Last name*</label>
         <input
           aria-label="Last name"
           autoComplete="family-name"
-          className="cm-form-field"
           defaultValue={address?.lastName ?? ''}
           id="lastName"
           name="lastName"
@@ -404,22 +402,20 @@ export function AddressForm({
           required
           type="text"
         />
-        <label htmlFor="company" className="cm-form-label">Company</label>
+        <label htmlFor="company">Company</label>
         <input
           aria-label="Company"
           autoComplete="organization"
-          className="cm-form-field"
           defaultValue={address?.company ?? ''}
           id="company"
           name="company"
           placeholder="Company"
           type="text"
         />
-        <label htmlFor="address1" className="cm-form-label">Address line*</label>
+        <label htmlFor="address1">Address line*</label>
         <input
           aria-label="Address line 1"
           autoComplete="address-line1"
-          className="cm-form-field"
           defaultValue={address?.address1 ?? ''}
           id="address1"
           name="address1"
@@ -427,22 +423,20 @@ export function AddressForm({
           required
           type="text"
         />
-        <label htmlFor="address2" className="cm-form-label">Address line 2</label>
+        <label htmlFor="address2">Address line 2</label>
         <input
           aria-label="Address line 2"
           autoComplete="address-line2"
-          className="cm-form-field"
           defaultValue={address?.address2 ?? ''}
           id="address2"
           name="address2"
           placeholder="Address line 2"
           type="text"
         />
-        <label htmlFor="city" className="cm-form-label">City*</label>
+        <label htmlFor="city">City*</label>
         <input
           aria-label="City"
           autoComplete="address-level2"
-          className="cm-form-field"
           defaultValue={address?.city ?? ''}
           id="city"
           name="city"
@@ -450,11 +444,10 @@ export function AddressForm({
           required
           type="text"
         />
-        <label htmlFor="zoneCode" className="cm-form-label">State / Province*</label>
+        <label htmlFor="zoneCode">State / Province*</label>
         <input
           aria-label="State/Province"
           autoComplete="address-level1"
-          className="cm-form-field"
           defaultValue={address?.zoneCode ?? ''}
           id="zoneCode"
           name="zoneCode"
@@ -462,11 +455,10 @@ export function AddressForm({
           required
           type="text"
         />
-        <label htmlFor="zip" className="cm-form-label">Zip / Postal Code*</label>
+        <label htmlFor="zip">Zip / Postal Code*</label>
         <input
           aria-label="Zip"
           autoComplete="postal-code"
-          className="cm-form-field"
           defaultValue={address?.zip ?? ''}
           id="zip"
           name="zip"
@@ -474,11 +466,10 @@ export function AddressForm({
           required
           type="text"
         />
-        <label htmlFor="territoryCode" className="cm-form-label">Country Code*</label>
+        <label htmlFor="territoryCode">Country Code*</label>
         <input
           aria-label="Country code"
           autoComplete="country"
-          className="cm-form-field"
           defaultValue={address?.territoryCode ?? ''}
           id="territoryCode"
           name="territoryCode"
@@ -487,11 +478,10 @@ export function AddressForm({
           type="text"
           maxLength={2}
         />
-        <label htmlFor="phoneNumber" className="cm-form-label">Phone</label>
+        <label htmlFor="phoneNumber">Phone</label>
         <input
           aria-label="Phone Number"
           autoComplete="tel"
-          className="cm-form-field"
           defaultValue={address?.phoneNumber ?? ''}
           id="phoneNumber"
           name="phoneNumber"
@@ -499,21 +489,23 @@ export function AddressForm({
           pattern="^\+?[1-9]\d{3,14}$"
           type="tel"
         />
-        <div className="cm-account-address-form__default">
+        <div>
           <input
             defaultChecked={isDefaultAddress}
             id="defaultAddress"
             name="defaultAddress"
             type="checkbox"
           />
-          <label htmlFor="defaultAddress" className="cm-form-label">Set as default address</label>
+          <label htmlFor="defaultAddress">Set as default address</label>
         </div>
         {error ? (
-          <p className="cm-account-address-form__error">
-            <small>{error}</small>
+          <p>
+            <mark>
+              <small>{error}</small>
+            </mark>
           </p>
         ) : (
-          <p className="cm-account-address-form__spacer" aria-hidden />
+          <br />
         )}
         {children({
           stateForMethod: (method) => (formMethod === method ? state : 'idle'),
