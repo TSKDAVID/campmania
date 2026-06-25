@@ -440,6 +440,11 @@ export default function Product() {
               title={title}
               variant={isSoloProduct ? 'solo' : 'kit'}
             />
+            {descriptionHtml?.trim() ? (
+              <div className="cm-pdp-editorial__media-specs">
+                <ProductTechnicalSpecs html={descriptionHtml} />
+              </div>
+            ) : null}
           </aside>
 
           <div className="cm-pdp-editorial__details">
@@ -505,12 +510,6 @@ export default function Product() {
             )}
           </div>
         </div>
-
-        {descriptionHtml?.trim() ? (
-          <div className="cm-pdp-editorial__below">
-            <ProductTechnicalSpecs html={descriptionHtml} />
-          </div>
-        ) : null}
       </div>
 
       <Analytics.ProductView

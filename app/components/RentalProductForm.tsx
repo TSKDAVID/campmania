@@ -419,7 +419,7 @@ export function RentalProductForm({
             {(fetcher) => {
               const addError = getCartActionErrorMessage(fetcher.data);
               return (
-                <>
+                <div className="cm-rental-form-actions">
                   {!rentVariantAvailable && isRentMode ? (
                     <p className="cm-rental-status cm-rental-status--error">
                       {tr.booking.rentUnavailable}
@@ -457,7 +457,7 @@ export function RentalProductForm({
                           : `${tr.booking.addToCartBuy} · ${formatGel(purchasePrice)}`
                         : tr.booking.unavailable}
                   </button>
-                </>
+                </div>
               );
             }}
           </CartForm>

@@ -184,6 +184,9 @@
 .cm-pdp-editorial__media {
   border-bottom: var(--cm-border);
   padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 @media (min-width: 1024px) {
@@ -191,7 +194,12 @@
     border-bottom: none;
     border-right: var(--cm-border);
     padding: 2rem 2rem 2rem 0;
+    gap: 1.5rem;
   }
+}
+
+.cm-pdp-editorial__media-specs {
+  flex-shrink: 0;
 }
 
 .cm-pdp-editorial__details {

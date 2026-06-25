@@ -198,13 +198,13 @@
     font-family: var(--font-label);
   }
 
+  /* Active nav styling lives in editorial-overhaul.css */
   .cm-nav-link-active {
     @apply text-charcoal;
   }
 
   .cm-nav-link-active::after {
-    content: '';
-    @apply absolute -bottom-1 left-0 h-0.5 w-full bg-amber;
+    content: none;
   }
 
   /* ── Catalog pages (no hero — title inline with content) ─────────────── */
@@ -1633,7 +1633,7 @@
   }
 
   .cm-product-trust-item {
-    @apply flex min-h-[2.75rem] items-center gap-2 rounded-lg border border-stone/60 bg-white px-2.5 py-2 shadow-sm sm:min-h-[3rem] sm:gap-2.5 sm:rounded-xl sm:px-3 sm:py-2.5;
+    @apply flex min-h-[2.75rem] items-center gap-2.5 rounded-lg border border-stone/60 bg-white px-3 py-2.5 shadow-sm sm:min-h-[3rem] sm:rounded-xl;
     font-family: var(--font-label);
   }
 
@@ -1654,7 +1654,7 @@
   }
 
   .cm-product-trust-label {
-    @apply text-xs font-semibold leading-snug text-charcoal;
+    @apply min-w-0 flex-1 text-left text-xs font-semibold leading-snug text-charcoal;
   }
 
   .cm-product-included {
@@ -1808,6 +1808,12 @@
     @apply flex flex-col;
   }
 
+  .cm-rental-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
   .cm-rental-form-fields .cm-rental-field:first-child,
   .cm-rental-form-fields .cm-rental-rto-banner:first-child {
     @apply mt-0;
@@ -1819,7 +1825,7 @@
 
   .cm-rental-form-fields .cm-rental-field,
   .cm-rental-form-fields .cm-rental-rto-banner {
-    @apply mt-5;
+    @apply mt-0;
   }
 
   .cm-rental-form-fields .cm-rental-field--mode {
@@ -1851,7 +1857,7 @@
   }
 
   .cm-rental-form-checkout {
-    @apply mt-5 flex flex-col gap-4;
+    @apply mt-5 flex flex-col gap-3;
   }
 
   .cm-rental-form-checkout .cm-rental-summary {
@@ -1864,6 +1870,12 @@
 
   .cm-rental-form-checkout .cm-rental-submit {
     @apply mt-0 w-full;
+  }
+
+  .cm-rental-form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   @media (min-width: 768px) {
@@ -1921,25 +1933,28 @@
   }
 
   .cm-rental-summary-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
     min-height: 3.25rem;
   }
 
   .cm-rental-summary-row {
-    @apply flex justify-between gap-3 text-sm text-muted;
+    @apply flex items-center justify-between gap-4 text-sm text-muted;
     font-family: var(--font-body);
   }
 
   .cm-rental-summary-amount {
-    @apply shrink-0 font-semibold tabular-nums text-charcoal;
+    @apply shrink-0 min-w-[4.5rem] text-right font-semibold tabular-nums text-charcoal;
   }
 
   .cm-rental-summary-total {
-    @apply flex justify-between gap-3 border-t border-stone/80 pt-3 text-base font-semibold text-pine;
+    @apply flex items-center justify-between gap-4 border-t border-stone/80 pt-3 text-base font-semibold text-pine;
     font-family: var(--font-body);
   }
 
   .cm-rental-summary-total-amount {
-    @apply shrink-0 text-xl font-bold tabular-nums text-forest;
+    @apply shrink-0 min-w-[4.5rem] text-right text-xl font-bold tabular-nums text-forest;
   }
 
   .cm-rental-summary-total span:last-child {
@@ -1947,7 +1962,7 @@
   }
 
   .cm-rental-notice {
-    @apply mt-4 flex items-start gap-2.5 rounded-xl border border-moss/25 bg-moss/5 p-3.5 text-sm leading-relaxed text-muted;
+    @apply mt-4 flex items-center gap-3 rounded-xl border border-moss/25 bg-moss/5 px-4 py-3.5 text-sm leading-relaxed text-muted;
   }
 
   .cm-rental-submit {
@@ -1955,11 +1970,11 @@
   }
 
   .cm-rental-status {
-    @apply mb-3 text-sm leading-relaxed;
+    @apply mb-0 rounded-lg border px-3.5 py-2.5 text-sm leading-relaxed;
   }
 
   .cm-rental-status--error {
-    @apply text-amber-900;
+    @apply border-amber-200/80 bg-amber-50 text-amber-950;
   }
 
   /* ── Rental date range picker ─────────────────────────────────────────── */
@@ -1968,11 +1983,11 @@
   }
 
   .cm-date-range-header {
-    @apply flex items-start gap-3 border-b border-stone/70 bg-white px-4 py-3.5;
+    @apply flex items-center gap-3 border-b border-stone/70 bg-white px-4 py-3.5;
   }
 
   .cm-date-range-icon {
-    @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-mist text-forest;
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-mist text-forest;
   }
 
   .cm-date-range-label {
@@ -1990,16 +2005,16 @@
   }
 
   .cm-date-range-badge {
-    @apply shrink-0 rounded-full bg-forest px-2.5 py-1 text-xs font-semibold text-mist;
+    @apply shrink-0 self-center rounded-full bg-forest px-2.5 py-1 text-xs font-semibold leading-none text-mist;
     font-family: var(--font-body);
   }
 
   .cm-date-range-presets {
-    @apply flex flex-wrap gap-2 border-b border-stone/60 bg-white/70 px-3 py-3;
+    @apply grid grid-cols-3 gap-2 border-b border-stone/60 bg-white/70 px-3 py-3;
   }
 
   .cm-date-range-preset {
-    @apply rounded-full border border-stone/80 bg-white px-3 py-1.5 text-xs font-medium text-charcoal transition hover:border-moss/50 hover:text-forest;
+    @apply flex min-h-[2.25rem] items-center justify-center rounded-full border border-stone/80 bg-white px-2 py-1.5 text-center text-xs font-medium text-charcoal transition hover:border-moss/50 hover:text-forest;
     font-family: var(--font-body);
   }
 
@@ -2021,7 +2036,7 @@
   }
 
   .cm-date-range-field-trigger {
-    @apply flex h-full min-h-[4.5rem] w-full cursor-pointer flex-col justify-center rounded-lg border border-stone/70 bg-mist/25 px-3 py-2.5 text-left transition hover:border-moss/40 hover:bg-mist/50;
+    @apply flex h-full min-h-[4.5rem] w-full cursor-pointer flex-col justify-center rounded-lg border border-stone/70 bg-mist/25 px-3.5 py-3 text-left transition hover:border-moss/40 hover:bg-mist/50;
     font-family: var(--font-body);
   }
 
@@ -4848,10 +4863,11 @@ html[lang='ka'] .cm-showcase-card__meta {
 
 .cm-delivery__toggle {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.9rem 1rem;
+  gap: 0.75rem 0.85rem;
+  padding: 1rem;
   background: transparent;
   border: 0;
   text-align: left;
@@ -4860,6 +4876,8 @@ html[lang='ka'] .cm-showcase-card__meta {
 }
 
 .cm-delivery__marker {
+  grid-column: 1;
+  align-self: center;
   flex: 0 0 auto;
   width: 1rem;
   height: 1rem;
@@ -4888,10 +4906,10 @@ html[lang='ka'] .cm-showcase-card__meta {
 }
 
 .cm-delivery__toggle-text {
-  flex: 1 1 auto;
+  grid-column: 2;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
   min-width: 0;
 }
 
@@ -4900,6 +4918,7 @@ html[lang='ka'] .cm-showcase-card__meta {
   font-weight: 600;
   letter-spacing: 0.01em;
   color: #2A2A2A;
+  line-height: 1.3;
 }
 
 .cm-delivery__microcopy {
@@ -4910,15 +4929,18 @@ html[lang='ka'] .cm-showcase-card__meta {
 }
 
 .cm-delivery__badge {
+  grid-column: 3;
+  align-self: center;
   flex: 0 0 auto;
-  padding: 0.3rem 0.55rem;
+  padding: 0.35rem 0.6rem;
   border: 1px solid rgba(42, 42, 42, 0.2);
   font-family: var(--cm-font-label);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: #2A2A2A;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .cm-delivery__badge--free {
@@ -4935,10 +4957,9 @@ html[lang='ka'] .cm-showcase-card__meta {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 0 1rem 1rem;
-  border-top: 1px solid rgba(42, 42, 42, 0.08);
-  margin-top: -0.15rem;
-  padding-top: 0.85rem;
+  padding: 0 1rem 1rem 2.75rem;
+  margin-top: 0;
+  border-top: none;
 }
 
 .cm-delivery__field-label {
