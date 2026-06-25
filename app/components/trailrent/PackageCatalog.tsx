@@ -78,11 +78,6 @@ export function PackageCatalogGrid({
               <h1 className="cm-catalog-heading cm-catalog-heading--row">
                 {tr.packages.title}
               </h1>
-              <p className="cm-catalog-technical-note">
-                {locale === 'ka'
-                  ? `კოლექცია ${filtered.length}/${packages.length}`
-                  : `Collection ${filtered.length}/${packages.length}`}
-              </p>
             </div>
 
             <PackageFiltersPanel

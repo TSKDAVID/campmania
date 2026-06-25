@@ -23,7 +23,6 @@ import {
 } from './providers/LocaleProvider';
 import {DEFAULT_LOCALE} from './lib/trailrent/i18n';
 import {GearBuilderProvider} from './providers/GearBuilderProvider';
-import {editorialTokenCssText} from './styles/editorial-tokens';
 
 export type RootLoader = typeof loader;
 
@@ -170,9 +169,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <style nonce={nonce} id="cm-editorial-tokens">
-          {editorialTokenCssText}
-        </style>
         <Meta />
         <Links />
       </head>
