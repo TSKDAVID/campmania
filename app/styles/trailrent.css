@@ -4652,46 +4652,97 @@ html[lang='ka'] .cm-showcase-card__meta {
   }
 }
 
+/* Carousel wrapper — provides position context for prev/next buttons
+   and overflow:visible in Y so scaled cards float above siblings */
+.cm-gear-strip__carousel {
+  position: relative;
+  /* Pad top/bottom so hovered card scale doesn't get clipped */
+  padding-top: 1rem;
+  margin-top: -1rem;
+  padding-bottom: 1rem;
+  margin-bottom: -1rem;
+}
+
 .cm-gear-strip__grid {
-  /* Horizontal scroll — strictly fixed card width so they never stretch */
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 200px;
+  /* 6 cards per viewport: calc(100% / 6) with a small gap allowance */
+  grid-auto-columns: calc(100% / 6);
   gap: 0;
   overflow-x: auto;
+  /* overflow-y must also be set — use padding trick for scale overflow */
   overflow-y: visible;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(16, 16, 16, 0.15) transparent;
+  cursor: grab;
+  scrollbar-width: none; /* hide scrollbar — nav buttons replace it */
   border-top: 1px solid rgba(16, 16, 16, 0.12);
   border-left: 1px solid rgba(16, 16, 16, 0.12);
-  padding-bottom: 0.75rem;
+  /* Vertical padding so hover scale is not clipped */
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .cm-gear-strip__grid::-webkit-scrollbar {
-  height: 3px;
+  display: none;
 }
 
-.cm-gear-strip__grid::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.cm-gear-strip__grid::-webkit-scrollbar-thumb {
-  background: rgba(16, 16, 16, 0.15);
-  border-radius: 2px;
-}
-
-@media (min-width: 640px) {
+/* Mobile: 2 cards visible */
+@media (max-width: 639px) {
   .cm-gear-strip__grid {
-    grid-auto-columns: 220px;
+    grid-auto-columns: calc(100% / 2);
   }
 }
 
+/* Tablet: 4 cards visible */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .cm-gear-strip__grid {
+    grid-auto-columns: calc(100% / 4);
+  }
+}
+
+/* Desktop 1024px+: 6 cards visible */
 @media (min-width: 1024px) {
   .cm-gear-strip__grid {
-    grid-auto-columns: 240px;
+    grid-auto-columns: calc(100% / 6);
   }
+}
+
+/* Prev / Next nav buttons */
+.cm-gear-strip__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(16, 16, 16, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  color: var(--ed-color-ink);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.cm-gear-strip__nav:hover {
+  background: var(--ed-color-ink);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  transform: translateY(calc(-50% - 1px));
+}
+
+.cm-gear-strip__nav--prev {
+  left: -1.125rem;
+}
+
+.cm-gear-strip__nav--next {
+  right: -1.125rem;
 }
 
 .cm-gear-strip__grid > * {
