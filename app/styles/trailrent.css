@@ -4653,26 +4653,24 @@ html[lang='ka'] .cm-showcase-card__meta {
 }
 
 .cm-gear-strip__grid {
-  /* Horizontal scroll track — cards stay a fixed width at all breakpoints */
+  /* Horizontal scroll — strictly fixed card width so they never stretch */
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 220px);
+  grid-auto-columns: 200px;
   gap: 0;
   overflow-x: auto;
   overflow-y: visible;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  /* Subtle scrollbar */
   scrollbar-width: thin;
-  scrollbar-color: rgba(16, 16, 16, 0.18) transparent;
-  border-top: 1px solid #2A2A2A;
-  border-left: 1px solid #2A2A2A;
-  /* Padding-bottom so hover scale doesn't get clipped */
-  padding-bottom: 0.5rem;
+  scrollbar-color: rgba(16, 16, 16, 0.15) transparent;
+  border-top: 1px solid rgba(16, 16, 16, 0.12);
+  border-left: 1px solid rgba(16, 16, 16, 0.12);
+  padding-bottom: 0.75rem;
 }
 
 .cm-gear-strip__grid::-webkit-scrollbar {
-  height: 4px;
+  height: 3px;
 }
 
 .cm-gear-strip__grid::-webkit-scrollbar-track {
@@ -4680,29 +4678,66 @@ html[lang='ka'] .cm-showcase-card__meta {
 }
 
 .cm-gear-strip__grid::-webkit-scrollbar-thumb {
-  background: rgba(16, 16, 16, 0.18);
+  background: rgba(16, 16, 16, 0.15);
   border-radius: 2px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .cm-gear-strip__grid {
-    grid-auto-columns: minmax(0, 260px);
+    grid-auto-columns: 220px;
   }
 }
 
 @media (min-width: 1024px) {
   .cm-gear-strip__grid {
-    grid-auto-columns: minmax(0, 280px);
+    grid-auto-columns: 240px;
   }
 }
 
 .cm-gear-strip__grid > * {
-  border-right: 1px solid #2A2A2A;
-  border-bottom: 1px solid #2A2A2A;
+  border-right: 1px solid rgba(16, 16, 16, 0.12);
+  border-bottom: 1px solid rgba(16, 16, 16, 0.12);
   border-radius: 0;
   background: #F7F5F0;
   box-shadow: none;
   scroll-snap-align: start;
+}
+
+/* "View all" end card at the right edge of the scroll strip */
+.cm-gear-strip__end-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 100%;
+  padding: 1.5rem 1rem;
+  background: var(--ed-color-ink);
+  color: var(--ed-color-paper);
+  text-decoration: none;
+  scroll-snap-align: start;
+  border-right: 1px solid rgba(16, 16, 16, 0.12);
+  transition: background 160ms ease;
+}
+
+.cm-gear-strip__end-card:hover {
+  background: var(--ed-color-accentCritical);
+  color: #fff;
+}
+
+.cm-gear-strip__end-label {
+  font-family: var(--cm-font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.cm-gear-strip__end-arrow {
+  font-size: 1.2rem;
 }
 
 .cm-gear-strip__empty {

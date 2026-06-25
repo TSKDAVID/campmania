@@ -23,7 +23,7 @@ export async function loader(args: Route.LoaderArgs) {
   const featuredSections = loadHomepageFeaturedSections(
     args.context.storefront,
     locale,
-    {packageLimit: 6, gearLimit: 4},
+    {packageLimit: 6, gearLimit: 10},
   ).catch(() => ({packages: [], gear: [], gearCatalog: []}));
 
   const promoSlides = args.context.storefront
@@ -113,6 +113,10 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
               }
             />
           ))}
+          <Link to="/individual-gear" className="cm-gear-strip__end-card" aria-label={isKa ? 'სრული კატალოგი' : 'View all gear'}>
+            <span className="cm-gear-strip__end-label">{isKa ? 'სრული კატალოგი' : 'View all gear'}</span>
+            <span className="cm-gear-strip__end-arrow" aria-hidden>→</span>
+          </Link>
         </div>
       ) : (
         <div className="cm-gear-strip__empty">
