@@ -975,46 +975,125 @@ body {
 }
 
 /* Account */
+/* ── Account shell ────────────────────────────────────────────────────────── */
+.cm-account-shell {
+  min-height: 100vh;
+  background: var(--ed-color-canvas);
+}
+
+/* ── Account header ───────────────────────────────────────────────────────── */
 .cm-account-header {
-  border-top: var(--cm-border);
-  border-bottom: var(--cm-border);
   background: var(--ed-color-paper);
+  border-bottom: var(--cm-border);
+  box-shadow: 0 1px 0 rgba(16, 16, 16, 0.04);
+  overflow: hidden;
+}
+
+/* Terracotta accent stripe at the very top */
+.cm-account-header-accent {
+  height: 3px;
+  background: linear-gradient(90deg, var(--ed-color-accentCritical) 0%, #E88B6F 60%, transparent 100%);
 }
 
 .cm-account-header-inner {
   margin: 0 auto;
   width: min(100%, var(--cm-layout-max));
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem var(--cm-layout-pad);
 }
 
 .cm-account-avatar {
-  border: var(--cm-border);
+  flex-shrink: 0;
+  width: 3.25rem;
+  height: 3.25rem;
   border-radius: 50%;
-  background: var(--ed-color-ink);
-  color: var(--ed-color-paper);
+  /* Terracotta gradient avatar */
+  background: linear-gradient(135deg, var(--ed-color-accentCritical), #E88B6F);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--cm-font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 12px rgba(200, 109, 83, 0.3);
 }
 
+.cm-account-header-eyebrow {
+  font-family: var(--cm-font-label);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ed-color-accentCritical);
+  margin: 0;
+}
+
+.cm-account-header-name {
+  font-family: var(--cm-font-display);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 700;
+  color: var(--ed-color-ink);
+  margin: 0.2rem 0 0;
+  line-height: 1.15;
+}
+
+.cm-account-header-email {
+  font-size: 0.8rem;
+  color: var(--ed-color-inkMute);
+  margin: 0.25rem 0 0;
+}
+
+.cm-account-header-badge {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.cm-account-header-returns {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ed-color-inkMute);
+}
+
+/* ── Account nav ──────────────────────────────────────────────────────────── */
 .cm-account-nav {
   border-bottom: var(--cm-border);
-  margin: 0 auto;
-  width: min(100%, var(--cm-layout-max));
   background: var(--ed-color-paper);
+  box-shadow: 0 2px 8px rgba(16, 16, 16, 0.04);
 }
 
 .cm-account-nav-link {
-  border-right: var(--cm-border);
-  min-height: 2.5rem;
-  padding: 0 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
   font-family: var(--cm-font-display);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: background var(--ed-motion-linearFast), color var(--ed-motion-linearFast);
+  color: var(--ed-color-inkMute);
+  border-right: var(--cm-border);
+  transition: color var(--ed-motion-linearFast), background var(--ed-motion-linearFast);
   position: relative;
+  text-decoration: none;
+}
+
+.cm-account-nav-link:hover {
+  color: var(--ed-color-ink);
+  background: rgba(16, 16, 16, 0.02);
 }
 
 .cm-account-nav-link-active {
   color: var(--ed-color-accentCritical);
-  background: transparent;
   font-weight: 700;
 }
 
@@ -1028,27 +1107,297 @@ body {
   background: var(--ed-color-accentCritical);
 }
 
-.cm-loyalty-card,
-.cm-gear-builder-account-card,
-.cm-quick-link,
-.cm-gear-builder-account-build {
-  border: var(--cm-border);
-  border-radius: 10px;
-  box-shadow: var(--cm-shadow-hardSm);
-  background: var(--ed-color-paper);
-  transition: box-shadow var(--ed-motion-linearMedium), transform var(--ed-motion-linearMedium);
+/* ── Section label ────────────────────────────────────────────────────────── */
+.cm-account-section-label {
+  font-family: var(--cm-font-label);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ed-color-inkMute);
+  margin: 0 0 0.5rem;
 }
 
-.cm-loyalty-card:hover,
-.cm-gear-builder-account-card:hover,
-.cm-quick-link:hover,
+/* ── Loyalty card ─────────────────────────────────────────────────────────── */
+.cm-loyalty-card {
+  border: var(--cm-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+  background: var(--ed-color-paper);
+}
+
+.cm-loyalty-card-banner {
+  /* Deep warm charcoal-to-brown — premium outdoor editorial feel */
+  background: linear-gradient(135deg, #0e0e0e 0%, #1e1008 50%, #321a0a 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle noise texture overlay */
+.cm-loyalty-card-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E") center/200px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.cm-loyalty-card-banner-inner {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.75rem 1.75rem 1.5rem;
+}
+
+.cm-loyalty-eyebrow {
+  font-family: var(--cm-font-label);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #E88B6F;
+  margin: 0;
+}
+
+.cm-loyalty-title {
+  font-family: var(--cm-font-display);
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  font-weight: 700;
+  color: #f5f0ea;
+  margin: 0.35rem 0 0;
+  line-height: 1.2;
+}
+
+/* Tier pills */
+.cm-loyalty-tier-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.9rem;
+  border-radius: 99px;
+  font-family: var(--cm-font-label);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cm-loyalty-tier-explorer {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(245, 240, 234, 0.85);
+}
+
+.cm-loyalty-tier-vip {
+  background: linear-gradient(135deg, #d4a847, #f0c96b);
+  color: #1a1000;
+  box-shadow: 0 2px 8px rgba(212, 168, 71, 0.4);
+}
+
+/* Loyalty body */
+.cm-loyalty-body {
+  display: grid;
+  gap: 0;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .cm-loyalty-body {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cm-loyalty-progress-section {
+  padding: 1.5rem 1.75rem;
+  border-bottom: var(--cm-border);
+}
+
+@media (min-width: 640px) {
+  .cm-loyalty-progress-section {
+    border-bottom: none;
+    border-right: var(--cm-border);
+  }
+}
+
+.cm-loyalty-verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: rgba(200, 109, 83, 0.08);
+  border: 1px solid rgba(200, 109, 83, 0.2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ed-color-accentCritical);
+}
+
+.cm-loyalty-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ed-color-inkMute);
+  margin-bottom: 0.6rem;
+}
+
+.cm-loyalty-progress-pct {
+  font-family: var(--cm-font-display);
+  font-size: 0.85rem;
+  color: var(--ed-color-accentCritical);
+}
+
+.cm-loyalty-progress-track {
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(16, 16, 16, 0.08);
+  overflow: hidden;
+}
+
+.cm-loyalty-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--ed-color-accentCritical), #E88B6F);
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cm-loyalty-progress-hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ed-color-inkMute);
+}
+
+/* Benefits column */
+.cm-loyalty-benefits {
+  padding: 1.5rem 1.75rem;
+}
+
+.cm-loyalty-benefits-label {
+  font-family: var(--cm-font-label);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ed-color-accentCritical);
+  margin: 0 0 0.9rem;
+}
+
+.cm-loyalty-benefits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cm-loyalty-benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--ed-color-ink);
+  line-height: 1.4;
+}
+
+.cm-loyalty-benefit-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: rgba(200, 109, 83, 0.1);
+  color: var(--ed-color-accentCritical);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Gear builder account card ────────────────────────────────────────────── */
+.cm-gear-builder-account-card,
+.cm-gear-builder-account-build {
+  border: var(--cm-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  background: var(--ed-color-paper);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+.cm-gear-builder-account-card {
+  padding: 1.5rem;
+}
+
+.cm-gear-builder-account-build {
+  padding: 1.1rem 1.25rem;
+}
+
 .cm-gear-builder-account-build:hover {
-  box-shadow: var(--cm-shadow-hard-md);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
+/* ── Quick links ──────────────────────────────────────────────────────────── */
+.cm-quick-link {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: var(--cm-border);
+  border-radius: 10px;
+  background: var(--ed-color-paper);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  text-decoration: none;
+  color: var(--ed-color-ink);
+  transition: box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+
+.cm-quick-link:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  border-color: rgba(200, 109, 83, 0.25);
+  text-decoration: none;
+  color: var(--ed-color-ink);
+}
+
+.cm-quick-link-icon {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: rgba(200, 109, 83, 0.08);
+  color: var(--ed-color-accentCritical);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.cm-quick-link:hover .cm-quick-link-icon {
+  background: var(--ed-color-accentCritical);
+  color: #fff;
+}
+
+.cm-quick-link-arrow {
+  color: var(--ed-color-inkMute);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.cm-quick-link:hover .cm-quick-link-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .cm-account-addresses {
-  border: var(--cm-border-strong);
+  border: var(--cm-border);
   background: var(--ed-color-paper);
   box-shadow: var(--cm-shadow-hard);
   padding: 0.9rem;

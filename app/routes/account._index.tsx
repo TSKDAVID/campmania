@@ -56,21 +56,24 @@ export default function AccountDashboard() {
     : [tr.loyalty.benefitId, tr.loyalty.benefitMetro, tr.loyalty.benefitProgress];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <div className="space-y-6 lg:col-span-2">
-        <LoyaltyCard status={loyalty} benefits={benefits} locale={locale} />
-        <SavedGearBuilderCard savedBuilds={savedBuilds} locale={locale} />
-      </div>
+    <div className="space-y-6">
+      {/* Loyalty card spans the full width — it's the hero of the dashboard */}
+      <LoyaltyCard status={loyalty} benefits={benefits} locale={locale} />
 
-      <aside className="space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-muted">
-          {tr.account.quickLinks}
-        </h2>
-        <QuickLink to="/account/orders" icon={IconBag} label={tr.account.viewOrders} />
-        <QuickLink to="/packages" icon={IconPackage} label={tr.account.bookKit} />
-        <QuickLink to="/individual-gear" icon={IconMetro} label={tr.account.browseGear} />
-        <QuickLink to="/gear-builder" icon={IconLayers} label={tr.account.editGearBuilder} />
-      </aside>
+      {/* Gear builder left, quick links right */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <SavedGearBuilderCard savedBuilds={savedBuilds} locale={locale} />
+        </div>
+
+        <aside className="space-y-2">
+          <p className="cm-account-section-label">{tr.account.quickLinks}</p>
+          <QuickLink to="/account/orders" icon={IconBag} label={tr.account.viewOrders} />
+          <QuickLink to="/packages" icon={IconPackage} label={tr.account.bookKit} />
+          <QuickLink to="/individual-gear" icon={IconMetro} label={tr.account.browseGear} />
+          <QuickLink to="/gear-builder" icon={IconLayers} label={tr.account.editGearBuilder} />
+        </aside>
+      </div>
     </div>
   );
 }
@@ -171,11 +174,11 @@ function QuickLink({
 }) {
   return (
     <Link to={to} className="cm-quick-link group">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-pine/10 text-forest transition group-hover:bg-pine group-hover:text-mist">
+      <span className="cm-quick-link-icon">
         <Icon size={18} />
       </span>
-      <span className="flex-1">{label}</span>
-      <IconArrowRight size={14} className="text-muted opacity-0 transition group-hover:opacity-100" />
+      <span className="flex-1 text-sm font-semibold">{label}</span>
+      <IconArrowRight size={14} className="cm-quick-link-arrow" />
     </Link>
   );
 }
@@ -194,14 +197,10 @@ function LoyaltyCard({
   return (
     <div className="cm-loyalty-card">
       <div className="cm-loyalty-card-banner">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="cm-loyalty-card-banner-inner">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-sage">
-              {tr.loyalty.eyebrow}
-            </p>
-            <h2 className="mt-1 font-display text-xl font-bold md:text-2xl">
-              {tr.loyalty.title}
-            </h2>
+            <p className="cm-loyalty-eyebrow">{tr.loyalty.eyebrow}</p>
+            <h2 className="cm-loyalty-title">{tr.loyalty.title}</h2>
           </div>
           <span
             className={`cm-loyalty-tier-pill ${
@@ -213,50 +212,52 @@ function LoyaltyCard({
         </div>
       </div>
 
-      <div className="p-5 md:p-6">
-        {status.isVerified ? (
-          <div className="mb-5 flex items-center gap-2 rounded-lg bg-amber/10 px-4 py-3 text-sm font-semibold text-forest">
-            <IconStar size={18} className="text-amber" />
-            {tr.loyalty.verified}
-          </div>
-        ) : (
-          <div className="mb-5">
-            <div className="mb-2 flex justify-between text-xs font-semibold uppercase tracking-wide text-muted">
-              <span>{tr.loyalty.progress}</span>
-              <span>{status.progressPercent}%</span>
+      <div className="cm-loyalty-body">
+        <div className="cm-loyalty-progress-section">
+          {status.isVerified ? (
+            <div className="cm-loyalty-verified-badge">
+              <IconStar size={16} />
+              <span>{tr.loyalty.verified}</span>
             </div>
-            <div
-              className="h-2 overflow-hidden rounded-full bg-stone"
-              role="progressbar"
-              aria-valuenow={status.progressPercent}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={tr.loyalty.progress}
-            >
+          ) : (
+            <div className="cm-loyalty-progress-wrap">
+              <div className="cm-loyalty-progress-labels">
+                <span>{tr.loyalty.progress}</span>
+                <span className="cm-loyalty-progress-pct">{status.progressPercent}%</span>
+              </div>
               <div
-                className="h-full rounded-full bg-gradient-to-r from-moss to-amber transition-all"
-                style={{width: `${status.progressPercent}%`}}
-              />
+                className="cm-loyalty-progress-track"
+                role="progressbar"
+                aria-valuenow={status.progressPercent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={tr.loyalty.progress}
+              >
+                <div
+                  className="cm-loyalty-progress-fill"
+                  style={{width: `${status.progressPercent}%`}}
+                />
+              </div>
+              <p className="cm-loyalty-progress-hint">
+                {loyaltyProgressLabel(status.returnsToNextTier, locale)}
+              </p>
             </div>
-            <p className="mt-2 text-sm text-muted">
-              {loyaltyProgressLabel(status.returnsToNextTier, locale)}
-            </p>
-          </div>
-        )}
+          )}
+        </div>
 
-        <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-moss">
-          {tr.loyalty.yourBenefits}
-        </p>
-        <ul className="space-y-2.5">
-          {benefits.map((benefit) => (
-            <li key={benefit} className="flex items-start gap-3 text-sm text-charcoal/85">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-moss/15 text-moss">
-                <IconShield size={12} />
-              </span>
-              {benefit}
-            </li>
-          ))}
-        </ul>
+        <div className="cm-loyalty-benefits">
+          <p className="cm-loyalty-benefits-label">{tr.loyalty.yourBenefits}</p>
+          <ul className="cm-loyalty-benefits-list">
+            {benefits.map((benefit) => (
+              <li key={benefit} className="cm-loyalty-benefit-item">
+                <span className="cm-loyalty-benefit-icon">
+                  <IconShield size={11} />
+                </span>
+                {benefit}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

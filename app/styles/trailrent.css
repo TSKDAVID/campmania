@@ -1065,27 +1065,27 @@
   }
 
   .cm-loyalty-card {
-    @apply overflow-hidden rounded-xl border border-stone/70 bg-white shadow-sm;
+    /* Styles handled by editorial-overhaul.css */
   }
 
   .cm-loyalty-card-banner {
-    @apply bg-gradient-to-r from-pine via-forest to-moss px-5 py-4 text-mist md:px-6 md:py-5;
+    /* Styles handled by editorial-overhaul.css */
   }
 
   .cm-loyalty-tier-pill {
-    @apply inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em];
+    /* Styles handled by editorial-overhaul.css */
   }
 
   .cm-loyalty-tier-explorer {
-    @apply bg-white/15 text-mist;
+    /* Styles handled by editorial-overhaul.css */
   }
 
   .cm-loyalty-tier-vip {
-    @apply bg-amber text-pine;
+    /* Styles handled by editorial-overhaul.css */
   }
 
   .cm-quick-link {
-    @apply flex items-center gap-3 rounded-lg border border-stone/60 bg-mist/30 px-4 py-3 text-sm font-semibold text-pine transition hover:border-moss/40 hover:bg-white no-underline hover:no-underline;
+    /* Styles handled by editorial-overhaul.css */
   }
 
   .cm-form-field {

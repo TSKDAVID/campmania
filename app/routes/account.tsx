@@ -90,31 +90,28 @@ export default function AccountLayout() {
       : 'Your account';
 
   return (
-    <div className="min-h-screen bg-mist">
+    <div className="cm-account-shell">
       <div className="cm-account-header">
+        {/* Top terracotta accent stripe */}
+        <div className="cm-account-header-accent" aria-hidden />
         <div className="cm-account-header-inner">
-          <div
-            className="cm-account-avatar"
-            aria-hidden
-          >
+          <div className="cm-account-avatar" aria-hidden>
             {customerInitials(customer.firstName, customer.lastName, email)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="tr-eyebrow">{tr.account.eyebrow}</p>
-            <h1 className="mt-1 font-display text-2xl font-bold text-pine md:text-3xl">
-              {greeting}
-            </h1>
-            <p className="mt-1 truncate text-sm text-muted">{email ?? displayName}</p>
+            <p className="cm-account-header-eyebrow">{tr.account.eyebrow}</p>
+            <h1 className="cm-account-header-name">{greeting}</h1>
+            <p className="cm-account-header-email">{email ?? displayName}</p>
           </div>
-          <div className="flex shrink-0 flex-col items-end gap-1">
+          <div className="cm-account-header-badge">
             <span
               className={`cm-loyalty-tier-pill ${
-                loyalty.isVerified ? 'cm-loyalty-tier-vip' : 'border border-stone bg-mist text-muted'
+                loyalty.isVerified ? 'cm-loyalty-tier-vip' : 'cm-loyalty-tier-explorer'
               }`}
             >
               {loyalty.isVerified ? tr.loyalty.trailTested : tr.loyalty.explorer}
             </span>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+            <span className="cm-account-header-returns">
               {loyalty.isVerified
                 ? tr.loyalty.verified
                 : locale === 'ka'
@@ -127,7 +124,7 @@ export default function AccountLayout() {
 
       <AccountMenu />
 
-      <div className="tr-page-width py-6 md:py-8">
+      <div className="tr-page-width py-8 md:py-10">
         <Outlet context={{customer, rentalOrders}} />
       </div>
     </div>
