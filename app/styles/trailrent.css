@@ -4653,31 +4653,46 @@ html[lang='ka'] .cm-showcase-card__meta {
 }
 
 .cm-gear-strip__grid {
+  /* Horizontal scroll track — cards stay a fixed width at all breakpoints */
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 220px);
   gap: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  /* Subtle scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 16, 16, 0.18) transparent;
   border-top: 1px solid #2A2A2A;
   border-left: 1px solid #2A2A2A;
+  /* Padding-bottom so hover scale doesn't get clipped */
+  padding-bottom: 0.5rem;
+}
+
+.cm-gear-strip__grid::-webkit-scrollbar {
+  height: 4px;
+}
+
+.cm-gear-strip__grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cm-gear-strip__grid::-webkit-scrollbar-thumb {
+  background: rgba(16, 16, 16, 0.18);
+  border-radius: 2px;
 }
 
 @media (min-width: 768px) {
   .cm-gear-strip__grid {
-    /* Tablet: 3 cols — avoids oversized cards */
-    grid-template-columns: repeat(3, 1fr);
+    grid-auto-columns: minmax(0, 260px);
   }
 }
 
 @media (min-width: 1024px) {
   .cm-gear-strip__grid {
-    /* Desktop: 4 cols but cards are naturally smaller in the strip context */
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .cm-gear-strip__grid {
-    /* Large desktop: 5 cols — matches the catalog page density */
-    grid-template-columns: repeat(5, 1fr);
+    grid-auto-columns: minmax(0, 280px);
   }
 }
 
@@ -4687,6 +4702,7 @@ html[lang='ka'] .cm-showcase-card__meta {
   border-radius: 0;
   background: #F7F5F0;
   box-shadow: none;
+  scroll-snap-align: start;
 }
 
 .cm-gear-strip__empty {
