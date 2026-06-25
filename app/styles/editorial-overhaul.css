@@ -499,8 +499,9 @@ body {
   border-bottom: var(--cm-border-strong);
   padding: 1.1rem;
   overflow: visible;
-  /* Establish a stacking context so z-index on cards works within section */
   position: relative;
+  /* z-index must NOT be set here — would create an isolated stacking context
+     that traps the hovering card's z-index inside the section */
 }
 
 .cm-showcase__head,
@@ -566,21 +567,29 @@ body {
 .cm-kit-card {
   border: var(--cm-border);
   border-radius: 10px;
-  overflow: hidden;
+  /* overflow: visible so the scale transform is not clipped by the card itself */
+  overflow: visible;
   box-shadow: var(--cm-shadow-hardSm);
   background: var(--ed-color-paper);
   transition: box-shadow 220ms ease, transform 220ms ease;
   position: relative;
   z-index: 1;
-  /* Ensure stacking context is established per card */
   isolation: isolate;
+}
+
+/* Inner link clips the image/body corners while the outer article can scale freely */
+.cm-kit-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 .cm-showcase-card:hover,
 .cm-kit-card:hover {
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
   transform: translateY(-6px) scale(1.05);
-  /* Pop above all sibling cards */
   z-index: 20;
 }
 
