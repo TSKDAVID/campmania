@@ -16,6 +16,11 @@ const MISSION_KA =
   'პრემიუმ სალაშქრო და სამთო ნაკრებების გაქირავება თბილისში — შერჩეული აღჭურვილობა, მკაცრი ხარისხის კონტროლი და უპრობლემო ლოგისტიკა.';
 const EYEBROW_KA = 'Camp Mania · თბილისი';
 const SCROLL_LABEL_KA = 'გადახედე ნაკრებებს';
+const HEADLINE_EN = 'Reliable gear for real mountain days.';
+const MISSION_EN =
+  'Rent premium kits in Tbilisi for routes like Tobavarchkhili and Kazbegi. Curated equipment, inspected every time, easy pickup, and clear logistics.';
+const EYEBROW_EN = 'Camp Mania · Tbilisi';
+const SCROLL_LABEL_EN = 'Browse curated kits';
 
 export function EditorialHero({promoSlides}: EditorialHeroProps) {
   return (
@@ -31,6 +36,8 @@ export function EditorialHero({promoSlides}: EditorialHeroProps) {
 }
 
 function HeroCopyColumn() {
+  const {locale} = useLocale();
+  const isKa = locale === 'ka';
   const scrollToPackages = () => {
     document
       .getElementById('home-packages')
@@ -45,7 +52,7 @@ function HeroCopyColumn() {
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.6, ease: [0.22, 1, 0.36, 1]}}
       >
-        {EYEBROW_KA}
+        {isKa ? EYEBROW_KA : EYEBROW_EN}
       </motion.p>
 
       <motion.h1
@@ -55,7 +62,7 @@ function HeroCopyColumn() {
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1]}}
       >
-        {HEADLINE_KA}
+        {isKa ? HEADLINE_KA : HEADLINE_EN}
       </motion.h1>
 
       <motion.p
@@ -64,7 +71,7 @@ function HeroCopyColumn() {
         animate={{opacity: 1, y: 0}}
         transition={{duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1]}}
       >
-        {MISSION_KA}
+        {isKa ? MISSION_KA : MISSION_EN}
       </motion.p>
 
       <motion.div
@@ -78,20 +85,20 @@ function HeroCopyColumn() {
           className="cm-hero-editorial__cta"
           onClick={scrollToPackages}
         >
-          აირჩიე ნაკრები
+          {isKa ? 'აირჩიე ნაკრები' : 'Choose a package'}
           <span aria-hidden className="cm-hero-editorial__cta-arrow">
             →
           </span>
         </button>
         <a className="cm-hero-editorial__link" href="/individual-gear">
-          ინდივიდუალური აღჭურვილობა
+          {isKa ? 'ინდივიდუალური აღჭურვილობა' : 'Individual gear'}
         </a>
       </motion.div>
 
       <div className="cm-hero-editorial__meta" aria-hidden>
         <span className="cm-hero-editorial__meta-line" />
         <span className="cm-hero-editorial__meta-label">
-          {SCROLL_LABEL_KA}
+          {isKa ? SCROLL_LABEL_KA : SCROLL_LABEL_EN}
         </span>
       </div>
     </div>

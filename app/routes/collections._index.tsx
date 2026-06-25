@@ -46,11 +46,11 @@ export default function Collections() {
   const {collections} = useLoaderData<typeof loader>();
 
   return (
-    <div className="collections">
-      <h1>Collections</h1>
+    <section className="cm-doc-page">
+      <h1 className="cm-doc-title">Collections</h1>
       <PaginatedResourceSection<CollectionFragment>
         connection={collections}
-        resourcesClassName="collections-grid"
+        resourcesClassName="cm-doc-grid"
       >
         {({node: collection, index}) => (
           <CollectionItem
@@ -60,7 +60,7 @@ export default function Collections() {
           />
         )}
       </PaginatedResourceSection>
-    </div>
+    </section>
   );
 }
 
@@ -73,7 +73,7 @@ function CollectionItem({
 }) {
   return (
     <Link
-      className="collection-item"
+      className="cm-doc-card"
       key={collection.id}
       to={`/collections/${collection.handle}`}
       prefetch="intent"
@@ -87,7 +87,7 @@ function CollectionItem({
           sizes="(min-width: 45em) 400px, 100vw"
         />
       )}
-      <h5>{collection.title}</h5>
+      <h5 style={{margin: 0}}>{collection.title}</h5>
     </Link>
   );
 }

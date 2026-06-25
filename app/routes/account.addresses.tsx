@@ -28,7 +28,7 @@ export type ActionResponse = {
 };
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: 'Addresses'}];
+  return [{title: 'Campmania | Addresses'}];
 };
 
 export async function loader({context}: Route.LoaderArgs) {
@@ -261,27 +261,22 @@ export default function Addresses() {
   const {defaultAddress, addresses} = customer;
 
   return (
-    <div className="account-addresses">
-      <h2>Addresses</h2>
-      <br />
-      <div>
-        <div>
-          <legend>Create address</legend>
+    <section className="cm-addresses-wrap">
+      <h2 style={{marginTop: 0}}>Addresses</h2>
+      <div className="cm-addresses-grid">
+        <div className="cm-address-card">
+          <legend className="cm-form-label">Create address</legend>
           <NewAddressForm key={addresses.nodes.length} />
         </div>
-        <br />
-        <hr />
-        <br />
-        {!addresses.nodes.length ? (
-          <p>You have no addresses saved.</p>
-        ) : (
-          <ExistingAddresses
-            addresses={addresses}
-            defaultAddress={defaultAddress}
-          />
-        )}
+        <ExistingAddresses
+          addresses={addresses}
+          defaultAddress={defaultAddress}
+        />
       </div>
-    </div>
+      {!addresses.nodes.length ? (
+        <p className="cm-doc-meta">You have no addresses saved.</p>
+      ) : null}
+    </section>
   );
 }
 
@@ -307,11 +302,12 @@ function NewAddressForm() {
       defaultAddress={null}
     >
       {({stateForMethod}) => (
-        <div>
+        <div className="cm-address-actions">
           <button
             disabled={stateForMethod('POST') !== 'idle'}
             formMethod="POST"
             type="submit"
+            className="tr-btn-primary"
           >
             {stateForMethod('POST') !== 'idle' ? 'Creating' : 'Create'}
           </button>
@@ -325,9 +321,18 @@ function ExistingAddresses({
   addresses,
   defaultAddress,
 }: Pick<CustomerFragment, 'addresses' | 'defaultAddress'>) {
+  if (!addresses.nodes.length) {
+    return (
+      <div className="cm-address-card">
+        <legend className="cm-form-label">Existing addresses</legend>
+        <p className="cm-doc-meta">No saved addresses yet.</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <legend>Existing addresses</legend>
+    <div className="cm-address-card">
+      <legend className="cm-form-label">Existing addresses</legend>
       {addresses.nodes.map((address) => (
         <AddressForm
           key={address.id}
@@ -336,11 +341,12 @@ function ExistingAddresses({
           defaultAddress={defaultAddress}
         >
           {({stateForMethod}) => (
-            <div>
+            <div className="cm-address-actions">
               <button
                 disabled={stateForMethod('PUT') !== 'idle'}
                 formMethod="PUT"
                 type="submit"
+                className="tr-btn-primary"
               >
                 {stateForMethod('PUT') !== 'idle' ? 'Saving' : 'Save'}
               </button>
@@ -348,6 +354,7 @@ function ExistingAddresses({
                 disabled={stateForMethod('DELETE') !== 'idle'}
                 formMethod="DELETE"
                 type="submit"
+                className="tr-btn-secondary"
               >
                 {stateForMethod('DELETE') !== 'idle' ? 'Deleting' : 'Delete'}
               </button>
@@ -376,136 +383,146 @@ export function AddressForm({
   const action = useActionData<ActionResponse>();
   const error = action?.error?.[addressId];
   const isDefaultAddress = defaultAddress?.id === addressId;
+  const idPrefix = addressId.replace(/[^a-zA-Z0-9_-]/g, '-');
+
   return (
-    <Form id={addressId}>
+    <Form id={addressId} className="cm-address-card" style={{marginTop: '0.65rem'}}>
       <fieldset>
         <input type="hidden" name="addressId" defaultValue={addressId} />
-        <label htmlFor="firstName">First name*</label>
+        <label htmlFor={`${idPrefix}-firstName`} className="cm-form-label">First name*</label>
         <input
           aria-label="First name"
           autoComplete="given-name"
           defaultValue={address?.firstName ?? ''}
-          id="firstName"
+          id={`${idPrefix}-firstName`}
           name="firstName"
           placeholder="First name"
           required
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="lastName">Last name*</label>
+        <label htmlFor={`${idPrefix}-lastName`} className="cm-form-label">Last name*</label>
         <input
           aria-label="Last name"
           autoComplete="family-name"
           defaultValue={address?.lastName ?? ''}
-          id="lastName"
+          id={`${idPrefix}-lastName`}
           name="lastName"
           placeholder="Last name"
           required
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="company">Company</label>
+        <label htmlFor={`${idPrefix}-company`} className="cm-form-label">Company</label>
         <input
           aria-label="Company"
           autoComplete="organization"
           defaultValue={address?.company ?? ''}
-          id="company"
+          id={`${idPrefix}-company`}
           name="company"
           placeholder="Company"
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="address1">Address line*</label>
+        <label htmlFor={`${idPrefix}-address1`} className="cm-form-label">Address line*</label>
         <input
           aria-label="Address line 1"
           autoComplete="address-line1"
           defaultValue={address?.address1 ?? ''}
-          id="address1"
+          id={`${idPrefix}-address1`}
           name="address1"
           placeholder="Address line 1*"
           required
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="address2">Address line 2</label>
+        <label htmlFor={`${idPrefix}-address2`} className="cm-form-label">Address line 2</label>
         <input
           aria-label="Address line 2"
           autoComplete="address-line2"
           defaultValue={address?.address2 ?? ''}
-          id="address2"
+          id={`${idPrefix}-address2`}
           name="address2"
           placeholder="Address line 2"
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="city">City*</label>
+        <label htmlFor={`${idPrefix}-city`} className="cm-form-label">City*</label>
         <input
           aria-label="City"
           autoComplete="address-level2"
           defaultValue={address?.city ?? ''}
-          id="city"
+          id={`${idPrefix}-city`}
           name="city"
           placeholder="City"
           required
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="zoneCode">State / Province*</label>
+        <label htmlFor={`${idPrefix}-zoneCode`} className="cm-form-label">State / Province*</label>
         <input
           aria-label="State/Province"
           autoComplete="address-level1"
           defaultValue={address?.zoneCode ?? ''}
-          id="zoneCode"
+          id={`${idPrefix}-zoneCode`}
           name="zoneCode"
           placeholder="State / Province"
           required
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="zip">Zip / Postal Code*</label>
+        <label htmlFor={`${idPrefix}-zip`} className="cm-form-label">Zip / Postal Code*</label>
         <input
           aria-label="Zip"
           autoComplete="postal-code"
           defaultValue={address?.zip ?? ''}
-          id="zip"
+          id={`${idPrefix}-zip`}
           name="zip"
           placeholder="Zip / Postal Code"
           required
           type="text"
+          className="cm-form-field"
         />
-        <label htmlFor="territoryCode">Country Code*</label>
+        <label htmlFor={`${idPrefix}-territoryCode`} className="cm-form-label">Country Code*</label>
         <input
           aria-label="Country code"
           autoComplete="country"
           defaultValue={address?.territoryCode ?? ''}
-          id="territoryCode"
+          id={`${idPrefix}-territoryCode`}
           name="territoryCode"
           placeholder="Country"
           required
           type="text"
           maxLength={2}
+          className="cm-form-field"
         />
-        <label htmlFor="phoneNumber">Phone</label>
+        <label htmlFor={`${idPrefix}-phoneNumber`} className="cm-form-label">Phone</label>
         <input
           aria-label="Phone Number"
           autoComplete="tel"
           defaultValue={address?.phoneNumber ?? ''}
-          id="phoneNumber"
+          id={`${idPrefix}-phoneNumber`}
           name="phoneNumber"
           placeholder="+16135551111"
           pattern="^\+?[1-9]\d{3,14}$"
           type="tel"
+          className="cm-form-field"
         />
-        <div>
+        <div className="cm-address-checkbox">
           <input
             defaultChecked={isDefaultAddress}
-            id="defaultAddress"
+            id={`${idPrefix}-defaultAddress`}
             name="defaultAddress"
             type="checkbox"
           />
-          <label htmlFor="defaultAddress">Set as default address</label>
+          <label htmlFor={`${idPrefix}-defaultAddress`}>Set as default address</label>
         </div>
         {error ? (
-          <p>
-            <mark>
-              <small>{error}</small>
-            </mark>
+          <p className="cm-inline-alert cm-inline-alert--error">
+            <small>{error}</small>
           </p>
         ) : (
-          <br />
+          <div style={{height: '0.35rem'}} />
         )}
         {children({
           stateForMethod: (method) => (formMethod === method ? state : 'idle'),

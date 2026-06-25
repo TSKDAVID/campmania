@@ -51,19 +51,13 @@ export function Header({
   return (
     <header className="cm-site-header">
       <div className="cm-site-header-inner">
-        {/* Logo */}
-        <NavLink prefetch="intent" to="/" className="group min-w-0 shrink-0" end>
-          <span className="font-display text-lg tracking-tight text-charcoal transition group-hover:text-terracotta sm:text-xl xl:text-2xl">
-            {tr.brand}
-          </span>
-          <span className="cm-brand-tagline mt-0.5 hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-muted xl:block">
-            {tr.headerLocation}
-          </span>
+        <NavLink prefetch="intent" to="/" className="cm-brand-lockup" end>
+          <span className="cm-brand-lockup__name">{tr.brand}</span>
+          <span className="cm-brand-lockup__sub">{tr.headerLocation}</span>
         </NavLink>
 
-        {/* Desktop nav */}
         <nav
-          className="cm-site-nav hidden lg:flex"
+          className="cm-site-nav"
           role="navigation"
           aria-label="Main"
         >
@@ -82,8 +76,7 @@ export function Header({
           ))}
         </nav>
 
-        {/* Actions */}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
+        <div className="cm-header-actions">
           <LanguageSwitcher />
           <AccountLink isLoggedIn={isLoggedIn} />
           <SearchToggle />
@@ -159,16 +152,12 @@ function AccountLink({isLoggedIn}: {isLoggedIn: Promise<boolean>}) {
   const {translations: tr} = useLocale();
 
   return (
-    <Suspense
-      fallback={
-        <span className="hidden text-sm text-sage sm:inline">{tr.nav.signIn}</span>
-      }
-    >
+    <Suspense fallback={<span className="cm-header-account">{tr.nav.signIn}</span>}>
       <Await resolve={isLoggedIn} errorElement={
         <NavLink
           prefetch="intent"
           to="/account/login"
-          className="hidden text-sm font-medium text-sage transition hover:text-mist no-underline hover:no-underline sm:inline"
+          className="cm-header-account"
         >
           {tr.nav.signIn}
         </NavLink>
@@ -177,7 +166,7 @@ function AccountLink({isLoggedIn}: {isLoggedIn: Promise<boolean>}) {
           <NavLink
             prefetch="intent"
             to={loggedIn ? '/account' : '/account/login'}
-            className="hidden text-sm font-medium text-sage transition hover:text-mist no-underline hover:no-underline sm:inline"
+            className="cm-header-account"
           >
             {loggedIn ? tr.nav.account : tr.nav.signIn}
           </NavLink>
@@ -238,7 +227,7 @@ function CartBadge({count}: {count: number}) {
     >
       <IconBag size={18} />
       {count > 0 ? (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber px-1 text-[10px] font-bold text-pine">
+        <span className="cm-cart-count">
           {count}
         </span>
       ) : null}

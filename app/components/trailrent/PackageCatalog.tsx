@@ -69,7 +69,7 @@ export function PackageCatalogGrid({
       <section className="cm-catalog-page bg-mist">
         <div className="tr-page-width cm-catalog-page-inner">
           {!shopifyConnected ? (
-            <p className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
+            <p className="cm-catalog-hint">
               {tr.packages.shopifySetupHint}
             </p>
           ) : null}

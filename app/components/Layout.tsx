@@ -44,7 +44,9 @@ export function Layout({
             publicStoreDomain={publicStoreDomain}
           />
         </div>
-        <main className="cm-main cm-editorial">{children}</main>
+        <main className="cm-main cm-editorial" id="main-content">
+          {children}
+        </main>
         <EditorialFooter />
       </div>
     </Aside.Provider>

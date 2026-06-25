@@ -1,4 +1,4 @@
-import {redirect, useLoaderData} from 'react-router';
+import {Link, redirect, useLoaderData} from 'react-router';
 import type {Route} from './+types/account.orders.$id';
 import {Money, Image} from '@shopify/hydrogen';
 import type {
@@ -6,6 +6,7 @@ import type {
   OrderQuery,
 } from 'customer-accountapi.generated';
 import {CUSTOMER_ORDER_QUERY} from '~/graphql/customer-account/CustomerOrderQuery';
+import {useLocale} from '~/providers/LocaleProvider';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [{title: `Order ${data?.order?.name}`}];
@@ -81,22 +82,37 @@ export default function OrderRoute() {
     discountPercentage,
     fulfillmentStatus,
   } = useLoaderData<typeof loader>();
+  const {locale} = useLocale();
+
+  const placedOn = new Intl.DateTimeFormat(locale === 'ka' ? 'ka-GE' : 'en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(order.processedAt!));
+
   return (
-    <div className="account-order">
-      <h2>Order {order.name}</h2>
-      <p>Placed on {new Date(order.processedAt!).toDateString()}</p>
-      {order.confirmationNumber && (
-        <p>Confirmation: {order.confirmationNumber}</p>
-      )}
-      <br />
-      <div>
-        <table>
+    <section className="cm-order-detail">
+      <Link to="/account/orders" className="cm-doc-back">
+        {locale === 'ka' ? '← შეკვეთებში დაბრუნება' : '← Back to orders'}
+      </Link>
+      <h2 style={{margin: '0.5rem 0 0'}}>
+        {locale === 'ka' ? 'შეკვეთა' : 'Order'} {order.name}
+      </h2>
+      <p className="cm-doc-meta">
+        {locale === 'ka' ? 'შეკვეთის თარიღი:' : 'Placed on:'} {placedOn}
+        {order.confirmationNumber
+          ? ` · ${locale === 'ka' ? 'დადასტურება' : 'Confirmation'}: ${order.confirmationNumber}`
+          : ''}
+      </p>
+      <div className="cm-order-detail-grid">
+        <div style={{overflowX: 'auto'}}>
+          <table className="cm-order-detail-table">
           <thead>
             <tr>
-              <th scope="col">Product</th>
-              <th scope="col">Price</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Total</th>
+              <th scope="col">{locale === 'ka' ? 'პროდუქტი' : 'Product'}</th>
+              <th scope="col">{locale === 'ka' ? 'ფასი' : 'Price'}</th>
+              <th scope="col">{locale === 'ka' ? 'რაოდ.' : 'Qty'}</th>
+              <th scope="col">{locale === 'ka' ? 'ჯამი' : 'Total'}</th>
             </tr>
           </thead>
           <tbody>
@@ -110,10 +126,7 @@ export default function OrderRoute() {
               discountPercentage) && (
               <tr>
                 <th scope="row" colSpan={3}>
-                  <p>Discounts</p>
-                </th>
-                <th scope="row">
-                  <p>Discounts</p>
+                  <p>{locale === 'ka' ? 'ფასდაკლება' : 'Discounts'}</p>
                 </th>
                 <td>
                   {discountPercentage ? (
@@ -126,10 +139,7 @@ export default function OrderRoute() {
             )}
             <tr>
               <th scope="row" colSpan={3}>
-                <p>Subtotal</p>
-              </th>
-              <th scope="row">
-                <p>Subtotal</p>
+                <p>{locale === 'ka' ? 'შუალედური ჯამი' : 'Subtotal'}</p>
               </th>
               <td>
                 <Money data={order.subtotal!} />
@@ -137,10 +147,7 @@ export default function OrderRoute() {
             </tr>
             <tr>
               <th scope="row" colSpan={3}>
-                Tax
-              </th>
-              <th scope="row">
-                <p>Tax</p>
+                <p>{locale === 'ka' ? 'გადასახადი' : 'Tax'}</p>
               </th>
               <td>
                 <Money data={order.totalTax!} />
@@ -148,49 +155,46 @@ export default function OrderRoute() {
             </tr>
             <tr>
               <th scope="row" colSpan={3}>
-                Total
-              </th>
-              <th scope="row">
-                <p>Total</p>
+                <p>{locale === 'ka' ? 'ჯამი' : 'Total'}</p>
               </th>
               <td>
                 <Money data={order.totalPrice!} />
               </td>
             </tr>
           </tfoot>
-        </table>
-        <div>
-          <h3>Shipping Address</h3>
+          </table>
+        </div>
+        <aside className="cm-order-side-card">
+          <h3 style={{margin: 0}}>
+            {locale === 'ka' ? 'მიწოდების მისამართი' : 'Shipping address'}
+          </h3>
           {order?.shippingAddress ? (
-            <address>
+            <address style={{fontStyle: 'normal'}}>
               <p>{order.shippingAddress.name}</p>
               {order.shippingAddress.formatted ? (
                 <p>{order.shippingAddress.formatted}</p>
-              ) : (
-                ''
-              )}
+              ) : null}
               {order.shippingAddress.formattedArea ? (
                 <p>{order.shippingAddress.formattedArea}</p>
-              ) : (
-                ''
-              )}
+              ) : null}
             </address>
           ) : (
-            <p>No shipping address defined</p>
+            <p className="cm-doc-meta">
+              {locale === 'ka'
+                ? 'მიწოდების მისამართი არ არის მითითებული'
+                : 'No shipping address defined'}
+            </p>
           )}
-          <h3>Status</h3>
-          <div>
-            <p>{fulfillmentStatus}</p>
-          </div>
-        </div>
+          <h3 style={{margin: 0}}>
+            {locale === 'ka' ? 'სტატუსი' : 'Status'}
+          </h3>
+          <p className="cm-order-status cm-order-status--neutral">{fulfillmentStatus}</p>
+          <a target="_blank" href={order.statusPageUrl} rel="noreferrer" className="cm-doc-back">
+            {locale === 'ka' ? 'სტატუსის გვერდი →' : 'Order status page →'}
+          </a>
+        </aside>
       </div>
-      <br />
-      <p>
-        <a target="_blank" href={order.statusPageUrl} rel="noreferrer">
-          View Order Status →
-        </a>
-      </p>
-    </div>
+    </section>
   );
 }
 
@@ -198,7 +202,7 @@ function OrderLineRow({lineItem}: {lineItem: OrderLineItemFullFragment}) {
   return (
     <tr key={lineItem.id}>
       <td>
-        <div>
+        <div className="cm-order-detail-line">
           {lineItem?.image && (
             <div>
               <Image data={lineItem.image} width={96} height={96} />

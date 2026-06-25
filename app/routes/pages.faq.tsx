@@ -23,21 +23,21 @@ export default function FaqPage() {
         }
         compact
       />
-      <section className="tr-section-tight bg-white">
-        <div className="tr-page-width max-w-3xl">
-          <div className="divide-y divide-stone border-y border-stone">
+      <section className="cm-content-section">
+        <div className="max-w-3xl">
+          <div className="cm-faq-list">
             {FAQ_ITEMS.map((item) => (
-              <details key={item.qEn} className="group py-4">
-                <summary className="cursor-pointer list-none font-semibold text-pine marker:content-none">
+              <details key={item.qEn} className="cm-faq-item">
+                <summary>
                   {locale === 'ka' ? item.qKa : item.qEn}
                 </summary>
-                <p className="mt-2 text-sm leading-relaxed text-muted">
+                <p>
                   {locale === 'ka' ? item.aKa : item.aEn}
                 </p>
               </details>
             ))}
           </div>
-          <p className="mt-8 text-sm text-muted">
+          <p className="cm-doc-meta mt-4">
             {locale === 'ka' ? 'კიდევ კითხვა?' : 'Still have questions?'}{' '}
             <Link to="/pages/contact" className="cm-link font-semibold">
               {locale === 'ka' ? 'დაგვიკავშირდით' : 'Contact us'}

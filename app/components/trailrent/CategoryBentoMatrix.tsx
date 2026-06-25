@@ -1,29 +1,35 @@
 import {Link} from 'react-router';
+import {useLocale} from '~/providers/LocaleProvider';
 
 type BentoTile = {
   id: string;
   href: string;
-  label: string;
+  labelKa: string;
+  labelEn: string;
   ordinal: string;
   area: 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
   icon: 'tent' | 'pack' | 'snow' | 'cook' | 'boots' | 'tools';
-  caption?: string;
+  captionKa?: string;
+  captionEn?: string;
 };
 
 const TILES_KA: BentoTile[] = [
   {
     id: 'tents',
     href: '/individual-gear?gear=tent',
-    label: 'კარვები',
+    labelKa: 'კარვები',
+    labelEn: 'Tents',
     ordinal: '01',
     area: 'a',
     icon: 'tent',
-    caption: 'მსუბუქი 2P-დან ექსპედიციამდე',
+    captionKa: 'მსუბუქი 2P-დან ექსპედიციამდე',
+    captionEn: 'From light 2P to expedition tents',
   },
   {
     id: 'backpacks',
     href: '/individual-gear?gear=backpack',
-    label: 'რუქსაკები',
+    labelKa: 'რუქსაკები',
+    labelEn: 'Backpacks',
     ordinal: '02',
     area: 'b',
     icon: 'pack',
@@ -31,16 +37,19 @@ const TILES_KA: BentoTile[] = [
   {
     id: 'sleeping',
     href: '/individual-gear?gear=sleeping',
-    label: 'საძილებლები',
+    labelKa: 'საძილებლები',
+    labelEn: 'Sleeping bags',
     ordinal: '03',
     area: 'c',
     icon: 'snow',
-    caption: 'ყველა სეზონისთვის',
+    captionKa: 'ყველა სეზონისთვის',
+    captionEn: 'Built for all seasons',
   },
   {
     id: 'kitchen',
     href: '/individual-gear?gear=kitchen',
-    label: 'სამზარეულო',
+    labelKa: 'სამზარეულო',
+    labelEn: 'Kitchen',
     ordinal: '04',
     area: 'd',
     icon: 'cook',
@@ -48,7 +57,8 @@ const TILES_KA: BentoTile[] = [
   {
     id: 'footwear',
     href: '/individual-gear?gear=shoes',
-    label: 'ფეხსაცმელი',
+    labelKa: 'ფეხსაცმელი',
+    labelEn: 'Footwear',
     ordinal: '05',
     area: 'e',
     icon: 'boots',
@@ -56,15 +66,20 @@ const TILES_KA: BentoTile[] = [
   {
     id: 'tools',
     href: '/individual-gear?gear=poles',
-    label: 'ჯოხები და დანამატები',
+    labelKa: 'ჯოხები და დანამატები',
+    labelEn: 'Poles and accessories',
     ordinal: '06',
     area: 'f',
     icon: 'tools',
-    caption: 'ტრეკინგ ჯოხები · ნავიგაცია',
+    captionKa: 'ტრეკინგ ჯოხები · ნავიგაცია',
+    captionEn: 'Trekking poles · navigation',
   },
 ];
 
 export function CategoryBentoMatrix() {
+  const {locale} = useLocale();
+  const isKa = locale === 'ka';
+
   return (
     <section
       id="home-categories"
@@ -72,22 +87,26 @@ export function CategoryBentoMatrix() {
       aria-labelledby="cm-bento-heading"
     >
       <header className="cm-bento__head">
-        <p className="cm-bento__eyebrow">04 — კატეგორიები</p>
+        <p className="cm-bento__eyebrow">
+          {isKa ? '04 — კატეგორიები' : '04 — Categories'}
+        </p>
         <h2 id="cm-bento-heading" className="cm-bento__title">
-          ინდივიდუალური აღჭურვილობა — ნებისმიერი მარშრუტისთვის.
+          {isKa
+            ? 'ინდივიდუალური აღჭურვილობა — ნებისმიერი მარშრუტისთვის.'
+            : 'Pick by category, then build your route-ready setup.'}
         </h2>
       </header>
 
       <div className="cm-bento__grid">
         {TILES_KA.map((tile) => (
-          <BentoCell key={tile.id} tile={tile} />
+          <BentoCell key={tile.id} tile={tile} isKa={isKa} />
         ))}
       </div>
     </section>
   );
 }
 
-function BentoCell({tile}: {tile: BentoTile}) {
+function BentoCell({tile, isKa}: {tile: BentoTile; isKa: boolean}) {
   return (
     <Link
       to={tile.href}
@@ -99,19 +118,21 @@ function BentoCell({tile}: {tile: BentoTile}) {
         <BentoIcon kind={tile.icon} />
       </div>
       <div className="cm-bento__foot">
-        <h3 className="cm-bento__label">{tile.label}</h3>
-        {tile.caption ? (
-          <p className="cm-bento__caption">{tile.caption}</p>
+        <h3 className="cm-bento__label">{isKa ? tile.labelKa : tile.labelEn}</h3>
+        {tile.captionKa || tile.captionEn ? (
+          <p className="cm-bento__caption">
+            {isKa ? tile.captionKa : tile.captionEn}
+          </p>
         ) : null}
         <span className="cm-bento__cta" aria-hidden>
-          ნახე →
+          {isKa ? 'ნახე →' : 'Explore →'}
         </span>
       </div>
     </Link>
   );
 }
 
-const STROKE = '#2A2A2A';
+const STROKE = '#2A2C24';
 
 function BentoIcon({kind}: {kind: BentoTile['icon']}) {
   switch (kind) {

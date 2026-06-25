@@ -31,7 +31,7 @@ export function GearCatalogGrid({
       <div className="tr-page-width cm-catalog-page-intro">
         <CatalogPageHeading title={tr.gear.title} />
         {!shopifyConnected ? (
-          <p className="mb-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
+          <p className="cm-catalog-hint">
             {tr.gear.shopifySetupHint}
           </p>
         ) : null}

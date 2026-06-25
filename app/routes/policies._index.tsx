@@ -1,6 +1,7 @@
 import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/policies._index';
 import type {PoliciesQuery, PolicyItemFragment} from 'storefrontapi.generated';
+import {useLocale} from '~/providers/LocaleProvider';
 
 export async function loader({context}: Route.LoaderArgs) {
   const data: PoliciesQuery = await context.storefront.query(POLICIES_QUERY);
@@ -23,18 +24,26 @@ export async function loader({context}: Route.LoaderArgs) {
 
 export default function Policies() {
   const {policies} = useLoaderData<typeof loader>();
+  const {locale} = useLocale();
 
   return (
-    <div className="policies">
-      <h1>Policies</h1>
-      <div>
+    <section className="cm-doc-page">
+      <h1 className="cm-doc-title">
+        {locale === 'ka' ? 'პოლიტიკები' : 'Policies'}
+      </h1>
+      <p className="cm-doc-lead">
+        {locale === 'ka'
+          ? 'შეისწავლე წესები, მიწოდება და დაბრუნების პირობები.'
+          : 'Review terms, shipping, and return policies.'}
+      </p>
+      <div className="cm-doc-grid">
         {policies.map((policy) => (
-          <fieldset key={policy.id}>
+          <article key={policy.id} className="cm-doc-card">
             <Link to={`/policies/${policy.handle}`}>{policy.title}</Link>
-          </fieldset>
+          </article>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 

@@ -91,9 +91,11 @@ export default function CollectionRoute() {
   const {collection} = data;
 
   return (
-    <div className="collection">
-      <h1>{collection.title}</h1>
-      <p className="collection-description">{collection.description}</p>
+    <section className="cm-doc-page">
+      <h1 className="cm-doc-title">{collection.title}</h1>
+      {collection.description ? (
+        <p className="cm-doc-lead">{collection.description}</p>
+      ) : null}
       <PaginatedResourceSection<ProductItemFragment>
         connection={collection.products}
         resourcesClassName="cm-catalog-grid"
@@ -114,7 +116,7 @@ export default function CollectionRoute() {
           },
         }}
       />
-    </div>
+    </section>
   );
 }
 

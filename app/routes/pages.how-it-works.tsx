@@ -25,8 +25,8 @@ export default function HowItWorksPage() {
       />
       <HowItWorksSection />
       <WhyUsSection />
-      <section className="tr-section-tight bg-mist">
-        <div className="tr-page-width text-center">
+      <section className="cm-content-section">
+        <div className="text-center">
           <Link to="/packages" className="tr-btn-primary">
             {tr.hero.ctaPackages}
           </Link>

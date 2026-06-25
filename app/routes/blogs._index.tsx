@@ -3,6 +3,7 @@ import type {Route} from './+types/blogs._index';
 import {getPaginationVariables} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import type {BlogsQuery} from 'storefrontapi.generated';
+import {useLocale} from '~/providers/LocaleProvider';
 
 type BlogNode = BlogsQuery['blogs']['nodes'][0];
 
@@ -52,15 +53,21 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export default function Blogs() {
   const {blogs} = useLoaderData<typeof loader>();
+  const {locale} = useLocale();
 
   return (
-    <div className="blogs">
-      <h1>Blogs</h1>
-      <div className="blogs-grid">
+    <section className="cm-doc-page">
+      <h1 className="cm-doc-title">{locale === 'ka' ? 'ბლოგი' : 'Journal'}</h1>
+      <p className="cm-doc-lead">
+        {locale === 'ka'
+          ? 'მარშრუტები, აღჭურვილობის რჩევები და საველე პრაქტიკა.'
+          : 'Route notes, gear insights, and field-tested advice.'}
+      </p>
+      <div className="cm-doc-grid">
         <PaginatedResourceSection<BlogNode> connection={blogs}>
           {({node: blog}) => (
             <Link
-              className="blog"
+              className="cm-doc-card"
               key={blog.handle}
               prefetch="intent"
               to={`/blogs/${blog.handle}`}
@@ -70,7 +77,7 @@ export default function Blogs() {
           )}
         </PaginatedResourceSection>
       </div>
-    </div>
+    </section>
   );
 }
 

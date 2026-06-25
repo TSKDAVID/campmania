@@ -25,7 +25,7 @@ const REVIEWS = [
 ];
 
 export function HowItWorksSection() {
-  const {locale, translations: tr} = useLocale();
+  const {translations: tr} = useLocale();
   const steps = [
     {title: tr.howItWorks.step1, desc: tr.howItWorks.step1Desc},
     {title: tr.howItWorks.step2, desc: tr.howItWorks.step2Desc},
@@ -34,18 +34,18 @@ export function HowItWorksSection() {
   ];
 
   return (
-    <section className="tr-section bg-white">
-      <div className="tr-page-width">
-        <SectionHeading eyebrow={tr.howItWorks.eyebrow} title={tr.howItWorks.title} center />
-        <div className="grid gap-6 md:grid-cols-4">
-          {steps.map((step, i) => (
-            <div key={step.title} className="tr-card p-5">
-              <span className="text-3xl font-bold text-amber/60">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="mt-3 font-display text-lg font-semibold">{step.title}</h3>
-              <p className="mt-2 text-sm text-muted">{step.desc}</p>
-            </div>
-          ))}
-        </div>
+    <section className="cm-content-section">
+      <SectionHeading eyebrow={tr.howItWorks.eyebrow} title={tr.howItWorks.title} center />
+      <div className="cm-content-grid cm-content-grid--steps">
+        {steps.map((step, i) => (
+          <article key={step.title} className="cm-step-card">
+            <span className="cm-step-card__index">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <h3>{step.title}</h3>
+            <p>{step.desc}</p>
+          </article>
+        ))}
       </div>
     </section>
   );
@@ -90,26 +90,22 @@ export function WhyUsSection() {
   const {locale, translations: tr} = useLocale();
 
   return (
-    <section className="tr-section">
-      <div className="tr-page-width">
-        <SectionHeading eyebrow={tr.whyUs.eyebrow} title={tr.whyUs.title} />
-        <div className="grid gap-5 md:grid-cols-2">
-          {WHY_ITEMS.map((item) => (
-            <div key={item.titleEn} className="flex gap-4 rounded-xl border border-stone/60 bg-white p-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-pine/10 text-forest">
-                <item.Icon size={22} />
-              </span>
-              <div>
-                <h3 className="font-display text-lg font-semibold">
-                  {locale === 'ka' ? item.titleKa : item.titleEn}
-                </h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted">
-                  {locale === 'ka' ? item.descKa : item.descEn}
-                </p>
-              </div>
+    <section className="cm-content-section">
+      <SectionHeading eyebrow={tr.whyUs.eyebrow} title={tr.whyUs.title} />
+      <div className="cm-why-grid">
+        {WHY_ITEMS.map((item) => (
+          <article key={item.titleEn} className="cm-why-card">
+            <span className="cm-why-card__icon">
+              <item.Icon size={22} />
+            </span>
+            <div>
+              <h3>{locale === 'ka' ? item.titleKa : item.titleEn}</h3>
+              <p className="cm-doc-lead">
+                {locale === 'ka' ? item.descKa : item.descEn}
+              </p>
             </div>
-          ))}
-        </div>
+          </article>
+        ))}
       </div>
     </section>
   );

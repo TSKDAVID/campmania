@@ -169,12 +169,12 @@ export function ProductTrustBar({isTrustedTier = false}: {isTrustedTier?: boolea
     ...(!isTrustedTier
       ? [{Icon: IconShield, label: tr.trust.deposit, tone: 'moss' as const}]
       : []),
-    {Icon: IconMetro, label: tr.trust.metro, tone: 'forest' as const},
+    {Icon: IconMetro, label: tr.trust.metro, tone: 'cool' as const},
     {Icon: IconStar, label: tr.trust.loyalty, tone: 'amber' as const},
   ];
 
   return (
-    <ul className="cm-product-trust" role="list">
+    <ul className="cm-product-trust">
       {items.map(({Icon, label, tone}) => (
         <li key={label} className="cm-product-trust-item">
           <span
