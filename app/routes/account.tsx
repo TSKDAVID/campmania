@@ -170,7 +170,7 @@ function Logout() {
     <Form className="ml-auto shrink-0" method="POST" action="/account/logout">
       <button
         type="submit"
-        className="px-4 py-3.5 text-sm font-semibold text-muted transition hover:text-pine"
+        className="px-4 py-3.5 text-sm font-semibold text-muted transition hover:text-pine uppercase tracking-[0.08em]"
       >
         {tr.account.signOut}
       </button>

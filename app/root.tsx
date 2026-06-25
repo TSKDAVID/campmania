@@ -16,6 +16,7 @@ import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
+import rebuildStyles from './styles/campmania-rebuild.css?url';
 import {Layout as SiteLayout} from './components/Layout';
 import {
   LocaleProvider,
@@ -23,7 +24,6 @@ import {
 } from './providers/LocaleProvider';
 import {DEFAULT_LOCALE} from './lib/trailrent/i18n';
 import {GearBuilderProvider} from './providers/GearBuilderProvider';
-import {editorialTokenCssText} from './styles/editorial-tokens';
 
 export type RootLoader = typeof loader;
 
@@ -61,6 +61,7 @@ export function links() {
     {rel: 'stylesheet', href: tailwindCss},
     {rel: 'stylesheet', href: resetStyles},
     {rel: 'stylesheet', href: appStyles},
+    {rel: 'stylesheet', href: rebuildStyles},
     {rel: 'stylesheet', href: FONTS_STYLESHEET},
     {
       rel: 'preconnect',
@@ -170,9 +171,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <style nonce={nonce} id="cm-editorial-tokens">
-          {editorialTokenCssText}
-        </style>
         <Meta />
         <Links />
       </head>
@@ -222,14 +220,12 @@ export function ErrorBoundary() {
   }
 
   return (
-    <div className="route-error">
-      <h1>Oops</h1>
-      <h2>{errorStatus}</h2>
-      {errorMessage && (
-        <fieldset>
-          <pre>{errorMessage}</pre>
-        </fieldset>
-      )}
-    </div>
+    <section className="cm-not-found">
+      <div className="cm-not-found__card">
+        <p className="cm-not-found__eyebrow">Error</p>
+        <h1>{errorStatus}</h1>
+        <p>{errorMessage || 'Something went wrong.'}</p>
+      </div>
+    </section>
   );
 }

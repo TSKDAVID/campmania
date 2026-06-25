@@ -1,7 +1,7 @@
 import {Await, Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/_index';
 import {Suspense} from 'react';
-import {useLocale} from '~/providers/LocaleProvider';
+import {getLocaleFromRequest, useLocale} from '~/providers/LocaleProvider';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
 import {EditorialHero} from '~/components/trailrent/EditorialHero';
@@ -16,7 +16,6 @@ import {
   HOMEPAGE_PROMO_SLIDES_QUERY,
   parseHomepagePromoSlides,
 } from '~/lib/trailrent/homepagePromo';
-import {getLocaleFromRequest} from '~/providers/LocaleProvider';
 
 export async function loader(args: Route.LoaderArgs) {
   const locale = getLocaleFromRequest(args.request);
@@ -40,12 +39,44 @@ export const meta: Route.MetaFunction = () => [
 
 export default function Homepage() {
   const {featuredSections, promoSlides} = useLoaderData<typeof loader>();
+  const {locale} = useLocale();
+  const isKa = locale === 'ka';
 
   return (
     <div className="cm-home overflow-x-hidden">
       <EditorialHero promoSlides={promoSlides} />
 
       <BrandTicker />
+
+      <section className="cm-home-proposition">
+        <div className="cm-home-proposition__inner">
+          <p className="cm-home-proposition__eyebrow">
+            {isKa ? 'რატომ Campmania' : 'Why Campmania'}
+          </p>
+          <h2 className="cm-home-proposition__title">
+            {isKa
+              ? 'სანდო აღჭურვილობა. სწრაფი აღება. მშვიდი მზადება მარშრუტისთვის.'
+              : 'Reliable gear. Quick pickup. Calm trail preparation.'}
+          </h2>
+          <div className="cm-home-proposition__points">
+            <p>
+              {isKa
+                ? 'ყველა ნივთი ინსპექტირდება გაცემამდე.'
+                : 'Every item is inspected before handoff.'}
+            </p>
+            <p>
+              {isKa
+                ? 'ნაკრებები მორგებულია რეალურ კავკასიურ ბილიკებზე.'
+                : 'Kits are curated for real Caucasus routes.'}
+            </p>
+            <p>
+              {isKa
+                ? 'დაჯავშნე, აიღე მეტროს ჰაბში და წადი.'
+                : 'Book, pick up at metro, and head out.'}
+            </p>
+          </div>
+        </div>
+      </section>
 
       <Suspense fallback={<HomepageDeferredSkeleton />}>
         <Await resolve={featuredSections}>
@@ -81,8 +112,8 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
         </p>
         <h2 id="cm-gear-strip-heading" className="cm-gear-strip__title">
           {isKa
-            ? 'შეარჩიე ცალკეული აღჭურვილობა.'
-            : 'Hand-picked individual gear.'}
+            ? 'შეარჩიე კონკრეტული ნივთები შენი მარშრუტისთვის.'
+            : 'Select individual pieces for your exact route.'}
         </h2>
         <Link to="/individual-gear" className="cm-gear-strip__link">
           <span>{isKa ? 'სრული კატალოგი' : 'Full catalog'}</span>
@@ -140,8 +171,8 @@ function HomepageDeferredSkeleton() {
         </div>
         <div className="cm-showcase__track">
           <ol className="cm-showcase__rail">
-            {Array.from({length: 3}).map((_, index) => (
-              <li key={index} className="cm-showcase__cell">
+            {['one', 'two', 'three'].map((slot) => (
+              <li key={slot} className="cm-showcase__cell">
                 <div className="cm-showcase-card cm-showcase-card--skeleton">
                   <div className="cm-showcase-card__media" />
                 </div>
@@ -153,8 +184,8 @@ function HomepageDeferredSkeleton() {
 
       <section className="cm-bento cm-bento--skeleton" aria-hidden>
         <div className="cm-bento__grid">
-          {Array.from({length: 6}).map((_, index) => (
-            <div key={index} className="cm-bento__cell cm-bento__cell--skeleton" />
+          {['a', 'b', 'c', 'd', 'e', 'f'].map((slot) => (
+            <div key={slot} className="cm-bento__cell cm-bento__cell--skeleton" />
           ))}
         </div>
       </section>

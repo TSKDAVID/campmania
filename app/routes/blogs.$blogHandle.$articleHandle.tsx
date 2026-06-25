@@ -1,7 +1,8 @@
-import {useLoaderData} from 'react-router';
+import {Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/blogs.$blogHandle.$articleHandle';
 import {Image} from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {useLocale} from '~/providers/LocaleProvider';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [{title: `Campmania | ${data?.article.title ?? ''} article`}];
@@ -68,6 +69,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 export default function Article() {
   const {article} = useLoaderData<typeof loader>();
   const {title, image, contentHtml, author} = article;
+  const {locale} = useLocale();
 
   const publishedDate = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -76,21 +78,20 @@ export default function Article() {
   }).format(new Date(article.publishedAt));
 
   return (
-    <div className="article">
-      <h1>
-        {title}
-        <div>
-          <time dateTime={article.publishedAt}>{publishedDate}</time> &middot;{' '}
-          <address>{author?.name}</address>
-        </div>
-      </h1>
-
-      {image && <Image data={image} sizes="90vw" loading="eager" />}
-      <div
-        dangerouslySetInnerHTML={{__html: contentHtml}}
-        className="article"
-      />
-    </div>
+    <article className="cm-doc-page">
+      <Link to="/blogs" className="cm-doc-back">
+        {locale === 'ka' ? '← უკან ბლოგში' : '← Back to blog'}
+      </Link>
+      <header className="cm-doc-card">
+        <h1 className="cm-doc-title">{title}</h1>
+        <p className="cm-doc-meta">
+          <time dateTime={article.publishedAt}>{publishedDate}</time>
+          {author?.name ? ` · ${author.name}` : ''}
+        </p>
+        {image && <Image data={image} sizes="90vw" loading="eager" />}
+      </header>
+      <div dangerouslySetInnerHTML={{__html: contentHtml}} className="cm-doc-body" />
+    </article>
   );
 }
 

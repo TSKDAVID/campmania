@@ -4,6 +4,7 @@ import {Image, getPaginationVariables} from '@shopify/hydrogen';
 import type {ArticleItemFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {useLocale} from '~/providers/LocaleProvider';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [{title: `Campmania | ${data?.blog.title ?? ''} blog`}];
@@ -63,11 +64,15 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 export default function Blog() {
   const {blog} = useLoaderData<typeof loader>();
   const {articles} = blog;
+  const {locale} = useLocale();
 
   return (
-    <div className="blog">
-      <h1>{blog.title}</h1>
-      <div className="blog-grid">
+    <section className="cm-doc-page">
+      <h1 className="cm-doc-title">{blog.title}</h1>
+      <p className="cm-doc-lead">
+        {locale === 'ka' ? 'სტატიები ამ თემაზე.' : 'Articles in this series.'}
+      </p>
+      <div className="cm-doc-grid">
         <PaginatedResourceSection<ArticleItemFragment> connection={articles}>
           {({node: article, index}) => (
             <ArticleItem
@@ -78,7 +83,7 @@ export default function Blog() {
           )}
         </PaginatedResourceSection>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -89,16 +94,17 @@ function ArticleItem({
   article: ArticleItemFragment;
   loading?: HTMLImageElement['loading'];
 }) {
+  const {locale} = useLocale();
   const publishedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   }).format(new Date(article.publishedAt!));
   return (
-    <div className="blog-article" key={article.id}>
+    <article className="cm-doc-card" key={article.id}>
       <Link to={`/blogs/${article.blog.handle}/${article.handle}`}>
         {article.image && (
-          <div className="blog-article-image">
+          <div>
             <Image
               alt={article.image.altText || article.title}
               aspectRatio="3/2"
@@ -109,9 +115,11 @@ function ArticleItem({
           </div>
         )}
         <h3>{article.title}</h3>
-        <small>{publishedAt}</small>
+        <small className="cm-doc-meta">
+          {locale === 'ka' ? 'გამოქვეყნება:' : 'Published:'} {publishedAt}
+        </small>
       </Link>
-    </div>
+    </article>
   );
 }
 

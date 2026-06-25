@@ -3,6 +3,7 @@ import type {Route} from './+types/cart';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
 import {CartForm} from '@shopify/hydrogen';
 import {CartMain} from '~/components/CartMain';
+import {useLocale} from '~/providers/LocaleProvider';
 
 export const meta: Route.MetaFunction = () => {
   return [{title: `Campmania | Cart`}];
@@ -103,14 +104,12 @@ export async function loader({context}: Route.LoaderArgs) {
 
 export default function Cart() {
   const cart = useLoaderData<typeof loader>();
+  const {locale} = useLocale();
 
   return (
-    <section className="cm-cart-page tr-page-width">
-      <header className="cm-cart-page__head">
-        <p className="cm-page-kicker">Cart Ledger</p>
-        <h1 className="cm-page-title">Cart</h1>
-      </header>
+    <div className="cart">
+      <h1>{locale === 'ka' ? 'კალათა' : 'Cart'}</h1>
       <CartMain layout="page" cart={cart} />
-    </section>
+    </div>
   );
 }

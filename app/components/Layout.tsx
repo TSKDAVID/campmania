@@ -44,10 +44,10 @@ export function Layout({
             publicStoreDomain={publicStoreDomain}
           />
         </div>
-        <div className="cm-site-body-grid">
-          <main className="cm-main cm-editorial">{children}</main>
-          <EditorialFooter />
-        </div>
+        <main className="cm-main cm-editorial" id="main-content">
+          {children}
+        </main>
+        <EditorialFooter />
       </div>
     </Aside.Provider>
   );

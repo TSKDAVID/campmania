@@ -65,8 +65,8 @@ export function Aside({
       hidden={!expanded}
     >
       <button className="close-outside" onClick={close} aria-label="Close" />
-      <aside className={isCart ? 'cm-cart-drawer' : undefined}>
-        <header className={isCart ? 'cm-cart-drawer__header' : undefined}>
+      <aside className={isCart ? 'cm-cart-drawer' : 'cm-panel-drawer'}>
+        <header className={isCart ? 'cm-cart-drawer__header' : 'cm-panel-drawer__header'}>
           <div className="cm-cart-drawer__header-main">
             {isCart ? (
               <span className="cm-cart-drawer__header-icon" aria-hidden>
@@ -84,7 +84,7 @@ export function Aside({
             {isCart ? <IconX size={20} /> : <span aria-hidden>&times;</span>}
           </button>
         </header>
-        <main className={isCart ? 'cm-cart-drawer__main' : undefined}>{children}</main>
+        <main className={isCart ? 'cm-cart-drawer__main' : 'cm-panel-drawer__main'}>{children}</main>
       </aside>
     </div>
   );

@@ -1,5 +1,6 @@
 import {useCallback, useState, Suspense} from 'react';
 import {Await} from 'react-router';
+import {motion, AnimatePresence} from 'framer-motion';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
   getFallbackHomepagePromoSlides,
@@ -15,6 +16,11 @@ const MISSION_KA =
   'პრემიუმ სალაშქრო და სამთო ნაკრებების გაქირავება თბილისში — შერჩეული აღჭურვილობა, მკაცრი ხარისხის კონტროლი და უპრობლემო ლოგისტიკა.';
 const EYEBROW_KA = 'Camp Mania · თბილისი';
 const SCROLL_LABEL_KA = 'გადახედე ნაკრებებს';
+const HEADLINE_EN = 'Reliable gear for real mountain days.';
+const MISSION_EN =
+  'Rent premium kits in Tbilisi for routes like Tobavarchkhili and Kazbegi. Curated equipment, inspected every time, easy pickup, and clear logistics.';
+const EYEBROW_EN = 'Camp Mania · Tbilisi';
+const SCROLL_LABEL_EN = 'Browse curated kits';
 
 export function EditorialHero({promoSlides}: EditorialHeroProps) {
   return (
@@ -30,46 +36,69 @@ export function EditorialHero({promoSlides}: EditorialHeroProps) {
 }
 
 function HeroCopyColumn() {
+  const {locale} = useLocale();
+  const isKa = locale === 'ka';
   const scrollToPackages = () => {
     document
       .getElementById('home-packages')
-      ?.scrollIntoView({behavior: 'auto', block: 'start'});
+      ?.scrollIntoView({behavior: 'smooth', block: 'start'});
   };
 
   return (
     <div className="cm-hero-editorial__copy">
-      <p className="cm-hero-editorial__eyebrow">
-        {EYEBROW_KA}
-      </p>
+      <motion.p
+        className="cm-hero-editorial__eyebrow"
+        initial={{opacity: 0, y: 12}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.6, ease: [0.22, 1, 0.36, 1]}}
+      >
+        {isKa ? EYEBROW_KA : EYEBROW_EN}
+      </motion.p>
 
-      <h1 id="cm-hero-headline" className="cm-hero-editorial__headline">
-        {HEADLINE_KA}
-      </h1>
+      <motion.h1
+        id="cm-hero-headline"
+        className="cm-hero-editorial__headline"
+        initial={{opacity: 0, y: 18}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1]}}
+      >
+        {isKa ? HEADLINE_KA : HEADLINE_EN}
+      </motion.h1>
 
-      <p className="cm-hero-editorial__mission">
-        {MISSION_KA}
-      </p>
+      <motion.p
+        className="cm-hero-editorial__mission"
+        initial={{opacity: 0, y: 16}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1]}}
+      >
+        {isKa ? MISSION_KA : MISSION_EN}
+      </motion.p>
 
-      <div className="cm-hero-editorial__actions">
+      <motion.div
+        className="cm-hero-editorial__actions"
+        initial={{opacity: 0, y: 16}}
+        animate={{opacity: 1, y: 0}}
+        transition={{duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1]}}
+      >
         <button
           type="button"
           className="cm-hero-editorial__cta"
           onClick={scrollToPackages}
         >
-          აირჩიე ნაკრები
+          {isKa ? 'აირჩიე ნაკრები' : 'Choose a package'}
           <span aria-hidden className="cm-hero-editorial__cta-arrow">
             →
           </span>
         </button>
         <a className="cm-hero-editorial__link" href="/individual-gear">
-          ინდივიდუალური აღჭურვილობა
+          {isKa ? 'ინდივიდუალური აღჭურვილობა' : 'Individual gear'}
         </a>
-      </div>
+      </motion.div>
 
       <div className="cm-hero-editorial__meta" aria-hidden>
         <span className="cm-hero-editorial__meta-line" />
         <span className="cm-hero-editorial__meta-label">
-          {SCROLL_LABEL_KA}
+          {isKa ? SCROLL_LABEL_KA : SCROLL_LABEL_EN}
         </span>
       </div>
     </div>
@@ -103,15 +132,27 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
     locale === 'ka' ? 'მთავარი ბანერი' : 'Homepage banner carousel';
 
   return (
-    <aside className="cm-hero-billboard" aria-label={carouselLabel}>
+    <motion.aside
+      className="cm-hero-billboard"
+      aria-label={carouselLabel}
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      transition={{duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1]}}
+    >
       <div className="cm-hero-billboard__frame">
-        <img
-          key={slide.id ?? slide.title}
-          src={slide.imageUrl}
-          alt={slide.imageAlt ?? slide.title}
-          className="cm-hero-billboard__image"
-          loading="eager"
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={slide.id ?? slide.title}
+            src={slide.imageUrl}
+            alt={slide.imageAlt ?? slide.title}
+            className="cm-hero-billboard__image"
+            loading="eager"
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            exit={{opacity: 0}}
+            transition={{duration: 0.45, ease: [0.22, 1, 0.36, 1]}}
+          />
+        </AnimatePresence>
 
         {slide.badge ? (
           <span className="cm-hero-billboard__corner-badge">{slide.badge}</span>
@@ -173,7 +214,7 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
           </button>
         </div>
       ) : null}
-    </aside>
+    </motion.aside>
   );
 }
 

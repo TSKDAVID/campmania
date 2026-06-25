@@ -10,18 +10,18 @@ export function LanguageSwitcher() {
   const {locale, setLocale} = useLocale();
 
   return (
-    <div className="cm-locale-switcher">
+    <div className="cm-locale-switcher" role="group" aria-label="Language">
       <button
         type="button"
         onClick={() => setLocale('ka')}
-        className={`cm-locale-btn ${locale === 'ka' ? 'cm-locale-btn--active' : ''}`}
+        aria-pressed={locale === 'ka'}
       >
         ქარ
       </button>
       <button
         type="button"
         onClick={() => setLocale('en')}
-        className={`cm-locale-btn ${locale === 'en' ? 'cm-locale-btn--active' : ''}`}
+        aria-pressed={locale === 'en'}
       >
         EN
       </button>

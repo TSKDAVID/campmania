@@ -45,50 +45,43 @@ export function Header({
   isLoggedIn,
   cart,
 }: HeaderProps) {
-  const {translations: tr, locale} = useLocale();
+  const {translations: tr} = useLocale();
   const navItems = useCampmaniaNav();
 
   return (
     <header className="cm-site-header">
-      <div className="cm-site-header-grid tr-page-width">
-        <div className="cm-site-header-meta-row">
-          <div className="cm-site-header-brand-cell">
-            <NavLink prefetch="intent" to="/" className="cm-brand-block" end>
-              <span className="cm-brand-logotype">{tr.brand}</span>
-              <span className="cm-brand-tagline">
-                {tr.headerLocation} · {locale.toUpperCase()}
-              </span>
+      <div className="cm-site-header-inner">
+        <NavLink prefetch="intent" to="/" className="cm-brand-lockup" end>
+          <span className="cm-brand-lockup__name">{tr.brand}</span>
+          <span className="cm-brand-lockup__sub">{tr.headerLocation}</span>
+        </NavLink>
+
+        <nav
+          className="cm-site-nav"
+          role="navigation"
+          aria-label="Main"
+        >
+          {navItems.map((item) => (
+            <NavLink
+              key={item.id}
+              to={item.to}
+              end={item.end}
+              prefetch="intent"
+              className={({isActive}) =>
+                `cm-nav-link ${isActive ? 'cm-nav-link-active' : ''}`
+              }
+            >
+              {item.label}
             </NavLink>
-          </div>
-          <div className="cm-site-header-utility-cell">
-            <span className="cm-site-header-edition">
-              {locale === 'ka' ? 'რედაქცია 2026' : 'Editorial 2026'}
-            </span>
-            <div className="cm-site-header-actions">
-              <LanguageSwitcher />
-              <AccountLink isLoggedIn={isLoggedIn} />
-              <SearchToggle />
-              <CartToggle cart={cart} />
-              <HeaderMenuMobileToggle />
-            </div>
-          </div>
-        </div>
-        <div className="cm-site-header-nav-row">
-          <nav className="cm-site-nav hidden lg:flex" role="navigation" aria-label="Main">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.to}
-                end={item.end}
-                prefetch="intent"
-                className={({isActive}) =>
-                  `cm-nav-link ${isActive ? 'cm-nav-link-active' : ''}`
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
+          ))}
+        </nav>
+
+        <div className="cm-header-actions">
+          <LanguageSwitcher />
+          <AccountLink isLoggedIn={isLoggedIn} />
+          <SearchToggle />
+          <CartToggle cart={cart} />
+          <HeaderMenuMobileToggle />
         </div>
       </div>
     </header>
@@ -159,16 +152,12 @@ function AccountLink({isLoggedIn}: {isLoggedIn: Promise<boolean>}) {
   const {translations: tr} = useLocale();
 
   return (
-    <Suspense
-      fallback={
-        <span className="hidden text-sm text-sage sm:inline">{tr.nav.signIn}</span>
-      }
-    >
+    <Suspense fallback={<span className="cm-header-account">{tr.nav.signIn}</span>}>
       <Await resolve={isLoggedIn} errorElement={
         <NavLink
           prefetch="intent"
           to="/account/login"
-          className="cm-account-link"
+          className="cm-header-account"
         >
           {tr.nav.signIn}
         </NavLink>
@@ -177,7 +166,7 @@ function AccountLink({isLoggedIn}: {isLoggedIn: Promise<boolean>}) {
           <NavLink
             prefetch="intent"
             to={loggedIn ? '/account' : '/account/login'}
-            className="cm-account-link"
+            className="cm-header-account"
           >
             {loggedIn ? tr.nav.account : tr.nav.signIn}
           </NavLink>
@@ -238,7 +227,7 @@ function CartBadge({count}: {count: number}) {
     >
       <IconBag size={18} />
       {count > 0 ? (
-        <span className="cm-cart-badge-count absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center px-1 text-[10px] font-bold text-pine">
+        <span className="cm-cart-count">
           {count}
         </span>
       ) : null}

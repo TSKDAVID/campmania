@@ -30,7 +30,7 @@ export function CuratedPackagesShowcase({packages}: CuratedPackagesShowcaseProps
     const step = card ? card.offsetWidth : track.clientWidth * 0.72;
     track.scrollBy({
       left: direction === 'next' ? step : -step,
-      behavior: 'auto',
+      behavior: 'smooth',
     });
   }, []);
 
