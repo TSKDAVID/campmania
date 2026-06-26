@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState, type ReactNode} from 'react';
 import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
@@ -13,8 +13,6 @@ import {
 } from '~/components/trailrent/Icons';
 import {RentalDateRangePicker} from '~/components/trailrent/RentalDateRangePicker';
 import {
-  DeliverySelector,
-  HOME_DELIVERY_FEE,
   TBILISI_METRO_STATIONS,
   type DeliveryOption,
 } from '~/components/trailrent/DeliverySelector';
@@ -50,6 +48,10 @@ export type RentalProductFormProps = {
   compact?: boolean;
   /** Two-column booking layout for full-width solo product pages. */
   layout?: 'stacked' | 'wide';
+  /** Optional actions beside the booking header (e.g. gear builder shortcuts). */
+  headerActions?: ReactNode;
+  /** Price display rendered inside the booking card header. */
+  priceSlot?: ReactNode;
 };
 
 export function buildRentalLineAttributes(options: {
@@ -153,23 +155,21 @@ export function RentalProductForm({
   onModeChange,
   compact = false,
   layout = 'stacked',
+  headerActions,
+  priceSlot,
 }: RentalProductFormProps) {
   const {translations: tr} = useLocale();
   const defaults = getDefaultDateRange();
 
   const [startDate, setStartDate] = useState(defaults.start);
   const [endDate, setEndDate] = useState(defaults.end);
-  const [deliveryOption, setDeliveryOption] = useState<DeliveryOption>('metro');
-  const [metroId, setMetroId] = useState(
-    TBILISI_METRO_STATIONS[0]?.id ?? 'rustaveli',
-  );
-  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [mode, setMode] = useState<FulfillmentMode>('rent');
 
   const showBuyToggle = buyAvailable && purchasePrice > 0;
   const isRentMode = mode === 'rent';
-  const deliveryFee =
-    deliveryOption === 'home' && isRentMode ? HOME_DELIVERY_FEE : 0;
+  const deliveryOption: DeliveryOption = 'metro';
+  const metroId = TBILISI_METRO_STATIONS[0]?.id ?? 'rustaveli';
+  const deliveryFee = 0;
   const hasRentToOwnCredit =
     rentToOwnOffer?.eligible === true &&
     (rentToOwnOffer.rentalCredit ?? 0) > 0;
@@ -179,8 +179,6 @@ export function RentalProductForm({
   }, [mode, onModeChange]);
 
   const datesValid = isDateRangeValid(startDate, endDate);
-  const deliveryReady =
-    deliveryOption === 'metro' || deliveryAddress.trim().length > 0;
 
   const rentalPricing = useMemo(
     () => calculateRentalTotal(dailyRate, startDate, endDate),
@@ -211,7 +209,7 @@ export function RentalProductForm({
           endDate,
           deliveryOption,
           metroId,
-          deliveryAddress,
+          deliveryAddress: '',
           deliveryFee,
           rentalCredit: hasRentToOwnCredit ? rentToOwnOffer?.rentalCredit : undefined,
           rentalDays: rentalPricing.days,
@@ -236,7 +234,6 @@ export function RentalProductForm({
       endDate,
       deliveryOption,
       metroId,
-      deliveryAddress,
       deliveryFee,
       hasRentToOwnCredit,
       isRentMode,
@@ -249,10 +246,7 @@ export function RentalProductForm({
   );
 
   const canSubmit = isRentMode
-    ? rentVariantAvailable &&
-      !rentExceedsInventory &&
-      datesValid &&
-      deliveryReady
+    ? rentVariantAvailable && !rentExceedsInventory && datesValid
     : showBuyToggle && purchasePrice > 0;
 
   const displayTotal = isRentMode
@@ -268,7 +262,15 @@ export function RentalProductForm({
       className={`cm-rental-form${compact ? ' cm-rental-form--compact' : ''}${layout === 'wide' ? ' cm-rental-form--wide' : ''}`}
     >
       <header className="cm-rental-form-header">
-        <p className="cm-rental-form-eyebrow">{tr.booking.title}</p>
+        <div className="cm-rental-form-header__lead">
+          <p className="cm-rental-form-eyebrow">{tr.booking.title}</p>
+          {priceSlot ? (
+            <div className="cm-rental-form-price">{priceSlot}</div>
+          ) : null}
+        </div>
+        {headerActions ? (
+          <div className="cm-rental-form-header__actions">{headerActions}</div>
+        ) : null}
         {!compact ? (
           <h2 className="cm-rental-form-title">{productTitle}</h2>
         ) : null}
@@ -344,17 +346,6 @@ export function RentalProductForm({
               </div>
             </div>
           </div>
-
-          <div className="cm-rental-field">
-            <DeliverySelector
-              option={deliveryOption}
-              onOptionChange={setDeliveryOption}
-              metroStationId={metroId}
-              onMetroStationChange={setMetroId}
-              address={deliveryAddress}
-              onAddressChange={setDeliveryAddress}
-            />
-          </div>
         </div>
 
         <div className="cm-rental-form-checkout">
@@ -374,14 +365,6 @@ export function RentalProductForm({
                       {formatGel(rentalPricing.subtotal)}
                     </span>
                   </div>
-                  {deliveryFee > 0 ? (
-                    <div className="cm-rental-summary-row">
-                      <span>{tr.pages.delivery}</span>
-                      <span className="cm-rental-summary-amount">
-                        {formatGel(deliveryFee)}
-                      </span>
-                    </div>
-                  ) : null}
                 </>
               ) : (
                 <div className="cm-rental-summary-row">
@@ -406,7 +389,7 @@ export function RentalProductForm({
 
           {!isTrustedTier ? (
             <p className="cm-rental-notice">
-              <IconShield size={18} className="shrink-0 text-moss" />
+              <IconShield size={14} className="shrink-0 text-moss" />
               <span>{tr.booking.idNotice}</span>
             </p>
           ) : null}
@@ -448,7 +431,7 @@ export function RentalProductForm({
                     }}
                     className="tr-btn-primary cm-rental-submit disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <IconCart size={18} />
+                    <IconCart size={16} />
                     {!rentVariantAvailable && isRentMode
                       ? tr.booking.unavailable
                       : canSubmit

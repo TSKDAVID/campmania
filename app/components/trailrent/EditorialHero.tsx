@@ -18,8 +18,13 @@ const SCROLL_LABEL_KA = 'გადახედე ნაკრებებს';
 const AUTO_ADVANCE_MS = 3000;
 
 export function EditorialHero({promoSlides}: EditorialHeroProps) {
+  const {locale} = useLocale();
+
   return (
-    <section className="cm-hero-editorial" aria-labelledby="cm-hero-headline">
+    <section
+      className="cm-hero-editorial"
+      aria-label={locale === 'ka' ? 'მთავარი ბანერი' : 'Homepage hero'}
+    >
       <HeroCopyColumn />
       <Suspense fallback={<HeroBillboardSkeleton />}>
         <Await resolve={promoSlides}>

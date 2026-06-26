@@ -72,14 +72,16 @@ export function RentalDateRangePicker({
         <span className="cm-date-range-icon" aria-hidden>
           <IconCalendar size={18} />
         </span>
-        <div className="min-w-0 flex-1">
+        <div className="cm-date-range-header__main">
           <p className="cm-date-range-label">{tr.booking.dates}</p>
           <p id={summaryId} className="cm-date-range-summary">
-            {formatRentalDate(startDate, locale)}
-            <span className="cm-date-range-arrow" aria-hidden>
-              →
+            <span className="cm-date-range-summary__date">
+              {formatRentalDate(startDate, locale)}
             </span>
-            {formatRentalDate(endDate, locale)}
+            <span className="cm-date-range-arrow" aria-hidden />
+            <span className="cm-date-range-summary__date">
+              {formatRentalDate(endDate, locale)}
+            </span>
           </p>
         </div>
         <span className="cm-date-range-badge">
