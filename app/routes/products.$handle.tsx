@@ -33,7 +33,6 @@ import {
   ProductInlinePrice,
   ProductPricingExtras,
   ProductTechnicalSpecs,
-  ProductTrustBar,
 } from '~/components/trailrent/ProductPageSections';
 import {AddToGearBuilderButton} from '~/components/trailrent/AddToGearBuilderButton';
 import {useLocale} from '~/providers/LocaleProvider';
@@ -274,8 +273,6 @@ export default function Product() {
         }
       : undefined;
 
-  const kitSummary = product.kitSummary?.value?.trim();
-  const productSubtitle = kitSummary || product.description?.trim();
   const savingsPercent =
     !buyAvailable &&
     displayCompareAt > displayDailyRate &&
@@ -433,19 +430,14 @@ export default function Product() {
     <article className="cm-product-page cm-pdp-editorial">
       <div className="cm-pdp-editorial__inner">
         <div className="cm-pdp-editorial__grid">
-          <aside className="cm-pdp-editorial__media" aria-label={title}>
+          <div className="cm-pdp-editorial__media">
             <ProductImage
               images={galleryImages}
               image={selectedVariant?.image ?? rentVariant?.image}
               title={title}
               variant={isSoloProduct ? 'solo' : 'kit'}
             />
-            {descriptionHtml?.trim() ? (
-              <div className="cm-pdp-editorial__media-specs">
-                <ProductTechnicalSpecs html={descriptionHtml} />
-              </div>
-            ) : null}
-          </aside>
+          </div>
 
           <div className="cm-pdp-editorial__details">
             <header>
@@ -453,29 +445,7 @@ export default function Product() {
                 {isPackage ? tr.packages.eyebrow : tr.product.rental}
               </p>
               <h1 className="cm-pdp-editorial__title">{title}</h1>
-              {productSubtitle ? (
-                <p className="cm-editorial-body mt-2">{productSubtitle}</p>
-              ) : null}
-              <div className="cm-pdp-editorial__price-row mt-4">
-                <ProductInlinePrice
-                  fulfillmentMode={fulfillmentMode}
-                  rentPrice={displayRentPrice}
-                  buyPrice={buyPriceMoney}
-                  buyAvailable={buyAvailable}
-                  compareAtPrice={displayCompareAtPrice}
-                />
-                <ProductPricingExtras
-                  fulfillmentMode={fulfillmentMode}
-                  rentPrice={displayRentPrice}
-                  compareAtPrice={displayCompareAtPrice}
-                  savingsPercent={savingsPercent}
-                  buyAvailable={buyAvailable}
-                  variant="inline"
-                />
-              </div>
             </header>
-
-            <ProductTrustBar isTrustedTier={trustedTier} />
 
             {includedItems.length > 0 ? (
               <div className="cm-pdp-section">
@@ -493,13 +463,35 @@ export default function Product() {
                   {...bookingFormProps}
                   layout={isPackage ? 'stacked' : 'wide'}
                   compact
+                  priceSlot={
+                    <>
+                      <ProductInlinePrice
+                        fulfillmentMode={fulfillmentMode}
+                        rentPrice={displayRentPrice}
+                        buyPrice={buyPriceMoney}
+                        buyAvailable={buyAvailable}
+                        compareAtPrice={displayCompareAtPrice}
+                      />
+                      <ProductPricingExtras
+                        fulfillmentMode={fulfillmentMode}
+                        rentPrice={displayRentPrice}
+                        compareAtPrice={displayCompareAtPrice}
+                        savingsPercent={savingsPercent}
+                        buyAvailable={buyAvailable}
+                        variant="inline"
+                      />
+                    </>
+                  }
+                  headerActions={
+                    builderProduct ? (
+                      <AddToGearBuilderButton
+                        product={builderProduct}
+                        variantId={rentVariant?.id}
+                        layout="toolbar"
+                      />
+                    ) : null
+                  }
                 />
-                {builderProduct ? (
-                  <AddToGearBuilderButton
-                    product={builderProduct}
-                    variantId={rentVariant?.id}
-                  />
-                ) : null}
               </div>
             ) : (
               <p className="cm-product-unavailable">
@@ -509,6 +501,12 @@ export default function Product() {
               </p>
             )}
           </div>
+
+          {descriptionHtml?.trim() ? (
+            <div className="cm-pdp-editorial__specs">
+              <ProductTechnicalSpecs html={descriptionHtml} />
+            </div>
+          ) : null}
         </div>
       </div>
 
