@@ -2,28 +2,25 @@ import {Link} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 
 export function EditorialFooter() {
-  const {locale, translations: tr} = useLocale();
+  const {translations: tr} = useLocale();
   const year = new Date().getFullYear();
   const ft = tr.footer;
 
   return (
     <footer className="cm-editorial-footer">
-      <div className="cm-editorial-footer__services">
-        <div className="cm-editorial-footer__service">{ft.serviceGear}</div>
-        <div className="cm-editorial-footer__service">{ft.serviceMetro}</div>
-        <div className="cm-editorial-footer__service">{ft.serviceDelivery}</div>
-      </div>
+      <div className="tr-page-width cm-editorial-footer__inner">
+        <ul className="cm-editorial-footer__services">
+          <li>{ft.serviceGear}</li>
+          <li>{ft.serviceMetro}</li>
+          <li>{ft.serviceDelivery}</li>
+        </ul>
 
-      <div className="cm-editorial-footer__main">
         <div className="cm-editorial-footer__grid">
           <div className="cm-editorial-footer__brand-col">
             <Link to="/" className="cm-editorial-footer__brand">
               {tr.brand}
             </Link>
             <p className="cm-editorial-footer__tagline">{ft.tagline}</p>
-            <Link to="/packages" className="cm-editorial-footer__cta">
-              {ft.browseCta} →
-            </Link>
           </div>
 
           <div className="cm-editorial-footer__col">
@@ -60,11 +57,8 @@ export function EditorialFooter() {
           </div>
 
           <div className="cm-editorial-footer__col">
-            <h4>{ft.getInTouch}</h4>
+            <h4>{ft.contact}</h4>
             <ul>
-              <li>
-                <Link to="/pages/contact">{ft.contact}</Link>
-              </li>
               <li className="cm-editorial-footer__meta">{ft.location}</li>
               <li className="cm-editorial-footer__meta">{ft.hours}</li>
               <li>
@@ -74,12 +68,11 @@ export function EditorialFooter() {
           </div>
         </div>
 
-        <div className="cm-editorial-footer__bottom">
+        <div className="cm-editorial-footer__fine-print">
           <p className="cm-editorial-footer__copy">
             © {year} {tr.brand} — {ft.rights}
           </p>
           <nav aria-label={ft.legal}>
-            <Link to="/pages/faq">{tr.pages.faq}</Link>
             <Link to="/policies/terms-of-service">{ft.terms}</Link>
             <Link to="/policies/privacy-policy">{ft.privacy}</Link>
             <Link to="/policies/refund-policy">{ft.returns}</Link>

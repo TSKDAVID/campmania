@@ -241,6 +241,181 @@ export function PackageFiltersPanel({
   );
 }
 
+export function GearFiltersPanel({
+  options,
+  resultCount,
+  totalCount,
+  paramName = 'gear',
+}: {
+  options: readonly FilterOption[];
+  resultCount: number;
+  totalCount: number;
+  paramName?: string;
+}) {
+  const {locale, translations: tr} = useLocale();
+  const [params, setParams] = useSearchParams();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const active = params.get(paramName);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
+  const setCategory = (value: string | null) => {
+    if (!value) setParams({}, {preventScrollReset: true});
+    else setParams({[paramName]: value}, {preventScrollReset: true});
+  };
+
+  const activeOption = active
+    ? options.find((opt) => opt.value === active)
+    : undefined;
+
+  const categoryButtons = (
+    <>
+      <button
+        type="button"
+        onClick={() => setCategory(null)}
+        className={`cm-filter-pill ${!active ? 'cm-filter-pill-active' : ''}`}
+        aria-pressed={!active}
+      >
+        {locale === 'ka' ? 'ყველა' : 'All'}
+      </button>
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => setCategory(opt.value)}
+          className={`cm-filter-pill ${active === opt.value ? 'cm-filter-pill-active' : ''}`}
+          aria-pressed={active === opt.value}
+        >
+          {locale === 'ka' ? opt.labelKa : opt.labelEn}
+        </button>
+      ))}
+    </>
+  );
+
+  return (
+    <>
+      <div className="cm-gear-filters-mobile lg:hidden">
+        <div className="cm-filter-mobile-toolbar">
+          <button
+            type="button"
+            className="cm-filter-mobile-trigger"
+            onClick={() => setMobileOpen(true)}
+            aria-expanded={mobileOpen}
+          >
+            <IconFilter size={16} />
+            <span>{tr.packages.filters}</span>
+            {active ? <span className="cm-filter-mobile-badge">1</span> : null}
+          </button>
+          <p className="cm-filter-mobile-count">
+            {tr.packages.showing} {resultCount}/{totalCount}
+          </p>
+        </div>
+
+        {activeOption ? (
+          <div className="cm-filter-active-chips">
+            <button
+              type="button"
+              className="cm-filter-active-chip"
+              onClick={() => setCategory(null)}
+            >
+              {locale === 'ka' ? activeOption.labelKa : activeOption.labelEn}
+              <IconX size={12} />
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {mobileOpen ? (
+        <div className="cm-filter-sheet" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            className="cm-filter-sheet-backdrop"
+            aria-label={tr.booking.close}
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="cm-filter-sheet-panel">
+            <div className="cm-filter-sheet-header">
+              <h2 className="cm-filter-sheet-title">{tr.packages.filters}</h2>
+              <button
+                type="button"
+                className="cm-filter-sheet-close"
+                onClick={() => setMobileOpen(false)}
+                aria-label={tr.booking.close}
+              >
+                <IconX size={18} />
+              </button>
+            </div>
+            <div className="cm-filter-sheet-body">
+              <div className="cm-filter-pills cm-filter-pills--stack">
+                {categoryButtons}
+              </div>
+            </div>
+            <div className="cm-filter-sheet-footer">
+              {active ? (
+                <button
+                  type="button"
+                  className="cm-filter-sheet-clear"
+                  onClick={() => setCategory(null)}
+                >
+                  {tr.packages.clearAll}
+                </button>
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                className="cm-filter-sheet-apply"
+                onClick={() => setMobileOpen(false)}
+              >
+                {tr.packages.showResults} ({resultCount})
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="cm-gear-filters-desktop hidden lg:block">
+        <div
+          className="cm-filter-panel cm-filter-panel--sidebar"
+          role="region"
+          aria-label={tr.packages.filters}
+        >
+          <div className="cm-filter-panel-header cm-filter-panel-header--catalog">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-pine">{tr.packages.filters}</p>
+              <p className="cm-filter-panel-meta">
+                {tr.packages.showing} {resultCount} / {totalCount}
+              </p>
+            </div>
+            {active ? (
+              <button
+                type="button"
+                onClick={() => setCategory(null)}
+                className="cm-filter-clear shrink-0"
+              >
+                <IconX size={14} />
+                {tr.packages.clearAll}
+              </button>
+            ) : null}
+          </div>
+          <div className="cm-filter-panel-body">
+            <div className="cm-filter-pills cm-filter-pills--stack">
+              {categoryButtons}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function GearFiltersBar({
   options,
   paramName = 'gear',

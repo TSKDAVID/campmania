@@ -504,7 +504,7 @@ export default function Product() {
 
           {descriptionHtml?.trim() ? (
             <div className="cm-pdp-editorial__specs">
-              <ProductTechnicalSpecs html={descriptionHtml} />
+              <ProductTechnicalSpecs html={descriptionHtml} variant="editorial" />
             </div>
           ) : null}
         </div>

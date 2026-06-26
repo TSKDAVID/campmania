@@ -11,7 +11,6 @@ import {
   useRouteLoaderData,
 } from 'react-router';
 import type {Route} from './+types/root';
-import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
@@ -24,6 +23,8 @@ import {
 import {DEFAULT_LOCALE} from './lib/trailrent/i18n';
 import {GearBuilderProvider} from './providers/GearBuilderProvider';
 import {editorialTokenCssText} from './styles/editorial-tokens';
+import {FaviconLink} from './components/FaviconLink';
+import {FAVICON_HREF} from './lib/favicon';
 
 export type RootLoader = typeof loader;
 
@@ -79,7 +80,6 @@ export function links() {
       href: 'https://fonts.gstatic.com',
       crossOrigin: 'anonymous',
     },
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
   ];
 }
 
@@ -175,9 +175,16 @@ export function Layout({children}: {children?: React.ReactNode}) {
         </style>
         <Meta />
         <Links />
+        <link
+          rel="icon"
+          type="image/svg+xml"
+          href={FAVICON_HREF}
+          sizes="any"
+        />
       </head>
       <body>
         {children}
+        <FaviconLink />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>

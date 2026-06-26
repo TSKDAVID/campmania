@@ -1,5 +1,5 @@
 import {Suspense} from 'react';
-import {Await, NavLink, useAsyncValue} from 'react-router';
+import {Await, Form, NavLink, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
   useAnalytics,
@@ -45,36 +45,24 @@ export function Header({
   isLoggedIn,
   cart,
 }: HeaderProps) {
-  const {translations: tr, locale} = useLocale();
+  const {translations: tr} = useLocale();
   const navItems = useCampmaniaNav();
 
   return (
     <header className="cm-site-header">
       <div className="cm-site-header-grid tr-page-width">
-        <div className="cm-site-header-meta-row">
+        <div className="cm-site-header-main-row">
           <div className="cm-site-header-brand-cell">
             <NavLink prefetch="intent" to="/" className="cm-brand-block" end>
               <span className="cm-brand-logotype">{tr.brand}</span>
-              <span className="cm-brand-tagline">
-                {tr.headerLocation} · {locale.toUpperCase()}
-              </span>
             </NavLink>
           </div>
-          <div className="cm-site-header-utility-cell">
-            <span className="cm-site-header-edition">
-              {locale === 'ka' ? 'რედაქცია 2026' : 'Editorial 2026'}
-            </span>
-            <div className="cm-site-header-actions">
-              <LanguageSwitcher />
-              <AccountLink isLoggedIn={isLoggedIn} />
-              <SearchToggle />
-              <CartToggle cart={cart} />
-              <HeaderMenuMobileToggle />
-            </div>
-          </div>
-        </div>
-        <div className="cm-site-header-nav-row">
-          <nav className="cm-site-nav hidden lg:flex" role="navigation" aria-label="Main">
+
+          <nav
+            className="cm-site-nav cm-site-header-nav hidden lg:flex"
+            role="navigation"
+            aria-label="Main"
+          >
             {navItems.map((item) => (
               <NavLink
                 key={item.id}
@@ -89,6 +77,18 @@ export function Header({
               </NavLink>
             ))}
           </nav>
+
+          <div className="cm-site-header-end">
+            <div className="cm-site-header-search-cell">
+              <HeaderSearch />
+            </div>
+            <div className="cm-site-header-actions">
+              <LanguageSwitcher />
+              <AccountLink isLoggedIn={isLoggedIn} />
+              <CartToggle cart={cart} />
+              <HeaderMenuMobileToggle />
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -187,6 +187,34 @@ function AccountLink({isLoggedIn}: {isLoggedIn: Promise<boolean>}) {
   );
 }
 
+function HeaderSearch() {
+  const {translations: tr} = useLocale();
+
+  return (
+    <Form
+      method="get"
+      action="/search"
+      className="cm-header-search"
+      role="search"
+    >
+      <label className="sr-only" htmlFor="header-search-input">
+        {tr.nav.search}
+      </label>
+      <span className="cm-header-search__icon" aria-hidden>
+        <IconSearch size={17} />
+      </span>
+      <input
+        id="header-search-input"
+        type="search"
+        name="q"
+        className="cm-header-search__input"
+        placeholder={tr.home.searchPlaceholder}
+        autoComplete="off"
+      />
+    </Form>
+  );
+}
+
 function HeaderMenuMobileToggle() {
   const {open} = useAside();
   return (
@@ -198,20 +226,6 @@ function HeaderMenuMobileToggle() {
     >
       <IconMenu size={18} />
     </button>
-  );
-}
-
-function SearchToggle() {
-  const {translations: tr} = useLocale();
-  return (
-    <NavLink
-      to="/search"
-      prefetch="intent"
-      className="cm-icon-btn"
-      aria-label={tr.nav.search}
-    >
-      <IconSearch size={18} />
-    </NavLink>
   );
 }
 

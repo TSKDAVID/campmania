@@ -171,7 +171,7 @@
   }
 
   .cm-icon-btn {
-    @apply flex h-8 w-8 items-center justify-center rounded-none border border-charcoal/20 text-charcoal transition hover:border-terracotta hover:text-terracotta no-underline hover:no-underline sm:h-9 sm:w-9;
+    @apply flex h-8 w-8 items-center justify-center rounded-none border-0 text-charcoal transition no-underline hover:no-underline sm:h-9 sm:w-9;
   }
 
   /* ── Mobile navigation drawer ────────────────────────────────────────── */
@@ -335,6 +335,19 @@
 
   .cm-filter-pills--scroll {
     @apply flex flex-wrap gap-1.5;
+  }
+
+  .cm-filter-pills--stack {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+
+  .cm-filter-pills--stack .cm-filter-pill {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
   }
 
   @media (max-width: 1023px) {
@@ -507,10 +520,20 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .cm-catalog-layout--gear {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   @media (min-width: 1024px) {
     .cm-catalog-layout--packages {
       grid-template-columns: 240px minmax(0, 1fr);
       gap: 1.25rem;
+      align-items: start;
+    }
+
+    .cm-catalog-layout--gear {
+      grid-template-columns: 15.5rem minmax(0, 1fr);
+      gap: 2rem;
       align-items: start;
     }
 
@@ -532,6 +555,21 @@
     .cm-catalog-layout--packages .cm-catalog-main {
       grid-column: 2;
       grid-row: 2;
+    }
+
+    .cm-gear-filters-desktop {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .cm-catalog-layout--gear .cm-gear-filters-mobile {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+
+    .cm-catalog-layout--gear .cm-catalog-main {
+      grid-column: 2;
+      grid-row: 1;
     }
   }
 
@@ -560,15 +598,35 @@
   }
 
   @media (min-width: 768px) {
-    .cm-catalog-grid:not(.cm-catalog-grid--packages) {
+    .cm-catalog-grid:not(.cm-catalog-grid--packages):not(.cm-catalog-grid--gear) {
       gap: 0.875rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cm-catalog-grid--gear {
+      gap: 0.75rem;
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
   @media (min-width: 1024px) {
-    /* Individual gear: 5 columns (~28% smaller than 4-col baseline) */
-    .cm-catalog-grid:not(.cm-catalog-grid--packages) {
+    /* Individual gear: 5 columns with left sidebar */
+    .cm-catalog-grid--gear {
+      gap: 0.75rem;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .cm-catalog-grid--gear {
+      gap: 0.875rem;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    /* Legacy non-gear grids without --gear modifier */
+    .cm-catalog-grid:not(.cm-catalog-grid--packages):not(.cm-catalog-grid--gear) {
       gap: 1rem;
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
@@ -883,6 +941,62 @@
 
   .cm-kit-card--product .cm-kit-card-image--contain {
     @apply px-1 py-1.5 sm:px-1.5 sm:py-2 md:px-2 md:py-2.5;
+  }
+
+  /* Gear catalog + homepage strip — compact, minimal product cards */
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-media,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-media {
+    aspect-ratio: 1 / 1;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-image--contain,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-image--contain {
+    @apply px-1 py-1 sm:px-1.5 sm:py-1.5;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-body,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-body {
+    @apply gap-0 px-2 pb-2 pt-1.5 sm:px-2.5 sm:pb-2.5 sm:pt-2;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-title,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-title {
+    @apply text-[0.68rem] font-semibold leading-snug sm:text-[0.72rem];
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-footer,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-footer {
+    @apply mt-1 gap-1 border-t-0 pt-0;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-price,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-price {
+    @apply text-xs sm:text-sm;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-price .text-sm,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-price .text-sm {
+    @apply text-[10px] sm:text-[11px];
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-arrow,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-arrow {
+    @apply h-5 w-5 bg-transparent text-charcoal/55 sm:h-5 sm:w-5;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card--product .cm-kit-card-arrow svg,
+  .cm-gear-strip__grid .cm-kit-card--product .cm-kit-card-arrow svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .cm-catalog-grid--gear .cm-kit-card-link:hover .cm-kit-card-arrow,
+  .cm-gear-strip__grid .cm-kit-card-link:hover .cm-kit-card-arrow {
+    @apply bg-transparent text-forest;
   }
 
   .cm-kit-card-reveal {
@@ -4535,7 +4649,7 @@ html[lang='ka'] .cm-ticker__item {
 .cm-showcase__track {
   position: relative;
   width: 100%;
-  border-top: 1px solid #2A2A2A;
+  border-top: none;
   border-bottom: 1px solid #2A2A2A;
   overflow-x: auto;
   overflow-y: hidden;
@@ -4544,9 +4658,8 @@ html[lang='ka'] .cm-ticker__item {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #2A2A2A transparent;
-  /* Internal padding absorbs hover lift so cards are not clipped at the top edge */
-  margin-top: -1rem;
-  padding-top: 1.25rem;
+  margin-top: 0;
+  padding-top: 0.35rem;
   padding-bottom: 1rem;
 }
 
@@ -4554,8 +4667,8 @@ html[lang='ka'] .cm-ticker__item {
   position: relative;
   z-index: 2;
   overflow: visible;
-  margin-top: -0.75rem;
-  padding-top: 0.75rem;
+  margin-top: 0;
+  padding-top: 0.35rem;
 }
 
 .cm-showcase__controls {
@@ -5122,31 +5235,27 @@ html[lang='ka'] .cm-showcase-card__meta {
   position: relative;
   z-index: 2;
   overflow: visible;
-  margin-top: -0.75rem;
-  /* Room above/below so hovered cards can grow without clipping */
-  padding-top: 1rem;
+  margin-top: 0;
+  padding-top: 0.35rem;
   padding-bottom: 0.25rem;
 }
 
 .cm-gear-strip__grid {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc(100% / 6);
-  gap: 0;
+  grid-auto-columns: calc((100% - 3rem) / 5);
+  gap: 0.75rem;
   overflow-x: auto;
-  /* overflow-x:auto would force overflow-y:auto if visible — clip Y so wheel scrolls the page */
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   scroll-behavior: auto;
   cursor: grab;
   scrollbar-width: none;
-  border-top: 1px solid rgba(16, 16, 16, 0.12);
-  border-left: 1px solid rgba(16, 16, 16, 0.12);
+  border: none;
   touch-action: pan-x;
   user-select: none;
-  margin-top: -1rem;
-  /* Internal padding absorbs hover lift so nothing spills into a Y scrollport */
-  padding-top: 1.25rem;
+  margin-top: 0;
+  padding-top: 0.35rem;
   padding-bottom: 0.75rem;
 }
 
@@ -5175,14 +5284,14 @@ html[lang='ka'] .cm-showcase-card__meta {
 /* Mobile: 2 cards */
 @media (max-width: 639px) {
   .cm-gear-strip__grid {
-    grid-auto-columns: calc(100% / 2);
+    grid-auto-columns: calc((100% - 0.75rem) / 2);
   }
 }
 
-/* Tablet: 4 cards */
+/* Tablet: 3 cards */
 @media (min-width: 640px) and (max-width: 1023px) {
   .cm-gear-strip__grid {
-    grid-auto-columns: calc(100% / 4);
+    grid-auto-columns: calc((100% - 1.5rem) / 3);
   }
 }
 
@@ -5237,10 +5346,9 @@ html[lang='ka'] .cm-showcase-card__meta {
 }
 
 .cm-gear-strip__grid > * {
-  border-right: 1px solid rgba(16, 16, 16, 0.12);
-  border-bottom: 1px solid rgba(16, 16, 16, 0.12);
-  border-radius: 0;
-  background: #F7F5F0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
   box-shadow: none;
   scroll-snap-align: start;
   position: relative;
@@ -5252,10 +5360,7 @@ html[lang='ka'] .cm-showcase-card__meta {
   z-index: 25;
 }
 
-/* Softer hover inside the strip — stays inside overflow-y:hidden bounds */
 .cm-gear-strip__grid .cm-kit-card:hover {
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.14);
   z-index: 25;
 }
 
@@ -5272,7 +5377,8 @@ html[lang='ka'] .cm-showcase-card__meta {
   color: var(--ed-color-paper);
   text-decoration: none;
   scroll-snap-align: start;
-  border-right: 1px solid rgba(16, 16, 16, 0.12);
+  border: none;
+  border-radius: 8px;
   transition: background 160ms ease;
 }
 
