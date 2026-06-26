@@ -1,6 +1,6 @@
 import {Await, Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/_index';
-import {Suspense, useRef, useCallback} from 'react';
+import {Suspense, useRef, useCallback, useEffect} from 'react';
 import {useLocale} from '~/providers/LocaleProvider';
 import {CatalogProductCard} from '~/components/trailrent/CatalogProductCard';
 import {PriceWithCompare} from '~/components/trailrent/PriceWithCompare';
@@ -70,7 +70,12 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
   const perDay = isKa ? '/ დღე' : '/ day';
 
   const trackRef = useRef<HTMLDivElement>(null);
-  const dragState = useRef({dragging: false, startX: 0, scrollLeft: 0});
+  const dragRef = useRef({
+    active: false,
+    moved: false,
+    startX: 0,
+    scrollLeft: 0,
+  });
 
   const scrollBy = useCallback((dir: 'prev' | 'next') => {
     const el = trackRef.current;
@@ -80,28 +85,90 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
     el.scrollBy({left: dir === 'next' ? step : -step, behavior: 'smooth'});
   }, []);
 
-  const onMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
-    dragState.current = {dragging: true, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft};
-    el.style.cursor = 'grabbing';
-    el.style.userSelect = 'none';
-  }, []);
 
-  const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!dragState.current.dragging) return;
-    const el = trackRef.current;
-    if (!el) return;
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - dragState.current.startX) * 1.4;
-    el.scrollLeft = dragState.current.scrollLeft - walk;
-  }, []);
+    const endDrag = (pointerId?: number) => {
+      if (!dragRef.current.active) return;
+      dragRef.current.active = false;
+      el.style.cursor = 'grab';
+      el.style.userSelect = '';
+      el.style.scrollSnapType = '';
+      if (
+        pointerId != null &&
+        typeof el.hasPointerCapture === 'function' &&
+        el.hasPointerCapture(pointerId)
+      ) {
+        el.releasePointerCapture(pointerId);
+      }
+    };
 
-  const onMouseUp = useCallback(() => {
-    dragState.current.dragging = false;
-    const el = trackRef.current;
-    if (el) { el.style.cursor = 'grab'; el.style.userSelect = ''; }
-  }, []);
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragRef.current.active) return;
+      if (e.pointerType === 'mouse' && e.buttons === 0) {
+        endDrag(e.pointerId);
+        return;
+      }
+      e.preventDefault();
+      const delta = e.clientX - dragRef.current.startX;
+      if (Math.abs(delta) > 5) dragRef.current.moved = true;
+      el.scrollLeft = dragRef.current.scrollLeft - delta;
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      endDrag(e.pointerId);
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      dragRef.current = {
+        active: true,
+        moved: false,
+        startX: e.clientX,
+        scrollLeft: el.scrollLeft,
+      };
+      el.setPointerCapture(e.pointerId);
+      el.style.cursor = 'grabbing';
+      el.style.userSelect = 'none';
+      el.style.scrollSnapType = 'none';
+    };
+
+    const onLostCapture = () => {
+      endDrag();
+    };
+
+    const onDragStart = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    const onClick = (e: MouseEvent) => {
+      if (dragRef.current.moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        dragRef.current.moved = false;
+      }
+    };
+
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+    el.addEventListener('pointercancel', onPointerUp);
+    el.addEventListener('lostpointercapture', onLostCapture);
+    el.addEventListener('dragstart', onDragStart);
+    el.addEventListener('click', onClick, true);
+
+    return () => {
+      el.removeEventListener('pointerdown', onPointerDown);
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', onPointerUp);
+      el.removeEventListener('pointercancel', onPointerUp);
+      el.removeEventListener('lostpointercapture', onLostCapture);
+      el.removeEventListener('dragstart', onDragStart);
+      el.removeEventListener('click', onClick, true);
+    };
+  }, [items.length]);
 
   return (
     <section
@@ -126,29 +193,7 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
 
       {items.length ? (
         <div className="cm-gear-strip__carousel">
-          {/* Prev / Next buttons */}
-          <button
-            type="button"
-            className="cm-gear-strip__nav cm-gear-strip__nav--prev"
-            onClick={() => scrollBy('prev')}
-            aria-label={isKa ? 'წინა' : 'Previous'}
-          >←</button>
-          <button
-            type="button"
-            className="cm-gear-strip__nav cm-gear-strip__nav--next"
-            onClick={() => scrollBy('next')}
-            aria-label={isKa ? 'შემდეგი' : 'Next'}
-          >→</button>
-
-          {/* Drag-to-scroll track */}
-          <div
-            className="cm-gear-strip__grid"
-            ref={trackRef}
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseUp}
-          >
+          <div className="cm-gear-strip__grid" ref={trackRef}>
             {items.map((item, index) => (
               <CatalogProductCard
                 key={item.id}
@@ -180,6 +225,25 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
               </span>
               <span className="cm-gear-strip__end-arrow" aria-hidden>→</span>
             </Link>
+          </div>
+
+          <div className="cm-gear-strip__controls">
+            <button
+              type="button"
+              className="cm-gear-strip__nav cm-gear-strip__nav--prev"
+              onClick={() => scrollBy('prev')}
+              aria-label={isKa ? 'წინა' : 'Previous'}
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              className="cm-gear-strip__nav cm-gear-strip__nav--next"
+              onClick={() => scrollBy('next')}
+              aria-label={isKa ? 'შემდეგი' : 'Next'}
+            >
+              →
+            </button>
           </div>
         </div>
       ) : (

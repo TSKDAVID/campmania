@@ -4,37 +4,87 @@ import {useLocale} from '~/providers/LocaleProvider';
 export function EditorialFooter() {
   const {locale, translations: tr} = useLocale();
   const year = new Date().getFullYear();
-
-  const links = [
-    {to: '/pages/contact', label: tr.pages.contact},
-    {to: '/pages/faq', label: tr.pages.faq},
-    {to: '/policies/terms-of-service', label: locale === 'ka' ? 'წესები' : 'Terms'},
-  ];
+  const ft = tr.footer;
 
   return (
     <footer className="cm-editorial-footer">
-      <div className="cm-editorial-footer__inner">
-        <div>
-          <Link to="/" className="cm-editorial-footer__brand">
-            {tr.brand}
-          </Link>
-          <p className="cm-editorial-footer__copy mt-2">
-            © {year} {tr.brand}
-            {locale === 'ka' ? ' · ყველა უფლება დაცულია' : ' · All rights reserved'}
-          </p>
+      <div className="cm-editorial-footer__services">
+        <div className="cm-editorial-footer__service">{ft.serviceGear}</div>
+        <div className="cm-editorial-footer__service">{ft.serviceMetro}</div>
+        <div className="cm-editorial-footer__service">{ft.serviceDelivery}</div>
+      </div>
+
+      <div className="cm-editorial-footer__main">
+        <div className="cm-editorial-footer__grid">
+          <div className="cm-editorial-footer__brand-col">
+            <Link to="/" className="cm-editorial-footer__brand">
+              {tr.brand}
+            </Link>
+            <p className="cm-editorial-footer__tagline">{ft.tagline}</p>
+            <Link to="/packages" className="cm-editorial-footer__cta">
+              {ft.browseCta} →
+            </Link>
+          </div>
+
+          <div className="cm-editorial-footer__col">
+            <h4>{ft.rent}</h4>
+            <ul>
+              <li>
+                <Link to="/packages">{tr.nav.packages}</Link>
+              </li>
+              <li>
+                <Link to="/individual-gear">{tr.nav.gear}</Link>
+              </li>
+              <li>
+                <Link to="/gear-builder">{tr.nav.gearBuilder}</Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="cm-editorial-footer__col">
+            <h4>{ft.support}</h4>
+            <ul>
+              <li>
+                <Link to="/pages/how-it-works">{tr.pages.howItWorks}</Link>
+              </li>
+              <li>
+                <Link to="/pages/faq">{tr.pages.faq}</Link>
+              </li>
+              <li>
+                <Link to="/pages/contact">{tr.pages.contact}</Link>
+              </li>
+              <li>
+                <Link to="/account">{tr.nav.account}</Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="cm-editorial-footer__col">
+            <h4>{ft.getInTouch}</h4>
+            <ul>
+              <li>
+                <Link to="/pages/contact">{ft.contact}</Link>
+              </li>
+              <li className="cm-editorial-footer__meta">{ft.location}</li>
+              <li className="cm-editorial-footer__meta">{ft.hours}</li>
+              <li>
+                <a href="mailto:hello@campmania.ge">hello@campmania.ge</a>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <nav aria-label={locale === 'ka' ? 'საიტის ბმულები' : 'Site links'}>
-          <ul className="cm-editorial-footer__nav">
-            {links.map((link) => (
-              <li key={link.to}>
-                <Link to={link.to} className="cm-editorial-footer__link">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="cm-editorial-footer__bottom">
+          <p className="cm-editorial-footer__copy">
+            © {year} {tr.brand} — {ft.rights}
+          </p>
+          <nav aria-label={ft.legal}>
+            <Link to="/pages/faq">{tr.pages.faq}</Link>
+            <Link to="/policies/terms-of-service">{ft.terms}</Link>
+            <Link to="/policies/privacy-policy">{ft.privacy}</Link>
+            <Link to="/policies/refund-policy">{ft.returns}</Link>
+          </nav>
+        </div>
       </div>
     </footer>
   );

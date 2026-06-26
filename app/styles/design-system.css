@@ -80,74 +80,10 @@
   color: color-mix(in srgb, var(--cm-ink) 78%, transparent);
 }
 
-/* ── Minimalist site footer ───────────────────────────────────────────── */
+/* ── Site footer (editorial layout) ───────────────────────────────────── */
 .cm-editorial-footer {
   border-top: var(--cm-border);
   background: var(--cm-canvas);
-  padding: 2rem 1rem 2.5rem;
-}
-
-@media (min-width: 768px) {
-  .cm-editorial-footer {
-    padding: 2.5rem 2rem 3rem;
-  }
-}
-
-.cm-editorial-footer__inner {
-  max-width: var(--cm-layout-max);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  .cm-editorial-footer__inner {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.cm-editorial-footer__brand {
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  color: var(--cm-ink);
-  text-decoration: none;
-}
-
-.cm-editorial-footer__brand:hover {
-  color: var(--cm-accent);
-}
-
-.cm-editorial-footer__nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem 2rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.cm-editorial-footer__link {
-  font-family: var(--font-label);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--cm-ink);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-.cm-editorial-footer__link:hover {
-  color: var(--cm-accent);
-}
-
-.cm-editorial-footer__copy {
-  font-size: 0.75rem;
-  color: color-mix(in srgb, var(--cm-ink) 50%, transparent);
-  margin: 0;
 }
 
 /* ── Editorial PDP ────────────────────────────────────────────────────── */

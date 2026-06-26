@@ -29,6 +29,8 @@ export function CatalogCardImage({
       className={`cm-kit-card-image${fit === 'contain' ? ' cm-kit-card-image--contain' : ''}`}
       loading={loading}
       decoding="async"
+      draggable={false}
+      onDragStart={(event) => event.preventDefault()}
     />
   );
 }

@@ -3664,17 +3664,20 @@ html[lang='ka'] :is(.cm-product-description-body, .cm-home-promo-subtitle, .cm-h
 .cm-hero-editorial {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
-  min-height: 100vh;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
   width: 100%;
   border-bottom: 1px solid #2A2A2A;
   background: #F7F5F0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .cm-hero-editorial {
-    grid-template-columns: 60fr 40fr;
-    min-height: 100svh;
+    grid-template-columns: minmax(0, 60fr) minmax(0, 40fr);
+    height: var(--cm-hero-viewport-height, calc(100svh - var(--site-top-height, 6.8rem)));
+    max-height: var(--cm-hero-viewport-height, calc(100svh - var(--site-top-height, 6.8rem)));
+    min-height: 0;
+    overflow: hidden;
   }
 }
 
@@ -3683,22 +3686,27 @@ html[lang='ka'] :is(.cm-product-description-body, .cm-home-promo-subtitle, .cm-h
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(4.5rem, 8vw, 7rem) clamp(1.25rem, 4vw, 4.5rem);
-  gap: 1.75rem;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  padding: clamp(1rem, 2.2vh, 2rem) clamp(1rem, 2.5vw, 3rem);
+  gap: clamp(0.65rem, 1.1vh, 1rem);
   border-bottom: 1px solid #2A2A2A;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 768px) {
   .cm-hero-editorial__copy {
     border-bottom: 0;
+    overflow: hidden;
   }
 }
 
 .cm-hero-editorial__eyebrow {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: clamp(0.62rem, 0.55rem + 0.25vw, 0.72rem);
   font-weight: 600;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #2A2A2A;
 }
@@ -3707,26 +3715,36 @@ html[lang='ka'] :is(.cm-product-description-body, .cm-home-promo-subtitle, .cm-h
   margin: 0;
   font-family: var(--cm-font-display);
   font-weight: 700;
-  font-size: clamp(2.5rem, 6vw, 5rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.75rem, 1rem + 2.75vw, 3.35rem);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
   color: #2A2A2A;
-  max-width: 18ch;
+  max-width: 100%;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 html[lang='ka'] .cm-hero-editorial__headline {
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  font-size: clamp(1.65rem, 0.95rem + 2.5vw, 3.1rem);
+  text-transform: none;
 }
 
 .cm-hero-editorial__mission {
   margin: 0;
-  max-width: 44ch;
-  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
-  line-height: 1.7;
-  letter-spacing: 0.04em;
+  max-width: 42ch;
+  font-size: clamp(0.875rem, 0.8rem + 0.35vw, 1.05rem);
+  line-height: 1.65;
+  letter-spacing: 0.02em;
   color: #2A2A2A;
   opacity: 0.78;
+  overflow-wrap: break-word;
+}
+
+html[lang='ka'] .cm-hero-editorial__mission {
+  max-width: 100%;
 }
 
 .cm-hero-editorial__actions {
@@ -3795,7 +3813,8 @@ html[lang='ka'] .cm-hero-editorial__headline {
 .cm-hero-editorial__meta {
   display: none;
   margin-top: auto;
-  padding-top: 3rem;
+  padding-top: clamp(0.75rem, 1.5vh, 1.5rem);
+  flex-shrink: 0;
   align-items: center;
   gap: 1.25rem;
 }
@@ -3828,17 +3847,29 @@ html[lang='ka'] .cm-hero-editorial__headline {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 60vh;
+  min-height: 0;
   padding: clamp(1rem, 2vw, 2rem);
   background: #F7F5F0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .cm-hero-billboard {
     border-left: 1px solid #2A2A2A;
-    min-height: 100svh;
-    padding: clamp(1.5rem, 2.5vw, 2.5rem);
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    padding: clamp(0.65rem, 1.1vw, 1.15rem);
+    overflow: hidden;
   }
+}
+
+.cm-hero-billboard__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
 }
 
 .cm-hero-billboard__frame {
@@ -3878,9 +3909,11 @@ html[lang='ka'] .cm-hero-editorial__headline {
 
 .cm-hero-billboard__card {
   position: absolute;
-  inset: auto 1.25rem 1.25rem 1.25rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: 1.25rem;
   z-index: 2;
-  padding: clamp(1.25rem, 2vw, 1.75rem);
+  padding: clamp(0.85rem, 1.4vh, 1.35rem);
   background: rgba(42, 42, 42, 0.78);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   backdrop-filter: blur(18px) saturate(140%);
@@ -4034,6 +4067,8 @@ html[lang='ka'] .cm-ticker__item {
   grid-template-columns: 1fr;
   gap: 1.25rem;
   padding: 0 clamp(1.25rem, 4vw, 4.5rem) clamp(2.5rem, 4vw, 3.5rem);
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 768px) {
@@ -4119,10 +4154,18 @@ html[lang='ka'] .cm-ticker__item {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #2A2A2A transparent;
+  /* Internal padding absorbs hover lift so cards are not clipped at the top edge */
+  margin-top: -1rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1rem;
 }
 
 .cm-showcase__carousel {
   position: relative;
+  z-index: 2;
+  overflow: visible;
+  margin-top: -0.75rem;
+  padding-top: 0.75rem;
 }
 
 .cm-showcase__controls {
@@ -4191,6 +4234,13 @@ html[lang='ka'] .cm-ticker__item {
   width: clamp(15rem, 28vw, 22rem);
   scroll-snap-align: start;
   border-right: 1px solid #2A2A2A;
+  position: relative;
+  z-index: 1;
+}
+
+.cm-showcase__cell:has(.cm-showcase-card:hover),
+.cm-showcase__cell:has(.cm-showcase-card:focus-visible) {
+  z-index: 25;
 }
 
 .cm-showcase__cell:first-child {
@@ -4212,14 +4262,21 @@ html[lang='ka'] .cm-ticker__item {
   color: #2A2A2A;
   text-decoration: none;
   border: 1px solid transparent;
+  position: relative;
+  z-index: 1;
   transition: border-color 240ms cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 240ms;
+    background-color 240ms,
+    transform 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .cm-showcase-card:hover,
 .cm-showcase-card:focus-visible {
   border-color: #C86D53;
   outline: none;
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.14);
+  z-index: 25;
 }
 
 .cm-showcase-card__media {
@@ -4659,6 +4716,8 @@ html[lang='ka'] .cm-showcase-card__meta {
   grid-template-columns: 1fr;
   gap: 1rem;
   margin-bottom: clamp(2rem, 3.5vw, 3rem);
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 768px) {
@@ -4671,10 +4730,12 @@ html[lang='ka'] .cm-showcase-card__meta {
 /* ── Gear strip carousel wrapper ─────────────────────────────────────────── */
 .cm-gear-strip__carousel {
   position: relative;
-  /* Vertical room so scale-on-hover cards are not clipped by overflow-y.
-     Nav buttons are aligned with top/bottom matching this padding. */
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
+  z-index: 2;
+  overflow: visible;
+  margin-top: -0.75rem;
+  /* Room above/below so hovered cards can grow without clipping */
+  padding-top: 1rem;
+  padding-bottom: 0.25rem;
 }
 
 .cm-gear-strip__grid {
@@ -4683,17 +4744,42 @@ html[lang='ka'] .cm-showcase-card__meta {
   grid-auto-columns: calc(100% / 6);
   gap: 0;
   overflow-x: auto;
-  overflow-y: visible;
+  /* overflow-x:auto would force overflow-y:auto if visible — clip Y so wheel scrolls the page */
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
   cursor: grab;
   scrollbar-width: none;
   border-top: 1px solid rgba(16, 16, 16, 0.12);
   border-left: 1px solid rgba(16, 16, 16, 0.12);
+  touch-action: pan-x;
+  user-select: none;
+  margin-top: -1rem;
+  /* Internal padding absorbs hover lift so nothing spills into a Y scrollport */
+  padding-top: 1.25rem;
+  padding-bottom: 0.75rem;
+}
+
+.cm-gear-strip__grid img,
+.cm-gear-strip__grid a {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.cm-gear-strip__grid img {
+  pointer-events: none;
+}
+
+.cm-gear-strip__grid .cm-pkg-card__scrub {
+  pointer-events: none;
 }
 
 .cm-gear-strip__grid::-webkit-scrollbar {
   display: none;
+}
+
+.cm-gear-strip__grid:active {
+  cursor: grabbing;
 }
 
 /* Mobile: 2 cards */
@@ -4710,42 +4796,54 @@ html[lang='ka'] .cm-showcase-card__meta {
   }
 }
 
-/* ── Prev / Next — rectangles aligned precisely to the card row ─────────── */
+/* Prev / Next — centered below the strip */
+.cm-gear-strip__controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
 .cm-gear-strip__nav {
-  position: absolute;
-  /* top/bottom match the carousel padding — buttons sit exactly on the card row */
-  top: 1.5rem;
-  bottom: 1.5rem;
-  /* Beat hovering cards (z-index: 20) — always stay on top */
-  z-index: 50;
-  width: 2.5rem;
-  border: none;
-  /* Visible by default — charcoal tint with icon */
-  background: rgba(16, 16, 16, 0.07);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  color: rgba(16, 16, 16, 0.7);
-  font-size: 1rem;
+  position: static;
+  z-index: 1;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--ed-color-ink, #101010);
+  border-radius: 999px;
+  background: var(--ed-color-ink, #101010);
+  color: var(--ed-color-paper, #f7f5f0);
+  font-size: 1.1rem;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 140ms ease, color 140ms ease;
+  box-shadow: 4px 4px 0 var(--ed-color-accentCritical, #c86d53);
+  transform: translate(-2px, -2px);
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 }
 
 .cm-gear-strip__nav:hover {
-  background: rgba(16, 16, 16, 0.82);
-  color: #fff;
+  background: #fff;
+  color: rgba(16, 16, 16, 0.85);
+  border-color: rgba(16, 16, 16, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
-.cm-gear-strip__nav--prev {
-  left: 0;
-  border-right: 1px solid rgba(16, 16, 16, 0.1);
-}
-
-.cm-gear-strip__nav--next {
-  right: 0;
-  border-left: 1px solid rgba(16, 16, 16, 0.1);
+.cm-gear-strip__nav:active {
+  background: #fff;
+  color: rgba(16, 16, 16, 0.85);
+  border-color: rgba(16, 16, 16, 0.15);
+  box-shadow: 1px 1px 0 rgba(200, 109, 83, 0.4);
+  transform: translate(0, 0);
 }
 
 .cm-gear-strip__grid > * {
@@ -4755,6 +4853,20 @@ html[lang='ka'] .cm-showcase-card__meta {
   background: #F7F5F0;
   box-shadow: none;
   scroll-snap-align: start;
+  position: relative;
+  z-index: 1;
+}
+
+.cm-gear-strip__grid > *:hover,
+.cm-gear-strip__grid > *:focus-within {
+  z-index: 25;
+}
+
+/* Softer hover inside the strip — stays inside overflow-y:hidden bounds */
+.cm-gear-strip__grid .cm-kit-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.14);
+  z-index: 25;
 }
 
 /* "View all" end card at the right edge of the scroll strip */
@@ -5008,30 +5120,32 @@ html[lang='ka'] .cm-showcase-card__meta {
   }
 
   .cm-hero-editorial__copy {
-    padding: 5rem 1.25rem 2rem;
-    gap: 1.25rem;
+    padding: clamp(4.25rem, 10vw, 5rem) clamp(1rem, 4vw, 1.35rem) clamp(1.5rem, 5vw, 2rem);
+    gap: clamp(0.85rem, 3vw, 1.25rem);
     justify-content: flex-start;
   }
 
+  .cm-hero-editorial__eyebrow {
+    letter-spacing: 0.16em;
+  }
+
   .cm-hero-editorial__headline {
-    font-size: clamp(1.65rem, 7.2vw, 2.15rem);
-    max-width: 100%;
-    line-height: 1.14;
-    letter-spacing: -0.015em;
-    overflow-wrap: break-word;
-    word-break: normal;
+    font-size: clamp(1.5rem, 5.5vw + 0.5rem, 2rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
   }
 
   html[lang='ka'] .cm-hero-editorial__headline {
-    line-height: 1.18;
+    font-size: clamp(1.45rem, 5vw + 0.45rem, 1.9rem);
+    line-height: 1.22;
     letter-spacing: 0;
   }
 
   .cm-hero-editorial__mission {
-    font-size: 0.92rem;
-    line-height: 1.65;
+    font-size: clamp(0.875rem, 3.8vw, 0.95rem);
+    line-height: 1.6;
     max-width: 100%;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
   }
 
   .cm-hero-editorial__actions {
@@ -5059,19 +5173,25 @@ html[lang='ka'] .cm-showcase-card__meta {
     min-height: auto;
   }
 
+  .cm-hero-billboard__stage {
+    flex: none;
+  }
+
   .cm-hero-billboard__frame {
-    display: flex;
-    flex-direction: column;
+    flex: none;
     min-height: unset;
+    height: auto;
     border-left: none;
     border-right: none;
+    overflow: hidden;
   }
 
   .cm-hero-billboard__image {
     position: relative;
     inset: auto;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
     height: auto;
+    width: 100%;
     flex-shrink: 0;
   }
 
@@ -5084,34 +5204,42 @@ html[lang='ka'] .cm-showcase-card__meta {
 
   .cm-hero-billboard__card {
     position: relative;
-    inset: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
     margin: 0;
-    padding: 1rem 1.1rem 1.15rem;
-    background: #2A2A2A;
+    padding: 1rem 1.15rem 1.15rem;
+    background: rgba(14, 14, 14, 0.92);
     border: none;
-    border-top: 1px solid rgba(247, 245, 240, 0.12);
-    gap: 0.5rem;
+    border-top: 1px solid rgba(247, 245, 240, 0.1);
+    border-radius: 0;
+    gap: 0.45rem;
+    box-shadow: none;
   }
 
   .cm-hero-billboard__eyebrow {
     font-size: 0.62rem;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.18em;
   }
 
   .cm-hero-billboard__title {
-    font-size: 1.05rem;
-    line-height: 1.3;
+    font-size: clamp(1rem, 4.5vw, 1.15rem);
+    line-height: 1.32;
+    text-wrap: balance;
   }
 
   .cm-hero-billboard__subtitle {
-    font-size: 0.86rem;
+    font-size: clamp(0.82rem, 3.6vw, 0.9rem);
     line-height: 1.5;
     max-width: none;
+    opacity: 0.88;
   }
 
   .cm-hero-billboard__cta {
     font-size: 0.68rem;
-    margin-top: 0.25rem;
+    margin-top: 0.35rem;
+    letter-spacing: 0.14em;
   }
 
   .cm-hero-billboard__controls {

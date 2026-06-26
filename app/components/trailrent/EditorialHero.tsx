@@ -1,4 +1,4 @@
-import {useCallback, useState, Suspense} from 'react';
+import {useCallback, useEffect, useState, Suspense} from 'react';
 import {Await} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
@@ -15,6 +15,7 @@ const MISSION_KA =
   'პრემიუმ სალაშქრო და სამთო ნაკრებების გაქირავება თბილისში — შერჩეული აღჭურვილობა, მკაცრი ხარისხის კონტროლი და უპრობლემო ლოგისტიკა.';
 const EYEBROW_KA = 'Camp Mania · თბილისი';
 const SCROLL_LABEL_KA = 'გადახედე ნაკრებებს';
+const AUTO_ADVANCE_MS = 3000;
 
 export function EditorialHero({promoSlides}: EditorialHeroProps) {
   return (
@@ -80,44 +81,77 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
   const {locale} = useLocale();
   const resolved = slides.length ? slides : getFallbackHomepagePromoSlides(locale);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const slideCount = resolved.length;
+  const hasMultiple = slideCount > 1;
 
   const goTo = useCallback(
     (index: number) => {
-      if (!resolved.length) return;
-      const next = ((index % resolved.length) + resolved.length) % resolved.length;
+      if (!slideCount) return;
+      const next = ((index % slideCount) + slideCount) % slideCount;
       setActiveIndex(next);
     },
-    [resolved.length],
+    [slideCount],
   );
 
   const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
   const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [locale, slides]);
+
+  useEffect(() => {
+    if (!hasMultiple || isPaused) return;
+
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % slideCount);
+    }, AUTO_ADVANCE_MS);
+
+    return () => window.clearInterval(timer);
+  }, [hasMultiple, isPaused, slideCount]);
 
   if (!resolved.length) return <HeroBillboardSkeleton />;
 
   const slide = resolved[activeIndex] ?? resolved[0];
   if (!slide) return <HeroBillboardSkeleton />;
 
-  const hasMultiple = resolved.length > 1;
   const carouselLabel =
     locale === 'ka' ? 'მთავარი ბანერი' : 'Homepage banner carousel';
 
   return (
-    <aside className="cm-hero-billboard" aria-label={carouselLabel}>
-      <div className="cm-hero-billboard__frame">
-        <img
-          key={slide.id ?? slide.title}
-          src={slide.imageUrl}
-          alt={slide.imageAlt ?? slide.title}
-          className="cm-hero-billboard__image"
-          loading="eager"
-        />
+    <aside
+      className="cm-hero-billboard"
+      aria-label={carouselLabel}
+      aria-roledescription="carousel"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setIsPaused(false);
+        }
+      }}
+    >
+      <div className="cm-hero-billboard__stage">
+        <div className="cm-hero-billboard__frame">
+          <img
+            key={slide.id ?? slide.title}
+            src={slide.imageUrl}
+            alt={slide.imageAlt ?? slide.title}
+            className="cm-hero-billboard__image"
+            loading="eager"
+          />
 
-        {slide.badge ? (
-          <span className="cm-hero-billboard__corner-badge">{slide.badge}</span>
-        ) : null}
+          {slide.badge ? (
+            <span className="cm-hero-billboard__corner-badge">{slide.badge}</span>
+          ) : null}
+        </div>
 
-        <div className="cm-hero-billboard__card">
+        <div
+          key={`${slide.id ?? slide.title}-card`}
+          className="cm-hero-billboard__card"
+        >
           <p className="cm-hero-billboard__eyebrow">
             {locale === 'ka' ? 'მიმდინარე ანონსი' : 'Now featured'}
           </p>
