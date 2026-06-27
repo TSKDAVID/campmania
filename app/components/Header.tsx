@@ -1,5 +1,8 @@
-import {Suspense} from 'react';
-import {Await, Form, NavLink, useAsyncValue} from 'react-router';
+import {Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
+
+const useIsomorphicLayoutEffect =
+  typeof document !== 'undefined' ? useLayoutEffect : useEffect;
+import {Await, Form, NavLink, useAsyncValue, useLocation} from 'react-router';
 import {
   type CartViewPayload,
   useAnalytics,
@@ -8,7 +11,7 @@ import {
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {LanguageSwitcher} from '~/components/trailrent/HomeSections';
-import {IconBag, IconMenu, IconSearch} from '~/components/trailrent/Icons';
+import {IconBag, IconMenu, IconSearch, IconX} from '~/components/trailrent/Icons';
 import {useLocale} from '~/providers/LocaleProvider';
 import {countVisibleCartLines} from '~/lib/trailrent/cart-display';
 
@@ -41,6 +44,185 @@ function useCampmaniaNav(): NavItem[] {
   ];
 }
 
+function isNavItemActive(item: NavItem, pathname: string) {
+  if (item.end) return pathname === item.to;
+  return pathname === item.to || pathname.startsWith(`${item.to}/`);
+}
+
+function HeaderDesktopNav({items}: {items: NavItem[]}) {
+  const {translations: tr} = useLocale();
+  const location = useLocation();
+  const navRef = useRef<HTMLElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const moreMeasureRef = useRef<HTMLSpanElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(items.length);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navGap = 5;
+
+  const recalculateVisibleCount = useCallback(() => {
+    const nav = navRef.current;
+    const measure = measureRef.current;
+    const moreMeasure = moreMeasureRef.current;
+    if (!nav || !measure) return;
+
+    const available = nav.clientWidth;
+    if (!available) return;
+
+    const itemEls = measure.querySelectorAll<HTMLElement>('[data-nav-measure]');
+    const widths = Array.from(itemEls, (element) => element.offsetWidth);
+    const moreWidth = moreMeasure?.offsetWidth ?? 72;
+    const totalWidth =
+      widths.reduce((sum, width) => sum + width, 0) +
+      Math.max(0, widths.length - 1) * navGap;
+
+    if (totalWidth <= available) {
+      setVisibleCount(items.length);
+      return;
+    }
+
+    let used = 0;
+    let count = 0;
+
+    for (let index = 0; index < widths.length; index++) {
+      const itemGap = index > 0 ? navGap : 0;
+      const remainingAfter = widths.length - index - 1;
+      const reserveMore = remainingAfter > 0 ? navGap + moreWidth : 0;
+      const nextUsed = used + itemGap + widths[index];
+
+      if (nextUsed + reserveMore > available) {
+        count = index;
+        break;
+      }
+
+      used = nextUsed;
+      count = index + 1;
+    }
+
+    setVisibleCount(Math.max(0, Math.min(count, items.length)));
+  }, [items, navGap]);
+
+  useIsomorphicLayoutEffect(() => {
+    recalculateVisibleCount();
+  }, [recalculateVisibleCount, tr]);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return undefined;
+
+    const observer = new ResizeObserver(() => recalculateVisibleCount());
+    observer.observe(nav);
+    window.addEventListener('resize', recalculateVisibleCount);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', recalculateVisibleCount);
+    };
+  }, [recalculateVisibleCount]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!moreRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [menuOpen]);
+
+  const visibleItems = items.slice(0, visibleCount);
+  const overflowItems = items.slice(visibleCount);
+  const overflowHasActive = overflowItems.some((item) =>
+    isNavItemActive(item, location.pathname),
+  );
+  const moreLabel = tr.nav.more;
+
+  return (
+    <nav
+      ref={navRef}
+      className="cm-site-nav cm-site-header-nav hidden lg:flex"
+      role="navigation"
+      aria-label="Main"
+    >
+      <div ref={measureRef} className="cm-site-header-nav__measure" aria-hidden>
+        {items.map((item) => (
+          <span key={item.id} data-nav-measure className="cm-nav-link">
+            {item.label}
+          </span>
+        ))}
+        <span
+          ref={moreMeasureRef}
+          data-nav-more
+          className="cm-nav-link cm-nav-more-btn"
+        >
+          {moreLabel}
+        </span>
+      </div>
+
+      <div className="cm-site-header-nav__visible">
+        {visibleItems.map((item) => (
+          <NavLink
+            key={item.id}
+            to={item.to}
+            end={item.end}
+            prefetch="intent"
+            className={({isActive}) =>
+              `cm-nav-link ${isActive ? 'cm-nav-link-active' : ''}`
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
+
+        {overflowItems.length > 0 ? (
+          <div className="cm-nav-more" ref={moreRef}>
+            <button
+              type="button"
+              className={`cm-nav-link cm-nav-more-btn${
+                overflowHasActive ? ' cm-nav-link-active' : ''
+              }`}
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              {moreLabel}
+            </button>
+
+            {menuOpen ? (
+              <div className="cm-nav-more__menu" role="menu">
+                {overflowItems.map((item) => (
+                  <NavLink
+                    key={item.id}
+                    to={item.to}
+                    end={item.end}
+                    prefetch="intent"
+                    role="menuitem"
+                    className={({isActive}) =>
+                      `cm-nav-link cm-nav-more__link ${
+                        isActive ? 'cm-nav-link-active' : ''
+                      }`
+                    }
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </nav>
+  );
+}
+
 export function Header({
   isLoggedIn,
   cart,
@@ -58,25 +240,7 @@ export function Header({
             </NavLink>
           </div>
 
-          <nav
-            className="cm-site-nav cm-site-header-nav hidden lg:flex"
-            role="navigation"
-            aria-label="Main"
-          >
-            {navItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.to}
-                end={item.end}
-                prefetch="intent"
-                className={({isActive}) =>
-                  `cm-nav-link ${isActive ? 'cm-nav-link-active' : ''}`
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
+          <HeaderDesktopNav items={navItems} />
 
           <div className="cm-site-header-end">
             <div className="cm-site-header-search-cell">
@@ -112,7 +276,7 @@ export function HeaderMenu({
   if (viewport === 'desktop') return null;
 
   return (
-    <nav className="cm-mobile-nav" role="navigation">
+    <nav className="cm-mobile-nav" id="cm-mobile-nav" role="navigation">
       {navItems.map((item) => (
         <NavLink
           key={item.id}
@@ -216,15 +380,20 @@ function HeaderSearch() {
 }
 
 function HeaderMenuMobileToggle() {
-  const {open} = useAside();
+  const {type, open, close} = useAside();
+  const {translations: tr} = useLocale();
+  const isOpen = type === 'mobile';
+
   return (
     <button
       type="button"
-      className="cm-icon-btn lg:hidden"
-      onClick={() => open('mobile')}
-      aria-label="Open menu"
+      className={`cm-icon-btn lg:hidden${isOpen ? ' cm-icon-btn--menu-open' : ''}`}
+      onClick={() => (isOpen ? close() : open('mobile'))}
+      aria-label={isOpen ? tr.nav.closeMenu : tr.nav.openMenu}
+      aria-expanded={isOpen}
+      aria-controls="cm-mobile-nav"
     >
-      <IconMenu size={18} />
+      {isOpen ? <IconX size={18} /> : <IconMenu size={18} />}
     </button>
   );
 }

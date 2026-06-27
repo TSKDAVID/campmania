@@ -20,6 +20,11 @@ import {getLocaleFromRequest} from '~/providers/LocaleProvider';
 
 export async function loader(args: Route.LoaderArgs) {
   const locale = getLocaleFromRequest(args.request);
+  const requestUrl = new URL(args.request.url);
+  const promoResolveContext = {
+    storeDomain: args.context.env.PUBLIC_STORE_DOMAIN,
+    requestHost: requestUrl.hostname,
+  };
   const featuredSections = loadHomepageFeaturedSections(
     args.context.storefront,
     locale,
@@ -28,7 +33,9 @@ export async function loader(args: Route.LoaderArgs) {
 
   const promoSlides = args.context.storefront
     .query(HOMEPAGE_PROMO_SLIDES_QUERY)
-    .then((response) => parseHomepagePromoSlides(response, locale))
+    .then((response) =>
+      parseHomepagePromoSlides(response, locale, promoResolveContext),
+    )
     .catch(() => []);
 
   return {featuredSections, promoSlides};

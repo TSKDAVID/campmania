@@ -1,5 +1,9 @@
 import type {Locale} from '~/lib/trailrent/i18n';
 import {getTranslations} from '~/lib/trailrent/i18n';
+import {
+  resolveStorefrontPath,
+  type ResolveStorefrontPathOptions,
+} from '~/lib/storefront-url';
 
 export const FALLBACK_PROMO_IMAGE =
   'https://images.unsplash.com/photo-1478131143081-80f7f84b84c7?auto=format&fit=crop&w=2000&q=80';
@@ -80,6 +84,7 @@ function localizedField(
 export function mapMetaobjectToSlide(
   node: MetaobjectNode,
   locale: Locale,
+  resolveContext?: ResolveStorefrontPathOptions,
 ): HomepagePromoSlide | null {
   const fields = node.fields ?? [];
   if (!isActive(fields)) return null;
@@ -87,7 +92,8 @@ export function mapMetaobjectToSlide(
   const title = localizedField(fields, 'title', locale);
   const subtitle = localizedField(fields, 'subtitle', locale);
   const ctaLabel = localizedField(fields, 'cta_label', locale);
-  const linkUrl = fieldValue(fields, 'link_url') || '/collections/all';
+  const rawLinkUrl = fieldValue(fields, 'link_url') || '/collections/all';
+  const linkUrl = resolveStorefrontPath(rawLinkUrl, resolveContext).to;
 
   if (!title) return null;
 
@@ -111,11 +117,12 @@ export function mapMetaobjectToSlide(
 export function parseHomepagePromoSlides(
   data: HomepagePromoSlidesQuery | null | undefined,
   locale: Locale,
+  resolveContext?: ResolveStorefrontPathOptions,
 ): HomepagePromoSlide[] {
   const nodes = data?.metaobjects?.nodes ?? [];
 
   return nodes
-    .map((node) => mapMetaobjectToSlide(node, locale))
+    .map((node) => mapMetaobjectToSlide(node, locale, resolveContext))
     .filter((slide): slide is HomepagePromoSlide => Boolean(slide))
     .sort((a, b) => a.sortOrder - b.sortOrder || a.handle.localeCompare(b.handle));
 }

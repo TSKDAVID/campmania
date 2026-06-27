@@ -19,15 +19,19 @@ export function CuratedPackagesShowcase({packages}: CuratedPackagesShowcaseProps
     ? 'სალაშქრო კოლექცია, რომელიც პატივს სცემს ბუნებას.'
     : 'Trail kits engineered for the Caucasus.';
   const subhead = isKa
-    ? 'გადააციალე ჰორიზონტალურად ან გამოიყენე ისრები.'
-    : 'Swipe sideways or use the arrows.';
+    ? 'გადააციალე ან გამოიყენე ღილაკები ქვემოთ.'
+    : 'Swipe sideways or use the buttons below.';
   const scrollHint = isKa ? 'გადააციალე' : 'Swipe';
 
   const scrollTrack = useCallback((direction: 'prev' | 'next') => {
     const track = trackRef.current;
     if (!track) return;
     const card = track.querySelector<HTMLElement>('.cm-showcase__cell');
-    const step = card ? card.offsetWidth : track.clientWidth * 0.72;
+    const rail = track.querySelector<HTMLElement>('.cm-showcase__rail');
+    const gap = rail
+      ? Number.parseFloat(getComputedStyle(rail).columnGap || getComputedStyle(rail).gap || '0')
+      : 0;
+    const step = card ? card.offsetWidth + gap : track.clientWidth * 0.72;
     track.scrollBy({
       left: direction === 'next' ? step : -step,
       behavior: 'auto',
@@ -75,10 +79,6 @@ export function CuratedPackagesShowcase({packages}: CuratedPackagesShowcaseProps
           </h2>
           <p className="cm-showcase__subhead">{subhead}</p>
         </div>
-        <Link to="/packages" className="cm-showcase__index-link">
-          <span>{isKa ? 'ყველა ნაკრები' : 'View all packages'}</span>
-          <span aria-hidden>→</span>
-        </Link>
       </header>
 
       <div className="cm-showcase__carousel">
@@ -99,20 +99,13 @@ export function CuratedPackagesShowcase({packages}: CuratedPackagesShowcaseProps
                 />
               </li>
             ))}
-            <li className="cm-showcase__cell cm-showcase__cell--end" aria-hidden>
-              <Link to="/packages" className="cm-showcase__end-card">
-                <span className="cm-showcase__end-label">
-                  {isKa ? 'ნახე მთლიანი არქივი' : 'View full archive'}
-                </span>
-                <span className="cm-showcase__end-arrow" aria-hidden>
-                  →
-                </span>
-              </Link>
+            <li className="cm-showcase__cell cm-showcase__cell--end">
+              <ShowcaseCatalogCard isKa={isKa} />
             </li>
           </ol>
         </div>
 
-        {packages.length > 1 ? (
+        {packages.length > 0 ? (
           <div className="cm-showcase__controls">
             <button
               type="button"
@@ -144,6 +137,19 @@ type ShowcaseCardProps = {
   hoverLabel: string;
   isKa: boolean;
 };
+
+function ShowcaseCatalogCard({isKa}: {isKa: boolean}) {
+  return (
+    <Link to="/packages" className="cm-showcase__end-card" prefetch="intent">
+      <span className="cm-showcase__end-label">
+        {isKa ? 'ნახე მთლიანი არქივი' : 'View full archive'}
+      </span>
+      <span className="cm-showcase__end-arrow" aria-hidden>
+        →
+      </span>
+    </Link>
+  );
+}
 
 function ShowcaseCard({pkg, index, hoverLabel, isKa}: ShowcaseCardProps) {
   const ordinal = String(index + 1).padStart(2, '0');
