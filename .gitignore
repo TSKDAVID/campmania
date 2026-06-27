@@ -2,6 +2,7 @@ node_modules
 /.cache
 /build
 /dist
+/extensions/rental-verification/dist
 /public/build
 /.mf
 .env
