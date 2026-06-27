@@ -1,17 +1,27 @@
-# Campmania Rental — Checkout UI Extension
+# Campmania Rental — Checkout UI Extensions
 
-Checkout extension for Didit KYC and rental security deposit choice.
+Two checkout block extensions for Didit KYC and rental security deposit choice.
+
+| Extension | Handle | Default placement |
+|-----------|--------|-------------------|
+| Rental verification banner | `rental-verification-banner` | `INFORMATION1` |
+| Rental verification payment | `rental-verification` | `PAYMENT1` |
 
 ## Setup
 
 1. Link the app: `shopify app config link` (populates `client_id` in `shopify.app.toml`).
-2. In **Settings → Checkout → Customize**, add the **Rental verification** extension:
-   - Header placement (banner)
-   - Before payment methods (KYC / deposit choice)
-3. Configure extension settings:
+2. Install deps:
+   ```bash
+   cd extensions/rental-verification && npm install && cd ../..
+   cd extensions/rental-verification-banner && npm install && cd ../..
+   ```
+3. Deploy: `shopify app deploy`
+4. In **Settings → Checkout → Customize**, click **Add app block** and add both **Didit** blocks:
+   - **Rental verification banner** (Information step)
+   - **Rental verification payment** (Payment step)
+5. Configure extension settings on each block:
    - **Storefront API origin** — your Oxygen HTTPS URL
    - **Checkout extension secret** — same value as `CHECKOUT_EXTENSION_SECRET` on Oxygen
-4. Deploy: `shopify app deploy`
 
 ## Oxygen env (storefront)
 

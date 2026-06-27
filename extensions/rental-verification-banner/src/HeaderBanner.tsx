@@ -7,7 +7,7 @@ import {
 import {cartHasRentalLines} from './rental-utils';
 
 export default reactExtension(
-  'purchase.checkout.header.render-after',
+  'purchase.checkout.block.render',
   () => <RentalHeaderBanner />,
 );
 

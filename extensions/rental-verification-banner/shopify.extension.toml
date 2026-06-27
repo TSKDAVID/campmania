@@ -1,21 +1,15 @@
 api_version = "2025-07"
+uid = "9bc47516-979e-7666-4393-50385c4d9f4ab40cbcdf"
 
 [[extensions]]
 type = "ui_extension"
-name = "Rental verification payment"
-handle = "rental-verification"
-
-uid = "a2c85fbf-d611-66e2-47e7-f4dae3990a24eb793021"
+name = "Rental verification banner"
+handle = "rental-verification-banner"
 
 [[extensions.targeting]]
-module = "./src/PaymentBlock.tsx"
+module = "./src/HeaderBanner.tsx"
 target = "purchase.checkout.block.render"
-default_placement = "PAYMENT1"
-
-[extensions.capabilities]
-api_access = true
-network_access = true
-block_progress = true
+default_placement = "INFORMATION1"
 
 [extensions.settings]
 [[extensions.settings.fields]]

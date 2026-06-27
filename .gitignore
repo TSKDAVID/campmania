@@ -3,10 +3,12 @@ node_modules
 /build
 /dist
 /extensions/rental-verification/dist
+/extensions/rental-verification-banner/dist
 /public/build
 /.mf
 .env
 .shopify
 .react-router
 download.png
+apps.htm
 tsconfig.tsbuildinfo
