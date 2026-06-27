@@ -25,7 +25,7 @@ export async function action({request, context}: Route.ActionArgs) {
   }
 
   const raw = await request.text();
-  const verified = verifyDiditWebhook(raw, request.headers, secret);
+  const verified = await verifyDiditWebhook(raw, request.headers, secret);
 
   if (!verified.ok) {
     return new Response(verified.message, {status: verified.status});
