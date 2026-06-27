@@ -28,21 +28,27 @@ function FilterGroupSection({
   locale,
   active,
   onToggle,
+  variant = 'stacked',
 }: {
   group: FilterGroup;
   locale: 'ka' | 'en';
   active: string | null;
   onToggle: (value: string) => void;
+  variant?: 'stacked' | 'inline';
 }) {
+  const isInline = variant === 'inline';
+
   return (
-    <div className="cm-filter-group">
-      <div className="cm-filter-group-label">
+    <div className={`cm-filter-group ${isInline ? 'cm-filter-group--inline' : ''}`}>
+      <div
+        className={`cm-filter-group-label ${isInline ? 'cm-filter-group-label--inline' : ''}`}
+      >
         <span className="cm-filter-group-icon" aria-hidden>
           {group.icon}
         </span>
         <span>{locale === 'ka' ? group.labelKa : group.labelEn}</span>
       </div>
-      <div className="cm-filter-pills">
+      <div className={`cm-filter-pills ${isInline ? 'cm-filter-pills--scroll' : ''}`}>
         {group.options.map((opt) => (
           <button
             key={opt.value}
@@ -132,9 +138,22 @@ export function PackageFiltersPanel({
     />
   ));
 
+  const filterGroupsInline = groups.map((group) => (
+    <FilterGroupSection
+      key={group.name}
+      group={group}
+      locale={locale}
+      active={params.get(group.name)}
+      onToggle={(value) => toggle(group.name, value)}
+      variant="inline"
+    />
+  ));
+
   return (
     <>
-      <div className="cm-package-filters-mobile lg:hidden">
+      <div className="cm-catalog-filters-sticky cm-catalog-filters-sticky--mobile lg:hidden">
+        <div className="tr-page-width">
+          <div className="cm-catalog-shell">
         <div className="cm-filter-mobile-toolbar">
           <button
             type="button"
@@ -171,6 +190,8 @@ export function PackageFiltersPanel({
             </button>
           </div>
         ) : null}
+          </div>
+        </div>
       </div>
 
       {mobileOpen ? (
@@ -214,16 +235,13 @@ export function PackageFiltersPanel({
         </div>
       ) : null}
 
-      <div className="cm-package-filters-desktop hidden lg:block">
-        <div
-          className="cm-filter-panel cm-filter-panel--sidebar"
-          role="region"
-          aria-label={tr.packages.filters}
-        >
-          <div className="cm-filter-panel-header cm-filter-panel-header--catalog">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-pine">{tr.packages.filters}</p>
-              <p className="cm-filter-panel-meta">
+      <div className="cm-catalog-filters-sticky hidden lg:block">
+        <div className="tr-page-width">
+          <div className="cm-catalog-shell cm-catalog-filters-bar">
+          <div className="cm-catalog-filters-bar__head">
+            <div className="cm-catalog-filters-bar__meta">
+              <p className="cm-catalog-filters-bar__title">{tr.packages.filters}</p>
+              <p className="cm-catalog-filters-bar__count">
                 {tr.packages.showing} {resultCount} / {totalCount}
               </p>
             </div>
@@ -234,7 +252,8 @@ export function PackageFiltersPanel({
               </button>
             ) : null}
           </div>
-          <div className="cm-filter-panel-body">{filterGroups}</div>
+          <div className="cm-catalog-filters-bar__groups">{filterGroupsInline}</div>
+          </div>
         </div>
       </div>
     </>
@@ -301,35 +320,39 @@ export function GearFiltersPanel({
 
   return (
     <>
-      <div className="cm-gear-filters-mobile lg:hidden">
-        <div className="cm-filter-mobile-toolbar">
-          <button
-            type="button"
-            className="cm-filter-mobile-trigger"
-            onClick={() => setMobileOpen(true)}
-            aria-expanded={mobileOpen}
-          >
-            <IconFilter size={16} />
-            <span>{tr.packages.filters}</span>
-            {active ? <span className="cm-filter-mobile-badge">1</span> : null}
-          </button>
-          <p className="cm-filter-mobile-count">
-            {tr.packages.showing} {resultCount}/{totalCount}
-          </p>
-        </div>
-
-        {activeOption ? (
-          <div className="cm-filter-active-chips">
+      <div className="cm-catalog-filters-sticky cm-catalog-filters-sticky--mobile lg:hidden">
+        <div className="tr-page-width">
+          <div className="cm-catalog-shell">
+          <div className="cm-filter-mobile-toolbar">
             <button
               type="button"
-              className="cm-filter-active-chip"
-              onClick={() => setCategory(null)}
+              className="cm-filter-mobile-trigger"
+              onClick={() => setMobileOpen(true)}
+              aria-expanded={mobileOpen}
             >
-              {locale === 'ka' ? activeOption.labelKa : activeOption.labelEn}
-              <IconX size={12} />
+              <IconFilter size={16} />
+              <span>{tr.packages.filters}</span>
+              {active ? <span className="cm-filter-mobile-badge">1</span> : null}
             </button>
+            <p className="cm-filter-mobile-count">
+              {tr.packages.showing} {resultCount}/{totalCount}
+            </p>
           </div>
-        ) : null}
+
+          {activeOption ? (
+            <div className="cm-filter-active-chips">
+              <button
+                type="button"
+                className="cm-filter-active-chip"
+                onClick={() => setCategory(null)}
+              >
+                {locale === 'ka' ? activeOption.labelKa : activeOption.labelEn}
+                <IconX size={12} />
+              </button>
+            </div>
+          ) : null}
+          </div>
+        </div>
       </div>
 
       {mobileOpen ? (
@@ -381,16 +404,13 @@ export function GearFiltersPanel({
         </div>
       ) : null}
 
-      <div className="cm-gear-filters-desktop hidden lg:block">
-        <div
-          className="cm-filter-panel cm-filter-panel--sidebar"
-          role="region"
-          aria-label={tr.packages.filters}
-        >
-          <div className="cm-filter-panel-header cm-filter-panel-header--catalog">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-pine">{tr.packages.filters}</p>
-              <p className="cm-filter-panel-meta">
+      <div className="cm-catalog-filters-sticky hidden lg:block">
+        <div className="tr-page-width">
+          <div className="cm-catalog-shell cm-catalog-filters-bar">
+          <div className="cm-catalog-filters-bar__head">
+            <div className="cm-catalog-filters-bar__meta">
+              <p className="cm-catalog-filters-bar__title">{tr.packages.filters}</p>
+              <p className="cm-catalog-filters-bar__count">
                 {tr.packages.showing} {resultCount} / {totalCount}
               </p>
             </div>
@@ -405,10 +425,9 @@ export function GearFiltersPanel({
               </button>
             ) : null}
           </div>
-          <div className="cm-filter-panel-body">
-            <div className="cm-filter-pills cm-filter-pills--stack">
-              {categoryButtons}
-            </div>
+          <div className="cm-filter-pills cm-filter-pills--scroll" role="group" aria-label={tr.packages.filters}>
+            {categoryButtons}
+          </div>
           </div>
         </div>
       </div>

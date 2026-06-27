@@ -180,15 +180,17 @@ function FeaturedGearStrip({items}: {items: HomepageFeaturedItem[]}) {
         <p className="cm-gear-strip__eyebrow">
           {isKa ? '02 — ცალკეული აღჭურვილობა' : '02 — Individual gear'}
         </p>
-        <h2 id="cm-gear-strip-heading" className="cm-gear-strip__title">
-          {isKa
-            ? 'შეარჩიე ცალკეული აღჭურვილობა.'
-            : 'Hand-picked individual gear.'}
-        </h2>
-        <Link to="/individual-gear" className="cm-gear-strip__link">
-          <span>{isKa ? 'სრული კატალოგი' : 'Full catalog'}</span>
-          <span aria-hidden>→</span>
-        </Link>
+        <div className="cm-gear-strip__head-row">
+          <h2 id="cm-gear-strip-heading" className="cm-gear-strip__title">
+            {isKa
+              ? 'შეარჩიე ცალკეული აღჭურვილობა.'
+              : 'Hand-picked individual gear.'}
+          </h2>
+          <Link to="/individual-gear" className="cm-gear-strip__link">
+            <span>{isKa ? 'სრული კატალოგი' : 'Full catalog'}</span>
+            <span aria-hidden>→</span>
+          </Link>
+        </div>
       </header>
 
       {items.length ? (

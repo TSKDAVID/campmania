@@ -67,56 +67,55 @@ export function PackageCatalogGrid({
   return (
     <>
       <section className="cm-catalog-page bg-mist">
-        <div className="tr-page-width cm-catalog-page-inner">
+        <PackageFiltersPanel
+          groups={filterGroups}
+          resultCount={filtered.length}
+          totalCount={packages.length}
+        />
+
+        <div className="tr-page-width">
+          <div className="cm-catalog-shell cm-catalog-page-inner">
           {!shopifyConnected ? (
             <p className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-charcoal/80">
               {tr.packages.shopifySetupHint}
             </p>
           ) : null}
-          <div className="cm-catalog-layout cm-catalog-layout--packages">
-            <div className="cm-catalog-page-title-row">
-              <h1 className="cm-catalog-heading cm-catalog-heading--row">
-                {tr.packages.title}
-              </h1>
-              <p className="cm-catalog-technical-note">
-                {locale === 'ka'
-                  ? `კოლექცია ${filtered.length}/${packages.length}`
-                  : `Collection ${filtered.length}/${packages.length}`}
+
+          <div className="cm-catalog-page-title-row">
+            <h1 className="cm-catalog-heading cm-catalog-heading--row">
+              {tr.packages.title}
+            </h1>
+            <p className="cm-catalog-technical-note">
+              {locale === 'ka'
+                ? `კოლექცია ${filtered.length}/${packages.length}`
+                : `Collection ${filtered.length}/${packages.length}`}
+            </p>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="cm-empty-state">
+              <IconMountain size={40} className="text-sage/50" />
+              <p className="mt-4 font-display text-lg font-semibold text-pine">
+                {tr.packages.noResults}
               </p>
             </div>
-
-            <PackageFiltersPanel
-              groups={filterGroups}
-              resultCount={filtered.length}
-              totalCount={packages.length}
-            />
-
-            <div className="cm-catalog-main min-w-0">
-              {filtered.length === 0 ? (
-                <div className="cm-empty-state">
-                  <IconMountain size={40} className="text-sage/50" />
-                  <p className="mt-4 font-display text-lg font-semibold text-pine">
-                    {tr.packages.noResults}
-                  </p>
-                </div>
-              ) : (
-                <div className="cm-catalog-grid cm-catalog-grid--packages">
-                  {filtered.map((pkg) => (
-                    <PackageCard
-                      key={pkg.id}
-                      pkg={pkg}
-                      gear={gear}
-                      locale={locale}
-                      durationOptions={durationOptions}
-                      totalLabel={tr.booking.total}
-                      itemsCountLabel={tr.packages.itemsCount}
-                      savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
-                      includedLabel={tr.packages.included}
-                    />
-                  ))}
-                </div>
-              )}
+          ) : (
+            <div className="cm-catalog-grid cm-catalog-grid--packages">
+              {filtered.map((pkg) => (
+                <PackageCard
+                  key={pkg.id}
+                  pkg={pkg}
+                  gear={gear}
+                  locale={locale}
+                  durationOptions={durationOptions}
+                  totalLabel={tr.booking.total}
+                  itemsCountLabel={tr.packages.itemsCount}
+                  savingsLabel={locale === 'ka' ? 'ღირ.' : 'Was'}
+                  includedLabel={tr.packages.included}
+                />
+              ))}
             </div>
+          )}
           </div>
         </div>
       </section>
