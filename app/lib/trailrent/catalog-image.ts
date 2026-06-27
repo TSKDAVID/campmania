@@ -2,7 +2,7 @@
 export function catalogCardImageUrl(
   url?: string | null,
   width = 800,
-  options?: {crop?: boolean},
+  options?: {crop?: boolean; cropHeightRatio?: number},
 ): string | undefined {
   if (!url) return undefined;
   const crop = options?.crop !== false;
@@ -10,7 +10,8 @@ export function catalogCardImageUrl(
     const parsed = new URL(url);
     parsed.searchParams.set('width', String(width));
     if (crop) {
-      const height = Math.round(width * 1.25);
+      const ratio = options?.cropHeightRatio ?? 1.25;
+      const height = Math.round(width * ratio);
       parsed.searchParams.set('height', String(height));
       parsed.searchParams.set('crop', 'center');
     }
@@ -22,7 +23,7 @@ export function catalogCardImageUrl(
 
 export function catalogCardImageSrcSet(
   url?: string | null,
-  options?: {crop?: boolean},
+  options?: {crop?: boolean; cropHeightRatio?: number},
 ): string | undefined {
   if (!url) return undefined;
   const widths = [320, 480, 640, 800];

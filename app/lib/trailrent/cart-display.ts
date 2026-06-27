@@ -80,13 +80,50 @@ export function isBundleCartLine(line: CartLine): boolean {
   return hasLineComponents(line) && (line.lineComponents?.length ?? 0) > 0;
 }
 
+function resolvePackageKitItemDaily(
+  line: CartLine,
+  attrs: Record<string, string>,
+): number | undefined {
+  const variantDaily = moneyAmount(line.merchandise?.price);
+  if (variantDaily <= 0) return undefined;
+
+  const discount = Number(attrs.trail_package_discount_percent ?? 0);
+  return discount > 0
+    ? Math.round(variantDaily * (1 - discount / 100))
+    : Math.round(variantDaily);
+}
+
 export function resolveCartLineDisplayPrice(line: CartLine): number {
   const attrs = getLineAttributeMap(line);
+  const days = getCartLineRentalDays(line) ?? 0;
 
   const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
-  const days = getCartLineRentalDays(line) ?? 0;
   if (quotedDaily > 0 && days > 0) {
+    if (attrs.trail_package_collection) {
+      const variantDaily = moneyAmount(line.merchandise?.price);
+      const compareAt = Number(attrs.quoted_compare_at_daily ?? 0);
+      const discount = Number(attrs.trail_package_discount_percent ?? 0);
+      const itemDaily = resolvePackageKitItemDaily(line, attrs);
+
+      if (
+        itemDaily != null &&
+        itemDaily > 0 &&
+        variantDaily > 0 &&
+        compareAt > 0 &&
+        compareAt !== Math.round(variantDaily)
+      ) {
+        return itemDaily * days;
+      }
+    }
+
     return quotedDaily * days;
+  }
+
+  if (attrs.trail_package_collection && days > 0) {
+    const itemDaily = resolvePackageKitItemDaily(line, attrs);
+    if (itemDaily != null && itemDaily > 0) {
+      return itemDaily * days;
+    }
   }
 
   const totalFromCost = moneyAmount(line.cost?.totalAmount);
@@ -115,7 +152,27 @@ export function resolveCartLineDisplayPrice(line: CartLine): number {
 export function resolveCartLineUnitPrice(line: CartLine): number {
   const attrs = getLineAttributeMap(line);
   const quotedDaily = Number(attrs.quoted_daily_rate ?? 0);
-  if (quotedDaily > 0) return quotedDaily;
+  if (quotedDaily > 0) {
+    if (attrs.trail_package_collection) {
+      const variantDaily = moneyAmount(line.merchandise?.price);
+      const compareAt = Number(attrs.quoted_compare_at_daily ?? 0);
+      const itemDaily = resolvePackageKitItemDaily(line, attrs);
+      if (
+        itemDaily != null &&
+        variantDaily > 0 &&
+        compareAt > 0 &&
+        compareAt !== Math.round(variantDaily)
+      ) {
+        return itemDaily;
+      }
+    }
+    return quotedDaily;
+  }
+
+  if (attrs.trail_package_collection) {
+    const itemDaily = resolvePackageKitItemDaily(line, attrs);
+    if (itemDaily != null && itemDaily > 0) return itemDaily;
+  }
 
   const perQty = moneyAmount(line.cost?.amountPerQuantity);
   if (perQty > 0) return perQty;
@@ -135,6 +192,20 @@ export function resolveCartLineCompareAtDaily(line: CartLine): number | undefine
 
   const compare = Number(attrs.quoted_compare_at_daily ?? 0);
   const daily = Number(attrs.quoted_daily_rate ?? 0);
+
+  if (attrs.trail_package_collection) {
+    const variantDaily = moneyAmount(line.merchandise?.price);
+    if (variantDaily > 0) {
+      const unit = resolveCartLineUnitPrice(line);
+      if (compare > 0 && compare !== Math.round(variantDaily)) {
+        return Math.round(variantDaily);
+      }
+      if (compare > 0 && compare > unit) return compare;
+      if (variantDaily > unit) return Math.round(variantDaily);
+      return undefined;
+    }
+  }
+
   if (compare > 0 && compare > daily) return compare;
 
   return undefined;

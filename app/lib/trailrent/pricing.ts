@@ -53,6 +53,16 @@ export function formatRentalDate(date: string, locale: 'ka' | 'en'): string {
   }).format(parsed);
 }
 
+export function formatRentalDateCompact(date: string, locale: 'ka' | 'en'): string {
+  const parsed = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date;
+
+  return new Intl.DateTimeFormat(locale === 'ka' ? 'ka-GE' : 'en-GB', {
+    day: 'numeric',
+    month: 'short',
+  }).format(parsed);
+}
+
 export function toIsoDateString(date: Date): string {
   return date.toISOString().split('T')[0]!;
 }

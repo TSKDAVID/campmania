@@ -2,7 +2,7 @@ import {useMemo, useState} from 'react';
 import {Link} from 'react-router';
 import {IncludedGearThumb} from '~/components/trailrent/IncludedGearThumb';
 import {IconArrowRight, IconMountain} from '~/components/trailrent/Icons';
-import {PackageCardImageScrubber} from '~/components/trailrent/PackageCardImageScrubber';
+import {CatalogCardImage} from '~/components/trailrent/CatalogCardImage';
 import {
   PriceWithCompare,
   TotalWithCompare,
@@ -90,12 +90,6 @@ export function PackageCard({
     durationOptions.find((option) => option.value === selectedDuration)?.label ??
     `${selectedDays} ${perDayWord}`;
 
-  const cardImages = useMemo(() => {
-    if (pkg.imageUrls?.length) return pkg.imageUrls;
-    if (pkg.imageUrl) return [pkg.imageUrl];
-    return [];
-  }, [pkg.imageUrls, pkg.imageUrl]);
-
   const includedThumbs = useMemo(() => {
     const thumbSource =
       pkg.includedCollectionProducts?.length
@@ -141,10 +135,36 @@ export function PackageCard({
   const inner = (
     <div className="cm-pkg-card__layout">
       <div className="cm-kit-card-media cm-pkg-card__media">
-        {cardImages.length > 0 ? (
-          <PackageCardImageScrubber
-            images={cardImages}
+        {productUrl ? (
+          <Link
+            to={productUrl}
+            className="cm-pkg-card__media-link no-underline hover:no-underline"
+            aria-label={pkg.title}
+            prefetch="intent"
+          >
+            {pkg.imageUrl ? (
+              <CatalogCardImage
+                src={pkg.imageUrl}
+                alt={pkg.imageAlt ?? pkg.title}
+                fit="cover"
+                cropHeightRatio={0.72}
+              />
+            ) : (
+              <>
+                <div className="cm-kit-card-pattern absolute inset-0 bg-gradient-to-br from-forest/80 to-moss/40 opacity-80" />
+                <IconMountain
+                  size={32}
+                  className="relative z-[1] mx-auto text-white/40"
+                />
+              </>
+            )}
+          </Link>
+        ) : pkg.imageUrl ? (
+          <CatalogCardImage
+            src={pkg.imageUrl}
             alt={pkg.imageAlt ?? pkg.title}
+            fit="cover"
+            cropHeightRatio={0.72}
           />
         ) : (
           <>

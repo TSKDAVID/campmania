@@ -1,10 +1,12 @@
 import {useCallback, useEffect, useState, Suspense} from 'react';
-import {Await} from 'react-router';
+import {Await, Link, useRouteLoaderData} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {
   getFallbackHomepagePromoSlides,
   type HomepagePromoSlide,
 } from '~/lib/trailrent/homepagePromo';
+import {resolveStorefrontPath} from '~/lib/storefront-url';
+import type {RootLoader} from '~/root';
 
 type EditorialHeroProps = {
   promoSlides: Promise<HomepagePromoSlide[]>;
@@ -118,9 +120,6 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
 
   if (!resolved.length) return <HeroBillboardSkeleton />;
 
-  const slide = resolved[activeIndex] ?? resolved[0];
-  if (!slide) return <HeroBillboardSkeleton />;
-
   const carouselLabel =
     locale === 'ka' ? 'მთავარი ბანერი' : 'Homepage banner carousel';
 
@@ -139,35 +138,57 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
       }}
     >
       <div className="cm-hero-billboard__stage">
-        <div className="cm-hero-billboard__frame">
-          <img
-            key={slide.id ?? slide.title}
-            src={slide.imageUrl}
-            alt={slide.imageAlt ?? slide.title}
-            className="cm-hero-billboard__image"
-            loading="eager"
-          />
-
-          {slide.badge ? (
-            <span className="cm-hero-billboard__corner-badge">{slide.badge}</span>
-          ) : null}
-        </div>
-
         <div
-          key={`${slide.id ?? slide.title}-card`}
-          className="cm-hero-billboard__card"
+          className="cm-hero-billboard__track"
+          style={{transform: `translate3d(-${activeIndex * 100}%, 0, 0)`}}
+          aria-live="polite"
         >
-          <p className="cm-hero-billboard__eyebrow">
-            {locale === 'ka' ? 'მიმდინარე ანონსი' : 'Now featured'}
-          </p>
-          <h2 className="cm-hero-billboard__title">{slide.title}</h2>
-          {slide.subtitle ? (
-            <p className="cm-hero-billboard__subtitle">{slide.subtitle}</p>
-          ) : null}
-          <a className="cm-hero-billboard__cta" href={slide.linkUrl}>
-            {slide.ctaLabel}
-            <span aria-hidden>→</span>
-          </a>
+          {resolved.map((entry, index) => {
+            const isActive = index === activeIndex;
+
+            return (
+              <article
+                key={entry.id ?? `${entry.title}-${index}`}
+                className="cm-hero-billboard__slide"
+                aria-hidden={!isActive}
+              >
+                <HeroBillboardLink
+                  href={entry.linkUrl}
+                  isActive={isActive}
+                  className="cm-hero-billboard__frame cm-hero-billboard__frame-link"
+                  ariaLabel={entry.title}
+                >
+                  <img
+                    src={entry.imageUrl}
+                    alt={entry.imageAlt ?? entry.title}
+                    className="cm-hero-billboard__image"
+                    loading={index <= 1 ? 'eager' : 'lazy'}
+                  />
+
+                  {entry.badge ? (
+                    <span className="cm-hero-billboard__corner-badge">
+                      {entry.badge}
+                    </span>
+                  ) : null}
+                </HeroBillboardLink>
+
+                <div className="cm-hero-billboard__card">
+                  <p className="cm-hero-billboard__eyebrow">
+                    {locale === 'ka' ? 'მიმდინარე ანონსი' : 'Now featured'}
+                  </p>
+                  <h2 className="cm-hero-billboard__title">{entry.title}</h2>
+                  {entry.subtitle ? (
+                    <p className="cm-hero-billboard__subtitle">{entry.subtitle}</p>
+                  ) : null}
+                  <HeroBillboardCtaLink
+                    href={entry.linkUrl}
+                    isActive={isActive}
+                    label={entry.ctaLabel}
+                  />
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
 
@@ -213,6 +234,69 @@ function HeroBillboardCarousel({slides}: {slides: HomepagePromoSlide[]}) {
         </div>
       ) : null}
     </aside>
+  );
+}
+
+function HeroBillboardLink({
+  href,
+  isActive,
+  className,
+  ariaLabel,
+  children,
+}: {
+  href: string;
+  isActive: boolean;
+  className: string;
+  ariaLabel: string;
+  children: React.ReactNode;
+}) {
+  const rootData = useRouteLoaderData<RootLoader>('root');
+  const {to, external} = resolveStorefrontPath(href, {
+    storeDomain: rootData?.publicStoreDomain,
+    primaryDomainUrl: rootData?.header?.shop?.primaryDomain?.url,
+    requestHost:
+      typeof window !== 'undefined' ? window.location.hostname : undefined,
+  });
+  const sharedProps = {
+    className,
+    'aria-label': ariaLabel,
+    tabIndex: isActive ? 0 : -1,
+  };
+
+  if (external) {
+    return (
+      <a href={to} {...sharedProps}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={to} prefetch={isActive ? 'intent' : 'none'} {...sharedProps}>
+      {children}
+    </Link>
+  );
+}
+
+function HeroBillboardCtaLink({
+  href,
+  isActive,
+  label,
+}: {
+  href: string;
+  isActive: boolean;
+  label: string;
+}) {
+  return (
+    <HeroBillboardLink
+      href={href}
+      isActive={isActive}
+      className="cm-hero-billboard__cta"
+      ariaLabel={label}
+    >
+      {label}
+      <span aria-hidden>→</span>
+    </HeroBillboardLink>
   );
 }
 

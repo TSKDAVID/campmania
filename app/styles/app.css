@@ -289,6 +289,20 @@ img {
 
 /* Mobile menu: panel below sticky header, auto height (no empty white sheet) */
 @media (max-width: 63.99em) {
+  .overlay--mobile.expanded {
+    pointer-events: none;
+    background: transparent;
+  }
+
+  .overlay--mobile.expanded::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    z-index: 0;
+  }
+
   .overlay--mobile aside {
     width: 100%;
     max-width: 100%;
@@ -300,6 +314,8 @@ img {
     overflow-y: auto;
     border-radius: 0 0 1rem 1rem;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    pointer-events: auto;
+    z-index: 1;
   }
 
   .overlay--mobile.expanded aside {
@@ -307,13 +323,19 @@ img {
   }
 
   .overlay--mobile .close-outside {
+    position: fixed;
+    top: var(--site-top-height, 7rem);
+    left: 0;
     width: 100%;
-    height: var(--site-top-height, 7rem);
+    height: calc(100% - var(--site-top-height, 7rem));
+    pointer-events: auto;
+    z-index: 0;
   }
 
   .overlay--mobile aside main {
     margin: 0;
     padding: 0;
+    cursor: default;
   }
 
   .overlay--mobile aside header {

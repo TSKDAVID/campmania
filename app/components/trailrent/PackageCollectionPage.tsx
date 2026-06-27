@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useMemo, useState, type ReactNode} from 'react';
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {CartForm} from '@shopify/hydrogen';
 import {ProductImage, type GalleryImage} from '~/components/ProductImage';
@@ -11,7 +11,6 @@ import {
   ProductIncludedPanel,
   ProductInlinePrice,
   ProductPricingExtras,
-  ProductTrustBar,
   type ProductIncludedItem,
 } from '~/components/trailrent/ProductPageSections';
 import {useLocale} from '~/providers/LocaleProvider';
@@ -30,8 +29,6 @@ import {
   isDateRangeValid,
 } from '~/lib/trailrent/pricing';
 import {
-  DeliverySelector,
-  HOME_DELIVERY_FEE,
   TBILISI_METRO_STATIONS,
   type DeliveryOption,
 } from '~/components/trailrent/DeliverySelector';
@@ -61,32 +58,30 @@ function PackageKitBookingForm({
   compareAtDaily,
   purchasePrice,
   buyAvailable,
+  priceSlot,
+  includedSlot,
 }: {
   pkg: PackageCollectionDetail['package'];
   discountPercent?: number;
   compareAtDaily?: number;
   purchasePrice: number;
   buyAvailable: boolean;
+  priceSlot?: ReactNode;
+  includedSlot?: ReactNode;
 }) {
   const {translations: tr} = useLocale();
   const defaults = getDefaultDateRange();
   const [startDate, setStartDate] = useState(defaults.start);
   const [endDate, setEndDate] = useState(defaults.end);
-  const [deliveryOption, setDeliveryOption] = useState<DeliveryOption>('metro');
-  const [metroId, setMetroId] = useState(
-    TBILISI_METRO_STATIONS[0]?.id ?? 'rustaveli',
-  );
-  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const deliveryOption: DeliveryOption = 'metro';
+  const metroId = TBILISI_METRO_STATIONS[0]?.id ?? 'rustaveli';
+  const deliveryFee = 0;
 
   const rentalPricing = useMemo(
     () => calculateRentalTotal(pkg.dailyRate, startDate, endDate),
     [pkg.dailyRate, startDate, endDate],
   );
-  const deliveryFee =
-    deliveryOption === 'home' ? HOME_DELIVERY_FEE : 0;
   const datesValid = isDateRangeValid(startDate, endDate);
-  const deliveryReady =
-    deliveryOption === 'metro' || deliveryAddress.trim().length > 0;
 
   const cartLines = useMemo(
     () =>
@@ -102,94 +97,95 @@ function PackageKitBookingForm({
           endDate,
           deliveryOption,
           metroId,
-          deliveryAddress,
+          deliveryAddress: '',
           deliveryFee,
           rentalDays: rentalPricing.days,
-          quotedDailyRate: pkg.dailyRate,
-          quotedCompareAtDaily:
-            compareAtDaily != null && compareAtDaily > pkg.dailyRate
-              ? compareAtDaily
-              : undefined,
         }),
+        packageDailyRate: pkg.dailyRate,
       }),
     [
       pkg,
       discountPercent,
-      compareAtDaily,
       startDate,
       endDate,
       deliveryOption,
       metroId,
-      deliveryAddress,
       deliveryFee,
       rentalPricing.days,
     ],
   );
 
-  const canSubmit =
-    cartLines.length > 0 && datesValid && deliveryReady;
+  const canSubmit = cartLines.length > 0 && datesValid;
+
+  const submitButton = (fetcher: {state: string; data?: unknown}) => {
+    const addError = getCartActionErrorMessage(fetcher.data);
+    const label = canSubmit ? tr.gearBuilder.addBundleToCart : tr.booking.unavailable;
+
+    return (
+      <div className="cm-rental-form-actions cm-rental-form-actions--package">
+        {addError ? (
+          <p className="cm-rental-status cm-rental-status--error" role="alert">
+            {addError}
+          </p>
+        ) : null}
+        <button
+          type="submit"
+          className="tr-btn-primary cm-rental-submit cm-rental-submit--package disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!canSubmit || fetcher.state !== 'idle'}
+        >
+          <IconCart size={16} />
+          {label}
+        </button>
+      </div>
+    );
+  };
 
   return (
-    <div className="cm-rental-form cm-rental-form--compact">
+    <div className="cm-rental-form cm-rental-form--compact cm-rental-form--package">
       <header className="cm-rental-form-header">
-        <p className="cm-rental-form-eyebrow">{tr.booking.title}</p>
-      </header>
-      <div className="cm-rental-form-body">
-        <div className="cm-rental-form-fields">
-          <RentalDateRangePicker
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-          />
-          <DeliverySelector
-            option={deliveryOption}
-            metroStationId={metroId}
-            address={deliveryAddress}
-            onOptionChange={setDeliveryOption}
-            onMetroStationChange={setMetroId}
-            onAddressChange={setDeliveryAddress}
-          />
-        </div>
-        <div className="cm-rental-form-summary">
-          <p className="cm-rental-form-total">
-            {tr.booking.total}{' '}
-            <span className="tabular-nums">
-              {formatGel(rentalPricing.total + deliveryFee)}
-            </span>
-          </p>
-          {buyAvailable && purchasePrice > 0 ? (
-            <p className="mt-2 text-sm text-muted">
-              {tr.booking.buyOutright} {formatGel(purchasePrice)}
-            </p>
+        <div className="cm-rental-form-header__lead">
+          {priceSlot ? (
+            <div className="cm-rental-form-price">{priceSlot}</div>
           ) : null}
         </div>
+      </header>
+
+      <div className="cm-rental-form-body">
         <CartForm
           route="/cart"
           inputs={{lines: cartLines}}
           action={CartForm.ACTIONS.LinesAdd}
         >
-          {(fetcher) => {
-            const addError = getCartActionErrorMessage(fetcher.data);
-            return (
-              <>
-                {addError ? (
-                  <p className="cm-rental-status cm-rental-status--error" role="alert">
-                    {addError}
-                  </p>
+          {(fetcher) => (
+            <div className="cm-package-booking-panel">
+              <div className="cm-package-booking-panel__main">
+                <div className="cm-package-booking-panel__dates">
+                  <RentalDateRangePicker
+                    layout="package"
+                    startDate={startDate}
+                    endDate={endDate}
+                    onStartDateChange={setStartDate}
+                    onEndDateChange={setEndDate}
+                    totalAmount={formatGel(rentalPricing.total)}
+                  />
+                </div>
+                {includedSlot ? (
+                  <div className="cm-package-booking-panel__included">
+                    {includedSlot}
+                  </div>
                 ) : null}
-                <button
-                  type="submit"
-                  className="tr-btn-primary cm-rental-submit w-full"
-                  disabled={!canSubmit || fetcher.state !== 'idle'}
-                >
-                  <IconCart size={18} />
-                  {tr.gearBuilder.addBundleToCart}
-                </button>
-              </>
-            );
-          }}
+              </div>
+              <div className="cm-package-booking-panel__footer">
+                {submitButton(fetcher)}
+              </div>
+            </div>
+          )}
         </CartForm>
+        {buyAvailable && purchasePrice > 0 ? (
+          <p className="cm-rental-package-buy-note">
+            {tr.booking.buyOutright} {formatGel(purchasePrice)}
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -329,8 +325,40 @@ export function PackageCollectionPage({
       ? `${pkg.trekLabel} · ${pkg.durationLabel}`
       : `${pkg.trekLabel} · ${pkg.durationLabel}`);
 
+  const priceSlot = (
+    <>
+      <ProductInlinePrice
+        fulfillmentMode={fulfillmentMode}
+        rentPrice={displayRentPrice}
+        buyPrice={buyPriceMoney}
+        buyAvailable={buyAvailable}
+        compareAtPrice={displayCompareAtPrice}
+      />
+      <ProductPricingExtras
+        fulfillmentMode={fulfillmentMode}
+        rentPrice={displayRentPrice}
+        compareAtPrice={displayCompareAtPrice}
+        savingsPercent={savingsPercent}
+        buyAvailable={buyAvailable}
+        variant="inline"
+      />
+    </>
+  );
+
+  const embedIncludedInBooking =
+    !bookingFormProps || fulfillmentMode === 'rent';
+  const packageIncludedPanel =
+    includedProducts.length > 0 ? (
+      <ProductIncludedPanel
+        items={pkg.items}
+        includedProducts={includedProducts}
+        variant="package"
+        embedded={embedIncludedInBooking}
+      />
+    ) : null;
+
   return (
-    <article className="cm-product-page cm-pdp-editorial">
+    <article className="cm-product-page cm-pdp-editorial cm-pdp-editorial--package">
       <div className="cm-pdp-editorial__inner">
         <div className="cm-pdp-editorial__grid">
           <aside className="cm-pdp-editorial__media" aria-label={pkg.title}>
@@ -360,36 +388,7 @@ export function PackageCollectionPage({
               {subtitle ? (
                 <p className="cm-editorial-body mt-2">{subtitle}</p>
               ) : null}
-              <div className="cm-pdp-editorial__price-row mt-4">
-                <ProductInlinePrice
-                  fulfillmentMode={fulfillmentMode}
-                  rentPrice={displayRentPrice}
-                  buyPrice={buyPriceMoney}
-                  buyAvailable={buyAvailable}
-                  compareAtPrice={displayCompareAtPrice}
-                />
-                <ProductPricingExtras
-                  fulfillmentMode={fulfillmentMode}
-                  rentPrice={displayRentPrice}
-                  compareAtPrice={displayCompareAtPrice}
-                  savingsPercent={savingsPercent}
-                  buyAvailable={buyAvailable}
-                  variant="inline"
-                />
-              </div>
             </header>
-
-            <ProductTrustBar isTrustedTier={trustedTier} />
-
-            {includedProducts.length > 0 ? (
-              <div className="cm-pdp-section">
-                <ProductIncludedPanel
-                  items={pkg.items}
-                  includedProducts={includedProducts}
-                  variant="editorial"
-                />
-              </div>
-            ) : null}
 
             <div className="cm-product-booking">
               {bookingFormProps ? (
@@ -397,6 +396,11 @@ export function PackageCollectionPage({
                   {...bookingFormProps}
                   layout="stacked"
                   compact
+                  packageBooking
+                  priceSlot={priceSlot}
+                  includedSlot={
+                    embedIncludedInBooking ? packageIncludedPanel : undefined
+                  }
                 />
               ) : (
                 <PackageKitBookingForm
@@ -405,9 +409,19 @@ export function PackageCollectionPage({
                   compareAtDaily={displayCompareAt}
                   purchasePrice={purchasePrice}
                   buyAvailable={buyAvailable}
+                  priceSlot={priceSlot}
+                  includedSlot={packageIncludedPanel}
                 />
               )}
             </div>
+
+            {includedProducts.length > 0 && !embedIncludedInBooking ? (
+              <ProductIncludedPanel
+                items={pkg.items}
+                includedProducts={includedProducts}
+                variant="package"
+              />
+            ) : null}
           </div>
         </div>
       </div>

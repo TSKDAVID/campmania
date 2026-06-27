@@ -1,5 +1,7 @@
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
+import {Link} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
+import {useIsDesktop} from '~/hooks/useMediaQuery';
 import {formatGel} from '~/lib/trailrent/pricing';
 import {IncludedGearThumb} from '~/components/trailrent/IncludedGearThumb';
 import type {FulfillmentMode} from '~/components/RentalProductForm';
@@ -201,24 +203,176 @@ export function ProductIncludedPanel({
   items,
   includedProducts,
   variant = 'default',
+  embedded = false,
 }: {
   items: string[];
   includedProducts?: ProductIncludedItem[];
-  variant?: 'default' | 'editorial';
+  variant?: 'default' | 'editorial' | 'package';
+  /** Lighter chrome when rendered inside the package booking grid. */
+  embedded?: boolean;
 }) {
   const {translations: tr, locale} = useLocale();
+  const isDesktop = useIsDesktop();
   const entries: ProductIncludedItem[] = includedProducts?.length
     ? includedProducts
     : items.map((title) => ({title}));
   if (!entries.length) return null;
 
   const isEditorial = variant === 'editorial';
-  const sectionTitle =
-    locale === 'ka' ? 'რა შედის ნაკრებში' : "What's Included";
+  const isPackage = variant === 'package';
+  const sectionTitle = isPackage
+    ? tr.product.includedKitTitle
+    : locale === 'ka'
+      ? 'რა შედის ნაკრებში'
+      : "What's Included";
+
+  const previewNames = entries
+    .slice(0, 2)
+    .map((entry) => entry.title)
+    .join(', ');
+  const previewMore =
+    entries.length > 2
+      ? tr.product.includedMore.replace('{count}', String(entries.length - 2))
+      : null;
+
+  if (isPackage && embedded) {
+    return (
+      <details
+        className="cm-package-included cm-package-included--embedded"
+        open={isDesktop || undefined}
+      >
+        <summary className="cm-package-included__summary">
+          <span className="cm-package-included__icon" aria-hidden>
+            <IconPackage size={16} />
+          </span>
+          <span className="cm-package-included__copy">
+            <span className="cm-package-included__title">{sectionTitle}</span>
+            <span className="cm-package-included__meta">
+              {entries.length} {tr.product.itemsIncluded}
+              {previewNames ? (
+                <>
+                  <span aria-hidden> · </span>
+                  <span className="cm-package-included__preview">{previewNames}</span>
+                </>
+              ) : null}
+            </span>
+          </span>
+          <span className="cm-package-included__chevron" aria-hidden />
+        </summary>
+        <div className="cm-package-included__body">
+          <ul className="cm-package-included__list" role="list">
+            {entries.map((entry) => {
+              const href = entry.handle ? `/products/${entry.handle}` : undefined;
+              const row = (
+                <>
+                  <span className="cm-package-included__thumb">
+                    {entry.imageUrl ? (
+                      <img src={entry.imageUrl} alt="" loading="lazy" />
+                    ) : (
+                      <span aria-hidden>{entry.title.slice(0, 2).toUpperCase()}</span>
+                    )}
+                  </span>
+                  <span className="cm-package-included__label" title={entry.title}>
+                    {entry.title}
+                  </span>
+                </>
+              );
+
+              return (
+                <li key={entry.handle ?? entry.title}>
+                  {href ? (
+                    <Link
+                      to={href}
+                      className="cm-package-included__row no-underline hover:no-underline"
+                      prefetch="intent"
+                    >
+                      {row}
+                    </Link>
+                  ) : (
+                    <div className="cm-package-included__row">{row}</div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </details>
+    );
+  }
+
+  if (isPackage) {
+    return (
+      <details
+        className={`cm-included-disclosure${embedded ? ' cm-included-disclosure--embedded' : ''}`}
+        open={isDesktop}
+      >
+        <summary className="cm-included-disclosure__summary">
+          <span className="cm-included-disclosure__icon" aria-hidden>
+            <IconPackage size={16} />
+          </span>
+          <span className="cm-included-disclosure__copy">
+            <span className="cm-included-disclosure__title">{sectionTitle}</span>
+            <span className="cm-included-disclosure__meta">
+              {entries.length} {tr.product.itemsIncluded}
+              {previewNames ? (
+                <>
+                  <span aria-hidden> · </span>
+                  <span className="cm-included-disclosure__preview">
+                    {previewNames}
+                    {previewMore ? ` ${previewMore}` : ''}
+                  </span>
+                </>
+              ) : null}
+            </span>
+          </span>
+          <span className="cm-included-disclosure__chevron" aria-hidden />
+        </summary>
+        <div className="cm-included-disclosure__body">
+          <ul className="cm-included-disclosure__list" role="list">
+            {entries.map((entry) => {
+              const href = entry.handle ? `/products/${entry.handle}` : undefined;
+              const row = (
+                <>
+                  <span className="cm-included-disclosure__thumb">
+                    {entry.imageUrl ? (
+                      <img src={entry.imageUrl} alt="" loading="lazy" />
+                    ) : (
+                      <span aria-hidden>{entry.title.slice(0, 2).toUpperCase()}</span>
+                    )}
+                  </span>
+                  <span className="cm-included-disclosure__label" title={entry.title}>
+                    {entry.title}
+                  </span>
+                </>
+              );
+
+              return (
+                <li key={entry.handle ?? entry.title}>
+                  {href ? (
+                    <Link
+                      to={href}
+                      className="cm-included-disclosure__row no-underline hover:no-underline"
+                      prefetch="intent"
+                    >
+                      {row}
+                    </Link>
+                  ) : (
+                    <div className="cm-included-disclosure__row">{row}</div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </details>
+    );
+  }
 
   return (
     <section
-      className={isEditorial ? 'cm-pdp-section' : 'cm-product-included'}
+      className={
+        isEditorial ? 'cm-pdp-section cm-pdp-section--included' : 'cm-product-included'
+      }
       aria-labelledby="product-included-heading"
     >
       {isEditorial ? (
@@ -248,34 +402,79 @@ export function ProductIncludedPanel({
           isEditorial ? 'cm-pdp-section__body' : 'cm-product-included-body'
         }
       >
-        {entries.some((entry) => entry.imageUrl) ? (
-          <div className="cm-product-included-thumbs" role="list">
-            {entries.map((entry) => (
-              <IncludedGearThumb
-                key={entry.handle ?? entry.title}
-                item={entry}
-                thumbClassName="cm-product-included-thumb no-underline hover:no-underline"
-                href={entry.handle ? `/products/${entry.handle}` : undefined}
-                listItem
-              />
-            ))}
-          </div>
-        ) : null}
-        <ul className={isEditorial ? undefined : 'cm-product-included-list'}>
-          {entries.map((entry) => (
-            <li
-              key={entry.handle ?? entry.title}
-              className={isEditorial ? undefined : 'cm-product-included-item'}
-            >
-              {!isEditorial ? (
-                <span className="cm-product-included-check" aria-hidden>
-                  <IconCheck size={12} />
-                </span>
-              ) : null}
-              <span className="cm-product-included-text">{entry.title}</span>
-            </li>
-          ))}
-        </ul>
+        {isEditorial ? (
+          <ul className="cm-product-included-kit__list" role="list">
+            {entries.map((entry) => {
+              const href = entry.handle ? `/products/${entry.handle}` : undefined;
+              const cardContent = (
+                <>
+                  <span className="cm-product-included-kit__media">
+                    {entry.imageUrl ? (
+                      <img
+                        src={entry.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        className="cm-product-included-kit__image"
+                      />
+                    ) : (
+                      <span className="cm-product-included-kit__fallback" aria-hidden>
+                        {entry.title.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </span>
+                  <span className="cm-product-included-kit__label" title={entry.title}>
+                    {entry.title}
+                  </span>
+                </>
+              );
+
+              return (
+                <li key={entry.handle ?? entry.title} className="cm-product-included-kit__item">
+                  {href ? (
+                    <Link
+                      to={href}
+                      className="cm-product-included-kit__card no-underline hover:no-underline"
+                      prefetch="intent"
+                    >
+                      {cardContent}
+                    </Link>
+                  ) : (
+                    <div className="cm-product-included-kit__card">{cardContent}</div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <>
+            {entries.some((entry) => entry.imageUrl) ? (
+              <div className="cm-product-included-thumbs" role="list">
+                {entries.map((entry) => (
+                  <IncludedGearThumb
+                    key={entry.handle ?? entry.title}
+                    item={entry}
+                    thumbClassName="cm-product-included-thumb no-underline hover:no-underline"
+                    href={entry.handle ? `/products/${entry.handle}` : undefined}
+                    listItem
+                  />
+                ))}
+              </div>
+            ) : null}
+            <ul className="cm-product-included-list">
+              {entries.map((entry) => (
+                <li
+                  key={entry.handle ?? entry.title}
+                  className="cm-product-included-item"
+                >
+                  <span className="cm-product-included-check" aria-hidden>
+                    <IconCheck size={12} />
+                  </span>
+                  <span className="cm-product-included-text">{entry.title}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import {
   createContext,
+  type MouseEvent,
   type ReactNode,
   useContext,
   useEffect,
@@ -55,6 +56,14 @@ export function Aside({
   }, [close, expanded]);
 
   const isCart = type === 'cart';
+  const isMobile = type === 'mobile';
+
+  const handleMainClick = (event: MouseEvent<HTMLElement>) => {
+    if (!isMobile || !expanded) return;
+    const target = event.target as HTMLElement;
+    if (target.closest('a, button')) return;
+    close();
+  };
 
   return (
     <div
@@ -84,7 +93,12 @@ export function Aside({
             {isCart ? <IconX size={20} /> : <span aria-hidden>&times;</span>}
           </button>
         </header>
-        <main className={isCart ? 'cm-cart-drawer__main' : undefined}>{children}</main>
+        <main
+          className={isCart ? 'cm-cart-drawer__main' : undefined}
+          onClick={isMobile ? handleMainClick : undefined}
+        >
+          {children}
+        </main>
       </aside>
     </div>
   );
