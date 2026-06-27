@@ -36,6 +36,8 @@ export type GearBuilderProduct = {
     price: number;
     capacityLiters?: number;
   }>;
+  /** Security deposit (GEL) when skipping KYC. */
+  depositAmount?: number;
 };
 
 export type GearBuilderSlot = {

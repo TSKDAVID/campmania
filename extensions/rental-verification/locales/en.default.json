@@ -1,0 +1,19 @@
+{
+  "header_banner_title": "Rental security required",
+  "header_banner_body": "Before you pay, choose ID verification (no deposit) or a refundable security deposit.",
+  "payment_title": "Rental security",
+  "payment_intro": "Choose how you want to secure this rental:",
+  "path_kyc_title": "Verify ID — 0 ₾ deposit",
+  "path_kyc_body": "Complete Didit identity verification in a secure window. Pay is enabled once approved.",
+  "path_deposit_title": "Security deposit",
+  "path_deposit_body": "Combined deposit for items in your cart (refunded when gear is returned).",
+  "path_deposit_phase2": "Card authorization hold will be collected here in a future update.",
+  "verified_badge": "Identity verified",
+  "start_verification": "Open verification",
+  "verification_pending": "Complete verification in the window, then return here.",
+  "blocked_title": "Rental unavailable",
+  "blocked_body": "This account cannot complete a rental checkout. Contact support if you believe this is an error.",
+  "login_required": "Sign in to your Campmania account to verify your ID, or choose the deposit option.",
+  "choose_path": "Select verification or deposit to continue to payment.",
+  "deposit_total": "Total deposit"
+}

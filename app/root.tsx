@@ -14,6 +14,7 @@ import type {Route} from './+types/root';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
+import kycCheckoutStyles from '~/styles/kyc-checkout.css?url';
 import tailwindCss from './styles/tailwind.css?url';
 import {Layout as SiteLayout} from './components/Layout';
 import {
@@ -62,6 +63,7 @@ export function links() {
     {rel: 'stylesheet', href: tailwindCss},
     {rel: 'stylesheet', href: resetStyles},
     {rel: 'stylesheet', href: appStyles},
+    {rel: 'stylesheet', href: kycCheckoutStyles},
     {rel: 'stylesheet', href: FONTS_STYLESHEET},
     {
       rel: 'preconnect',

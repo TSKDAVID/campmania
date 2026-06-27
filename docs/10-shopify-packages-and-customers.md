@@ -147,7 +147,54 @@ Add customer tag `tier:trail-tested` in **Admin → Customers** to unlock Truste
 
 ---
 
-## 6. Quick checklist
+## 6. Didit KYC & rental security at checkout
+
+Rental checkout requires **identity verification** or a **security deposit** (customer choice on Shopify checkout).
+
+### Product metafield — deposit amount
+
+Run `scripts/setup-rental-kyc-metafields.graphql` via Admin GraphQL, then set per product:
+
+| Namespace & key | Type | Purpose |
+|-----------------|------|---------|
+| `custom.deposit_amount` | Number (decimal) | Security deposit in GEL when customer skips KYC |
+
+Enable **Storefront API** read access. The storefront copies this to cart line attribute `deposit_amount`; multiple items sum at checkout.
+
+### Customer tags (applied by Didit webhook)
+
+| Tag | Meaning |
+|-----|---------|
+| `kyc:verified` | Didit approved — no deposit path |
+| `kyc:declined` | Verification declined — rental checkout blocked |
+| `kyc:in_review` | Manual review — blocked until resolved |
+| `rental:blocked` | Staff ban (e.g. damaged gear) |
+
+### Oxygen environment variables
+
+```bash
+DIDIT_API_KEY=              # rotate if exposed; server-only
+DIDIT_WEBHOOK_SECRET=       # from Didit webhook registration
+SHOPIFY_ADMIN_API_ACCESS_TOKEN=  # custom app: read/write customers
+CHECKOUT_EXTENSION_SECRET=  # shared with checkout UI extension settings
+PUBLIC_STOREFRONT_ORIGIN=   # Oxygen HTTPS URL for webhooks
+```
+
+### One-time setup
+
+1. **Custom app** in Admin → scopes `read_customers`, `write_customers`
+2. **Register Didit webhook**: `bash scripts/register-didit-webhook.sh`
+3. **Deploy storefront**: `shopify hydrogen deploy`
+4. **Deploy checkout extension**: `shopify app config link` then `shopify app deploy`
+5. **Checkout customize**: pin **Rental verification** extension (header + before payment)
+
+See `extensions/rental-verification/README.md` for extension settings.
+
+**Phase 2:** card authorization hold for deposit path (UI and order attributes are ready now).
+
+---
+
+## 7. Quick checklist
 
 - [ ] Collection `trail-packages` with kit products
 - [ ] Collection `individual-gear` with rental items
@@ -156,3 +203,6 @@ Add customer tag `tier:trail-tested` in **Admin → Customers** to unlock Truste
 - [ ] Compare at price set on package variants for bundle savings display
 - [ ] Customer accounts enabled with email + social login
 - [ ] `npm run auth:push` after domain changes
+- [ ] `custom.deposit_amount` on rental products
+- [ ] Didit + Admin API env vars on Oxygen
+- [ ] Checkout extension deployed and pinned in checkout editor

@@ -78,6 +78,9 @@ export const INCLUSION_PRODUCT_FRAGMENT = `#graphql
     purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
       value
     }
+    depositAmountMeta: metafield(namespace: "custom", key: "deposit_amount") {
+      value
+    }
     fulfillmentMetafields: metafields(
       identifiers: [
         {namespace: "custom", key: "available-to-purchase"},
@@ -181,6 +184,9 @@ export const CATALOG_PRODUCT_FRAGMENT = `#graphql
       value
     }
     purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
+      value
+    }
+    depositAmountMeta: metafield(namespace: "custom", key: "deposit_amount") {
       value
     }
     gearItemType: metafield(namespace: "gear_builder", key: "item_type") {

@@ -19,6 +19,8 @@ export type CartLayout = 'page' | 'aside';
 export type CartMainProps = {
   cart: CartApiQueryFragment | null;
   layout: CartLayout;
+  hasRentalLines?: boolean;
+  isLoggedIn?: boolean;
 };
 
 export type LineItemChildrenMap = {[parentId: string]: CartLine[]};
@@ -42,7 +44,12 @@ function getLineItemChildrenMap(lines: CartLine[]): LineItemChildrenMap {
   return children;
 }
 
-export function CartMain({layout, cart: originalCart}: CartMainProps) {
+export function CartMain({
+  layout,
+  cart: originalCart,
+  hasRentalLines = false,
+  isLoggedIn = false,
+}: CartMainProps) {
   const cart = useOptimisticCart(originalCart);
   const {translations: tr} = useLocale();
   const [deliveryOption, setDeliveryOption] =
@@ -110,6 +117,8 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
                     cart={cart}
                     layout={layout}
                     deliveryFee={deliveryFee}
+                    hasRentalLines={hasRentalLines}
+                    isLoggedIn={isLoggedIn}
                   />
                 </div>
               ) : null}
@@ -136,7 +145,13 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
               </div>
 
               {cartHasItems ? (
-                <CartSummary cart={cart} layout={layout} deliveryFee={0} />
+                <CartSummary
+                  cart={cart}
+                  layout={layout}
+                  deliveryFee={0}
+                  hasRentalLines={hasRentalLines}
+                  isLoggedIn={isLoggedIn}
+                />
               ) : null}
             </>
           )}

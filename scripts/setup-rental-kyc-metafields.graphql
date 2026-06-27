@@ -1,0 +1,85 @@
+# Product deposit + customer KYC metafield definitions.
+# Run: shopify graphql admin --query scripts/setup-rental-kyc-metafields.graphql
+
+mutation CreateRentalKycMetafieldDefinitions {
+  depositAmount: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "deposit_amount"
+      name: "Rental security deposit"
+      description: "Per-item security deposit (GEL) when customer skips KYC at checkout"
+      type: "number_decimal"
+      ownerType: PRODUCT
+      access: {storefront: PUBLIC_READ}
+    }
+  ) {
+    createdDefinition {
+      id
+      key
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  kycStatus: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "kyc_status"
+      name: "KYC status"
+      description: "Didit verification status (approved, declined, in_review, …)"
+      type: "single_line_text_field"
+      ownerType: CUSTOMER
+    }
+  ) {
+    createdDefinition {
+      id
+      key
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  kycVerifiedAt: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "kyc_verified_at"
+      name: "KYC verified at"
+      description: "ISO date when identity verification was approved"
+      type: "date"
+      ownerType: CUSTOMER
+    }
+  ) {
+    createdDefinition {
+      id
+      key
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+
+  diditSessionId: metafieldDefinitionCreate(
+    definition: {
+      namespace: "custom"
+      key: "didit_session_id"
+      name: "Didit session ID"
+      description: "Last Didit verification session"
+      type: "single_line_text_field"
+      ownerType: CUSTOMER
+    }
+  ) {
+    createdDefinition {
+      id
+      key
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

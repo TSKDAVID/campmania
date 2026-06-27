@@ -18,10 +18,13 @@ const translations = {
       gearBuilder: 'აწყობა',
       howItWorks: 'როგორ მუშაობს',
       faq: 'კითხვები',
+      more: 'მეტი',
       account: 'ანგარიში',
       signIn: 'შესვლა',
       cart: 'კალათა',
       search: 'ძიება',
+      openMenu: 'მენიუს გახსნა',
+      closeMenu: 'მენიუს დახურვა',
     },
     hero: {
       eyebrow: 'საქართველოს ბუნებაში',
@@ -260,6 +263,8 @@ const translations = {
       presetWeek: '1 კვირა',
       invalidRange: 'დასრულების თარიღი უნდა იყოს დაწყების შემდეგ',
       tapToChange: 'შეცვლა',
+      selectDates: 'თარიღები',
+      datesDone: 'მზადაა',
       rentUnavailable: 'ქირა ამჟამად მიუწვდომელია',
       rentInventoryLimit:
         'ამ პერიოდისთვის კალათაში ვერ ემატება — მაქსიმუმ {days} დღე (მარაგის ლიმიტი). შეამცირეთ თარიღები ან დაგვიკავშირდით.',
@@ -306,6 +311,19 @@ const translations = {
       saving: 'ინახება…',
       saved: 'შენახულია',
       tierMember: 'წევრი',
+      kycVerifiedBadge: 'ID დადასტურებული',
+    },
+    kyc: {
+      doneTitle: 'ვერიფიკაცია დასრულდა',
+      doneBody:
+        'დაბრუნდით checkout-ზე ან კალათაში — გადახდა გაიხსნება, როცა Didit დაადასტურებს თქვენს ვინაობას.',
+      backToCart: 'კალათაში დაბრუნება',
+      identityVerified: 'ID დადასტურებული',
+      checkoutNotice:
+        'Checkout-ზე აირჩევთ: ID ვერიფიკაცია (0 ₾ დეპოზიტი) ან უზრუნველყოფის დეპოზიტი.',
+      checkoutLogin:
+        'ID ვერიფიკაციისთვის შედით ანგარიშში — checkout-ზეც შეგიძლიათ ავტორიზაცია.',
+      signIn: 'შესვლა',
     },
     ordersPage: {
       title: 'შეკვეთების ისტორია',
@@ -364,6 +382,8 @@ const translations = {
       priceAtCheckout: 'ფასი checkout-ზე',
       decreaseQuantity: 'რაოდენობის შემცირება',
       increaseQuantity: 'რაოდენობის გაზრდა',
+      kycCheckoutNotice:
+        'Checkout-ზე საჭიროა ID ვერიფიკაცია ან უზრუნველყოფის დეპოზიტი — აირჩევთ გადახდამდე.',
     },
     product: {
       specs: 'მახასიათებლები',
@@ -377,6 +397,8 @@ const translations = {
       rental: 'ქირა',
       about: 'აღწერა',
       itemsIncluded: 'ნივთი შედის',
+      includedMore: '+{count}',
+      includedKitTitle: 'რა შედის ნაკრებში',
     },
     footer: {
       rent: 'ქირა',
@@ -419,10 +441,13 @@ const translations = {
       gearBuilder: 'Builder',
       howItWorks: 'How it works',
       faq: 'FAQ',
+      more: 'More',
       account: 'Account',
       signIn: 'Sign in',
       cart: 'Cart',
       search: 'Search',
+      openMenu: 'Open menu',
+      closeMenu: 'Close menu',
     },
     hero: {
       eyebrow: 'Explore Georgia',
@@ -662,6 +687,8 @@ const translations = {
       presetWeek: '1 week',
       invalidRange: 'End date must be after start date',
       tapToChange: 'Change',
+      selectDates: 'Dates',
+      datesDone: 'Done',
       rentUnavailable: 'Rent is currently unavailable',
       rentInventoryLimit:
         'Cannot add this rental period — stock allows up to {days} day(s). Shorten your dates or contact us.',
@@ -708,6 +735,19 @@ const translations = {
       saving: 'Saving…',
       saved: 'Saved',
       tierMember: 'Member',
+      kycVerifiedBadge: 'ID verified',
+    },
+    kyc: {
+      doneTitle: 'Verification complete',
+      doneBody:
+        'Return to checkout or your cart — Pay will unlock once Didit confirms your identity.',
+      backToCart: 'Back to cart',
+      identityVerified: 'Identity verified',
+      checkoutNotice:
+        'At checkout you will choose: verify your ID (0 GEL deposit) or pay a refundable security deposit.',
+      checkoutLogin:
+        'Sign in for ID verification — you can also log in during checkout.',
+      signIn: 'Sign in',
     },
     ordersPage: {
       title: 'Order history',
@@ -766,6 +806,8 @@ const translations = {
       priceAtCheckout: 'Price at checkout',
       decreaseQuantity: 'Decrease quantity',
       increaseQuantity: 'Increase quantity',
+      kycCheckoutNotice:
+        'Checkout requires ID verification or a security deposit — you choose before paying.',
     },
     product: {
       specs: 'Specifications',
@@ -779,6 +821,8 @@ const translations = {
       rental: 'Rental',
       about: 'About this item',
       itemsIncluded: 'items included',
+      includedMore: '+{count}',
+      includedKitTitle: "What's included",
     },
     footer: {
       rent: 'Rent',

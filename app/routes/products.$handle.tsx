@@ -259,6 +259,7 @@ export default function Product() {
       ? packageBuyAvailable(includedKitProducts)
       : false;
   const buyAvailable = isPackage ? kitBuyAvailable : buyAvailableRaw;
+  const depositAmount = Number(product.depositAmountMeta?.value ?? 0) || 0;
   if (isPackage && kitBuyAvailable) {
     purchasePrice = sumPackagePurchasePrice(includedKitProducts);
   }
@@ -326,6 +327,7 @@ export default function Product() {
         purchasePrice,
         rentToOwnOffer,
         isTrustedTier: trustedTier,
+        depositAmount,
         onModeChange: setFulfillmentMode,
       }
     : null;
@@ -427,7 +429,9 @@ export default function Product() {
   }, [product.media?.nodes, rentVariant?.image, selectedVariant?.image]);
 
   return (
-    <article className="cm-product-page cm-pdp-editorial">
+    <article
+      className={`cm-product-page cm-pdp-editorial${isPackage ? ' cm-pdp-editorial--package' : ''}`}
+    >
       <div className="cm-pdp-editorial__inner">
         <div className="cm-pdp-editorial__grid">
           <div className="cm-pdp-editorial__media">
@@ -447,22 +451,13 @@ export default function Product() {
               <h1 className="cm-pdp-editorial__title">{title}</h1>
             </header>
 
-            {includedItems.length > 0 ? (
-              <div className="cm-pdp-section">
-                <ProductIncludedPanel
-                  items={includedItems}
-                  includedProducts={includedProducts}
-                  variant="editorial"
-                />
-              </div>
-            ) : null}
-
             {bookingFormProps ? (
               <div className="cm-product-booking">
                 <RentalProductForm
                   {...bookingFormProps}
                   layout={isPackage ? 'stacked' : 'wide'}
                   compact
+                  packageBooking={isPackage}
                   priceSlot={
                     <>
                       <ProductInlinePrice
@@ -482,6 +477,18 @@ export default function Product() {
                       />
                     </>
                   }
+                  includedSlot={
+                    isPackage &&
+                    fulfillmentMode === 'rent' &&
+                    includedItems.length > 0 ? (
+                      <ProductIncludedPanel
+                        items={includedItems}
+                        includedProducts={includedProducts}
+                        variant="package"
+                        embedded
+                      />
+                    ) : undefined
+                  }
                   headerActions={
                     builderProduct ? (
                       <AddToGearBuilderButton
@@ -500,6 +507,15 @@ export default function Product() {
                   : 'This variant is currently unavailable.'}
               </p>
             )}
+
+            {includedItems.length > 0 &&
+            (!isPackage || fulfillmentMode !== 'rent') ? (
+              <ProductIncludedPanel
+                items={includedItems}
+                includedProducts={includedProducts}
+                variant={isPackage ? 'package' : 'editorial'}
+              />
+            ) : null}
           </div>
 
           {descriptionHtml?.trim() ? (
@@ -640,6 +656,9 @@ const PRODUCT_FRAGMENT = `
       value
     }
     purchasePriceMetaAlt: metafield(namespace: "custom", key: "purchase_price") {
+      value
+    }
+    depositAmountMeta: metafield(namespace: "custom", key: "deposit_amount") {
       value
     }
     fulfillmentMetafields: metafields(
