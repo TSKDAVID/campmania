@@ -29,7 +29,7 @@ import {
 type SecurityPath = 'kyc' | 'deposit' | '';
 
 export default reactExtension(
-  'purchase.checkout.payment-method-list.render-before',
+  'purchase.checkout.block.render',
   () => <RentalPaymentBlock />,
 );
 

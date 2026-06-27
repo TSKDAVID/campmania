@@ -45,10 +45,10 @@ cd extensions/rental-verification && npm install && cd ../..
 shopify app deploy
 ```
 
-In **Settings → Checkout → Customize**, add **Rental verification** at:
+In **Settings → Checkout → Customize**, click **Add app block** and add **Rental verification**:
 
-- Header (banner)
-- Before payment methods (KYC / deposit)
+- Banner block → place at top of Information step (`INFORMATION1`)
+- Payment block → place at top of Payment step (`PAYMENT1`)
 
 Extension settings must match Oxygen: storefront origin + `CHECKOUT_EXTENSION_SECRET`.
 
