@@ -70,7 +70,7 @@ body > main {
   margin: 0;
 }
 
-section {
+section:not(.cm-catalog-page) {
   padding: 1rem 0;
   @media (min-width: 768px) {
     padding: 2rem 0;

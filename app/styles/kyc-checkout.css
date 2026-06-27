@@ -1,0 +1,23 @@
+.cm-kyc-verified-pill {
+  background: rgba(74, 124, 89, 0.2);
+  border: 1px solid rgba(74, 124, 89, 0.45);
+  color: #e8f5ec;
+}
+
+.cm-cart-kyc-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(74, 124, 89, 0.25);
+  border-radius: 8px;
+  background: rgba(74, 124, 89, 0.06);
+}
+
+.cm-cart-kyc-notice > p:first-of-type {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+}

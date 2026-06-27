@@ -9,6 +9,7 @@ import {Aside} from '~/components/Aside';
 import {Header, HeaderMenu} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
 import {EditorialFooter} from '~/components/EditorialFooter';
+import {SiteTopHeightSync} from '~/components/SiteTopHeightSync';
 
 interface LayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
@@ -43,6 +44,7 @@ export function Layout({
             isLoggedIn={isLoggedIn}
             publicStoreDomain={publicStoreDomain}
           />
+          <SiteTopHeightSync />
         </div>
         <div className="cm-site-body-grid">
           <main className="cm-main cm-editorial">{children}</main>

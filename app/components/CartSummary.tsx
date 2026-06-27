@@ -2,18 +2,27 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import type {CartLayout} from '~/components/CartMain';
 import {CartForm, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
-import {useFetcher} from 'react-router';
+import {Link, useFetcher} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {formatCartMoney, moneyAmount, resolveCartDisplaySubtotal} from '~/lib/trailrent/cart-display';
 import {formatGel} from '~/lib/trailrent/pricing';
+import {IconShield} from '~/components/trailrent/Icons';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
   layout: CartLayout;
   deliveryFee?: number;
+  hasRentalLines?: boolean;
+  isLoggedIn?: boolean;
 };
 
-export function CartSummary({cart, layout, deliveryFee = 0}: CartSummaryProps) {
+export function CartSummary({
+  cart,
+  layout,
+  deliveryFee = 0,
+  hasRentalLines = false,
+  isLoggedIn = false,
+}: CartSummaryProps) {
   const {translations: tr} = useLocale();
   const className =
     layout === 'page' ? 'cart-summary-page cm-cart-summary' : 'cart-summary-aside cm-cart-summary';
@@ -70,6 +79,24 @@ export function CartSummary({cart, layout, deliveryFee = 0}: CartSummaryProps) {
             labels={tr.cart}
           />
         </>
+      ) : null}
+
+      {hasRentalLines ? (
+        <div className="cm-cart-kyc-notice">
+          <p className="text-sm text-muted">
+            <IconShield size={14} className="shrink-0 text-moss" aria-hidden />
+            <span>{tr.cart.kycCheckoutNotice}</span>
+          </p>
+          {!isLoggedIn ? (
+            <p className="mt-2 text-sm">
+              <Link to="/account/login?return_to=/cart" className="text-moss underline">
+                {tr.kyc.signIn}
+              </Link>
+              {' — '}
+              {tr.kyc.checkoutLogin}
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <CartCheckoutActions

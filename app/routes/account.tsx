@@ -14,6 +14,7 @@ import {
   parseCustomerTags,
   RETURNS_FOR_TIER,
 } from '~/lib/trailrent/loyalty';
+import {isKycVerified} from '~/lib/trailrent/kyc';
 
 export function shouldRevalidate() {
   return true;
@@ -76,6 +77,7 @@ export default function AccountLayout() {
     orders: rentalOrders,
     tagsOnly: true,
   });
+  const kycVerified = isKycVerified(tags);
 
   const displayName =
     [customer.firstName, customer.lastName].filter(Boolean).join(' ') ||
@@ -104,6 +106,11 @@ export default function AccountLayout() {
             <p className="cm-account-header-email">{email ?? displayName}</p>
           </div>
           <div className="cm-account-header-badge">
+            {kycVerified ? (
+              <span className="cm-loyalty-tier-pill cm-kyc-verified-pill">
+                {tr.account.kycVerifiedBadge}
+              </span>
+            ) : null}
             <span
               className={`cm-loyalty-tier-pill ${
                 loyalty.isVerified ? 'cm-loyalty-tier-vip' : 'cm-loyalty-tier-explorer'

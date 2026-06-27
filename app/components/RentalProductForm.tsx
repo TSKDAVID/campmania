@@ -52,6 +52,12 @@ export type RentalProductFormProps = {
   headerActions?: ReactNode;
   /** Price display rendered inside the booking card header. */
   priceSlot?: ReactNode;
+  /** CampShare-style unified dates + CTA row for package PDPs. */
+  packageBooking?: boolean;
+  /** Included kit panel rendered inside the package booking grid. */
+  includedSlot?: ReactNode;
+  /** Per-item security deposit (GEL) from product metafield. */
+  depositAmount?: number;
 };
 
 export function buildRentalLineAttributes(options: {
@@ -67,6 +73,7 @@ export function buildRentalLineAttributes(options: {
   quotedPurchasePrice?: number;
   quotedDailyRate?: number;
   quotedCompareAtDaily?: number;
+  depositAmount?: number;
 }): Array<{key: string; value: string}> {
   const {
     mode,
@@ -81,6 +88,7 @@ export function buildRentalLineAttributes(options: {
     quotedPurchasePrice,
     quotedDailyRate,
     quotedCompareAtDaily,
+    depositAmount,
   } = options;
   const isPurchase = mode === 'purchase';
 
@@ -133,6 +141,12 @@ export function buildRentalLineAttributes(options: {
         value: String(quotedCompareAtDaily),
       });
     }
+    if (depositAmount != null && depositAmount > 0) {
+      attributes.push({
+        key: 'deposit_amount',
+        value: String(depositAmount),
+      });
+    }
   }
 
   return attributes;
@@ -157,6 +171,9 @@ export function RentalProductForm({
   layout = 'stacked',
   headerActions,
   priceSlot,
+  packageBooking = false,
+  includedSlot,
+  depositAmount = 0,
 }: RentalProductFormProps) {
   const {translations: tr} = useLocale();
   const defaults = getDefaultDateRange();
@@ -222,6 +239,7 @@ export function RentalProductForm({
             compareAtDailyRate > dailyRate
               ? compareAtDailyRate
               : undefined,
+          depositAmount: isRentMode ? depositAmount : undefined,
         }),
       },
     ],
@@ -242,6 +260,7 @@ export function RentalProductForm({
       dailyRate,
       compareAtDailyRate,
       purchasePrice,
+      depositAmount,
     ],
   );
 
@@ -257,13 +276,67 @@ export function RentalProductForm({
     setMode(next);
   };
 
+  const usePackageRentLayout = packageBooking && isRentMode;
+
+  const renderCartActions = (fetcher: {state: string; data?: unknown}) => {
+    const addError = getCartActionErrorMessage(fetcher.data);
+    const submitLabel =
+      !rentVariantAvailable && isRentMode
+        ? tr.booking.unavailable
+        : canSubmit
+          ? isRentMode
+            ? tr.booking.addToCart
+            : `${tr.booking.addToCartBuy} · ${formatGel(purchasePrice)}`
+          : tr.booking.unavailable;
+
+    return (
+      <div
+        className={`cm-rental-form-actions${usePackageRentLayout ? ' cm-rental-form-actions--package' : ''}`}
+      >
+        {!rentVariantAvailable && isRentMode ? (
+          <p className="cm-rental-status cm-rental-status--error">
+            {tr.booking.rentUnavailable}
+          </p>
+        ) : null}
+        {rentExceedsInventory ? (
+          <p className="cm-rental-status cm-rental-status--error">
+            {tr.booking.rentInventoryLimit.replace(
+              '{days}',
+              String(rentSellableQuantity),
+            )}
+          </p>
+        ) : null}
+        {addError ? (
+          <p className="cm-rental-status cm-rental-status--error" role="alert">
+            {addError}
+          </p>
+        ) : null}
+        <button
+          type="submit"
+          disabled={!canSubmit || fetcher.state !== 'idle'}
+          onClick={() => {
+            if (canSubmit && fetcher.state === 'idle') {
+              onSuccess?.();
+            }
+          }}
+          className="tr-btn-primary cm-rental-submit cm-rental-submit--package disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <IconCart size={16} />
+          {submitLabel}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div
-      className={`cm-rental-form${compact ? ' cm-rental-form--compact' : ''}${layout === 'wide' ? ' cm-rental-form--wide' : ''}`}
+      className={`cm-rental-form${compact ? ' cm-rental-form--compact' : ''}${layout === 'wide' ? ' cm-rental-form--wide' : ''}${packageBooking ? ' cm-rental-form--package' : ''}`}
     >
       <header className="cm-rental-form-header">
         <div className="cm-rental-form-header__lead">
-          <p className="cm-rental-form-eyebrow">{tr.booking.title}</p>
+          {!packageBooking ? (
+            <p className="cm-rental-form-eyebrow">{tr.booking.title}</p>
+          ) : null}
           {priceSlot ? (
             <div className="cm-rental-form-price">{priceSlot}</div>
           ) : null}
@@ -300,151 +373,143 @@ export function RentalProductForm({
       ) : null}
 
       <div className="cm-rental-form-body">
-        <div className="cm-rental-form-fields">
-          <div className="cm-rental-mode-slot">
-            <div
-              className={`cm-rental-mode-panel${isRentMode ? ' cm-rental-mode-panel--active' : ''}`}
-              aria-hidden={!isRentMode}
-            >
-              <div className="cm-rental-field cm-rental-field--mode">
-                <RentalDateRangePicker
-                  startDate={startDate}
-                  endDate={endDate}
-                  onStartDateChange={setStartDate}
-                  onEndDateChange={setEndDate}
-                />
-              </div>
-            </div>
-            <div
-              className={`cm-rental-mode-panel${!isRentMode ? ' cm-rental-mode-panel--active' : ''}`}
-              aria-hidden={isRentMode}
-            >
-              <div className="cm-rental-rto-banner cm-rental-field--mode">
-                <p className="text-sm font-semibold text-pine">
-                  {tr.booking.buyOutright}{' '}
-                  <span className="text-lg tabular-nums">{formatGel(buyDisplayTotal)}</span>
-                </p>
-                {hasRentToOwnCredit ? (
-                  <>
-                    <p className="mt-1 text-sm text-muted">
-                      {tr.booking.rentalCredit}: −
-                      {formatGel(rentToOwnOffer!.rentalCredit)} ·{' '}
-                      {tr.booking.buyNowDiscount}
-                    </p>
-                    <p className="mt-2 text-xs leading-relaxed text-muted">
-                      {tr.booking.rtoCheckoutNote}
-                    </p>
-                  </>
-                ) : (
-                  <p className="mt-1 text-sm text-muted">{tr.booking.buyIncludesPickup}</p>
-                )}
-                {!buyCheckoutReady && purchasePrice > 0 ? (
-                  <p className="mt-2 text-xs leading-relaxed text-amber-800">
-                    {tr.booking.buyVariantSetupHint}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="cm-rental-form-checkout">
-          <div className="cm-rental-summary">
-            <div className="cm-rental-summary-rows">
-              {isRentMode ? (
-                <>
-                  <div className="cm-rental-summary-row">
-                    <span>{tr.booking.dailyRate}</span>
-                    <span className="cm-rental-summary-amount">{formatGel(dailyRate)}</span>
-                  </div>
-                  <div className="cm-rental-summary-row">
-                    <span>
-                      {rentalPricing.days} {tr.booking.days}
-                    </span>
-                    <span className="cm-rental-summary-amount">
-                      {formatGel(rentalPricing.subtotal)}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="cm-rental-summary-row">
-                  <span>{tr.booking.purchasePrice}</span>
-                  <span className="cm-rental-summary-amount">{formatGel(purchasePrice)}</span>
+        {!usePackageRentLayout ? (
+          <div className="cm-rental-form-fields">
+            <div className="cm-rental-mode-slot">
+              <div
+                className={`cm-rental-mode-panel${isRentMode ? ' cm-rental-mode-panel--active' : ''}`}
+                aria-hidden={!isRentMode}
+              >
+                <div className="cm-rental-field cm-rental-field--mode">
+                  <RentalDateRangePicker
+                    startDate={startDate}
+                    endDate={endDate}
+                    onStartDateChange={setStartDate}
+                    onEndDateChange={setEndDate}
+                  />
                 </div>
-              )}
-            </div>
-            {hasRentToOwnCredit && !isRentMode ? (
-              <div className="cm-rental-summary-row text-moss">
-                <span>{tr.booking.rentalCredit}</span>
-                <span className="cm-rental-summary-amount">
-                  −{formatGel(rentToOwnOffer!.rentalCredit)}
-                </span>
               </div>
-            ) : null}
-            <div className="cm-rental-summary-total">
-              <span>{tr.booking.total}</span>
-              <span className="cm-rental-summary-total-amount">{formatGel(displayTotal)}</span>
+              <div
+                className={`cm-rental-mode-panel${!isRentMode ? ' cm-rental-mode-panel--active' : ''}`}
+                aria-hidden={isRentMode}
+              >
+                <div className="cm-rental-rto-banner cm-rental-field--mode">
+                  <p className="text-sm font-semibold text-pine">
+                    {tr.booking.buyOutright}{' '}
+                    <span className="text-lg tabular-nums">{formatGel(buyDisplayTotal)}</span>
+                  </p>
+                  {hasRentToOwnCredit ? (
+                    <>
+                      <p className="mt-1 text-sm text-muted">
+                        {tr.booking.rentalCredit}: −
+                        {formatGel(rentToOwnOffer!.rentalCredit)} ·{' '}
+                        {tr.booking.buyNowDiscount}
+                      </p>
+                      <p className="mt-2 text-xs leading-relaxed text-muted">
+                        {tr.booking.rtoCheckoutNote}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="mt-1 text-sm text-muted">{tr.booking.buyIncludesPickup}</p>
+                  )}
+                  {!buyCheckoutReady && purchasePrice > 0 ? (
+                    <p className="mt-2 text-xs leading-relaxed text-amber-800">
+                      {tr.booking.buyVariantSetupHint}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </div>
           </div>
+        ) : null}
 
-          {!isTrustedTier ? (
-            <p className="cm-rental-notice">
-              <IconShield size={14} className="shrink-0 text-moss" />
-              <span>{tr.booking.idNotice}</span>
-            </p>
-          ) : null}
-
+        {usePackageRentLayout ? (
           <CartForm
             route="/cart"
             inputs={{lines: cartLines}}
             action={CartForm.ACTIONS.LinesAdd}
           >
-            {(fetcher) => {
-              const addError = getCartActionErrorMessage(fetcher.data);
-              return (
-                <div className="cm-rental-form-actions">
-                  {!rentVariantAvailable && isRentMode ? (
-                    <p className="cm-rental-status cm-rental-status--error">
-                      {tr.booking.rentUnavailable}
-                    </p>
+            {(fetcher) => (
+              <div className="cm-package-booking-panel">
+                <div className="cm-package-booking-panel__main">
+                  <div className="cm-package-booking-panel__dates">
+                    <RentalDateRangePicker
+                      layout="package"
+                      startDate={startDate}
+                      endDate={endDate}
+                      onStartDateChange={setStartDate}
+                      onEndDateChange={setEndDate}
+                      totalAmount={formatGel(displayTotal)}
+                    />
+                  </div>
+                  {includedSlot ? (
+                    <div className="cm-package-booking-panel__included">
+                      {includedSlot}
+                    </div>
                   ) : null}
-                  {rentExceedsInventory ? (
-                    <p className="cm-rental-status cm-rental-status--error">
-                      {tr.booking.rentInventoryLimit.replace(
-                        '{days}',
-                        String(rentSellableQuantity),
-                      )}
-                    </p>
-                  ) : null}
-                  {addError ? (
-                    <p className="cm-rental-status cm-rental-status--error" role="alert">
-                      {addError}
-                    </p>
-                  ) : null}
-                  <button
-                    type="submit"
-                    disabled={!canSubmit || fetcher.state !== 'idle'}
-                    onClick={() => {
-                      if (canSubmit && fetcher.state === 'idle') {
-                        onSuccess?.();
-                      }
-                    }}
-                    className="tr-btn-primary cm-rental-submit disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <IconCart size={16} />
-                    {!rentVariantAvailable && isRentMode
-                      ? tr.booking.unavailable
-                      : canSubmit
-                        ? isRentMode
-                          ? tr.booking.addToCart
-                          : `${tr.booking.addToCartBuy} · ${formatGel(purchasePrice)}`
-                        : tr.booking.unavailable}
-                  </button>
                 </div>
-              );
-            }}
+                <div className="cm-package-booking-panel__footer">
+                  {renderCartActions(fetcher)}
+                </div>
+              </div>
+            )}
           </CartForm>
-        </div>
+        ) : (
+          <div className="cm-rental-form-checkout">
+            <div className="cm-rental-summary">
+              <div className="cm-rental-summary-rows">
+                {isRentMode ? (
+                  <>
+                    <div className="cm-rental-summary-row">
+                      <span>{tr.booking.dailyRate}</span>
+                      <span className="cm-rental-summary-amount">{formatGel(dailyRate)}</span>
+                    </div>
+                    <div className="cm-rental-summary-row">
+                      <span>
+                        {rentalPricing.days} {tr.booking.days}
+                      </span>
+                      <span className="cm-rental-summary-amount">
+                        {formatGel(rentalPricing.subtotal)}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="cm-rental-summary-row">
+                    <span>{tr.booking.purchasePrice}</span>
+                    <span className="cm-rental-summary-amount">{formatGel(purchasePrice)}</span>
+                  </div>
+                )}
+              </div>
+              {hasRentToOwnCredit && !isRentMode ? (
+                <div className="cm-rental-summary-row text-moss">
+                  <span>{tr.booking.rentalCredit}</span>
+                  <span className="cm-rental-summary-amount">
+                    −{formatGel(rentToOwnOffer!.rentalCredit)}
+                  </span>
+                </div>
+              ) : null}
+              <div className="cm-rental-summary-total">
+                <span>{tr.booking.total}</span>
+                <span className="cm-rental-summary-total-amount">{formatGel(displayTotal)}</span>
+              </div>
+            </div>
+
+            {!isTrustedTier ? (
+              <p className="cm-rental-notice">
+                <IconShield size={14} className="shrink-0 text-moss" />
+                <span>{tr.booking.idNotice}</span>
+              </p>
+            ) : null}
+
+            <CartForm
+              route="/cart"
+              inputs={{lines: cartLines}}
+              action={CartForm.ACTIONS.LinesAdd}
+            >
+              {(fetcher) => renderCartActions(fetcher)}
+            </CartForm>
+          </div>
+        )}
       </div>
     </div>
   );

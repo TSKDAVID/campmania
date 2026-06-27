@@ -281,12 +281,35 @@ export function ProductIncludedPanel({
   );
 }
 
-export function ProductTechnicalSpecs({html}: {html: string}) {
+export function ProductTechnicalSpecs({
+  html,
+  variant = 'default',
+}: {
+  html: string;
+  variant?: 'default' | 'editorial';
+}) {
   const {locale} = useLocale();
   if (!html?.trim()) return null;
 
   const title =
     locale === 'ka' ? 'ტექნიკური მახასიათებლები' : 'Technical Specs';
+
+  if (variant === 'editorial') {
+    return (
+      <section
+        className="cm-pdp-specs-panel"
+        aria-labelledby="product-specs-heading"
+      >
+        <h2 id="product-specs-heading" className="cm-pdp-specs-panel__title">
+          {title}
+        </h2>
+        <div
+          className="cm-pdp-specs-panel__content"
+          dangerouslySetInnerHTML={{__html: html}}
+        />
+      </section>
+    );
+  }
 
   return (
     <section className="cm-pdp-section" aria-labelledby="product-specs-heading">

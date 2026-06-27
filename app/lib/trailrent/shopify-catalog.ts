@@ -276,6 +276,7 @@ export type CatalogProductNode = {
   gearCapacityClass?: {value: string} | null;
   gearDurationFit?: {value: string} | null;
   gearThumbnailPriority?: {value: string} | null;
+  depositAmountMeta?: {value: string} | null;
   includedCollection?: {
     value?: string;
     reference?: {
@@ -564,6 +565,7 @@ function mapGearBuilderProduct(product: CatalogProductNode): GearBuilderProduct 
     dailyRate: Number(variant?.price.amount ?? product.priceRange.minVariantPrice.amount),
     variantId: variant?.id,
     availableForSale: variant?.availableForSale !== false,
+    depositAmount: Number(product.depositAmountMeta?.value ?? 0) || undefined,
     metafields,
     variants,
   };

@@ -3,6 +3,8 @@ import type {Route} from './+types/cart';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
 import {CartForm} from '@shopify/hydrogen';
 import {CartMain} from '~/components/CartMain';
+import {cartHasRentalLines} from '~/lib/trailrent/deposit';
+import type {CartLine} from '~/components/CartLineItem';
 
 export const meta: Route.MetaFunction = () => {
   return [{title: `Campmania | Cart`}];
@@ -97,12 +99,20 @@ export async function action({request, context}: Route.ActionArgs) {
 }
 
 export async function loader({context}: Route.LoaderArgs) {
-  const {cart} = context;
-  return await cart.get();
+  const {cart, customerAccount} = context;
+  const cartData = await cart.get();
+  const lines = (cartData?.lines?.nodes ?? []) as CartLine[];
+  const [isLoggedIn] = await Promise.all([customerAccount.isLoggedIn()]);
+
+  return {
+    cart: cartData,
+    hasRentalLines: cartHasRentalLines(lines),
+    isLoggedIn,
+  };
 }
 
 export default function Cart() {
-  const cart = useLoaderData<typeof loader>();
+  const {cart, hasRentalLines, isLoggedIn} = useLoaderData<typeof loader>();
 
   return (
     <section className="cm-cart-page tr-page-width">
@@ -110,7 +120,12 @@ export default function Cart() {
         <p className="cm-page-kicker">Cart Ledger</p>
         <h1 className="cm-page-title">Cart</h1>
       </header>
-      <CartMain layout="page" cart={cart} />
+      <CartMain
+        layout="page"
+        cart={cart}
+        hasRentalLines={hasRentalLines}
+        isLoggedIn={isLoggedIn}
+      />
     </section>
   );
 }
