@@ -1,9 +1,11 @@
-api_version = "2025-10"
+api_version = "2025-07"
 
 [[extensions]]
 type = "ui_extension"
 name = "Rental verification"
 handle = "rental-verification"
+
+uid = "a2c85fbf-d611-66e2-47e7-f4dae3990a24eb793021"
 
 [[extensions.targeting]]
 module = "./src/HeaderBanner.tsx"
