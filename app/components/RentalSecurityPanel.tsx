@@ -45,6 +45,22 @@ type KycSessionResponse = {
   error?: string;
 };
 
+function mapKycApiError(
+  code: string | undefined,
+  tr: ReturnType<typeof useLocale>['translations'],
+): string {
+  switch (code) {
+    case 'didit_not_configured':
+      return tr.kyc.errorDiditNotConfigured;
+    case 'login_required':
+      return tr.kyc.errorLoginRequired;
+    case 'session_create_failed':
+      return tr.kyc.errorSessionFailed;
+    default:
+      return tr.kyc.errorSessionFailed;
+  }
+}
+
 export function RentalSecurityPanel({
   cart,
   lines,
@@ -90,6 +106,33 @@ export function RentalSecurityPanel({
       setPath(persistedPath);
     }
   }, [persistedPath, path]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkConfig = async () => {
+      try {
+        const response = await fetch('/api/kyc/health');
+        if (!response.ok || cancelled) return;
+        const health = (await response.json()) as {diditConfigured?: boolean};
+
+        // #region agent log
+        fetch('http://127.0.0.1:7834/ingest/13766e84-0a43-45d1-bbb7-69a59e80745b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'afdd8d'},body:JSON.stringify({sessionId:'afdd8d',location:'RentalSecurityPanel.tsx:health',message:'KYC health check',data:{diditConfigured:Boolean(health.diditConfigured)},timestamp:Date.now(),hypothesisId:'H44'})}).catch(()=>{});
+        // #endregion
+
+        if (!health.diditConfigured && path === 'kyc') {
+          setError(tr.kyc.errorDiditNotConfigured);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    void checkConfig();
+    return () => {
+      cancelled = true;
+    };
+  }, [path, tr.kyc.errorDiditNotConfigured]);
 
   useEffect(() => {
     let cancelled = false;
@@ -173,7 +216,13 @@ export function RentalSecurityPanel({
       const session = (await response.json()) as KycSessionResponse;
 
       if (!response.ok || session.error || !session.url) {
-        setError(session.error ?? 'session_create_failed');
+        const message = mapKycApiError(session.error, tr);
+
+        // #region agent log
+        fetch('http://127.0.0.1:7834/ingest/13766e84-0a43-45d1-bbb7-69a59e80745b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'afdd8d'},body:JSON.stringify({sessionId:'afdd8d',location:'RentalSecurityPanel.tsx:session',message:'KYC session create failed',data:{status:response.status,error:session.error??null},timestamp:Date.now(),hypothesisId:'H44'})}).catch(()=>{});
+        // #endregion
+
+        setError(message);
         return;
       }
 

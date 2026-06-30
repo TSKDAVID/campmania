@@ -15,15 +15,38 @@ If `DIDIT_API_KEY` was ever pasted in chat or committed, rotate it in [Didit con
 
 ## 3. Oxygen environment
 
-Set on the Hydrogen storefront (never commit):
+Set on the Hydrogen storefront (never commit). **Without these, ID verification shows an error on production.**
+
+**Option A — Shopify Admin UI**
+
+1. **Sales channels → Hydrogen → campmania → Environments → Production**
+2. Add variables below → **Save** → redeploy (or push to `main`).
+
+**Option B — CLI (from project root)**
+
+1. Add keys to your local `.env` (copy from `.env.example`).
+2. Push to production:
+
+```bash
+npx shopify hydrogen env push --env production
+```
 
 | Variable | Purpose |
 |----------|---------|
-| `DIDIT_API_KEY` | Didit session API |
+| `DIDIT_API_KEY` | Didit session API (**required** for Verify ID) |
 | `DIDIT_WEBHOOK_SECRET` | Webhook HMAC (from step 4) |
 | `SHOPIFY_ADMIN_API_ACCESS_TOKEN` | Tag customers on webhook |
-| `CHECKOUT_EXTENSION_SECRET` | Checkout extension → Oxygen API auth |
-| `PUBLIC_STOREFRONT_ORIGIN` | `https://…o2.myshopify.dev` |
+| `PUBLIC_STOREFRONT_ORIGIN` | `https://campmania-4c29d91072afb5138da1.o2.myshopify.dev` |
+
+`CHECKOUT_EXTENSION_SECRET` is only needed for Shopify Plus checkout blocks (optional).
+
+**Verify config (no secrets exposed):**
+
+```
+GET https://campmania-4c29d91072afb5138da1.o2.myshopify.dev/api/kyc/health
+```
+
+Expect `"diditConfigured": true` after `DIDIT_API_KEY` is set.
 
 ## 4. Register Didit webhook
 

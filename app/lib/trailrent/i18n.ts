@@ -345,6 +345,11 @@ const translations = {
         'შედით Campmania ანგარიშში ID-ს დასადასტურებლად, ან აირჩიეთ დეპოზიტი.',
       choosePath: 'გადასვლამდე აირჩიეთ ვერიფიკაცია ან დეპოზიტი.',
       depositTotal: 'დეპოზიტის ჯამი',
+      errorDiditNotConfigured:
+        'ID ვერიფიკაცია ჯერ არ არის ჩართული სერვერზე. სცადეთ დეპოზიტი ან დაგვიკავშირდით.',
+      errorSessionFailed:
+        'ვერიფიკაციის სესია ვერ შეიქმნა. სცადეთ ხელახლა ან აირჩიეთ დეპოზიტი.',
+      errorLoginRequired: 'შედით ანგარიშში ID ვერიფიკაციისთვის.',
     },
     ordersPage: {
       title: 'შეკვეთების ისტორია',
@@ -789,6 +794,11 @@ const translations = {
         'Sign in to your Campmania account to verify your ID, or choose the deposit option.',
       choosePath: 'Select verification or deposit before continuing to checkout.',
       depositTotal: 'Total deposit',
+      errorDiditNotConfigured:
+        'ID verification is not configured on the server yet. Choose the deposit option or contact support.',
+      errorSessionFailed:
+        'Could not start verification. Try again or choose the deposit option.',
+      errorLoginRequired: 'Sign in to verify your ID.',
     },
     ordersPage: {
       title: 'Order history',
