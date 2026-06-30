@@ -11,6 +11,8 @@ declare global {
     DIDIT_API_KEY?: string;
     DIDIT_WEBHOOK_SECRET?: string;
     SHOPIFY_ADMIN_API_ACCESS_TOKEN?: string;
+    SHOPIFY_CLIENT_ID?: string;
+    SHOPIFY_CLIENT_SECRET?: string;
     CHECKOUT_EXTENSION_SECRET?: string;
     PUBLIC_STOREFRONT_ORIGIN?: string;
   }

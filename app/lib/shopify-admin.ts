@@ -1,6 +1,8 @@
 type AdminEnv = {
   PUBLIC_STORE_DOMAIN?: string;
   SHOPIFY_ADMIN_API_ACCESS_TOKEN?: string;
+  SHOPIFY_CLIENT_ID?: string;
+  SHOPIFY_CLIENT_SECRET?: string;
 };
 
 type AdminGraphqlResult<T> = {
@@ -8,15 +10,82 @@ type AdminGraphqlResult<T> = {
   errors?: Array<{message: string}>;
 };
 
+type AdminTokenCache = {
+  token: string;
+  expiresAt: number;
+};
+
+let adminTokenCache: AdminTokenCache | null = null;
+
+export function isAdminApiConfigured(env: AdminEnv): boolean {
+  return Boolean(
+    env.SHOPIFY_ADMIN_API_ACCESS_TOKEN ||
+      (env.SHOPIFY_CLIENT_ID &&
+        env.SHOPIFY_CLIENT_SECRET &&
+        env.PUBLIC_STORE_DOMAIN),
+  );
+}
+
+async function getAdminAccessToken(env: AdminEnv): Promise<string> {
+  if (env.SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
+    return env.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
+  }
+
+  const domain = env.PUBLIC_STORE_DOMAIN;
+  const clientId = env.SHOPIFY_CLIENT_ID;
+  const clientSecret = env.SHOPIFY_CLIENT_SECRET;
+
+  if (!domain || !clientId || !clientSecret) {
+    throw new Error('Admin API is not configured');
+  }
+
+  const now = Date.now();
+  if (adminTokenCache && adminTokenCache.expiresAt > now + 60_000) {
+    return adminTokenCache.token;
+  }
+
+  const response = await fetch(`https://${domain}/admin/oauth/access_token`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Admin token exchange failed: ${response.status} ${detail}`);
+  }
+
+  const payload = (await response.json()) as {
+    access_token?: string;
+    expires_in?: number;
+  };
+
+  if (!payload.access_token) {
+    throw new Error('Admin token exchange returned no access_token');
+  }
+
+  const expiresInMs = (payload.expires_in ?? 86_399) * 1000;
+  adminTokenCache = {
+    token: payload.access_token,
+    expiresAt: now + expiresInMs,
+  };
+
+  return adminTokenCache.token;
+}
+
 async function adminGraphql<T>(
   env: AdminEnv,
   query: string,
   variables?: Record<string, unknown>,
 ): Promise<T> {
   const domain = env.PUBLIC_STORE_DOMAIN;
-  const token = env.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
+  const token = await getAdminAccessToken(env);
 
-  if (!domain || !token) {
+  if (!domain) {
     throw new Error('Admin API is not configured');
   }
 

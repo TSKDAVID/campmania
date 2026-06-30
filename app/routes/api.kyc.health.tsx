@@ -1,5 +1,6 @@
 import type {Route} from './+types/api.kyc.health';
 import {corsPreflight, withCors} from '~/lib/api/cors';
+import {isAdminApiConfigured} from '~/lib/shopify-admin';
 
 function jsonResponse(
   request: Request,
@@ -18,7 +19,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   return jsonResponse(request, {
     diditConfigured: Boolean(env.DIDIT_API_KEY),
     webhookConfigured: Boolean(env.DIDIT_WEBHOOK_SECRET),
-    adminConfigured: Boolean(env.SHOPIFY_ADMIN_API_ACCESS_TOKEN),
+    adminConfigured: isAdminApiConfigured(env),
     storefrontOriginConfigured: Boolean(env.PUBLIC_STOREFRONT_ORIGIN),
   });
 }

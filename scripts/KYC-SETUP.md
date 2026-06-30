@@ -7,10 +7,12 @@
 | `DIDIT_API_KEY` | [Didit Business Console](https://business.didit.me) → **API** / **Developers** → create or copy API key | You (rotate after testing) |
 | `DIDIT_WEBHOOK_SECRET` | Returned when you register the webhook (step 4 below). Field name: `secret_shared_key` | Auto from Didit API |
 | `PUBLIC_STOREFRONT_ORIGIN` | Your Oxygen production URL: `https://campmania-4c29d91072afb5138da1.o2.myshopify.dev` | Fixed for this project |
-| `SHOPIFY_ADMIN_API_ACCESS_TOKEN` | Shopify Admin **custom app** (step 2 below). Starts with `shpat_` | You — one-time install |
+| `SHOPIFY_ADMIN_API_ACCESS_TOKEN` | Legacy custom apps only (`shpat_…`) — **no longer shown in UI for new apps** | Optional |
+| `SHOPIFY_CLIENT_ID` | Dev Dashboard → your app → **Settings** → Client ID | You |
+| `SHOPIFY_CLIENT_SECRET` | Dev Dashboard → your app → **Settings** → Secret | You |
 | `CHECKOUT_EXTENSION_SECRET` | Optional — only if you use Plus checkout blocks | Skip on Advanced plan |
 
-**Not the same token:** `PRIVATE_STOREFRONT_API_TOKEN` in `.env` is your **Headless/Storefront** channel token (`unauthenticated_*` scopes). KYC webhooks need a separate **Admin** token with `read_customers` + `write_customers`.
+**Not the same token:** `PRIVATE_STOREFRONT_API_TOKEN` in `.env` is your **Headless/Storefront** channel token. KYC customer tagging uses **Dev Dashboard Client ID + Secret** (or legacy `shpat_`).
 
 ---
 
@@ -18,24 +20,36 @@
 
 If `DIDIT_API_KEY` was ever pasted in chat or committed, rotate it in [Didit console](https://business.didit.me) before production use.
 
-## 2. Shopify Admin API token (required for `kyc:verified` tags)
+## 2. Shopify Admin API (Dev Dashboard app — Campmania_KYC)
 
-1. Open **https://admin.shopify.com/store/b6dvzp-py/settings/apps/development**
-2. If prompted, click **Allow custom app development**
-3. **Create an app** → name it e.g. `Campmania KYC`
-4. **Configuration** → **Admin API integration** → **Configure**
-5. Enable scopes:
+Shopify **removed** the old “API credentials → Reveal token once” screen. For apps created in **dev.shopify.com**, you use **Client ID + Secret** from **Settings** — there is no separate “API credentials” tab.
+
+### 2a. Add Admin API scopes to your app
+
+1. Open **https://dev.shopify.com** → **Campmania_KYC**
+2. Click **Versions** → **New version** (or edit the active version)
+3. Under **Admin API access scopes**, enable at minimum:
    - `read_customers`
    - `write_customers`
-6. **Save** → **Install app** → confirm install
-7. **API credentials** → **Admin API access token** → **Reveal token once**
-8. Copy the token (`shpat_…`) into `.env`:
+4. **Release** the version
+5. Ensure the app is **installed** on `b6dvzp-py.myshopify.com` (Overview shows “1 install”)
+
+### 2b. Copy credentials from Settings
+
+1. **Campmania_KYC** → **Settings** (the tab you already have)
+2. Copy **Client ID** and **Secret** (click eye icon to reveal Secret)
+3. Add to `.env`:
 
    ```env
-   SHOPIFY_ADMIN_API_ACCESS_TOKEN=shpat_your_token_here
+   SHOPIFY_CLIENT_ID=d77bfca59ae98df78eaf38f896196a8b
+   SHOPIFY_CLIENT_SECRET=your_secret_from_settings
    ```
 
-9. Push to Oxygen (step 3) or paste the same value in **Hydrogen → Production → Environment variables**
+   Oxygen exchanges these for a short-lived Admin API token automatically (no `shpat_` to copy).
+
+4. Push to Oxygen (step 3) and **redeploy**
+
+**Do not** put the Secret in `SHOPIFY_ADMIN_API_ACCESS_TOKEN`. That field is only for legacy static `shpat_` tokens if you still have one.
 
 ## 3. Push environment to Oxygen
 
