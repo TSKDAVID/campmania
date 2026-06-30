@@ -104,7 +104,7 @@ export async function action({request, context}: Route.ActionArgs) {
       callback,
       metadata: {
         email,
-        source: 'campmania_checkout',
+        source: 'campmania_storefront',
       },
     }),
   });

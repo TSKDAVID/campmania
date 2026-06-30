@@ -1,12 +1,18 @@
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import type {CartLayout} from '~/components/CartMain';
 import {CartForm, type OptimisticCart} from '@shopify/hydrogen';
-import {useEffect, useId, useRef, useState} from 'react';
-import {Link, useFetcher} from 'react-router';
+import {useCallback, useEffect, useId, useRef, useState} from 'react';
+import {useFetcher} from 'react-router';
 import {useLocale} from '~/providers/LocaleProvider';
 import {formatCartMoney, moneyAmount, resolveCartDisplaySubtotal} from '~/lib/trailrent/cart-display';
 import {formatGel} from '~/lib/trailrent/pricing';
-import {IconShield} from '~/components/trailrent/Icons';
+import type {CartLine} from '~/components/CartLineItem';
+import type {KycCheckoutStatus} from '~/lib/trailrent/kyc';
+import {
+  RentalSecurityPanel,
+  canProceedToCheckout,
+  type RentalSecurityGate,
+} from '~/components/RentalSecurityPanel';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -14,6 +20,10 @@ type CartSummaryProps = {
   deliveryFee?: number;
   hasRentalLines?: boolean;
   isLoggedIn?: boolean;
+  cartLines?: CartLine[];
+  kycStatus?: KycCheckoutStatus;
+  kycVerified?: boolean;
+  kycBlocked?: boolean;
 };
 
 export function CartSummary({
@@ -21,9 +31,36 @@ export function CartSummary({
   layout,
   deliveryFee = 0,
   hasRentalLines = false,
-  isLoggedIn = false,
+  isLoggedIn: isLoggedInProp = false,
+  cartLines = [],
+  kycStatus = 'not_started',
+  kycVerified = false,
+  kycBlocked = false,
 }: CartSummaryProps) {
   const {translations: tr} = useLocale();
+  const isLoggedIn = isLoggedInProp;
+  const [securityGate, setSecurityGate] = useState<RentalSecurityGate>({
+    path: kycVerified ? 'kyc' : '',
+    verified: kycVerified,
+    blocked: kycBlocked,
+  });
+
+  const handleGateChange = useCallback((gate: RentalSecurityGate) => {
+    setSecurityGate(gate);
+  }, []);
+
+  const checkoutGate = canProceedToCheckout({
+    hasRentalLines,
+    blocked: securityGate.blocked,
+    path: securityGate.path,
+    verified: securityGate.verified,
+  });
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7834/ingest/13766e84-0a43-45d1-bbb7-69a59e80745b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'afdd8d'},body:JSON.stringify({sessionId:'afdd8d',location:'CartSummary.tsx:checkoutGate',message:'Checkout gate evaluated',data:{allowed:checkoutGate.allowed,reason:checkoutGate.reason,path:securityGate.path,verified:securityGate.verified,hasRentalLines},timestamp:Date.now(),hypothesisId:'H42'})}).catch(()=>{});
+    // #endregion
+  }, [checkoutGate.allowed, checkoutGate.reason, securityGate.path, securityGate.verified, hasRentalLines]);
   const className =
     layout === 'page' ? 'cart-summary-page cm-cart-summary' : 'cart-summary-aside cm-cart-summary';
   const summaryId = useId();
@@ -39,6 +76,18 @@ export function CartSummary({
       : subtotalAmount;
   const displayTotal = displaySubtotal + deliveryFee;
   const isAside = layout === 'aside';
+
+  const securityPanel = hasRentalLines ? (
+    <RentalSecurityPanel
+      cart={cart as CartApiQueryFragment | null}
+      lines={cartLines}
+      isLoggedIn={isLoggedIn}
+      initialKycStatus={kycStatus}
+      initialVerified={kycVerified}
+      initialBlocked={kycBlocked}
+      onGateChange={handleGateChange}
+    />
+  ) : null;
 
   return (
     <div aria-labelledby={summaryId} className={className}>
@@ -58,6 +107,8 @@ export function CartSummary({
           <dd>{formatGel(deliveryFee)}</dd>
         </dl>
       ) : null}
+
+      {isAside ? securityPanel : null}
 
       <dl className={`cm-cart-subtotal${isAside ? ' cm-cart-subtotal--aside' : ''}`}>
         <dt>{isAside ? tr.booking.total : tr.cart.subtotal}</dt>
@@ -81,27 +132,23 @@ export function CartSummary({
         </>
       ) : null}
 
-      {hasRentalLines ? (
-        <div className="cm-cart-kyc-notice">
-          <p className="text-sm text-muted">
-            <IconShield size={14} className="shrink-0 text-moss" aria-hidden />
-            <span>{tr.cart.kycCheckoutNotice}</span>
-          </p>
-          {!isLoggedIn ? (
-            <p className="mt-2 text-sm">
-              <Link to="/account/login?return_to=/cart" className="text-moss underline">
-                {tr.kyc.signIn}
-              </Link>
-              {' — '}
-              {tr.kyc.checkoutLogin}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
+      {!isAside ? securityPanel : null}
 
       <CartCheckoutActions
         checkoutUrl={cart?.checkoutUrl}
         label={tr.cart.checkout}
+        allowed={checkoutGate.allowed}
+        blockedReason={
+          !checkoutGate.allowed
+            ? checkoutGate.reason === 'choose_path'
+              ? tr.kyc.choosePath
+              : checkoutGate.reason === 'kyc_pending'
+                ? tr.kyc.verificationPending
+                : checkoutGate.reason === 'blocked'
+                  ? tr.kyc.blockedBody
+                  : null
+            : null
+        }
       />
 
       {layout === 'aside' ? (
@@ -114,11 +161,35 @@ export function CartSummary({
 function CartCheckoutActions({
   checkoutUrl,
   label,
+  allowed = true,
+  blockedReason,
 }: {
   checkoutUrl?: string;
   label: string;
+  allowed?: boolean;
+  blockedReason?: string | null;
 }) {
   if (!checkoutUrl) return null;
+
+  if (!allowed) {
+    return (
+      <div className="cm-cart-checkout-blocked">
+        <button
+          type="button"
+          className="tr-btn-primary cm-cart-checkout"
+          disabled
+          aria-describedby={blockedReason ? 'cart-checkout-block-reason' : undefined}
+        >
+          {label}
+        </button>
+        {blockedReason ? (
+          <p id="cart-checkout-block-reason" className="text-sm text-muted mt-2">
+            {blockedReason}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <a href={checkoutUrl} target="_self" className="tr-btn-primary cm-cart-checkout">

@@ -316,14 +316,35 @@ const translations = {
     kyc: {
       doneTitle: 'ვერიფიკაცია დასრულდა',
       doneBody:
-        'დაბრუნდით checkout-ზე ან კალათაში — გადახდა გაიხსნება, როცა Didit დაადასტურებს თქვენს ვინაობას.',
+        'დაბრუნდით კალათაში — გადახდა გაიხსნება, როცა Didit დაადასტურებს თქვენს ვინაობას.',
       backToCart: 'კალათაში დაბრუნება',
       identityVerified: 'ID დადასტურებული',
       checkoutNotice:
-        'Checkout-ზე აირჩევთ: ID ვერიფიკაცია (0 ₾ დეპოზიტი) ან უზრუნველყოფის დეპოზიტი.',
+        'ქირამდე აირჩევთ: ID ვერიფიკაცია (0 ₾ დეპოზიტი) ან უზრუნველყოფის დეპოზიტი.',
       checkoutLogin:
-        'ID ვერიფიკაციისთვის შედით ანგარიშში — checkout-ზეც შეგიძლიათ ავტორიზაცია.',
+        'ID ვერიფიკაციისთვის შედით ანგარიშში.',
       signIn: 'შესვლა',
+      paymentTitle: 'ქირის უსაფრთხოება',
+      paymentIntro: 'აირჩიეთ, როგორ დაიცავთ ქირას გადახდამდე:',
+      pathKycTitle: 'ID ვერიფიკაცია — 0 ₾ დეპოზიტი',
+      pathKycBody:
+        'დაასრულეთ Didit ვერიფიკაცია უსაფრთხო ფანჯარაში. გადახდა გაიხსნება დადასტურების შემდეგ.',
+      pathDepositTitle: 'უზრუნველყოფის დეპოზიტი',
+      pathDepositBody:
+        'კალათაში ნივთებისთვის განკავშირებული დეპოზიტი (დაბრუნდება აღჭურვილობის ჩაბარებისას).',
+      pathDepositPhase2:
+        'ბარათზე ბლოკირება მოგვიანებით დაემატება — ახლა დეპოზიტი checkout-ზე აისახება.',
+      verifiedBadge: 'ID დადასტურებული',
+      startVerification: 'ვერიფიკაციის გახსნა',
+      verificationPending:
+        'დაასრულეთ ვერიფიკაცია ფანჯარაში, შემდეგ დაბრუნდით აქ.',
+      blockedTitle: 'ქირა მიუწვდომელია',
+      blockedBody:
+        'ამ ანგარიშით ქირის checkout ვერ დასრულდება. დაგვიკავშირდით, თუ ეს შეცდომაა.',
+      loginRequired:
+        'შედით Campmania ანგარიშში ID-ს დასადასტურებლად, ან აირჩიეთ დეპოზიტი.',
+      choosePath: 'გადასვლამდე აირჩიეთ ვერიფიკაცია ან დეპოზიტი.',
+      depositTotal: 'დეპოზიტის ჯამი',
     },
     ordersPage: {
       title: 'შეკვეთების ისტორია',
@@ -383,7 +404,7 @@ const translations = {
       decreaseQuantity: 'რაოდენობის შემცირება',
       increaseQuantity: 'რაოდენობის გაზრდა',
       kycCheckoutNotice:
-        'Checkout-ზე საჭიროა ID ვერიფიკაცია ან უზრუნველყოფის დეპოზიტი — აირჩევთ გადახდამდე.',
+        'გადახდამდე საჭიროა ID ვერიფიკაცია ან უზრუნველყოფის დეპოზიტი — აირჩევთ კალათაში.',
     },
     product: {
       specs: 'მახასიათებლები',
@@ -740,14 +761,34 @@ const translations = {
     kyc: {
       doneTitle: 'Verification complete',
       doneBody:
-        'Return to checkout or your cart — Pay will unlock once Didit confirms your identity.',
+        'Return to your cart — checkout unlocks once Didit confirms your identity.',
       backToCart: 'Back to cart',
       identityVerified: 'Identity verified',
       checkoutNotice:
-        'At checkout you will choose: verify your ID (0 GEL deposit) or pay a refundable security deposit.',
-      checkoutLogin:
-        'Sign in for ID verification — you can also log in during checkout.',
+        'Before checkout, choose ID verification (0 GEL deposit) or a security deposit.',
+      checkoutLogin: 'Sign in for ID verification.',
       signIn: 'Sign in',
+      paymentTitle: 'Rental security',
+      paymentIntro: 'Choose how to secure this rental before checkout:',
+      pathKycTitle: 'Verify ID — 0 ₾ deposit',
+      pathKycBody:
+        'Complete Didit identity verification in a secure window. Checkout unlocks once approved.',
+      pathDepositTitle: 'Security deposit',
+      pathDepositBody:
+        'Combined deposit for items in your cart (refunded when gear is returned).',
+      pathDepositPhase2:
+        'Card authorization hold will be added later — deposit is noted at checkout for now.',
+      verifiedBadge: 'Identity verified',
+      startVerification: 'Open verification',
+      verificationPending:
+        'Complete verification in the window, then return here.',
+      blockedTitle: 'Rental unavailable',
+      blockedBody:
+        'This account cannot complete a rental checkout. Contact support if you believe this is an error.',
+      loginRequired:
+        'Sign in to your Campmania account to verify your ID, or choose the deposit option.',
+      choosePath: 'Select verification or deposit before continuing to checkout.',
+      depositTotal: 'Total deposit',
     },
     ordersPage: {
       title: 'Order history',
@@ -807,7 +848,7 @@ const translations = {
       decreaseQuantity: 'Decrease quantity',
       increaseQuantity: 'Increase quantity',
       kycCheckoutNotice:
-        'Checkout requires ID verification or a security deposit — you choose before paying.',
+        'Checkout requires ID verification or a security deposit — choose in your cart before paying.',
     },
     product: {
       specs: 'Specifications',

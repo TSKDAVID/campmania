@@ -80,11 +80,13 @@ export async function loader({request, context}: Route.LoaderArgs) {
   }
 
   const status = getKycCheckoutStatus(tags);
+  const loggedIn = await context.customerAccount.isLoggedIn();
 
   return jsonResponse(request, {
     verified: isKycVerified(tags),
     blocked: isRentalBlocked(tags),
     status,
+    loggedIn,
   });
 }
 
