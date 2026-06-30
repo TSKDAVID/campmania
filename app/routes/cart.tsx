@@ -4,7 +4,21 @@ import type {CartQueryDataReturn} from '@shopify/hydrogen';
 import {CartForm} from '@shopify/hydrogen';
 import {CartMain} from '~/components/CartMain';
 import {cartHasRentalLines} from '~/lib/trailrent/deposit';
+import {
+  getKycCheckoutStatus,
+  isKycVerified,
+  isRentalBlocked,
+} from '~/lib/trailrent/kyc';
+import {parseCustomerTags} from '~/lib/trailrent/loyalty';
 import type {CartLine} from '~/components/CartLineItem';
+
+const CUSTOMER_TAGS_QUERY = `#graphql
+  query CartKycCustomer {
+    customer {
+      tags
+    }
+  }
+` as const;
 
 export const meta: Route.MetaFunction = () => {
   return [{title: `Campmania | Cart`}];
@@ -71,6 +85,10 @@ export async function action({request, context}: Route.ActionArgs) {
       });
       break;
     }
+    case CartForm.ACTIONS.AttributesUpdateInput: {
+      result = await cart.updateAttributes(inputs.attributes);
+      break;
+    }
     default:
       throw new Error(`${action} cart action is not defined`);
   }
@@ -102,17 +120,39 @@ export async function loader({context}: Route.LoaderArgs) {
   const {cart, customerAccount} = context;
   const cartData = await cart.get();
   const lines = (cartData?.lines?.nodes ?? []) as CartLine[];
-  const [isLoggedIn] = await Promise.all([customerAccount.isLoggedIn()]);
+  const isLoggedIn = await customerAccount.isLoggedIn();
+
+  let kycStatus = getKycCheckoutStatus([]);
+  let kycVerified = false;
+  let kycBlocked = false;
+
+  if (isLoggedIn) {
+    const {data} = await customerAccount.query(CUSTOMER_TAGS_QUERY);
+    const tags = parseCustomerTags(data?.customer?.tags);
+    kycStatus = getKycCheckoutStatus(tags);
+    kycVerified = isKycVerified(tags);
+    kycBlocked = isRentalBlocked(tags);
+  }
 
   return {
     cart: cartData,
     hasRentalLines: cartHasRentalLines(lines),
     isLoggedIn,
+    kycStatus,
+    kycVerified,
+    kycBlocked,
   };
 }
 
 export default function Cart() {
-  const {cart, hasRentalLines, isLoggedIn} = useLoaderData<typeof loader>();
+  const {
+    cart,
+    hasRentalLines,
+    isLoggedIn,
+    kycStatus,
+    kycVerified,
+    kycBlocked,
+  } = useLoaderData<typeof loader>();
 
   return (
     <section className="cm-cart-page tr-page-width">
@@ -125,6 +165,9 @@ export default function Cart() {
         cart={cart}
         hasRentalLines={hasRentalLines}
         isLoggedIn={isLoggedIn}
+        kycStatus={kycStatus}
+        kycVerified={kycVerified}
+        kycBlocked={kycBlocked}
       />
     </section>
   );

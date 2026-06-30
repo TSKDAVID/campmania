@@ -3835,6 +3835,15 @@
     @apply font-display text-2xl font-bold text-pine;
   }
 
+  .cm-cart-aside-footer .cm-rental-security {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  .cm-cart-aside-footer .cm-cart-checkout-blocked {
+    margin-top: 0;
+  }
+
   .cm-cart-aside-footer .cm-cart-checkout {
     @apply mt-0;
   }

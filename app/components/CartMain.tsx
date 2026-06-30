@@ -1,6 +1,6 @@
 import {useOptimisticCart} from '@shopify/hydrogen';
 import {Link} from 'react-router';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem, type CartLine} from '~/components/CartLineItem';
@@ -12,6 +12,8 @@ import {
 } from '~/components/trailrent/DeliverySelector';
 import {useLocale} from '~/providers/LocaleProvider';
 import {shouldShowCartLine} from '~/lib/trailrent/cart-display';
+import {cartHasRentalLines} from '~/lib/trailrent/deposit';
+import type {KycCheckoutStatus} from '~/lib/trailrent/kyc';
 import {CartSummary} from './CartSummary';
 
 export type CartLayout = 'page' | 'aside';
@@ -21,6 +23,9 @@ export type CartMainProps = {
   layout: CartLayout;
   hasRentalLines?: boolean;
   isLoggedIn?: boolean;
+  kycStatus?: KycCheckoutStatus;
+  kycVerified?: boolean;
+  kycBlocked?: boolean;
 };
 
 export type LineItemChildrenMap = {[parentId: string]: CartLine[]};
@@ -47,8 +52,11 @@ function getLineItemChildrenMap(lines: CartLine[]): LineItemChildrenMap {
 export function CartMain({
   layout,
   cart: originalCart,
-  hasRentalLines = false,
+  hasRentalLines: hasRentalLinesProp,
   isLoggedIn = false,
+  kycStatus = 'not_started',
+  kycVerified = false,
+  kycBlocked = false,
 }: CartMainProps) {
   const cart = useOptimisticCart(originalCart);
   const {translations: tr} = useLocale();
@@ -61,7 +69,16 @@ export function CartMain({
   const deliveryFee = deliveryOption === 'home' ? HOME_DELIVERY_FEE : 0;
 
   const visibleLines = (cart?.lines?.nodes ?? []).filter(shouldShowCartLine);
+  const allLines = (cart?.lines?.nodes ?? []) as CartLine[];
+  const hasRentalLines =
+    hasRentalLinesProp ?? cartHasRentalLines(allLines);
   const linesCount = visibleLines.length > 0;
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7834/ingest/13766e84-0a43-45d1-bbb7-69a59e80745b',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'afdd8d'},body:JSON.stringify({sessionId:'afdd8d',location:'CartMain.tsx:rentalDetect',message:'Cart rental line detection',data:{layout,hasRentalLines,lineCount:allLines.length,modes:allLines.map((line)=>({id:line.id,mode:(line.attributes??[]).find((a)=>a?.key==='fulfillment_mode')?.value}))},timestamp:Date.now(),hypothesisId:'H43'})}).catch(()=>{});
+    // #endregion
+  }, [layout, hasRentalLines, allLines]);
   const withDiscount =
     cart &&
     Boolean(cart?.discountCodes?.filter((code) => code.applicable)?.length);
@@ -119,6 +136,10 @@ export function CartMain({
                     deliveryFee={deliveryFee}
                     hasRentalLines={hasRentalLines}
                     isLoggedIn={isLoggedIn}
+                    cartLines={allLines}
+                    kycStatus={kycStatus}
+                    kycVerified={kycVerified}
+                    kycBlocked={kycBlocked}
                   />
                 </div>
               ) : null}
@@ -151,6 +172,10 @@ export function CartMain({
                   deliveryFee={0}
                   hasRentalLines={hasRentalLines}
                   isLoggedIn={isLoggedIn}
+                  cartLines={allLines}
+                  kycStatus={kycStatus}
+                  kycVerified={kycVerified}
+                  kycBlocked={kycBlocked}
                 />
               ) : null}
             </>
