@@ -57,16 +57,23 @@ npx shopify hydrogen env push --env production --env-file .env.kyc
 https://campmania-4c29d91072afb5138da1.o2.myshopify.dev/api/kyc/health
 ```
 
-Expect:
+Expect all four flags `true` after **redeploy** (step 3b below).
 
-```json
-{
-  "diditConfigured": true,
-  "webhookConfigured": true,
-  "adminConfigured": true,
-  "storefrontOriginConfigured": true
-}
+### 3b. Redeploy after changing env vars (required)
+
+Oxygen deployments are **immutable** — pushing env vars updates the environment config, but the **live site keeps the old values** until you redeploy.
+
+**Option A — GitHub (automatic):** push any commit to `main` (triggers `.github/workflows/oxygen-deployment-*.yml`).
+
+**Option B — Shopify Admin:** Hydrogen storefront → **Production** → ⋮ → **Redeploy environment**.
+
+**Option C — CLI:**
+
+```bash
+npx shopify hydrogen deploy --env production
 ```
+
+Until you redeploy, `/api/kyc/health` may show all `false` even after a successful `env push`.
 
 ## 4. Register Didit webhook (already done if you used the script)
 
